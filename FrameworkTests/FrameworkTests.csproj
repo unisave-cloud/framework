@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\NUnit.3.12.0\build\NUnit.props" Condition="Exists('..\packages\NUnit.3.12.0\build\NUnit.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DBFE1B89-FF6D-4ED7-BEA3-C6377F6A0B40}</ProjectGuid>
+    <ProjectGuid>{FF423938-96D1-49A6-8558-5FAFB75D384B}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Unisave</RootNamespace>
-    <AssemblyName>Framework</AssemblyName>
+    <RootNamespace>FrameworkTests</RootNamespace>
+    <AssemblyName>FrameworkTests</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -28,13 +29,22 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.3.12.0\lib\net45\nunit.framework.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UnisavePlayer.cs" />
-    <Compile Include="IDatabase.cs" />
+    <Compile Include="ExampleTestCase.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Framework\Framework.csproj">
+      <Project>{DBFE1B89-FF6D-4ED7-BEA3-C6377F6A0B40}</Project>
+      <Name>Framework</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LightJson\Sources\LightJson\LightJson.csproj">
       <Project>{3BC85E8B-8A37-4015-B4A8-2D973F8622F1}</Project>
       <Name>LightJson</Name>
