@@ -39,6 +39,7 @@
     <Compile Include="Facet.cs" />
     <Compile Include="Serialization\Loader.cs" />
     <Compile Include="Serialization\Saver.cs" />
+    <Compile Include="Runtime\Bootstrap.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LightJson\Sources\LightJson\LightJson.csproj">
@@ -48,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Serialization\" />
+    <Folder Include="Runtime\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
