@@ -6,7 +6,7 @@
     <ProjectGuid>{DBFE1B89-FF6D-4ED7-BEA3-C6377F6A0B40}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Unisave</RootNamespace>
-    <AssemblyName>Framework</AssemblyName>
+    <AssemblyName>UnisaveFramework</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

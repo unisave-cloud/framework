@@ -1,7 +1,7 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Framework", "Framework\Framework.csproj", "{DBFE1B89-FF6D-4ED7-BEA3-C6377F6A0B40}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnisaveFramework", "UnisaveFramework\UnisaveFramework.csproj", "{DBFE1B89-FF6D-4ED7-BEA3-C6377F6A0B40}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightJson", "LightJson\Sources\LightJson\LightJson.csproj", "{3BC85E8B-8A37-4015-B4A8-2D973F8622F1}"
 EndProject

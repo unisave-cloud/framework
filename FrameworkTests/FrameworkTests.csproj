@@ -45,13 +45,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Framework\Framework.csproj">
-      <Project>{DBFE1B89-FF6D-4ED7-BEA3-C6377F6A0B40}</Project>
-      <Name>Framework</Name>
-    </ProjectReference>
     <ProjectReference Include="..\LightJson\Sources\LightJson\LightJson.csproj">
       <Project>{3BC85E8B-8A37-4015-B4A8-2D973F8622F1}</Project>
       <Name>LightJson</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UnisaveFramework\UnisaveFramework.csproj">
+      <Project>{DBFE1B89-FF6D-4ED7-BEA3-C6377F6A0B40}</Project>
+      <Name>UnisaveFramework</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
