@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightJson", "LightJson\Sour
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrameworkTests", "FrameworkTests\FrameworkTests.csproj", "{FF423938-96D1-49A6-8558-5FAFB75D384B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FakeUnity", "FakeUnity\FakeUnity.csproj", "{013B37EF-0121-48D1-83AB-4D8A9322871D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,5 +27,9 @@ Global
 		{FF423938-96D1-49A6-8558-5FAFB75D384B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF423938-96D1-49A6-8558-5FAFB75D384B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF423938-96D1-49A6-8558-5FAFB75D384B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{013B37EF-0121-48D1-83AB-4D8A9322871D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{013B37EF-0121-48D1-83AB-4D8A9322871D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{013B37EF-0121-48D1-83AB-4D8A9322871D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{013B37EF-0121-48D1-83AB-4D8A9322871D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
