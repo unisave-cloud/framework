@@ -31,6 +31,9 @@
     <Reference Include="UnityEngine">
       <HintPath>..\Unity\UnityEngine.dll</HintPath>
     </Reference>
+    <Reference Include="RSG.Promise">
+      <HintPath>..\packages\RSG.Promise.3.0.1\lib\net35\RSG.Promise.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -40,6 +43,10 @@
     <Compile Include="Serialization\Loader.cs" />
     <Compile Include="Serialization\Saver.cs" />
     <Compile Include="Runtime\Bootstrap.cs" />
+    <Compile Include="Exceptions\UnisaveException.cs" />
+    <Compile Include="Exceptions\FacetInstantiationException.cs" />
+    <Compile Include="Exceptions\FacetSearchException.cs" />
+    <Compile Include="Exceptions\FacetMethodSearchException.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LightJson\Sources\LightJson\LightJson.csproj">
@@ -50,6 +57,10 @@
   <ItemGroup>
     <Folder Include="Serialization\" />
     <Folder Include="Runtime\" />
+    <Folder Include="Exceptions\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

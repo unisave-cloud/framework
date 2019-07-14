@@ -5,6 +5,7 @@ using System.Reflection;
 using LightJson;
 using LightJson.Serialization;
 using Unisave.Serialization;
+using Unisave.Exceptions;
 
 namespace Unisave.Runtime
 {
@@ -13,6 +14,10 @@ namespace Unisave.Runtime
     /// </summary>
     internal static class Bootstrap
     {
+        /// <summary>
+        /// How did the bootstraping fail
+        /// These codes are important outside of this assembly
+        /// </summary>
         internal enum ErrorType
         {
             // 1xx ... nailing down the exact method to call
@@ -89,58 +94,74 @@ namespace Unisave.Runtime
 
             // find the requested facet
 
-            List<Type> facetCandidates = gameAssemblyTypes
-                .Where(t => t.Name == facetName)
-                .Where(t => typeof(Facet).IsAssignableFrom(t))
-                .ToList();
+            Type facetType;
+            
+            try
+            {
+                facetType = Facet.FindFacetTypeByName(facetName, gameAssemblyTypes);
+            }
+            catch (FacetSearchException e)
+            {
+                ErrorType type;
 
-            if (facetCandidates.Count > 1)
-                return Error(
-                    ErrorType.FacetNameAmbiguous,
-                    $"Facet name '{facetName}' is ambiguous. "
-                    + "Make sure you don't have two facets with the same name."
-                );
+                switch (e.Problem)
+                {
+                    case FacetSearchException.ProblemType.FacetNameAmbiguous:
+                        type = ErrorType.FacetNameAmbiguous;
+                        break;
 
-            if (facetCandidates.Count == 0)
-                return Error(
-                    ErrorType.FacetNotFound,
-                    $"Facet '{facetName}' was not found. "
-                    + "Make sure your class inherits from the {nameof(Unisave.Facet)} class."
-                );
+                    case FacetSearchException.ProblemType.FacetNotFound:
+                        type = ErrorType.FacetNotFound;
+                        break;
+                    
+                    default:
+                        // take down everything so that I notice and fix this
+                        throw new NotImplementedException(
+                            $"Method {nameof(Facet.FindFacetTypeByName)} threw an unknown error {e.Problem}.",
+                            e
+                        );
+                }
 
-            Type facetType = facetCandidates[0];
+                return Error(type, e.Message);
+            }
 
             // find the requested method
 
-            List<MethodInfo> methods = facetType.GetMethods(
-                BindingFlags.Instance | BindingFlags.DeclaredOnly
-                    | BindingFlags.Public | BindingFlags.NonPublic // non-public as well to print an error
-            )
-                .Where(m => m.Name == methodName)
-                .ToList();
+            MethodInfo methodInfo;
 
-            if (methods.Count > 1)
-                return Error(
-                    ErrorType.MethodNameAmbiguous,
-                    $"Facet '{facetName}' has multiple methods called '{methodName}'. "
-                    + "Note that Unisave does not support method overloading for facets. "
-                    + "Also make sure you aren't using default values for some arguments."
-                );
+            try
+            {
+                methodInfo = Facet.FindFacetMethodByName(facetType, methodName);
+            }
+            catch (FacetMethodSearchException e)
+            {
+                ErrorType type;
 
-            if (methods.Count == 0)
-                return Error(
-                    ErrorType.MethodDoesNotExist,
-                    $"Facet '{facetName}' doesn't have public method called '{methodName}'."
-                );
+                switch (e.Problem)
+                {
+                    case FacetMethodSearchException.ProblemType.MethodNameAmbiguous:
+                        type = ErrorType.MethodNameAmbiguous;
+                        break;
 
-            MethodInfo methodInfo = methods[0];
+                    case FacetMethodSearchException.ProblemType.MethodDoesNotExist:
+                        type = ErrorType.MethodDoesNotExist;
+                        break;
 
-            if (!methodInfo.IsPublic)
-                return Error(
-                    ErrorType.MethodNotPublic,
-                    $"Method '{facetName}.{methodName}' has to be public in order to be called remotely."
-                );
+                    case FacetMethodSearchException.ProblemType.MethodNotPublic:
+                        type = ErrorType.MethodNotPublic;
+                        break;
 
+                    default:
+                        // take down everything so that I notice and fix this
+                        throw new NotImplementedException(
+                            $"Method {nameof(Facet.FindFacetMethodByName)} threw an unknown error {e.Problem}.",
+                            e
+                        );
+                }
+
+                return Error(type, e.Message);
+            }
+            
             // deserialize arguments
 
             ParameterInfo[] parameters = methodInfo.GetParameters(); // NOT including the "this" parameter
