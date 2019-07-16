@@ -6,6 +6,7 @@ using LightJson;
 using LightJson.Serialization;
 using Unisave.Serialization;
 using Unisave.Exceptions;
+using Unisave.Database;
 
 namespace Unisave.Runtime
 {
@@ -14,6 +15,11 @@ namespace Unisave.Runtime
     /// </summary>
     internal static class Bootstrap
     {
+        /// <summary>
+        /// Used for testing. We don't want to connect to a database when testing
+        /// </summary>
+        internal static bool ignoreServiceBooting = false;
+
         /// <summary>
         /// How did the bootstraping fail
         /// These codes are important outside of this assembly
@@ -192,6 +198,10 @@ namespace Unisave.Runtime
                 }
             }
 
+            // boot up the rest of the system
+
+            BootUpServices();
+
             // create facet instance
 
             Facet instance = null;
@@ -221,6 +231,10 @@ namespace Unisave.Runtime
             {
                 return GameException(e.InnerException);
             }
+
+            // destroy the rest of the system
+
+            TearDownServices();
 
             // if returned void
             if (methodInfo.ReturnType == typeof(void))
@@ -279,6 +293,35 @@ namespace Unisave.Runtime
             result.Add("result", "game-exception");
             result.Add("exceptionAsString", e.ToString());
             return result.ToString();
+        }
+
+        /// <summary>
+        /// Initializes services, like database connection
+        /// </summary>
+        private static void BootUpServices()
+        {
+            if (ignoreServiceBooting)
+                return;
+
+            // database
+            UnisaveDatabase.Instance = new UnisaveDatabase();
+            UnisaveDatabase.Instance.Connect("", "", 0);
+        }
+
+        /// <summary>
+        /// Destroys all services, before exiting
+        /// </summary>
+        private static void TearDownServices()
+        {
+            if (ignoreServiceBooting)
+                return;
+
+            // database
+            if (UnisaveDatabase.Instance != null)
+            {
+                UnisaveDatabase.Instance.Disconnect();
+                UnisaveDatabase.Instance = null;
+            }
         }
     }
 }

@@ -56,6 +56,8 @@ namespace FrameworkTests
             executionParameters.Add("callerId", "fake-caler-id");
             executionParameters.Add("executionId", "fake-execution-id");
 
+            Bootstrap.ignoreServiceBooting = true;
+            
             string result = Bootstrap.FacetCall(executionParameters.ToString(), new Type[] {
                 typeof(FakeFacet),
 
