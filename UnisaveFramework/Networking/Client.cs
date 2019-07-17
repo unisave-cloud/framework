@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Threading;
 using LightJson;
 using LightJson.Serialization;
+using Unisave.Exceptions;
 
 namespace Unisave.Networking
 {
@@ -24,9 +25,17 @@ namespace Unisave.Networking
         /// </summary>
         public static Client Connect(string ipAddress, int port)
         {
-            var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(IPAddress.Parse(ipAddress), port);
             return new Client(socket);
+        }
+
+        /// <summary>
+        /// Disconnect from the server
+        /// </summary>
+        public void Disconnect()
+        {
+            socket.Close();
         }
 
         public void SendJsonMessage(int messageType, JsonValue payload)
@@ -34,9 +43,27 @@ namespace Unisave.Networking
             SendTextMessage(messageType, payload.ToString());
         }
 
+        public void SendJsonMessage(int messageType)
+        {
+            SendTextMessage(messageType, "null");
+        }
+
         public JsonValue ReceiveJsonMessage(out int messageType)
         {
             return JsonReader.Parse(ReceiveTextMessage(out messageType));
+        }
+
+        public JsonValue ReceiveJsonMessageAndExpectType(int expectedMessageType)
+        {
+            JsonValue payload = ReceiveJsonMessage(out int messageType);
+
+            if (expectedMessageType != messageType)
+                throw new NetworkingException(
+                    $"Expecting message {expectedMessageType}, "
+                    + $"but received {messageType} instead with payload {payload.ToString()}."
+                );
+
+            return payload;
         }
 
         public void SendTextMessage(int messageType, string payload)
@@ -103,13 +130,13 @@ namespace Unisave.Networking
                 received += k;
 
                 if (k == 0)
-                    throw new Exception("Not enough bytes available. Connection ended.");
+                    throw new ConnectionEndedException("Not enough bytes available. Connection ended.");
 
                 if (received == buffer.Length)
                     break;
 
                 if (received > buffer.Length)
-                    throw new Exception("Wrong count passed to the method.");
+                    throw new NetworkingException("Wrong count passed to the method.");
             }
 
             return buffer;

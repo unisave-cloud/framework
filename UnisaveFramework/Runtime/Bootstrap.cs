@@ -57,7 +57,9 @@ namespace Unisave.Runtime
         ///     "methodName": "DoCoolStuff",
         ///     "arguments": [...], // serialized by the unisave serialization system
         ///     "callerId": "...", // id of the calling player
-        ///     "executionId": "..." // id of this facet call execution
+        ///     "executionId": "...", // id of this facet call execution
+        ///     "databaseProxyIp": "...",
+        ///     "databaseProxyPort": 0000,
         /// }    
         /// </param>
         /// <param name="gameAssemblyTypes">
@@ -97,6 +99,8 @@ namespace Unisave.Runtime
             JsonArray jsonArguments = executionParameters["arguments"];
             string callerId = executionParameters["callerId"];
             string executionId = executionParameters["executionId"];
+            string databaseProxyIp = executionParameters["databaseProxyIp"];
+            int databaseProxyPort = executionParameters["databaseProxyPort"];
 
             // find the requested facet
 
@@ -200,7 +204,11 @@ namespace Unisave.Runtime
 
             // boot up the rest of the system
 
-            BootUpServices();
+            BootUpServices(
+                executionId,
+                databaseProxyIp,
+                databaseProxyPort
+            );
 
             // create facet instance
 
@@ -298,14 +306,18 @@ namespace Unisave.Runtime
         /// <summary>
         /// Initializes services, like database connection
         /// </summary>
-        private static void BootUpServices()
+        private static void BootUpServices(
+            string executionId,
+            string databaseProxyIp,
+            int databaseProxyPort
+        )
         {
             if (ignoreServiceBooting)
                 return;
 
             // database
             UnisaveDatabase.Instance = new UnisaveDatabase();
-            UnisaveDatabase.Instance.Connect("", "", 0);
+            UnisaveDatabase.Instance.Connect(executionId, databaseProxyIp, databaseProxyPort);
         }
 
         /// <summary>

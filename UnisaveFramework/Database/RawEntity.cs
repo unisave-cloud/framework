@@ -64,5 +64,20 @@ namespace Unisave.Database
 
             return json;
         }
+
+        /// <summary>
+        /// Load raw entity from it's json serialized form
+        /// </summary>
+        public static RawEntity FromJson(JsonObject json)
+        {
+            return new RawEntity {
+                id = json[nameof(id)].AsString,
+                type = json[nameof(type)].AsString,
+                ownerIds = new HashSet<string>(json[nameof(ownerIds)].AsJsonArray.Select(x => (string)x)),
+                data = json[nameof(data)],
+                createdAt = DateTime.Parse(json[nameof(createdAt)].AsString),
+                updatedAt = DateTime.Parse(json[nameof(updatedAt)].AsString)
+            };
+        }
     }
 }

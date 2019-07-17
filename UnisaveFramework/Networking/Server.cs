@@ -100,11 +100,11 @@ namespace Unisave.Networking
                 if (stopped)
                     return;
 
-                listeningThread.Abort();
-                listeningThread = null;
-
                 listener.Stop();
                 listener = null;
+
+                listeningThread.Abort();
+                listeningThread = null;
             }
         }
     }
