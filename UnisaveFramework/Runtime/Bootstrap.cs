@@ -101,7 +101,7 @@ namespace Unisave.Runtime
             // find the requested facet
 
             Type facetType;
-            
+
             try
             {
                 facetType = Facet.FindFacetTypeByName(facetName, gameAssemblyTypes);

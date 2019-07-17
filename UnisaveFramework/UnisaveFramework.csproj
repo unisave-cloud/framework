@@ -52,6 +52,10 @@
     <Compile Include="Database\RawEntity.cs" />
     <Compile Include="Database\QueryBuilder.cs" />
     <Compile Include="Facades\GetEntity.cs" />
+    <Compile Include="Networking\Server.cs" />
+    <Compile Include="Utils\Str.cs" />
+    <Compile Include="Serialization\SerializationParams.cs" />
+    <Compile Include="Networking\Client.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LightJson\Sources\LightJson\LightJson.csproj">
@@ -65,6 +69,8 @@
     <Folder Include="Exceptions\" />
     <Folder Include="Database\" />
     <Folder Include="Facades\" />
+    <Folder Include="Networking\" />
+    <Folder Include="Utils\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

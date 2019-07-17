@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using LightJson;
+using Unisave.Serialization;
 
 namespace Unisave.Database
 {
@@ -35,5 +37,32 @@ namespace Unisave.Database
         /// this is just a convention)
         /// </summary>
         public JsonObject data = new JsonObject();
+
+        /// <summary>
+        /// Timestamp of entity creation
+        /// </summary>
+        public DateTime createdAt;
+
+        /// <summary>
+        /// Timestamp of the last time the entity was updated
+        /// </summary>
+        public DateTime updatedAt;
+
+        /// <summary>
+        /// Converts the entity to a json object
+        /// </summary>
+        public JsonObject ToJson()
+        {
+            var json = new JsonObject();
+
+            json.Add(nameof(id), id);
+            json.Add(nameof(type), type);
+            json.Add(nameof(ownerIds), new JsonArray(ownerIds.Select(x => (JsonValue)x).ToArray()));
+            json.Add(nameof(data), data);
+            json.Add(nameof(createdAt), createdAt.ToString(SerializationParams.DateTimeFormat));
+            json.Add(nameof(updatedAt), updatedAt.ToString(SerializationParams.DateTimeFormat));
+
+            return json;
+        }
     }
 }
