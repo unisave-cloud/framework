@@ -13,8 +13,6 @@ namespace Unisave
         /// </summary>
         protected UnisavePlayer Caller { get; private set; }
 
-#region "Static helper classes for working with facets"
-
         /// <summary>
         /// Creates facet instance of given type
         /// </summary>
@@ -114,7 +112,4 @@ namespace Unisave
             return methodInfo;
         }
     }
-
-#endregion
-
 }

@@ -59,6 +59,8 @@
     <Compile Include="Database\ProxyMessage.cs" />
     <Compile Include="Exceptions\NetworkingException.cs" />
     <Compile Include="Exceptions\ConnectionEndedException.cs" />
+    <Compile Include="Entity.cs" />
+    <Compile Include="Runtime\Endpoints.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LightJson\Sources\LightJson\LightJson.csproj">

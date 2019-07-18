@@ -7,12 +7,12 @@ namespace Unisave
     /// <summary>
     /// Facade for accessing database entities
     /// </summary>
-    public static class GetEntity<E> // : Entity
+    public static class GetEntity<E> where E : Entity, new()
     {
-        public static IEnumerable<RawEntity> Get() // for entities belonging to the game
+        public static IEnumerable<E> Get() // for entities belonging to the game
             => QueryBuilder<E>.Create().Get();
 
-        public static RawEntity First() // for entities belonging to the game
+        public static E First() // for entities belonging to the game
             => QueryBuilder<E>.Create().First();
 
         public static QueryBuilder<E> OfPlayer(UnisavePlayer player)

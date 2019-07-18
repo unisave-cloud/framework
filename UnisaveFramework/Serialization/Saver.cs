@@ -57,6 +57,12 @@ namespace Unisave.Serialization
                     return SaveDictionary(instance, type);
             }
 
+            // entities
+            if (typeof(Entity).IsAssignableFrom(type))
+            {
+                return ((Entity)instance).ToJson();
+            }
+
             // custom classes
             return SaveCustomClass(instance, type);
         }

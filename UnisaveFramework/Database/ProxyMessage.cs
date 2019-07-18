@@ -39,7 +39,7 @@ namespace Unisave.Database
 
         /// <summary>
         /// Response to entity saving / creation
-        /// {"entityId": "..."}
+        /// {"entityId": "...", "createdAt": "...", "updatedAt": "..."}
         /// </summary>
         SaveEntityResponse = 6,
 

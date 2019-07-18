@@ -316,8 +316,9 @@ namespace Unisave.Runtime
                 return;
 
             // database
-            UnisaveDatabase.Instance = new UnisaveDatabase();
-            UnisaveDatabase.Instance.Connect(executionId, databaseProxyIp, databaseProxyPort);
+            var database = new UnisaveDatabase();
+            database.Connect(executionId, databaseProxyIp, databaseProxyPort);
+            Endpoints.Database = database;
         }
 
         /// <summary>
@@ -329,10 +330,10 @@ namespace Unisave.Runtime
                 return;
 
             // database
-            if (UnisaveDatabase.Instance != null)
+            if (Endpoints.Database != null)
             {
-                UnisaveDatabase.Instance.Disconnect();
-                UnisaveDatabase.Instance = null;
+                ((UnisaveDatabase)Endpoints.Database).Disconnect();
+                Endpoints.Database = null;
             }
         }
     }

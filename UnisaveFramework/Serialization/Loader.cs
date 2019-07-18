@@ -83,6 +83,12 @@ namespace Unisave.Serialization
                     return LoadDictionary(json, type);
             }
 
+            // entities
+            if (typeof(Entity).IsAssignableFrom(type))
+            {
+                return Entity.FromJson(json, type);
+            }
+
             // custom classes
             return LoadCustomClass(json, type);
         }

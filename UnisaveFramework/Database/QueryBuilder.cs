@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unisave.Runtime;
 
 namespace Unisave.Database
 {
     /// <summary>
     /// Builds an entity query by chaining commands
     /// </summary>
-    public class QueryBuilder<E> // where E : Entity
+    public class QueryBuilder<E> where E : Entity, new()
     {
         /// <summary>
         /// Database on which to call the query once finished
@@ -30,7 +31,7 @@ namespace Unisave.Database
         /// </summary>
         public static QueryBuilder<E> Create()
         {
-            return new QueryBuilder<E>(UnisaveDatabase.Instance);
+            return new QueryBuilder<E>(Endpoints.Database);
         }
 
         /// <summary>
@@ -41,25 +42,31 @@ namespace Unisave.Database
         /// <summary>
         /// Execute the query and return the matched entities as an enumerable
         /// </summary>
-        public IEnumerable<RawEntity> GetEnumerable() // TODO: return E, not a raw entity
+        public IEnumerable<E> GetEnumerable()
         {
             if (database == null)
                 throw new InvalidOperationException(
                     $"Cannot execute the query, because no {nameof(IDatabase)} instance is set."
                 );
 
-            return database.QueryEntities(typeof(E).Name, query);
+            return database
+                .QueryEntities(Entity.GetEntityType<E>(), query)
+                .Select((RawEntity r) => {
+                    var e = new E();
+                    Entity.LoadRawEntity(r, e);
+                    return e;
+                });
         }
 
         /// <summary>
         /// Execute the query and return the matched entities in a list
         /// </summary>
-        public List<RawEntity> Get() => GetEnumerable().ToList();
+        public List<E> Get() => GetEnumerable().ToList();
 
         /// <summary>
         /// Execute the query and take only the first metching entity, or null
         /// </summary>
-        public RawEntity First()
+        public E First()
         {
             query.takeFirstFound = true;
             return GetEnumerable().FirstOrDefault();

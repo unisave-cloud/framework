@@ -14,12 +14,6 @@ namespace Unisave.Database
     public class UnisaveDatabase : IDatabase
     {
         /// <summary>
-        /// Instance of this service, that facades use
-        /// It's set up by the bootstrapping logic
-        /// </summary>
-        public static UnisaveDatabase Instance { get; internal set; }
-
-        /// <summary>
         /// TCP Client that is connected to a database proxy server
         /// </summary>
         private Client client;
@@ -64,7 +58,12 @@ namespace Unisave.Database
             JsonObject response = client.ReceiveJsonMessageAndExpectType((int)ProxyMessage.SaveEntityResponse);
 
             if (entity.id == null)
+            {
                 entity.id = response["entityId"].AsString;
+                entity.createdAt = DateTime.Parse(response["createdAt"].AsString);
+            }
+
+            entity.updatedAt = DateTime.Parse(response["updatedAt"].AsString);
         }
 
         /// <inheritdoc />
