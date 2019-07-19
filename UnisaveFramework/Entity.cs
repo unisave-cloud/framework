@@ -98,11 +98,13 @@ namespace Unisave
         /// </summary>
         protected RawEntity ToRawEntity()
         {
+            var crawler = new EntityCrawler(this.GetType());
+
             return new RawEntity {
                 id = EntityId,
                 type = Entity.GetEntityType(this.GetType()),
                 ownerIds = new HashSet<string>(Owners.Select(x => x.Id)),
-                data = new LightJson.JsonObject(), // TODO extract data
+                data = crawler.ExtractData(this),
                 createdAt = CreatedAt,
                 updatedAt = UpdatedAt
             };
@@ -120,9 +122,11 @@ namespace Unisave
                     $"Trying to load raw entity of type {raw.type} into entity instance of type {targetType}."
                 );
 
+            var crawler = new EntityCrawler(targetInstance.GetType());
+
             targetInstance.EntityId = raw.id;
             targetInstance.Owners = new HashSet<UnisavePlayer>(raw.ownerIds.Select(x => new UnisavePlayer(x)));
-            // TODO load data
+            crawler.InsertData(targetInstance, raw.data);
             targetInstance.CreatedAt = raw.createdAt;
             targetInstance.UpdatedAt = raw.updatedAt;
         }
