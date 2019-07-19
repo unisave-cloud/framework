@@ -70,6 +70,9 @@ namespace Unisave.Database
         /// </summary>
         public static RawEntity FromJson(JsonObject json)
         {
+            if (json == null)
+                return null;
+
             return new RawEntity {
                 id = json[nameof(id)].AsString,
                 type = json[nameof(type)].AsString,

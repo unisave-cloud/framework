@@ -113,7 +113,7 @@ namespace Unisave
         /// <summary>
         /// Loads data from raw entity into an entity instance
         /// </summary>
-        public static void LoadRawEntity(RawEntity raw, Entity targetInstance)
+        private static void LoadRawEntity(RawEntity raw, Entity targetInstance)
         {
             string targetType = Entity.GetEntityType(targetInstance.GetType());
             if (raw.type != targetType)
@@ -158,15 +158,26 @@ namespace Unisave
         }
 
         /// <summary>
+        /// Creates entity from a raw entity instance
+        /// </summary>
+        public static Entity FromRawEntity(RawEntity raw, Type entityType)
+        {
+            if (raw == null)
+                return null;
+
+            Entity entityInstance = Entity.CreateInstance(entityType);
+            Entity.LoadRawEntity(raw, entityInstance);
+            return entityInstance;
+        }
+
+        /// <summary>
         /// Creates entity of the provided type
         /// (checks that the type matches)
         /// and returns the newly created instance
         /// </summary>
         public static Entity FromJson(JsonObject json, Type entityType)
         {
-            Entity entityInstance = Entity.CreateInstance(entityType);
-            Entity.LoadRawEntity(RawEntity.FromJson(json), entityInstance);
-            return entityInstance;
+            return FromRawEntity(RawEntity.FromJson(json), entityType);
         }
 
         /// <summary>

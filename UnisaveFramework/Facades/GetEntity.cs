@@ -21,10 +21,10 @@ namespace Unisave
         /// </summary>
         public static E Find(string entityId)
         {
-            var raw = Endpoints.Database.LoadEntity(entityId);
-            var entity = Entity.CreateInstance(typeof(E));
-            Entity.LoadRawEntity(raw, entity);
-            return (E)entity;
+            return (E)Entity.FromRawEntity(
+                Endpoints.Database.LoadEntity(entityId),
+                typeof(E)
+            );
         }
 
         public static QueryBuilder<E> OfPlayer(UnisavePlayer player)

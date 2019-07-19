@@ -51,11 +51,7 @@ namespace Unisave.Database
 
             return database
                 .QueryEntities(Entity.GetEntityType<E>(), query)
-                .Select((RawEntity r) => {
-                    var e = new E();
-                    Entity.LoadRawEntity(r, e);
-                    return e;
-                });
+                .Select((RawEntity r) => (E)Entity.FromRawEntity(r, typeof(E)));
         }
 
         /// <summary>
