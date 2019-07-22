@@ -318,7 +318,7 @@ namespace Unisave.Runtime
             // database
             var database = new UnisaveDatabase();
             database.Connect(executionId, databaseProxyIp, databaseProxyPort);
-            Endpoints.Database = database;
+            Endpoints.DatabaseResolver = () => database;
         }
 
         /// <summary>
@@ -333,7 +333,7 @@ namespace Unisave.Runtime
             if (Endpoints.Database != null)
             {
                 ((UnisaveDatabase)Endpoints.Database).Disconnect();
-                Endpoints.Database = null;
+                Endpoints.DatabaseResolver = null;
             }
         }
     }
