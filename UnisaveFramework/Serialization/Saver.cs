@@ -57,6 +57,12 @@ namespace Unisave.Serialization
                     return SaveDictionary(instance, type);
             }
 
+            // players
+            if (type == typeof(UnisavePlayer))
+            {
+                return (JsonValue)((UnisavePlayer)instance).Id;
+            }
+
             // entities
             if (typeof(Entity).IsAssignableFrom(type))
             {

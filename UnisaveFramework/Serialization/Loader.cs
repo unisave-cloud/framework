@@ -83,6 +83,12 @@ namespace Unisave.Serialization
                     return LoadDictionary(json, type);
             }
 
+            // players
+            if (type == typeof(UnisavePlayer))
+            {
+                return new UnisavePlayer(json.AsString);
+            }
+
             // entities
             if (typeof(Entity).IsAssignableFrom(type))
             {
