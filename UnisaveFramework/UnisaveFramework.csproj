@@ -41,7 +41,6 @@
     <Compile Include="Facet.cs" />
     <Compile Include="Serialization\Loader.cs" />
     <Compile Include="Serialization\Saver.cs" />
-    <Compile Include="Runtime\Bootstrap.cs" />
     <Compile Include="Exceptions\UnisaveException.cs" />
     <Compile Include="Exceptions\FacetInstantiationException.cs" />
     <Compile Include="Exceptions\FacetSearchException.cs" />
@@ -63,6 +62,11 @@
     <Compile Include="Runtime\Endpoints.cs" />
     <Compile Include="Database\EntityCrawler.cs" />
     <Compile Include="CustomAttributes.cs" />
+    <Compile Include="Runtime\Entrypoint.cs" />
+    <Compile Include="Runtime\FacetCall.cs" />
+    <Compile Include="Runtime\MigrationCall.cs" />
+    <Compile Include="Migration.cs" />
+    <Compile Include="Exceptions\MigrationInstantiationException.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LightJson\Sources\LightJson\LightJson.csproj">

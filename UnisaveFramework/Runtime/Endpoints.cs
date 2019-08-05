@@ -16,7 +16,7 @@ namespace Unisave.Runtime
         /// <summary>
         /// Handles all communication with the underlying database
         /// </summary>
-        public static IDatabase Database => DatabaseResolver();
+        public static IDatabase Database => DatabaseResolver == null ? null : DatabaseResolver();
 
         /// <summary>
         /// Function that resolves the database endpoint

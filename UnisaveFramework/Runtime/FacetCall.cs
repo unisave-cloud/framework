@@ -11,15 +11,10 @@ using Unisave.Database;
 namespace Unisave.Runtime
 {
     /// <summary>
-    /// Handles server-side code bootstrapping
+    /// Handles the "facet" execution method of server-side code execution
     /// </summary>
-    internal static class Bootstrap
+    public static class FacetCall
     {
-        /// <summary>
-        /// Used for testing. We don't want to connect to a database when testing
-        /// </summary>
-        internal static bool ignoreServiceBooting = false;
-
         /// <summary>
         /// How did the bootstraping fail
         /// These codes are important outside of this assembly
@@ -42,24 +37,16 @@ namespace Unisave.Runtime
             ReturnedValueSerializationException = 302,
         }
 
-        /*
-            This code gets executed by some process that handles server-side code execution.
-            We are already sandboxed at this point.
-         */
-
         /// <summary>
         /// Bootstrap a facet call
         /// </summary>
-        /// <param name="executionParametersAsJson">
-        /// Execution parameters as json string
+        /// <param name="executionParameters">
+        /// Execution parameters as json
         /// {
         ///     "facetName": "MyFacet",
         ///     "methodName": "DoCoolStuff",
         ///     "arguments": [...], // serialized by the unisave serialization system
         ///     "callerId": "...", // id of the calling player
-        ///     "executionId": "...", // id of this facet call execution
-        ///     "databaseProxyIp": "...",
-        ///     "databaseProxyPort": 0000,
         /// }    
         /// </param>
         /// <param name="gameAssemblyTypes">
@@ -83,24 +70,19 @@ namespace Unisave.Runtime
         /// 
         ///     // WHEN "error"
         /// 
-        ///     "errorType": see the Bootstrap.ErrorType enumeration (not all error need to be saved to logs)
+        ///     "errorType": see the ErrorType enumeration (not all errors need to be saved to logs)
         ///     "messageForUser": "This will be displayed to the user in unity editor",
         ///     "messageForLog": "This massive explanation will be put into unisave logs."
         /// }    
         /// </returns>
-        public static string FacetCall(string executionParametersAsJson, Type[] gameAssemblyTypes)
+        public static JsonObject Start(JsonObject executionParameters, Type[] gameAssemblyTypes)
         {
-            JsonObject executionParameters = JsonReader.Parse(executionParametersAsJson);
-
             // extract arguments
 
             string facetName = executionParameters["facetName"];
             string methodName = executionParameters["methodName"];
             JsonArray jsonArguments = executionParameters["arguments"];
             string callerId = executionParameters["callerId"];
-            string executionId = executionParameters["executionId"];
-            string databaseProxyIp = executionParameters["databaseProxyIp"];
-            int databaseProxyPort = executionParameters["databaseProxyPort"];
 
             // find the requested facet
 
@@ -202,14 +184,6 @@ namespace Unisave.Runtime
                 }
             }
 
-            // boot up the rest of the system
-
-            BootUpServices(
-                executionId,
-                databaseProxyIp,
-                databaseProxyPort
-            );
-
             // create facet instance
 
             Facet instance = null;
@@ -240,17 +214,13 @@ namespace Unisave.Runtime
                 return GameException(e.InnerException);
             }
 
-            // destroy the rest of the system
-
-            TearDownServices();
-
             // if returned void
             if (methodInfo.ReturnType == typeof(void))
             {
                 var result = new JsonObject();
                 result.Add("result", "ok");
                 result.Add("hasReturnValue", false);
-                return result.ToString();
+                return result;
             }
 
             // serialize returned value
@@ -276,65 +246,31 @@ namespace Unisave.Runtime
             response.Add("result", "ok");
             response.Add("hasReturnValue", true);
             response.Add("returnValue", serializedReturnedValue);
-            return response.ToString();
+            return response;
         }
 
         /// <summary>
         /// Formats an error response
         /// </summary>
-        private static string Error(ErrorType type, string messageForUser, string messageForLog = null)
+        private static JsonObject Error(ErrorType type, string messageForUser, string messageForLog = null)
         {
             var result = new JsonObject();
             result.Add("result", "error");
             result.Add("errorType", (int)type);
             result.Add("messageForUser", messageForUser);
             result.Add("messageForLog", messageForLog ?? messageForUser);
-            return result.ToString();
+            return result;
         }
 
         /// <summary>
         /// Formats an exception response
         /// </summary>
-        private static string GameException(Exception e)
+        private static JsonObject GameException(Exception e)
         {
             var result = new JsonObject();
             result.Add("result", "game-exception");
             result.Add("exceptionAsString", e.ToString());
-            return result.ToString();
-        }
-
-        /// <summary>
-        /// Initializes services, like database connection
-        /// </summary>
-        private static void BootUpServices(
-            string executionId,
-            string databaseProxyIp,
-            int databaseProxyPort
-        )
-        {
-            if (ignoreServiceBooting)
-                return;
-
-            // database
-            var database = new UnisaveDatabase();
-            database.Connect(executionId, databaseProxyIp, databaseProxyPort);
-            Endpoints.DatabaseResolver = () => database;
-        }
-
-        /// <summary>
-        /// Destroys all services, before exiting
-        /// </summary>
-        private static void TearDownServices()
-        {
-            if (ignoreServiceBooting)
-                return;
-
-            // database
-            if (Endpoints.Database != null)
-            {
-                ((UnisaveDatabase)Endpoints.Database).Disconnect();
-                Endpoints.DatabaseResolver = null;
-            }
+            return result;
         }
     }
 }

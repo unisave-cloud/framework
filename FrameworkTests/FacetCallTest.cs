@@ -45,24 +45,28 @@ namespace FrameworkTests
     }
 
     [TestFixture]
-    public class RuntimeBootstrapTest
+    public class FacetCallTest
     {
         private JsonObject RunWithParams(string facetName, string methodName, JsonArray arguments)
         {
-            var executionParameters = new JsonObject();
-            executionParameters.Add("facetName", facetName);
-            executionParameters.Add("methodName", methodName);
-            executionParameters.Add("arguments", arguments);
-            executionParameters.Add("callerId", "fake-caler-id");
-            executionParameters.Add("executionId", "fake-execution-id");
+            var methodParameters = new JsonObject();
+            methodParameters.Add("facetName", facetName);
+            methodParameters.Add("methodName", methodName);
+            methodParameters.Add("arguments", arguments);
+            methodParameters.Add("callerId", "fake-caler-id");
 
-            Bootstrap.ignoreServiceBooting = true;
+            var executionParameters = new JsonObject();
+            executionParameters.Add("executionId", "fake-execution-id");
+            executionParameters.Add("databaseProxyIp", JsonValue.Null);
+            executionParameters.Add("databaseProxyPort", 0);
+            executionParameters.Add("executionMethod", "facet");
+            executionParameters.Add("methodParameters", methodParameters);
             
-            string result = Bootstrap.FacetCall(executionParameters.ToString(), new Type[] {
+            string result = Entrypoint.Start(executionParameters.ToString(), new Type[] {
                 typeof(FakeFacet),
 
                 typeof(WrongFacet),
-                typeof(RuntimeBootstrapTest),
+                typeof(FacetCallTest),
                 typeof(System.Collections.Hashtable)
             });
 
@@ -99,28 +103,28 @@ namespace FrameworkTests
         public void ItChecksParentFacet()
         {
             JsonObject result = RunWithParams("WrongFacet", "MyProcedure", new JsonArray());
-            Assert.AreEqual((int)Bootstrap.ErrorType.FacetNotFound, result["errorType"].AsInteger);
+            Assert.AreEqual((int)FacetCall.ErrorType.FacetNotFound, result["errorType"].AsInteger);
         }
 
         [Test]
         public void ItChecksMethodExistance()
         {
             JsonObject result = RunWithParams("FakeFacet", "NonexistingMethod", new JsonArray());
-            Assert.AreEqual((int)Bootstrap.ErrorType.MethodDoesNotExist, result["errorType"].AsInteger);
+            Assert.AreEqual((int)FacetCall.ErrorType.MethodDoesNotExist, result["errorType"].AsInteger);
         }
 
         [Test]
         public void ItChecksAmbiguousMethods()
         {
             JsonObject result = RunWithParams("FakeFacet", "AmbiguousMethod", new JsonArray());
-            Assert.AreEqual((int)Bootstrap.ErrorType.MethodNameAmbiguous, result["errorType"].AsInteger);
+            Assert.AreEqual((int)FacetCall.ErrorType.MethodNameAmbiguous, result["errorType"].AsInteger);
         }
 
         [Test]
         public void ItChecksPublicMethods()
         {
             JsonObject result = RunWithParams("FakeFacet", "PrivateProcedure", new JsonArray());
-            Assert.AreEqual((int)Bootstrap.ErrorType.MethodNotPublic, result["errorType"].AsInteger);
+            Assert.AreEqual((int)FacetCall.ErrorType.MethodNotPublic, result["errorType"].AsInteger);
         }
 
         [Test]
