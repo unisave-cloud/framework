@@ -54,7 +54,7 @@ namespace Unisave.Database
         public JsonObject ToJson()
         {
             var json = new JsonObject();
-
+            
             json.Add(nameof(id), id);
             json.Add(nameof(type), type);
             json.Add(nameof(ownerIds), new JsonArray(ownerIds.Select(x => (JsonValue)x).ToArray()));
