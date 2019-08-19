@@ -100,8 +100,8 @@ namespace FrameworkTests
         {
             JsonObject result = ExecuteMigration(2, 45);
 
-            Assert.AreEqual("error", result["result"].AsString);
-            Assert.AreEqual((int)MigrationCall.ErrorType.MigrationNotFound, result["errorType"].AsInteger);
+            Assert.AreEqual("invalid-method-parameters", result["result"].AsString);
+            StringAssert.Contains("Migration wasn't found.", result["message"]);
         }
 
         [TestCase]
@@ -109,15 +109,15 @@ namespace FrameworkTests
         {
             JsonObject result = ExecuteMigration(2, 3);
 
-            Assert.AreEqual("error", result["result"].AsString);
-            Assert.AreEqual((int)MigrationCall.ErrorType.MigrationAmbiguous, result["errorType"].AsInteger);
+            Assert.AreEqual("invalid-method-parameters", result["result"].AsString);
+            StringAssert.Contains("Migration wasn't found.", result["message"]);
         }
 
         [TestCase]
         public void MigrationThrowsException()
         {
             JsonObject result = ExecuteMigration(3, 4);
-            Assert.AreEqual("game-exception", result["result"].AsString);
+            Assert.AreEqual("exception", result["result"].AsString);
         }
     }
 }

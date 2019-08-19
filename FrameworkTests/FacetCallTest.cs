@@ -103,28 +103,32 @@ namespace FrameworkTests
         public void ItChecksParentFacet()
         {
             JsonObject result = RunWithParams("WrongFacet", "MyProcedure", new JsonArray());
-            Assert.AreEqual((int)FacetCall.ErrorType.FacetNotFound, result["errorType"].AsInteger);
+            Assert.AreEqual("invalid-method-parameters", result["result"].AsString);
+            StringAssert.Contains("Facet class wasn't found.", result["message"]);
         }
 
         [Test]
         public void ItChecksMethodExistance()
         {
             JsonObject result = RunWithParams("FakeFacet", "NonexistingMethod", new JsonArray());
-            Assert.AreEqual((int)FacetCall.ErrorType.MethodDoesNotExist, result["errorType"].AsInteger);
+            Assert.AreEqual("invalid-method-parameters", result["result"].AsString);
+            StringAssert.Contains("Facet method wasn't found.", result["message"]);
         }
 
         [Test]
         public void ItChecksAmbiguousMethods()
         {
             JsonObject result = RunWithParams("FakeFacet", "AmbiguousMethod", new JsonArray());
-            Assert.AreEqual((int)FacetCall.ErrorType.MethodNameAmbiguous, result["errorType"].AsInteger);
+            Assert.AreEqual("invalid-method-parameters", result["result"].AsString);
+            StringAssert.Contains("Facet method wasn't found.", result["message"]);
         }
 
         [Test]
         public void ItChecksPublicMethods()
         {
             JsonObject result = RunWithParams("FakeFacet", "PrivateProcedure", new JsonArray());
-            Assert.AreEqual((int)FacetCall.ErrorType.MethodNotPublic, result["errorType"].AsInteger);
+            Assert.AreEqual("invalid-method-parameters", result["result"].AsString);
+            StringAssert.Contains("Facet method wasn't found.", result["message"]);
         }
 
         [Test]
@@ -132,15 +136,15 @@ namespace FrameworkTests
         {
             JsonObject result = RunWithParams("FakeFacet", "SquaringFunction", new JsonArray().Add(5));
             Assert.AreEqual("ok", result["result"].AsString);
-            Assert.IsTrue(result["hasReturnValue"]);
-            Assert.AreEqual(25, result["returnValue"].AsInteger);
+            Assert.IsTrue(result["methodResponse"]["hasReturnValue"]);
+            Assert.AreEqual(25, result["methodResponse"]["returnValue"].AsInteger);
         }
 
         [Test]
         public void ItHandlesExceptions()
         {
             JsonObject result = RunWithParams("FakeFacet", "ExceptionalMethod", new JsonArray());
-            Assert.AreEqual("game-exception", result["result"].AsString);
+            Assert.AreEqual("exception", result["result"].AsString);
         }
     }
 }

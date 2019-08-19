@@ -67,6 +67,8 @@
     <Compile Include="Runtime\MigrationCall.cs" />
     <Compile Include="Migration.cs" />
     <Compile Include="Exceptions\MigrationInstantiationException.cs" />
+    <Compile Include="Exceptions\GameScriptException.cs" />
+    <Compile Include="Exceptions\InvalidMethodParametersException.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LightJson\Sources\LightJson\LightJson.csproj">
