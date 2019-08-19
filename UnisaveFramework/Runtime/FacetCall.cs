@@ -47,9 +47,7 @@ namespace Unisave.Runtime
             string callerId = executionParameters["callerId"];
 
             // find the requested facet
-
             Type facetType;
-
             try
             {
                 facetType = Facet.FindFacetTypeByName(facetName, gameAssemblyTypes);
@@ -59,94 +57,38 @@ namespace Unisave.Runtime
                 throw new InvalidMethodParametersException("Facet class wasn't found.", e);
             }
 
-            // find the requested method
-
-            MethodInfo methodInfo;
-
-            try
-            {
-                methodInfo = Facet.FindFacetMethodByName(facetType, methodName);
-            }
-            catch (FacetMethodSearchException e)
-            {
-                throw new InvalidMethodParametersException("Facet method wasn't found.", e);
-            }
-            
-            // deserialize arguments
-
-            ParameterInfo[] parameters = methodInfo.GetParameters(); // NOT including the "this" parameter
-
-            if (parameters.Length != jsonArguments.Count)
-                throw new InvalidMethodParametersException(
-                    $"Method '{facetName}.{methodName}' accepts different number of arguments than provided. "
-                    + "Make sure you don't use the params keyword or default argument values, "
-                    + "since it is not supported by Unisave."
-                );
-
-            object[] deserializedArguments = new object[parameters.Length];
-
-            for (int i = 0; i < parameters.Length; i++)
-            {
-                try
-                {
-                    deserializedArguments[i] = Loader.Load(jsonArguments[i], parameters[i].ParameterType);
-                }
-                catch (Exception e)
-                {
-                    throw new InvalidMethodParametersException(
-                        $"Exception occured when deserializing the argument '{parameters[i].Name}'", e
-                    );
-                }
-            }
-
             // create facet instance
+            Facet facet = Facet.CreateInstance(facetType, new UnisavePlayer(callerId));
 
-            Facet instance = Facet.CreateInstance(facetType, new UnisavePlayer(callerId));
-
-            // call the facet method
-
-            object returnedValue = null;
-
+            // execute the method
+            MethodInfo methodInfo;
+            JsonValue returnedValue;
             try
             {
-                returnedValue = methodInfo.Invoke(instance, deserializedArguments);
+                returnedValue = ExecutionHelper.ExecuteMethod(
+                    facet,
+                    methodName,
+                    jsonArguments,
+                    out methodInfo
+                );
             }
-            catch (TargetInvocationException e) // reflection puts a wrapper around any thrown exception
+            catch (MethodSearchException e)
+            {
+                throw new InvalidMethodParametersException(e);
+            }
+            catch (ExecutionSerializationException e)
+            {
+                throw new InvalidMethodParametersException(e);
+            }
+            catch (TargetInvocationException e)
             {
                 throw new GameScriptException(e.InnerException);
             }
 
-            // if returned void
-            if (methodInfo.ReturnType == typeof(void))
-            {
-                var result = new JsonObject();
-                result.Add("hasReturnValue", false);
-                return result;
-            }
-
-            // serialize returned value
-
-            JsonValue serializedReturnedValue = JsonValue.Null;
-
-            try
-            {
-                serializedReturnedValue = Saver.Save(returnedValue);
-            }
-            catch (Exception e)
-            {
-                throw new InvalidMethodParametersException(
-                    new UnisaveException(
-                        $"Exception occured when serializing value returned from '{facetName}.{methodName}'",
-                        e
-                    )
-                );
-            }
-
             // build the response
-
             return new JsonObject()
-                .Add("hasReturnValue", true)
-                .Add("returnValue", serializedReturnedValue);
+                .Add("hasReturnValue", methodInfo.ReturnType != typeof(void))
+                .Add("returnValue", returnedValue);
         }
     }
 }

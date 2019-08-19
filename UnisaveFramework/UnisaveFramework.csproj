@@ -42,9 +42,9 @@
     <Compile Include="Serialization\Loader.cs" />
     <Compile Include="Serialization\Saver.cs" />
     <Compile Include="Exceptions\UnisaveException.cs" />
-    <Compile Include="Exceptions\FacetInstantiationException.cs" />
+    <Compile Include="Exceptions\InstantiationException.cs" />
     <Compile Include="Exceptions\FacetSearchException.cs" />
-    <Compile Include="Exceptions\FacetMethodSearchException.cs" />
+    <Compile Include="Exceptions\MethodSearchException.cs" />
     <Compile Include="Database\IDatabase.cs" />
     <Compile Include="Database\EntityQuery.cs" />
     <Compile Include="Database\UnisaveDatabase.cs" />
@@ -66,9 +66,12 @@
     <Compile Include="Runtime\FacetCall.cs" />
     <Compile Include="Runtime\MigrationCall.cs" />
     <Compile Include="Migration.cs" />
-    <Compile Include="Exceptions\MigrationInstantiationException.cs" />
     <Compile Include="Exceptions\GameScriptException.cs" />
     <Compile Include="Exceptions\InvalidMethodParametersException.cs" />
+    <Compile Include="Runtime\PlayerRegistrationHookCall.cs" />
+    <Compile Include="PlayerRegistrationHook.cs" />
+    <Compile Include="Runtime\ExecutionHelper.cs" />
+    <Compile Include="Exceptions\ExecutionSerializationException.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LightJson\Sources\LightJson\LightJson.csproj">

@@ -28,24 +28,21 @@ namespace Unisave.Runtime
         public static JsonObject Start(JsonObject executionParameters, Type[] gameAssemblyTypes)
         {
             // extract arguments
-
             int migrateFrom = executionParameters["migrateFrom"];
             int migrateTo = executionParameters["migrateTo"];
 
             // find the requested migration
-
             Migration migration;
             try
             {
                 migration = Migration.CreateMigrationTypeByVersionJump(migrateFrom, migrateTo, gameAssemblyTypes);
             }
-            catch (MigrationInstantiationException e)
+            catch (InstantiationException e)
             {
                 throw new InvalidMethodParametersException("Migration wasn't found.", e);
             }
 
             // run the migration
-
             try
             {
                 migration.Run();
@@ -56,7 +53,6 @@ namespace Unisave.Runtime
             }
 
             // build the response
-
             return new JsonObject();
         }
     }

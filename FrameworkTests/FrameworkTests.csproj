@@ -42,6 +42,7 @@
     <Compile Include="SerializerTest.cs" />
     <Compile Include="FacetCallTest.cs" />
     <Compile Include="MigrationCallTest.cs" />
+    <Compile Include="PlayerRegistrationHookCallTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

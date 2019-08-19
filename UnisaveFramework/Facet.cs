@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using Unisave.Exceptions;
+using Unisave.Runtime;
 
 namespace Unisave
 {
@@ -18,22 +19,7 @@ namespace Unisave
         /// </summary>
         public static Facet CreateInstance(Type facetType, UnisavePlayer caller)
         {
-            // check proper parent
-            if (!typeof(Facet).IsAssignableFrom(facetType))
-                throw new FacetInstantiationException(
-                    $"Provided type {facetType} does not inherit from the Facet class."
-                );
-
-            // get parameterless constructor
-            ConstructorInfo ci = facetType.GetConstructor(new Type[] { });
-
-            if (ci == null)
-                throw new FacetInstantiationException(
-                    $"Provided facet type {facetType} lacks parameterless constructor."
-                );
-
-            // create instance
-            Facet facet = (Facet)ci.Invoke(new object[] { });
+            Facet facet = ExecutionHelper.Instantiate<Facet>(facetType);
 
             // assign properties
             facet.Caller = caller;
@@ -70,46 +56,6 @@ namespace Unisave
                 );
 
             return facetCandidates[0];
-        }
-
-        /// <summary>
-        /// Tries to find given facet method inside a facet type
-        /// Throws FacetMethodSearchException on failure
-        /// </summary>
-        /// <param name="facetType">Facet type to search through</param>
-        /// <param name="methodName">Name of the requested method</param>
-        public static MethodInfo FindFacetMethodByName(Type facetType, string methodName)
-        {
-            List<MethodInfo> methods = facetType.GetMethods(
-                BindingFlags.Instance | BindingFlags.DeclaredOnly
-                    | BindingFlags.Public | BindingFlags.NonPublic // non-public as well to print an error
-            )
-                .Where(m => m.Name == methodName)
-                .ToList();
-
-            if (methods.Count > 1)
-                throw new FacetMethodSearchException(
-                    $"Facet '{facetType}' has multiple methods called '{methodName}'. "
-                    + "Note that Unisave does not support method overloading for facets. "
-                    + "Also make sure you aren't using default values for some arguments.",
-                    FacetMethodSearchException.ProblemType.MethodNameAmbiguous
-                );
-
-            if (methods.Count == 0)
-                throw new FacetMethodSearchException(
-                    $"Facet '{facetType}' doesn't have public method called '{methodName}'.",
-                    FacetMethodSearchException.ProblemType.MethodDoesNotExist
-                );
-
-            MethodInfo methodInfo = methods[0];
-
-            if (!methodInfo.IsPublic)
-                throw new FacetMethodSearchException(
-                    $"Method '{facetType}.{methodName}' has to be public in order to be called remotely.",
-                    FacetMethodSearchException.ProblemType.MethodNotPublic
-                );
-
-            return methodInfo;
         }
     }
 }

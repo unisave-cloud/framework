@@ -22,6 +22,10 @@ namespace Unisave.Runtime
         /// </summary>
         public static string Start(string executionParametersAsJson, Type[] gameAssemblyTypes)
         {
+            Console.WriteLine(
+                "Starting unisave framework " + typeof(Entrypoint).Assembly.GetName().Version.ToString(3)
+            );
+
             JsonObject executionParameters = JsonReader.Parse(executionParametersAsJson);
 
             // extract arguments
@@ -123,6 +127,9 @@ namespace Unisave.Runtime
 
                 case "migration":
                     return MigrationCall.Start(methodParameters, gameAssemblyTypes);
+
+                case "player-registration-hook":
+                    return PlayerRegistrationHookCall.Start(methodParameters, gameAssemblyTypes);
 
                 default:
                     throw new UnisaveException($"UnisaveFramework: Unknown execution method: {executionMethod}");

@@ -112,7 +112,7 @@ namespace FrameworkTests
         {
             JsonObject result = RunWithParams("FakeFacet", "NonexistingMethod", new JsonArray());
             Assert.AreEqual("invalid-method-parameters", result["result"].AsString);
-            StringAssert.Contains("Facet method wasn't found.", result["message"]);
+            StringAssert.Contains("doesn't have public method called", result["message"]);
         }
 
         [Test]
@@ -120,7 +120,7 @@ namespace FrameworkTests
         {
             JsonObject result = RunWithParams("FakeFacet", "AmbiguousMethod", new JsonArray());
             Assert.AreEqual("invalid-method-parameters", result["result"].AsString);
-            StringAssert.Contains("Facet method wasn't found.", result["message"]);
+            StringAssert.Contains("has multiple methods called", result["message"]);
         }
 
         [Test]
@@ -128,7 +128,7 @@ namespace FrameworkTests
         {
             JsonObject result = RunWithParams("FakeFacet", "PrivateProcedure", new JsonArray());
             Assert.AreEqual("invalid-method-parameters", result["result"].AsString);
-            StringAssert.Contains("Facet method wasn't found.", result["message"]);
+            StringAssert.Contains("has to be public in order to be called", result["message"]);
         }
 
         [Test]

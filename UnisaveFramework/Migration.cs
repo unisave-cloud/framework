@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Unisave.Exceptions;
 using Unisave.Database;
+using Unisave.Runtime;
 
 namespace Unisave
 {
@@ -31,23 +32,8 @@ namespace Unisave
 
         public static Migration CreateInstance(Type migrationType)
         {
-            if (!typeof(Migration).IsAssignableFrom(migrationType))
-                throw new MigrationInstantiationException(
-                    $"Provided type {migrationType} does not inherit from the Migration class.",
-                    MigrationInstantiationException.ProblemType.Other
-                );
-
-            // get parameterless constructor
-            ConstructorInfo ci = migrationType.GetConstructor(new Type[] { });
-
-            if (ci == null)
-                throw new MigrationInstantiationException(
-                    $"Provided facet type {migrationType} lacks parameterless constructor.",
-                    MigrationInstantiationException.ProblemType.Other
-                );
-
             // create instance
-            Migration migration = (Migration)ci.Invoke(new object[] { });
+            Migration migration = ExecutionHelper.Instantiate<Migration>(migrationType);
 
             // assign properties
             migration.Db = Unisave.Runtime.Endpoints.Database;
@@ -72,17 +58,15 @@ namespace Unisave
                 .ToList();
 
             if (migrationCandidates.Count > 1)
-                throw new MigrationInstantiationException(
+                throw new InstantiationException(
                     $"Migration {from} --> {to} is ambiguous. "
-                    + "Make sure you don't have two migrations with the same version jump.",
-                    MigrationInstantiationException.ProblemType.MigrationAmbiguous
+                    + "Make sure you don't have two migrations with the same version jump."
                 );
 
             if (migrationCandidates.Count == 0)
-                throw new MigrationInstantiationException(
+                throw new InstantiationException(
                     $"Migration {from} --> {to} was not found. "
-                    + $"Make sure your class inherits from the {nameof(Unisave.Migration)} class.",
-                    MigrationInstantiationException.ProblemType.MigrationNotFound
+                    + $"Make sure your class inherits from the {nameof(Unisave.Migration)} class."
                 );
 
             return migrationCandidates[0];
