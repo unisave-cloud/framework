@@ -4,6 +4,7 @@ using Unisave.Runtime;
 using Unisave;
 using LightJson;
 using LightJson.Serialization;
+using Unisave.Exceptions;
 
 namespace FrameworkTests
 {
@@ -11,16 +12,21 @@ namespace FrameworkTests
     {
         public static string flag;
 
-        public void Run(string f)
+        public override void Run()
         {
-            flag = f + Player.Id;
+            var argument = GetArgument<string>("foo");
+
+            if (argument == "reject")
+                Reject("Reject coz I want to.");
+
+            flag = argument + Player.Id;
         }
     }
 
     [TestFixture]
     public class PlayerRegistrationHookCallTest
     {
-        private JsonObject RunWithParams(JsonArray arguments)
+        private JsonObject RunWithParams(JsonObject arguments)
         {
             var methodParameters = new JsonObject();
             methodParameters.Add("arguments", arguments);
@@ -48,8 +54,17 @@ namespace FrameworkTests
         public void ItExecutesTheHook()
         {
             FakeHook.flag = null;
-            JsonObject result = RunWithParams(new JsonArray().Add("hello"));
+            JsonObject result = RunWithParams(new JsonObject().Add("foo", "hello"));
             Assert.AreEqual("hellofake-player-id", FakeHook.flag);
+        }
+
+        [Test]
+        public void HookThrows()
+        {
+            FakeHook.flag = null;
+            JsonObject result = RunWithParams(new JsonObject().Add("foo", "reject"));
+            Assert.AreEqual("exception", result["result"].AsString);
+            Assert.AreEqual(null, FakeHook.flag);
         }
     }
 }

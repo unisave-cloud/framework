@@ -69,6 +69,14 @@ namespace Unisave.Serialization
                 return ((Entity)instance).ToJson();
             }
 
+            // json
+            if (type == typeof(JsonValue))
+                return (JsonValue)instance;
+            if (type == typeof(JsonObject))
+                return new JsonValue((JsonObject)instance);
+            if (type == typeof(JsonArray))
+                return new JsonValue((JsonArray)instance);
+
             // custom classes
             return SaveCustomClass(instance, type);
         }

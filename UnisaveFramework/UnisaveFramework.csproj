@@ -72,6 +72,7 @@
     <Compile Include="PlayerRegistrationHook.cs" />
     <Compile Include="Runtime\ExecutionHelper.cs" />
     <Compile Include="Exceptions\ExecutionSerializationException.cs" />
+    <Compile Include="Exceptions\PlayerRegistrationRejectedException.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LightJson\Sources\LightJson\LightJson.csproj">

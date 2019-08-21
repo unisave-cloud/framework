@@ -95,6 +95,14 @@ namespace Unisave.Serialization
                 return Entity.FromJson(json, type);
             }
 
+            // json
+            if (type == typeof(JsonValue))
+                return json;
+            if (type == typeof(JsonObject))
+                return json.AsJsonObject;
+            if (type == typeof(JsonArray))
+                return json.AsJsonArray;
+
             // custom classes
             return LoadCustomClass(json, type);
         }
@@ -121,7 +129,7 @@ namespace Unisave.Serialization
         {
             Type[] typeArguments = type.GetGenericArguments();
             Type keyType = typeArguments[0];
-            Type valueType = typeArguments[0];
+            Type valueType = typeArguments[1];
             
             if (keyType != typeof(string))
                 throw new Exception("Dictionaries with non-string keys are not supported.");

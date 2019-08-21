@@ -2,6 +2,8 @@
 using System;
 using UnityEngine;
 using Unisave.Serialization;
+using LightJson;
+using System.Collections.Generic;
 
 namespace FrameworkTests
 {
@@ -47,6 +49,24 @@ namespace FrameworkTests
 
             Assert.AreEqual(@"{""x"":1,""y"":2}", Saver.Save(new Vector2(1, 2)).ToString());
             Assert.AreEqual(new Vector2(1, 2), Loader.Load<Vector2>(@"{""x"":1.0,""y"":2.0}"));
+        }
+
+        //////////
+        // Json //
+        //////////
+
+        [Test]
+        public void ItSerializesJson()
+        {
+            Assert.AreEqual("{}", Saver.Save(new JsonObject()).ToString());
+            Assert.AreEqual("\"hello\"", Saver.Save(new JsonValue("hello")).ToString());
+            Assert.AreEqual("-5", Saver.Save(new JsonValue(-5)).ToString());
+
+            Assert.AreEqual(42, Loader.Load<JsonObject>("{\"a\": 42}")["a"].AsInteger);
+            Assert.AreEqual(0, Loader.Load<JsonValue>("0").AsInteger);
+            Assert.AreEqual("foo", Loader.Load<JsonValue>("\"foo\"").AsString);
+
+            Assert.AreEqual(42, Loader.Load<Dictionary<string, JsonValue>>("{\"a\": 42}")["a"].AsInteger);
         }
     }
 }
