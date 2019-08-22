@@ -51,18 +51,6 @@ namespace Unisave
         public abstract void Run();
 
         /// <summary>
-        /// Rejects the registration if one of the listed arguments is missing
-        /// </summary>
-        protected void ValidateArgumentsProvided(params string[] names)
-        {
-            foreach (string name in names)
-            {
-                if (!arguments.ContainsKey(name))
-                    Reject($"Hook {this.GetType().Name} expects a parameter: {name}");
-            }
-        }
-
-        /// <summary>
         /// Immediately stops code execution and rejects player registration
         /// </summary>
         /// <param name="message">Message for the player</param>
@@ -83,7 +71,7 @@ namespace Unisave
             if (!arguments.ContainsKey(name))
                 return defaultValue;
 
-            return (T) Loader.Load(arguments[name], typeof(T));
+            return (T) Serializer.FromJson(arguments[name], typeof(T));
         }
     }
 }

@@ -50,7 +50,7 @@ namespace Unisave.Database
                             + "I'm planning to add support for this in the future however."
                         );
 
-                    jsonData.Add(pi.Name, Saver.Save(pi.GetValue(entityInstance)));
+                    jsonData.Add(pi.Name, Serializer.ToJson(pi.GetValue(entityInstance)));
                 }
             }
 
@@ -77,7 +77,7 @@ namespace Unisave.Database
                             + "I'm planning to add support for this in the future however."
                         );
 
-                    pi.SetValue(entityInstance, Loader.Load(jsonData[pi.Name], pi.PropertyType));
+                    pi.SetValue(entityInstance, Serializer.FromJson(jsonData[pi.Name], pi.PropertyType));
                 }
             }
         }

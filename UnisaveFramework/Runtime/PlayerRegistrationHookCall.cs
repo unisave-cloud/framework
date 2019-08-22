@@ -17,7 +17,7 @@ namespace Unisave.Runtime
             string playerId = executionParameters["playerId"];
             UnisavePlayer player = new UnisavePlayer(playerId);
 
-            Dictionary<string, JsonValue> arguments = (Dictionary<string, JsonValue>) Loader.Load(
+            Dictionary<string, JsonValue> arguments = (Dictionary<string, JsonValue>) Serializer.FromJson(
                 jsonArguments,
                 typeof(Dictionary<string, JsonValue>)
             );

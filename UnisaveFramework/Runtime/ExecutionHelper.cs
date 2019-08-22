@@ -123,7 +123,7 @@ namespace Unisave.Runtime
             {
                 try
                 {
-                    deserializedArguments[i] = Loader.Load(jsonArguments[i], parameters[i].ParameterType);
+                    deserializedArguments[i] = Serializer.FromJson(jsonArguments[i], parameters[i].ParameterType);
                 }
                 catch (Exception e)
                 {
@@ -144,7 +144,7 @@ namespace Unisave.Runtime
         {
             try
             {
-                return Saver.Save(value);
+                return Serializer.ToJson(value);
             }
             catch (Exception e)
             {
