@@ -153,12 +153,12 @@ namespace Unisave.Serialization
         }
 
         // alias
-        public static T FromJson<T>(string json)
-            => (T)(FromJson(json, typeof(T)) ?? default(T));
+        public static T FromJsonString<T>(string jsonString)
+            => (T)(FromJson(JsonReader.Parse(jsonString), typeof(T)) ?? default(T));
 
         // alias
-        public static object FromJson(string json, Type type)
-            => FromJson(JsonReader.Parse(json), type);
+        public static T FromJson<T>(JsonValue json)
+            => (T)(FromJson(json, typeof(T)) ?? default(T));
 
         /// <summary>
         /// Deserializes an object from JSON
