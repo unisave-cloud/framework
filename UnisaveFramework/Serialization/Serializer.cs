@@ -323,8 +323,8 @@ namespace Unisave.Serialization
             JsonObject jsonObject = new JsonObject();
             IDictionary dictionary = (IDictionary)subject;
 
-            foreach (KeyValuePair<object, object> pair in dictionary)
-                jsonObject.Add((string)pair.Key, ToJson(pair.Value));
+            foreach (DictionaryEntry entry in dictionary)
+                jsonObject.Add((string)entry.Key, ToJson(entry.Value));
 
             return jsonObject;
         }
