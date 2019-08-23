@@ -107,7 +107,8 @@ namespace Unisave.Runtime
         private static void TearDownServices()
         {
             // database
-            if (Endpoints.DatabaseResolver != null)
+            // check against "UnsiaveDatabase" because we don't want to crash during emulation
+            if (Endpoints.DatabaseResolver != null && Endpoints.Database is UnisaveDatabase)
             {
                 ((UnisaveDatabase)Endpoints.Database).Disconnect();
                 Endpoints.DatabaseResolver = null;
