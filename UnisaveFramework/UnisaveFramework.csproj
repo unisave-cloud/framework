@@ -70,12 +70,20 @@
     <Compile Include="PlayerRegistrationHook.cs" />
     <Compile Include="Runtime\ExecutionHelper.cs" />
     <Compile Include="Exceptions\ExecutionSerializationException.cs" />
-    <Compile Include="Exceptions\PlayerRegistrationRejectedException.cs" />
     <Compile Include="Serialization\Serializer.cs" />
     <Compile Include="Serialization\ITypeSerializer.cs" />
     <Compile Include="Serialization\DefaultTypeSerializers.cs" />
     <Compile Include="Serialization\LambdaTypeSerializer.cs" />
     <Compile Include="Serialization\ExceptionSerializer.cs" />
+    <Compile Include="Exceptions\ServerConnection\ServerConnectionException.cs" />
+    <Compile Include="Exceptions\ServerConnection\ServerUnderMaintenanceException.cs" />
+    <Compile Include="Exceptions\ServerConnection\InvalidGameTokenException.cs" />
+    <Compile Include="Exceptions\ServerConnection\InvalidAccessTokenException.cs" />
+    <Compile Include="Exceptions\PlayerRegistration\PlayerRegistrationException.cs" />
+    <Compile Include="Exceptions\ExceptionWithPlayerMessage.cs" />
+    <Compile Include="Exceptions\PlayerRegistration\EmailAlreadyRegisteredException.cs" />
+    <Compile Include="Exceptions\PlayerRegistration\InvalidEmailException.cs" />
+    <Compile Include="Exceptions\PlayerRegistration\InvalidPasswordException.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LightJson\Sources\LightJson\LightJson.csproj">
@@ -91,6 +99,8 @@
     <Folder Include="Facades\" />
     <Folder Include="Networking\" />
     <Folder Include="Utils\" />
+    <Folder Include="Exceptions\ServerConnection\" />
+    <Folder Include="Exceptions\PlayerRegistration\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

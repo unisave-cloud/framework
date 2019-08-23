@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Unisave.Runtime;
 using Unisave.Serialization;
-using Unisave.Exceptions;
+using Unisave.Exceptions.PlayerRegistration;
 using LightJson;
 
 namespace Unisave
@@ -53,11 +53,13 @@ namespace Unisave
         /// <summary>
         /// Immediately stops code execution and rejects player registration
         /// </summary>
-        /// <param name="message">Message for the player</param>
+        /// <param name="messageForPlayer">Message for the player</param>
         /// <param name="payload">Optional payload for the client side</param>
-        protected void Reject(string message = null, object payload = null)
+        protected void Reject(string messageForPlayer = null, object payload = null)
         {
-            throw new PlayerRegistrationRejectedException(message, payload);
+            throw new PlayerRegistrationException(
+                "Registration has been canceled inside a hook: " + messageForPlayer
+            ).TellPlayer(messageForPlayer);
         }
 
         /// <summary>
