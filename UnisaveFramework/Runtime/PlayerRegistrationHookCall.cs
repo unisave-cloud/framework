@@ -25,6 +25,7 @@ namespace Unisave.Runtime
             // find all hooks
             List<PlayerRegistrationHook> hooks = gameAssemblyTypes
                 .Where(t => typeof(PlayerRegistrationHook).IsAssignableFrom(t))
+                .Where(t => t != typeof(PlayerRegistrationHook)) // except for the abstract class itself
                 .Select(t => PlayerRegistrationHook.CreateInstance(t, player, arguments))
                 .ToList();
 

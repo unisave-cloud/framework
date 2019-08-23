@@ -39,6 +39,7 @@ namespace Unisave
             List<Type> facetCandidates = types
                 .Where(t => t.Name == facetName)
                 .Where(t => typeof(Facet).IsAssignableFrom(t))
+                .Where(t => t != typeof(Facet)) // except for the abstract class itself
                 .ToList();
 
             if (facetCandidates.Count > 1)
