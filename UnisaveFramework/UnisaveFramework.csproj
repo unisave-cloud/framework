@@ -75,6 +75,7 @@
     <Compile Include="Serialization\ITypeSerializer.cs" />
     <Compile Include="Serialization\DefaultTypeSerializers.cs" />
     <Compile Include="Serialization\LambdaTypeSerializer.cs" />
+    <Compile Include="Serialization\ExceptionSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LightJson\Sources\LightJson\LightJson.csproj">

@@ -63,6 +63,21 @@ namespace Unisave.Serialization
         }
 
         /// <summary>
+        /// Determine, whether there is an explicit serializer for given type
+        /// </summary>
+        public static bool HasSerializerFor(Type type)
+        {
+            if (exactTypeSerializers.ContainsKey(type))
+                return true;
+
+            foreach (var pair in assignableTypeSerializers)
+                if (pair.Key.IsAssignableFrom(type))
+                    return true;
+
+            return false;
+        }
+
+        /// <summary>
         /// Logs a warning message
         /// </summary>
         private static void Warning(string message)

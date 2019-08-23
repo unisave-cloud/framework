@@ -14,6 +14,11 @@ namespace Unisave.Serialization
             Json();
             UnityMath();
 
+            Serializer.SetAssignableTypeSerializer(
+                typeof(Exception),
+                new ExceptionSerializer()
+            );
+
             Serializer.SetExactTypeSerializer(typeof(UnisavePlayer), new LambdaTypeSerializer()
                 .ToJson((subject) => {
                     return (JsonValue)((UnisavePlayer)subject).Id;

@@ -55,6 +55,7 @@ namespace Unisave.Runtime
                 return new JsonObject()
                     .Add("result", "exception")
                     .Add("exceptionAsString", e.InnerException.ToString())
+                    .Add("exception", Serializer.ToJson(e.InnerException))
                     .ToString();
             }
             catch (InvalidMethodParametersException e)
