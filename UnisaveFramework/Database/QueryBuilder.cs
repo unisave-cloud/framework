@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Unisave.Runtime;
+using Unisave.Serialization;
+using LightJson;
 
 namespace Unisave.Database
 {
@@ -69,6 +71,16 @@ namespace Unisave.Database
         }
 
         /// <summary>
+        /// Finds an entity by it's id
+        /// No "OfPlayer" or "Where" constraints are applied here.
+        /// If entity does not exist, null is returned.
+        /// </summary>
+        public E Find(string entityId)
+        {
+            return (E)Entity.FromRawEntity(database.LoadEntity(entityId), typeof(E));
+        }
+
+        /// <summary>
         /// Focus only on entities, that are owned by the given player
         /// </summary>
         public QueryBuilder<E> OfPlayer(UnisavePlayer player)
@@ -97,6 +109,40 @@ namespace Unisave.Database
         {
             query.requireOwnersExactly = false;
             
+            return this;
+        }
+
+        ///////////////////
+        // Where clauses //
+        ///////////////////
+        
+        /// <summary>
+        /// Filters entities by data
+        /// </summary>
+        /// <param name="jsonPath">Path to the target data item</param>
+        /// <param name="value">Desired value of the data item</param>
+        public QueryBuilder<E> Where(string jsonPath, object value)
+        {
+            return Where(jsonPath, "=", value);
+        }
+
+        /// <summary>
+        /// Filters entities by data
+        /// </summary>
+        /// <param name="jsonPath">Path to the target data item</param>
+        /// <param name="op">Operator used to compare the values</param>
+        /// <param name="value">Desired value of the data item</param>
+        public QueryBuilder<E> Where(string jsonPath, string op, object value)
+        {
+            query.whereClauses.Add(
+                new JsonObject()
+                    .Add("type", "Basic")
+                    .Add("path", jsonPath)
+                    .Add("operator", op)
+                    .Add("value", Serializer.ToJson(value))
+                    .Add("boolean", "and")
+            );
+
             return this;
         }
     }

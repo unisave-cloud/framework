@@ -32,5 +32,14 @@ namespace Unisave
 
         public static QueryBuilder<E> OfPlayers(IEnumerable<UnisavePlayer> players)
             => QueryBuilder<E>.Create().OfPlayers(players);
+
+        public static QueryBuilder<E> OfAnyPlayers()
+            => QueryBuilder<E>.Create().AndOthers();
+
+        public static QueryBuilder<E> Where(string jsonPath, object value)
+            => QueryBuilder<E>.Create().Where(jsonPath, value);
+
+        public static QueryBuilder<E> Where(string jsonPath, string op, object value)
+            => QueryBuilder<E>.Create().Where(jsonPath, op, value);
     }
 }
