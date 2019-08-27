@@ -77,6 +77,22 @@ namespace FrameworkTests
         }
 
         [Test]
+        public void ItSerializesNonStringDictionaries()
+        {
+            var subject = new Dictionary<int, string> {
+                [5] = "42",
+                [6] = "2"
+            };
+
+            Assert.AreEqual(
+                "[[5,\"42\"],[6,\"2\"]]",
+                Serializer.ToJson(subject).ToString()
+            );
+
+            Assert.AreEqual(subject, Serializer.FromJsonString<Dictionary<int, string>>("[[5,\"42\"],[6,\"2\"]]"));
+        }
+
+        [Test]
         public void ItSerializesVectors()
         {
             Assert.AreEqual(@"{""x"":1,""y"":2,""z"":3}", Serializer.ToJson(new Vector3(1, 2, 3)).ToString());

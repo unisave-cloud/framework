@@ -318,7 +318,7 @@ namespace Unisave.Serialization
             Type keyType = type.GetGenericArguments()[0];
 
             if (keyType != typeof(string))
-                throw new Exception("Unisave serialization: Non-string key dictionaries not supported.");
+                return NonStringDictionaryToJson(subject, type);
 
             JsonObject jsonObject = new JsonObject();
             IDictionary dictionary = (IDictionary)subject;
@@ -329,6 +329,21 @@ namespace Unisave.Serialization
             return jsonObject;
         }
 
+        private static JsonValue NonStringDictionaryToJson(object subject, Type type)
+        {
+            JsonArray pairs = new JsonArray();
+
+            foreach (DictionaryEntry entry in (IDictionary)subject)
+            {
+                pairs.Add(new JsonArray(
+                    Serializer.ToJson(entry.Key),
+                    Serializer.ToJson(entry.Value)
+                ));
+            }
+
+            return pairs;
+        }
+
         private static object DictionaryFromJson(JsonValue json, Type type)
         {
             Type[] typeArguments = type.GetGenericArguments();
@@ -336,7 +351,7 @@ namespace Unisave.Serialization
             Type valueType = typeArguments[1];
             
             if (keyType != typeof(string))
-                throw new Exception("Unisave serialization: Dictionaries with non-string keys are not supported.");
+                return NonStringDictionaryFromJson(json, type);
 
             object dictionary = type.GetConstructor(new Type[] {}).Invoke(new object[] {});
 
@@ -349,6 +364,25 @@ namespace Unisave.Serialization
                     item.Key,
                     FromJson(item.Value, valueType)
                 });
+
+            return dictionary;
+        }
+
+        private static object NonStringDictionaryFromJson(JsonValue json, Type type)
+        {
+            Type[] typeArguments = type.GetGenericArguments();
+            Type keyType = typeArguments[0];
+            Type valueType = typeArguments[1];
+
+            object dictionary = type.GetConstructor(new Type[] {}).Invoke(new object[] {});
+
+            foreach (JsonValue pair in json.AsJsonArray)
+            {
+                type.GetMethod("Add").Invoke(dictionary, new object[] {
+                    FromJson(pair.AsJsonArray[0], keyType),
+                    FromJson(pair.AsJsonArray[1], valueType)
+                });
+            }
 
             return dictionary;
         }
