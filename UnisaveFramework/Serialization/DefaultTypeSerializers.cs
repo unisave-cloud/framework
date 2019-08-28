@@ -14,6 +14,15 @@ namespace Unisave.Serialization
             Json();
             UnityMath();
 
+            Serializer.SetExactTypeSerializer(typeof(DateTime), new LambdaTypeSerializer()
+                .ToJson((subject) => {
+                    return (JsonValue)((DateTime)subject).ToString(SerializationParams.DateTimeFormat);
+                })
+                .FromJson((json, type) => {
+                    return DateTime.Parse(json.AsString);
+                })
+            );
+
             Serializer.SetAssignableTypeSerializer(
                 typeof(Exception),
                 new ExceptionSerializer()

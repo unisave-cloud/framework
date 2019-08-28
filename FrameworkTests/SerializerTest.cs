@@ -93,6 +93,27 @@ namespace FrameworkTests
         }
 
         [Test]
+        public void ItSerializesDateTime()
+        {
+            var subject = DateTime.Now;
+            var serialized = subject.ToString(SerializationParams.DateTimeFormat);
+
+            Assert.AreEqual(
+                serialized,
+                Serializer.ToJson(subject).AsString
+            );
+
+            var loaded = Serializer.FromJson<DateTime>((JsonValue)serialized);
+            Assert.AreEqual(subject.Year, loaded.Year);
+            Assert.AreEqual(subject.Month, loaded.Month);
+            Assert.AreEqual(subject.Day, loaded.Day);
+            Assert.AreEqual(subject.Hour, loaded.Hour);
+            Assert.AreEqual(subject.Minute, loaded.Minute);
+            Assert.AreEqual(subject.Second, loaded.Second);
+            Assert.AreEqual(0, loaded.Millisecond);
+        }
+
+        [Test]
         public void ItSerializesVectors()
         {
             Assert.AreEqual(@"{""x"":1,""y"":2,""z"":3}", Serializer.ToJson(new Vector3(1, 2, 3)).ToString());
