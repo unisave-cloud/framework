@@ -85,6 +85,26 @@ namespace Unisave.Serialization
         /// </summary>
         private static void UnityMath()
         {
+            Serializer.SetExactTypeSerializer(typeof(Vector4), new LambdaTypeSerializer()
+                .ToJson((subject) => {
+                    Vector4 vector = (Vector4)subject;
+                    return new JsonObject()
+                        .Add("x", vector.x)
+                        .Add("y", vector.y)
+                        .Add("z", vector.z)
+                        .Add("w", vector.w);
+                })
+                .FromJson((json, type) => {
+                    JsonObject o = json.AsJsonObject;
+                    return new Vector4(
+                        (float)o["x"].AsNumber,
+                        (float)o["y"].AsNumber,
+                        (float)o["z"].AsNumber,
+                        (float)o["w"].AsNumber
+                    );
+                })
+            );
+
             Serializer.SetExactTypeSerializer(typeof(Vector3), new LambdaTypeSerializer()
                 .ToJson((subject) => {
                     Vector3 vector = (Vector3)subject;
