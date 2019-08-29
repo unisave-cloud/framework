@@ -34,5 +34,18 @@ namespace Unisave
         {
             return this.Id == that.Id;
         }
+
+        public static bool operator ==(UnisavePlayer a, UnisavePlayer b)
+        {
+            if (ReferenceEquals(a, null) || ReferenceEquals(b, null))
+                return false;
+
+            return a.Id == b.Id;
+        }
+
+        public static bool operator !=(UnisavePlayer a, UnisavePlayer b)
+        {
+            return !(a == b);
+        }
     }
 }
