@@ -37,6 +37,9 @@ namespace Unisave
 
         public static bool operator ==(UnisavePlayer a, UnisavePlayer b)
         {
+            if (ReferenceEquals(a, null) && ReferenceEquals(b, null))
+                return true;
+
             if (ReferenceEquals(a, null) || ReferenceEquals(b, null))
                 return false;
 
