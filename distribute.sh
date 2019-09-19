@@ -7,8 +7,12 @@
 # Distribute #
 ##############
 
+VERSION=$(grep -oP "AssemblyInformationalVersion\(\"\K[^\"]+" UnisaveFramework/Properties/AssemblyInfo.cs)
+
 # web
-cp -R UnisaveFramework/bin/Debug/* ~/ImportantCode/Unisave/Web/storage/app/unisave-framework/0.2.0
+mkdir -p ~/ImportantCode/Unisave/Web/storage/app/unisave-framework/$VERSION
+cp -R UnisaveFramework/bin/Debug/* ~/ImportantCode/Unisave/Web/storage/app/unisave-framework/$VERSION
+echo $VERSION > ~/ImportantCode/Unisave/Web/storage/app/unisave-framework/latest.txt
 
 # database proxy
 cp -R UnisaveFramework/bin/Debug/* ~/ImportantCode/Unisave/DatabaseProxy/dlls/UnisaveFramework
