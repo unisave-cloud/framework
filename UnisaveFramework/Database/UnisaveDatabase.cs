@@ -83,6 +83,12 @@ namespace Unisave.Database
         }
 
         /// <inheritdoc />
+        public IEnumerable<string> GetEntityOwners(string entityId)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public bool DeleteEntity(string id)
         {
             client.SendJsonMessage(
