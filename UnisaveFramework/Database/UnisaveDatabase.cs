@@ -11,29 +11,15 @@ namespace Unisave.Database
     /// 
     /// This service is recyclable - it can connect multiple times
     /// </summary>
+    [Obsolete("Database will be accessed through the script runner service interface")]
     public class UnisaveDatabase : IDatabase
     {
-        /// <summary>
-        /// TCP Client that is connected to a database proxy server
-        /// </summary>
-        private Client client;
-
-        public UnisaveDatabase()
-        {
-        }
-
         /// <summary>
         /// Connect to a database proxy
         /// </summary>
         public void Connect(string executionId, string databaseProxyIp, int databaseProxyPort)
         {
-            client = Client.Connect(databaseProxyIp, databaseProxyPort);
-
-            client.SendJsonMessage(
-                (int)ProxyMessage.ClientAuthenticates,
-                new JsonObject().Add("executionId", executionId)
-            );
-            client.ReceiveJsonMessageAndExpectType((int)ProxyMessage.OK);
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -41,45 +27,19 @@ namespace Unisave.Database
         /// </summary>
         public void Disconnect()
         {
-            client.Disconnect();
+            throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public void SaveEntity(RawEntity entity)
         {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
-
-            client.SendJsonMessage(
-                (int)ProxyMessage.SaveEntity,
-                entity.ToJson()
-            );
-
-            JsonObject response = client.ReceiveJsonMessageAndExpectType((int)ProxyMessage.SaveEntityResponse);
-
-            if (entity.id == null)
-            {
-                entity.id = response["entityId"].AsString;
-                entity.createdAt = DateTime.Parse(response["createdAt"].AsString);
-            }
-
-            entity.updatedAt = DateTime.Parse(response["updatedAt"].AsString);
+            throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public RawEntity LoadEntity(string id)
         {
-            client.SendJsonMessage(
-                (int)ProxyMessage.LoadEntity,
-                new JsonObject().Add("entityId", id)
-            );
-            
-            JsonValue response = client.ReceiveJsonMessageAndExpectType((int)ProxyMessage.LoadEntityResponse);
-
-            if (response.IsNull)
-                return null;
-
-            return RawEntity.FromJson(response.AsJsonObject);
+            throw new NotImplementedException();
         }
 
         /// <inheritdoc />
@@ -91,27 +51,13 @@ namespace Unisave.Database
         /// <inheritdoc />
         public bool DeleteEntity(string id)
         {
-            client.SendJsonMessage(
-                (int)ProxyMessage.DeleteEntity,
-                new JsonObject().Add("entityId", id)
-            );
-
-            return client.ReceiveJsonMessageAndExpectType((int)ProxyMessage.DeleteEntityResponse).AsBoolean;
+            throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public IEnumerable<RawEntity> QueryEntities(string entityType, EntityQuery query)
         {
-            client.SendJsonMessage(
-                (int)ProxyMessage.QueryEntities,
-                new JsonObject()
-                    .Add("entityType", entityType)
-                    .Add("query", query.ToJson())
-            );
-
-            JsonArray response = client.ReceiveJsonMessageAndExpectType((int)ProxyMessage.QueryEntitiesResponse);
-
-            return response.Select(x => RawEntity.FromJson(x));
+            throw new NotImplementedException();
         }
     }
 }

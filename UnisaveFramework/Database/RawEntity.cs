@@ -7,7 +7,8 @@ using Unisave.Serialization;
 namespace Unisave.Database
 {
     /// <summary>
-    /// Holds the raw entity data, free of any artificial constraints and syntactic sugar
+    /// Holds the raw entity data, free of any artificial
+    /// constraints and syntactic sugar.
     /// Used for the low-level database API
     /// </summary>
     public class RawEntity
@@ -20,20 +21,22 @@ namespace Unisave.Database
 
         /// <summary>
         /// Type of the entity
-        /// Type determines the structure of the carried data. This structure are really just some
-        /// agreed upon layers of abstraction, using the unisave serialization system
+        /// Type determines the structure of the carried data.
+        /// This structure are really just some agreed upon layers
+        /// of abstraction, using the unisave serialization system.
         /// </summary>
         public string type;
 
         /// <summary>
-        /// Set of all players that own this entity.
-        /// Entity ownership helps with querying and reasoning about the entities.
+        /// Represents the set of players that own this entity.
+        /// This set may not be fully known.
         /// </summary>
-        public ISet<string> ownerIds = new HashSet<string>();
+        public EntityOwnerIds ownerIds = new EntityOwnerIds();
 
         /// <summary>
-        /// The actual data, this entity contains. Their structure is determined by the type
-        /// (so all entities of a given type should have the same structure, but again,
+        /// The actual data, this entity contains. Their structure
+        /// is determined by the type (so all entities of a given type
+        /// should have the same structure, but again,
         /// this is just a convention)
         /// </summary>
         public JsonObject data = new JsonObject();
@@ -57,10 +60,16 @@ namespace Unisave.Database
             
             json.Add(nameof(id), id);
             json.Add(nameof(type), type);
-            json.Add(nameof(ownerIds), new JsonArray(ownerIds.Select(x => (JsonValue)x).ToArray()));
+            json.Add(nameof(ownerIds), ownerIds.ToJson());
             json.Add(nameof(data), data);
-            json.Add(nameof(createdAt), createdAt.ToString(SerializationParams.DateTimeFormat));
-            json.Add(nameof(updatedAt), updatedAt.ToString(SerializationParams.DateTimeFormat));
+            json.Add(
+                nameof(createdAt),
+                createdAt.ToString(SerializationParams.DateTimeFormat)
+            );
+            json.Add(
+                nameof(updatedAt),
+                updatedAt.ToString(SerializationParams.DateTimeFormat)
+            );
 
             return json;
         }
@@ -76,7 +85,7 @@ namespace Unisave.Database
             return new RawEntity {
                 id = json[nameof(id)].AsString,
                 type = json[nameof(type)].AsString,
-                ownerIds = new HashSet<string>(json[nameof(ownerIds)].AsJsonArray.Select(x => (string)x)),
+                ownerIds = EntityOwnerIds.FromJson(json[nameof(ownerIds)]),
                 data = json[nameof(data)],
                 createdAt = DateTime.Parse(json[nameof(createdAt)].AsString),
                 updatedAt = DateTime.Parse(json[nameof(updatedAt)].AsString)

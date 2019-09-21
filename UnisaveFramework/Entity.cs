@@ -21,7 +21,7 @@ namespace Unisave
         /// <summary>
         /// Players that own this entity
         /// </summary>
-        public ISet<UnisavePlayer> Owners { get; private set; } = new HashSet<UnisavePlayer>();
+        public EntityOwners Owners { get; private set; } = new EntityOwners();
 
         /// <summary>
         /// When has been the entity created
@@ -38,9 +38,9 @@ namespace Unisave
         /// <summary>
         /// Extracts database entity type from a c# entity type
         /// </summary>
-        public static string GetEntityType<E>() where E : Entity
+        public static string GetEntityType<T>() where T : Entity
         {
-            return GetEntityType(typeof(E));
+            return GetEntityType(typeof(T));
         }
 
         /// <summary>
@@ -49,7 +49,10 @@ namespace Unisave
         public static string GetEntityType(Type entityType)
         {
             if (!typeof(Entity).IsAssignableFrom(entityType))
-                throw new ArgumentException(nameof(entityType), "Provided type is not an entity type.");
+                throw new ArgumentException(
+                    "Provided type is not an entity type.",
+                    nameof(entityType)
+                );
 
             return entityType.Name;
         }
@@ -62,7 +65,7 @@ namespace Unisave
         {
             RawEntity raw = ToRawEntity();
             Endpoints.Database.SaveEntity(raw);
-            Entity.LoadRawEntity(raw, this); // id, updated_at, created_at
+            LoadRawEntity(raw, this); // id, updated_at, created_at
         }
 
         /// <summary>
@@ -70,7 +73,7 @@ namespace Unisave
         /// </summary>
         public void Refresh()
         {
-            Entity.LoadRawEntity(
+            LoadRawEntity(
                 Endpoints.Database.LoadEntity(EntityId),
                 this
             );
@@ -85,9 +88,6 @@ namespace Unisave
             
             // deletion clears all the metadata (but not the actual data)
             EntityId = null;
-            Owners.Clear();
-            CreatedAt = default(DateTime);
-            UpdatedAt = default(DateTime);
 
             return result;
         }
@@ -98,12 +98,12 @@ namespace Unisave
         /// </summary>
         protected RawEntity ToRawEntity()
         {
-            var crawler = new EntityCrawler(this.GetType());
+            var crawler = new EntityCrawler(GetType());
 
             return new RawEntity {
                 id = EntityId,
-                type = Entity.GetEntityType(this.GetType()),
-                ownerIds = new HashSet<string>(Owners.Select(x => x.Id)),
+                type = GetEntityType(GetType()),
+                ownerIds = Owners.OwnerIds,
                 data = crawler.ExtractData(this),
                 createdAt = CreatedAt,
                 updatedAt = UpdatedAt
@@ -115,17 +115,18 @@ namespace Unisave
         /// </summary>
         private static void LoadRawEntity(RawEntity raw, Entity targetInstance)
         {
-            string targetType = Entity.GetEntityType(targetInstance.GetType());
+            string targetType = GetEntityType(targetInstance.GetType());
             if (raw.type != targetType)
                 throw new ArgumentException(
                     nameof(targetInstance),
-                    $"Trying to load raw entity of type {raw.type} into entity instance of type {targetType}."
+                    $"Trying to load raw entity of type {raw.type} into " +
+                    $"entity instance of type {targetType}."
                 );
 
             var crawler = new EntityCrawler(targetInstance.GetType());
 
             targetInstance.EntityId = raw.id;
-            targetInstance.Owners = new HashSet<UnisavePlayer>(raw.ownerIds.Select(x => new UnisavePlayer(x)));
+            targetInstance.Owners = new EntityOwners(raw.ownerIds);
             crawler.InsertData(targetInstance, raw.data);
             targetInstance.CreatedAt = raw.createdAt;
             targetInstance.UpdatedAt = raw.updatedAt;
@@ -140,7 +141,8 @@ namespace Unisave
             // check proper parent
             if (!typeof(Entity).IsAssignableFrom(entityType))
                 throw new ArgumentException(
-                    $"Provided type {entityType} does not inherit from the Entity class."
+                    $"Provided type {entityType} does not " +
+                    "inherit from the Entity class."
                 );
 
             // get parameterless constructor
@@ -148,7 +150,8 @@ namespace Unisave
 
             if (ci == null)
                 throw new ArgumentException(
-                    $"Provided entity type {entityType} lacks parameterless constructor."
+                    $"Provided entity type {entityType} lacks " +
+                    "parameterless constructor."
                 );
 
             // create instance
@@ -165,8 +168,8 @@ namespace Unisave
             if (raw == null)
                 return null;
 
-            Entity entityInstance = Entity.CreateInstance(entityType);
-            Entity.LoadRawEntity(raw, entityInstance);
+            Entity entityInstance = CreateInstance(entityType);
+            LoadRawEntity(raw, entityInstance);
             return entityInstance;
         }
 

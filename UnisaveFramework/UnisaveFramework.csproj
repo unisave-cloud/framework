@@ -37,6 +37,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Database\EntityOwnerIds.cs" />
+    <Compile Include="Database\EntityOwners.cs" />
     <Compile Include="FrameworkMeta.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnisavePlayer.cs" />
@@ -55,7 +57,6 @@
     <Compile Include="Utils\Str.cs" />
     <Compile Include="Serialization\SerializationParams.cs" />
     <Compile Include="Networking\Client.cs" />
-    <Compile Include="Database\ProxyMessage.cs" />
     <Compile Include="Exceptions\NetworkingException.cs" />
     <Compile Include="Exceptions\ConnectionEndedException.cs" />
     <Compile Include="Entity.cs" />
