@@ -47,10 +47,10 @@ namespace Unisave.Database
         /// </summary>
         private readonly ISet<string> removedPlayers = new HashSet<string>();
 
-        public EntityOwnerIds()
+        public EntityOwnerIds(bool isComplete)
         {
             knownPlayers = new HashSet<string>();
-            IsComplete = false;
+            IsComplete = isComplete;
         }
         
         public EntityOwnerIds(IEnumerable<string> enumerable, bool isComplete)
@@ -113,7 +113,7 @@ namespace Unisave.Database
         }
 
         /// <summary>
-        /// Like Contains, but return null instead of an exception.
+        /// Like Contains, but returns null instead of an exception.
         /// </summary>
         public bool? TryContains(string playerId)
         {
@@ -135,6 +135,31 @@ namespace Unisave.Database
         public IEnumerable<string> GetKnownOwners()
         {
             return knownPlayers.AsEnumerable();
+        }
+        
+        /// <summary>
+        /// Returns the set of newly added owners
+        /// </summary>
+        public IEnumerable<string> GetAddedOwners()
+        {
+            return addedPlayers.AsEnumerable();
+        }
+        
+        /// <summary>
+        /// Returns the set of newly removed owners
+        /// </summary>
+        public IEnumerable<string> GetRemovedOwners()
+        {
+            return removedPlayers.AsEnumerable();
+        }
+
+        /// <summary>
+        /// Entity has been saved, now commit all ownership changes
+        /// </summary>
+        public void CommitChanges()
+        {
+            addedPlayers.Clear();
+            removedPlayers.Clear();
         }
         
         /// <summary>

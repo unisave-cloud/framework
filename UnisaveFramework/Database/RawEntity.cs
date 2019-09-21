@@ -31,7 +31,9 @@ namespace Unisave.Database
         /// Represents the set of players that own this entity.
         /// This set may not be fully known.
         /// </summary>
-        public EntityOwnerIds ownerIds = new EntityOwnerIds();
+        public EntityOwnerIds ownerIds = new EntityOwnerIds(
+            isComplete: true // assume that a new entity is being created
+        );
 
         /// <summary>
         /// The actual data, this entity contains. Their structure

@@ -21,7 +21,9 @@ namespace Unisave
         /// <summary>
         /// Players that own this entity
         /// </summary>
-        public EntityOwners Owners { get; private set; } = new EntityOwners();
+        public EntityOwners Owners { get; private set; } = new EntityOwners(
+            isComplete: true // assume a new entity is being created
+        );
 
         /// <summary>
         /// When has been the entity created
