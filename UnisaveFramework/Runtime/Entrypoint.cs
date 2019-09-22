@@ -7,6 +7,7 @@ using LightJson.Serialization;
 using Unisave.Serialization;
 using Unisave.Exceptions;
 using Unisave.Database;
+using Unisave.Services;
 
 namespace Unisave.Runtime
 {
@@ -68,7 +69,7 @@ namespace Unisave.Runtime
             }
             catch (Exception e)
             {
-                // unhandled exception comming from inside the bootstrapping logic
+                // unhandled exception coming from inside the bootstrapping logic
                 // this is bad
                 return new JsonObject()
                     .Add("result", "error")
@@ -92,12 +93,23 @@ namespace Unisave.Runtime
             int databaseProxyPort
         )
         {
+            // if we already have a container, it has probably been
+            // given to us by some testing setup method or it's perfectly
+            // setup by some previous script executions.
+            //
+            // so won't create any services, since they should already be there
+            if (ServiceContainer.Default != null)
+                return;
+
+            // create container and fill it with services
+            var container = ServiceContainer.Default = new ServiceContainer();
+            
             // database
             if (databaseProxyIp != null)
             {
                 var database = new UnisaveDatabase();
                 database.Connect(executionId, databaseProxyIp, databaseProxyPort);
-                Endpoints.DatabaseResolver = () => database;
+                container.Register<IDatabase>(database);
             }
         }
 
@@ -106,13 +118,7 @@ namespace Unisave.Runtime
         /// </summary>
         private static void TearDownServices()
         {
-            // database
-            // check against "UnsiaveDatabase" because we don't want to crash during emulation
-            if (Endpoints.DatabaseResolver != null && Endpoints.Database is UnisaveDatabase)
-            {
-                ((UnisaveDatabase)Endpoints.Database).Disconnect();
-                Endpoints.DatabaseResolver = null;
-            }
+            ServiceContainer.Default?.Dispose();
         }
 
         /// <summary>

@@ -4,6 +4,7 @@ using System.Linq;
 using Unisave.Runtime;
 using Unisave.Serialization;
 using LightJson;
+using Unisave.Services;
 
 namespace Unisave.Database
 {
@@ -28,12 +29,14 @@ namespace Unisave.Database
         }
 
         /// <summary>
-        /// Creates new default query buillder
+        /// Creates new default query builder
         /// (used in the facade)
         /// </summary>
         public static QueryBuilder<E> Create()
         {
-            return new QueryBuilder<E>(Endpoints.Database);
+            return new QueryBuilder<E>(
+                ServiceContainer.Default.Resolve<IDatabase>()
+            );
         }
 
         /// <summary>

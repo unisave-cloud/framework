@@ -4,6 +4,7 @@ using Unisave.Runtime;
 using Unisave;
 using LightJson;
 using LightJson.Serialization;
+using Unisave.Services;
 
 namespace FrameworkTests
 {

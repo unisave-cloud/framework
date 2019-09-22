@@ -5,6 +5,7 @@ using System.Reflection;
 using Unisave.Runtime;
 using Unisave.Database;
 using LightJson;
+using Unisave.Services;
 
 namespace Unisave
 {
@@ -65,8 +66,10 @@ namespace Unisave
         /// </summary>
         public void Save()
         {
+            var database = ServiceContainer.Default.Resolve<IDatabase>();
+            
             RawEntity raw = ToRawEntity();
-            Endpoints.Database.SaveEntity(raw);
+            database.SaveEntity(raw);
             LoadRawEntity(raw, this); // id, updated_at, created_at
         }
 
@@ -75,8 +78,10 @@ namespace Unisave
         /// </summary>
         public void Refresh()
         {
+            var database = ServiceContainer.Default.Resolve<IDatabase>();
+            
             LoadRawEntity(
-                Endpoints.Database.LoadEntity(EntityId),
+                database.LoadEntity(EntityId),
                 this
             );
         }
@@ -86,7 +91,9 @@ namespace Unisave
         /// </summary>
         public bool Delete()
         {
-            bool result = Endpoints.Database.DeleteEntity(EntityId);
+            var database = ServiceContainer.Default.Resolve<IDatabase>();
+            
+            bool result = database.DeleteEntity(EntityId);
             
             // deletion clears all the metadata (but not the actual data)
             EntityId = null;

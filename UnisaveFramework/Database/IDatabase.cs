@@ -5,6 +5,9 @@ using LightJson;
 namespace Unisave.Database
 {
     /// <summary>
+    /// Interface used to resolve database connection
+    /// from the service container.
+    ///
     /// Provides the raw interface to the database. All framework features
     /// should be built on top of this interface. How this interface is
     /// implemented is a Unisave internal thing and you shouldn't rely on it,

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Unisave.Database;
 using Unisave.Runtime;
+using Unisave.Services;
 
 namespace Unisave
 {
@@ -21,8 +22,10 @@ namespace Unisave
         /// </summary>
         public static E Find(string entityId)
         {
+            var database = ServiceContainer.Default.Resolve<IDatabase>();
+            
             return (E)Entity.FromRawEntity(
-                Endpoints.Database.LoadEntity(entityId),
+                database.LoadEntity(entityId),
                 typeof(E)
             );
         }

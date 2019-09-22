@@ -5,6 +5,7 @@ using System.Reflection;
 using Unisave.Exceptions;
 using Unisave.Database;
 using Unisave.Runtime;
+using Unisave.Services;
 
 namespace Unisave
 {
@@ -36,7 +37,7 @@ namespace Unisave
             Migration migration = ExecutionHelper.Instantiate<Migration>(migrationType);
 
             // assign properties
-            migration.Db = Unisave.Runtime.Endpoints.Database;
+            migration.Db = ServiceContainer.Default.Resolve<IDatabase>();
 
             return migration;
         }

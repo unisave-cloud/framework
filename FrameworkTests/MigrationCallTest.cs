@@ -4,6 +4,9 @@ using Unisave;
 using Unisave.Runtime;
 using LightJson;
 using LightJson.Serialization;
+using Moq;
+using Unisave.Database;
+using Unisave.Services;
 
 namespace FrameworkTests
 {
@@ -68,6 +71,9 @@ namespace FrameworkTests
             executionParameters.Add("databaseProxyPort", 0);
             executionParameters.Add("executionMethod", "migration");
             executionParameters.Add("methodParameters", methodParameters);
+
+            ServiceContainer.Default = new ServiceContainer();
+            ServiceContainer.Default.Register<IDatabase>(null);
             
             string result = Entrypoint.Start(executionParameters.ToString(), new Type[] {
                 typeof(FakeMigration),
