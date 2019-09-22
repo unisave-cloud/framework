@@ -43,6 +43,12 @@ namespace Unisave.Database
         IEnumerable<string> GetEntityOwners(string entityId);
 
         /// <summary>
+        /// Tests whether a player is an owner of a given entity.
+        /// If the entity or the player does not exist, false is returned.
+        /// </summary>
+        bool IsEntityOwner(string entityId, string playerId);
+
+        /// <summary>
         /// Deletes an entity by it's ID
         /// </summary>
         /// <param name="id">ID of the entity</param>

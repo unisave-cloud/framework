@@ -39,6 +39,15 @@ namespace Unisave
         public DateTime UpdatedAt { get; private set; }
 
         /// <summary>
+        /// Entity constructor
+        /// Has to be parameterless due to the inheritance model
+        /// </summary>
+        protected Entity()
+        {
+            Owners.ParentEntity = this;
+        }
+
+        /// <summary>
         /// Extracts database entity type from a c# entity type
         /// </summary>
         public static string GetEntityType<T>() where T : Entity

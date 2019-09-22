@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unisave.Services;
 
 namespace Unisave.Database
 {
@@ -30,7 +31,12 @@ namespace Unisave.Database
         /// Thrown when the information about owners is not complete
         /// </exception>
         public int Count => OwnerIds.Count;
-        
+
+        /// <summary>
+        /// Entity, that this instance belongs to
+        /// </summary>
+        public Entity ParentEntity { get; set; }
+
         public EntityOwners(bool isComplete)
         {
             OwnerIds = new EntityOwnerIds(isComplete);
@@ -67,16 +73,34 @@ namespace Unisave.Database
         
         /// <summary>
         /// Returns true if the player is one of the owners.
-        /// If not and the information is not complete, exception is thrown.
+        /// If not and the information is not complete,
+        /// the information is fetched from the database. This will obviously
+        /// fail when done on the client side. Use TryContains in such case.
         /// </summary>
-        /// <exception cref="InvalidOperationException"></exception>
         public bool Contains(UnisavePlayer player)
         {
-            return OwnerIds.Contains(player.Id);
+            bool? result = OwnerIds.TryContains(player.Id);
+
+            if (result == null)
+            {
+                if (ParentEntity == null)
+                    throw new InvalidOperationException(
+                        "Cannot obtain ownership from database, " +
+                        "because parent entity is not known."
+                    );
+                
+                var database = ServiceContainer.Default.Resolve<IDatabase>();
+                return database.IsEntityOwner(ParentEntity.EntityId, player.Id);
+            }
+
+            return (bool) result;
         }
         
         /// <summary>
-        /// Like Contains, but returns null instead of an exception.
+        /// Tries to determine whether a player is an owner.
+        /// If this information is not known, null will be returned.
+        ///
+        /// This method (unlike Contains) does not attempt to access database.
         /// </summary>
         public bool? TryContains(UnisavePlayer player)
         {

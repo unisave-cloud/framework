@@ -49,6 +49,12 @@ namespace Unisave.Database
         }
 
         /// <inheritdoc />
+        public bool IsEntityOwner(string entityId, string playerId)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public bool DeleteEntity(string id)
         {
             throw new NotImplementedException();
