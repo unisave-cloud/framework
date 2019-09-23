@@ -11,6 +11,11 @@ namespace Unisave.Database
     public class EntityQuery
     {
         /// <summary>
+        /// Type of the queried entities
+        /// </summary>
+        public string entityType;
+        
+        /// <summary>
         /// What owners do we require the entity to have
         /// </summary>
         public ISet<UnisavePlayer> requiredOwners = new HashSet<UnisavePlayer>();
@@ -36,6 +41,7 @@ namespace Unisave.Database
         public JsonObject ToJson()
         {
             return new JsonObject()
+                .Add(nameof(entityType), entityType)
                 .Add(nameof(requiredOwners), new JsonArray(requiredOwners.Select(x => (JsonValue)x.Id).ToArray()))
                 .Add(nameof(requireOwnersExactly), requireOwnersExactly)
                 .Add(nameof(takeFirstFound), takeFirstFound)
@@ -53,6 +59,7 @@ namespace Unisave.Database
                 whereClausesJson = json[nameof(whereClauses)].AsJsonArray;
 
             return new EntityQuery {
+                entityType = json[nameof(entityType)].AsString,
                 requiredOwners = new HashSet<UnisavePlayer>(
                     json[nameof(requiredOwners)].AsJsonArray.Select(x => new UnisavePlayer(x.AsString))
                 ),

@@ -61,7 +61,7 @@ namespace Unisave.Database
         }
 
         /// <inheritdoc />
-        public IEnumerable<RawEntity> QueryEntities(string entityType, EntityQuery query)
+        public IEnumerable<RawEntity> QueryEntities(EntityQuery query)
         {
             throw new NotImplementedException();
         }

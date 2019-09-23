@@ -61,6 +61,6 @@ namespace Unisave.Database
         /// <summary>
         /// Get entities of a given type, satisfying the provided query
         /// </summary>
-        IEnumerable<RawEntity> QueryEntities(string entityType, EntityQuery query);
+        IEnumerable<RawEntity> QueryEntities(EntityQuery query);
     }
 }
