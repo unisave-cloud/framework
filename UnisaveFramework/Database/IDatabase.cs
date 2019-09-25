@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using LightJson;
+using Unisave.Database.Query;
 
 namespace Unisave.Database
 {

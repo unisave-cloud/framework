@@ -39,6 +39,11 @@
   <ItemGroup>
     <Compile Include="Database\EntityOwnerIds.cs" />
     <Compile Include="Database\EntityOwners.cs" />
+    <Compile Include="Database\JsonPath.cs" />
+    <Compile Include="Database\Query\BasicWhereClause.cs" />
+    <Compile Include="Database\Query\EntityQuery.cs" />
+    <Compile Include="Database\Query\QueryBuilder.cs" />
+    <Compile Include="Database\Query\WhereClause.cs" />
     <Compile Include="FrameworkMeta.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\ServiceContainer.cs" />
@@ -49,10 +54,8 @@
     <Compile Include="Exceptions\FacetSearchException.cs" />
     <Compile Include="Exceptions\MethodSearchException.cs" />
     <Compile Include="Database\IDatabase.cs" />
-    <Compile Include="Database\EntityQuery.cs" />
     <Compile Include="Database\UnisaveDatabase.cs" />
     <Compile Include="Database\RawEntity.cs" />
-    <Compile Include="Database\QueryBuilder.cs" />
     <Compile Include="Facades\GetEntity.cs" />
     <Compile Include="Networking\Server.cs" />
     <Compile Include="Utils\Str.cs" />

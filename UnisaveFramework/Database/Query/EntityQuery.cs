@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LightJson;
 
-namespace Unisave.Database
+namespace Unisave.Database.Query
 {
     /// <summary>
     /// Describes a specific subset of entities of a given type
@@ -21,19 +21,28 @@ namespace Unisave.Database
         public ISet<UnisavePlayer> requiredOwners = new HashSet<UnisavePlayer>();
 
         /// <summary>
-        /// Is the set of required owners exact, or can it be just a subset of the actual owners?
+        /// Is the set of required owners exact,
+        /// or can it be just a subset of the actual owners?
         /// </summary>
         public bool requireOwnersExactly = true;
 
         /// <summary>
-        /// Take the first found entity and return only that
+        /// How many results to skip
+        /// NOT IMPLEMENTED IN THE DATABASE
         /// </summary>
-        public bool takeFirstFound = false;
+        public int skip = 0;
+        
+        /// <summary>
+        /// How many results to take
+        /// -1 means all
+        /// NOT IMPLEMENTED IN THE DATABASE
+        /// </summary>
+        public int take = -1;
 
         /// <summary>
         /// List of all specified where clauses
         /// </summary>
-        public List<JsonObject> whereClauses = new List<JsonObject>();
+        public List<WhereClause> whereClauses = new List<WhereClause>();
 
         /// <summary>
         /// Serialize query to json
@@ -42,10 +51,21 @@ namespace Unisave.Database
         {
             return new JsonObject()
                 .Add(nameof(entityType), entityType)
-                .Add(nameof(requiredOwners), new JsonArray(requiredOwners.Select(x => (JsonValue)x.Id).ToArray()))
+                .Add(
+                    nameof(requiredOwners),
+                    new JsonArray(
+                        requiredOwners.Select(x => (JsonValue)x.Id).ToArray()
+                    )
+                )
                 .Add(nameof(requireOwnersExactly), requireOwnersExactly)
-                .Add(nameof(takeFirstFound), takeFirstFound)
-                .Add(nameof(whereClauses), new JsonArray(whereClauses.Select(x => (JsonValue)x).ToArray()));
+                .Add(nameof(skip), skip)
+                .Add(nameof(take), take)
+                .Add(
+                    nameof(whereClauses),
+                    new JsonArray(
+                        whereClauses.Select(x => (JsonValue)x.ToJson()).ToArray()
+                    )
+                );
         }
 
         /// <summary>
@@ -61,11 +81,16 @@ namespace Unisave.Database
             return new EntityQuery {
                 entityType = json[nameof(entityType)].AsString,
                 requiredOwners = new HashSet<UnisavePlayer>(
-                    json[nameof(requiredOwners)].AsJsonArray.Select(x => new UnisavePlayer(x.AsString))
+                    json[nameof(requiredOwners)].AsJsonArray.Select(
+                        x => new UnisavePlayer(x.AsString)
+                    )
                 ),
                 requireOwnersExactly = json[nameof(requireOwnersExactly)].AsBoolean,
-                takeFirstFound = json[nameof(takeFirstFound)].AsBoolean,
-                whereClauses = whereClausesJson.Select(x => x.AsJsonObject).ToList()
+                skip = json[nameof(skip)].AsInteger,
+                take = json[nameof(take)].AsInteger,
+                whereClauses = whereClausesJson.Select(
+                    x => WhereClause.FromJson(x.AsJsonObject)
+                ).ToList()
             };
         }
     }
