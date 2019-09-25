@@ -1,6 +1,7 @@
 using System;
 using LightJson;
 using System.Linq;
+using Unisave.Exceptions;
 
 namespace Unisave.Database.Query
 {
@@ -97,6 +98,74 @@ namespace Unisave.Database.Query
                 throw new ArgumentException(
                     $"Given where clause operator '{op}' is not valid."
                 );
+        }
+
+        /// <inheritdoc/>
+        public override bool MatchesEntity(RawEntity entity)
+        {
+            JsonValue actual = Path.ExtractValue(entity.data);
+            return EvaluateOperator(actual, Operator, Value);
+        }
+
+        /// <summary>
+        /// Evaluates a boolean operator with two json operands
+        /// </summary>
+        public static bool EvaluateOperator(
+            JsonValue left, string op, JsonValue right
+        )
+        {
+            switch (op)
+            {
+                case "=":
+                    return left == right;
+
+                case "!=":
+                case "<>":
+                    return left != right;
+
+                case ">":
+                case ">=":
+                case "<":
+                case "<=":
+                    if (right.IsNumber)
+                    {
+                        switch (op)
+                        {
+                            case ">" when !(left.AsNumber > right.AsNumber):
+                            case ">=" when !(left.AsNumber >= right.AsNumber):
+                            case "<" when !(left.AsNumber < right.AsNumber):
+                            case "<=" when !(left.AsNumber <= right.AsNumber):
+                                return false;
+                            
+                            default:
+                                return true;
+                        }
+                    }
+                    else
+                    {
+                        int c = string.Compare(
+                            left.AsString,
+                            right.AsString,
+                            StringComparison.Ordinal
+                        );
+
+                        switch (op)
+                        {
+                            case ">" when !(c > 0):
+                            case ">=" when !(c >= 0):
+                            case "<" when !(c < 0):
+                            case "<=" when !(c <= 0):
+                                return false;
+                            
+                            default:
+                                return true;
+                        }
+                    }
+            }
+            
+            throw new UnisaveException(
+                "Unknown where clause operator: " + op
+            );
         }
     }
 }

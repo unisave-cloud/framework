@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using LightJson;
 using Unisave.Exceptions;
 
@@ -85,5 +88,52 @@ namespace Unisave.Database.Query
         /// Append additional data to a json object representing the clause
         /// </summary>
         protected abstract void ToJson(JsonObject json);
+
+        /// <summary>
+        /// Does this clause match an entity?
+        /// </summary>
+        public abstract bool MatchesEntity(RawEntity entity);
+
+        /// <summary>
+        /// Does a collection of clauses match an entity?
+        /// </summary>
+        public static bool ClausesMatchEntity(
+            IEnumerable<WhereClause> clauses,
+            RawEntity entity
+        )
+        {
+            if (clauses == null)
+                throw new ArgumentNullException(nameof(clauses));
+            
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+            
+            // disjunctive normal form
+            // (AND binds more strongly than OR)
+            List<List<bool>> dnf = new List<List<bool>>();
+            List<bool> currentConjunction = new List<bool>();
+
+            foreach (var clause in clauses)
+            {
+                if (
+                    clause.Boolean == BooleanValue.Or
+                    && currentConjunction.Count > 0
+                )
+                {
+                    // push current conjunction to DNF list
+                    dnf.Add(currentConjunction);
+                    currentConjunction = new List<bool>();
+                }
+                
+                currentConjunction.Add(clause.MatchesEntity(entity));
+            }
+            
+            // push the last conjunction
+            if (currentConjunction.Count > 0)
+                dnf.Add(currentConjunction);
+
+            var evaluatedDnf = dnf.Select(conj => !conj.Contains(false));
+            return !evaluatedDnf.Contains(false);
+        }
     }
 }
