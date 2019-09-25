@@ -122,6 +122,32 @@ namespace FrameworkTests
             Assert.AreEqual(@"{""x"":1,""y"":2}", Serializer.ToJson(new Vector2(1, 2)).ToString());
             Assert.AreEqual(new Vector2(1, 2), Serializer.FromJsonString<Vector2>(@"{""x"":1.0,""y"":2.0}"));
         }
+        
+        [Test]
+        public void ItSerializesColors()
+        {
+            Assert.AreEqual(
+                @"{""r"":0.5,""g"":0.25,""b"":0.75,""a"":1}",
+                Serializer.ToJson(new Color(0.5f, 0.25f, 0.75f, 1f)).ToString()
+            );
+            Assert.AreEqual(
+                new Color(0.5f, 0.25f, 0.75f, 1f),
+                Serializer.FromJsonString<Color>(
+                    @"{""r"":0.5,""g"":0.25,""b"":0.75,""a"":1}"
+                )
+            );
+            
+            Assert.AreEqual(
+                @"{""r"":1,""g"":2,""b"":3,""a"":4}",
+                Serializer.ToJson(new Color32(1, 2, 3, 4)).ToString()
+            );
+            Assert.AreEqual(
+                new Color32(1, 2, 3, 4),
+                Serializer.FromJsonString<Color32>(
+                    @"{""r"":1,""g"":2,""b"":3,""a"":4}"
+                )
+            );
+        }
 
         [Test]
         public void ItSerializesJson()

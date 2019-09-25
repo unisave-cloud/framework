@@ -13,10 +13,12 @@ namespace Unisave.Serialization
         {
             Json();
             UnityMath();
+            UnityColors();
 
             Serializer.SetExactTypeSerializer(typeof(DateTime), new LambdaTypeSerializer()
                 .ToJson((subject) => {
-                    return (JsonValue)((DateTime)subject).ToString(SerializationParams.DateTimeFormat);
+                    return (JsonValue)((DateTime)subject)
+                        .ToString(SerializationParams.DateTimeFormat);
                 })
                 .FromJson((json, type) => {
                     return DateTime.Parse(json.AsString);
@@ -169,6 +171,52 @@ namespace Unisave.Serialization
                     return new Vector2Int(
                         o["x"].AsInteger,
                         o["y"].AsInteger
+                    );
+                })
+            );
+        }
+        
+        /// <summary>
+        /// Handles serialization of Color and Color32
+        /// </summary>
+        private static void UnityColors()
+        {
+            Serializer.SetExactTypeSerializer(typeof(Color), new LambdaTypeSerializer()
+                .ToJson((subject) => {
+                    Color color = (Color)subject;
+                    return new JsonObject()
+                        .Add("r", color.r)
+                        .Add("g", color.g)
+                        .Add("b", color.b)
+                        .Add("a", color.a);
+                })
+                .FromJson((json, type) => {
+                    JsonObject o = json.AsJsonObject;
+                    return new Color(
+                        (float)o["r"].AsNumber,
+                        (float)o["g"].AsNumber,
+                        (float)o["b"].AsNumber,
+                        (float)o["a"].AsNumber
+                    );
+                })
+            );
+            
+            Serializer.SetExactTypeSerializer(typeof(Color32), new LambdaTypeSerializer()
+                .ToJson((subject) => {
+                    Color32 color = (Color32)subject;
+                    return new JsonObject()
+                        .Add("r", color.r)
+                        .Add("g", color.g)
+                        .Add("b", color.b)
+                        .Add("a", color.a);
+                })
+                .FromJson((json, type) => {
+                    JsonObject o = json.AsJsonObject;
+                    return new Color32(
+                        (byte)o["r"].AsInteger,
+                        (byte)o["g"].AsInteger,
+                        (byte)o["b"].AsInteger,
+                        (byte)o["a"].AsInteger
                     );
                 })
             );
