@@ -46,6 +46,9 @@
     <Compile Include="Database\Query\WhereClause.cs" />
     <Compile Include="FrameworkMeta.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Runtime\ApiChannel.cs" />
+    <Compile Include="Runtime\SandboxApi.cs" />
+    <Compile Include="Services\SandboxDatabaseApi.cs" />
     <Compile Include="Services\ServiceContainer.cs" />
     <Compile Include="UnisavePlayer.cs" />
     <Compile Include="Facet.cs" />
@@ -54,7 +57,6 @@
     <Compile Include="Exceptions\FacetSearchException.cs" />
     <Compile Include="Exceptions\MethodSearchException.cs" />
     <Compile Include="Database\IDatabase.cs" />
-    <Compile Include="Database\UnisaveDatabase.cs" />
     <Compile Include="Database\RawEntity.cs" />
     <Compile Include="Facades\GetEntity.cs" />
     <Compile Include="Utils\Str.cs" />

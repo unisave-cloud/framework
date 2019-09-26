@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using LightJson;
 using LightJson.Serialization;
 using Unisave.Serialization;
@@ -24,15 +21,12 @@ namespace Unisave.Runtime
         public static string Start(string executionParametersAsJson, Type[] gameAssemblyTypes)
         {
             Console.WriteLine(
-                "Starting unisave framework " + typeof(Entrypoint).Assembly.GetName().Version.ToString(3)
+                "Starting Unisave framework " + FrameworkMeta.Version
             );
 
             JsonObject executionParameters = JsonReader.Parse(executionParametersAsJson);
 
             // extract arguments
-            string executionId = executionParameters[nameof(executionId)];
-            string databaseProxyIp = executionParameters[nameof(databaseProxyIp)];
-            int databaseProxyPort = executionParameters[nameof(databaseProxyPort)];
             string executionMethod = executionParameters[nameof(executionMethod)];
             JsonValue methodParameters = executionParameters[nameof(methodParameters)];
 
@@ -41,7 +35,7 @@ namespace Unisave.Runtime
             try
             {
                 // prepare the runtime environment
-                BootUpServices(executionId, databaseProxyIp, databaseProxyPort);
+                BootUpServices();
 
                 // do the business
                 methodResponse = ExecuteProperMethod(executionMethod, methodParameters, gameAssemblyTypes);
@@ -55,7 +49,7 @@ namespace Unisave.Runtime
                 // propagate the exception to the client
                 return new JsonObject()
                     .Add("result", "exception")
-                    .Add("exceptionAsString", e.InnerException.ToString())
+                    .Add("exceptionAsString", e.InnerException?.ToString())
                     .Add("exception", Serializer.ToJson(e.InnerException))
                     .ToString();
             }
@@ -87,15 +81,11 @@ namespace Unisave.Runtime
         /// <summary>
         /// Initializes services, like database connection
         /// </summary>
-        private static void BootUpServices(
-            string executionId,
-            string databaseProxyIp,
-            int databaseProxyPort
-        )
+        private static void BootUpServices()
         {
             // if we already have a container, it has probably been
-            // given to us by some testing setup method or it's perfectly
-            // setup by some previous script executions.
+            // given to us by some testing setup method <s>or it's perfectly
+            // setup by some previous script executions.</s>
             //
             // so won't create any services, since they should already be there
             if (ServiceContainer.Default != null)
@@ -105,20 +95,16 @@ namespace Unisave.Runtime
             var container = ServiceContainer.Default = new ServiceContainer();
             
             // database
-            if (databaseProxyIp != null)
-            {
-                var database = new UnisaveDatabase();
-                database.Connect(executionId, databaseProxyIp, databaseProxyPort);
-                container.Register<IDatabase>(database);
-            }
+            container.Register<IDatabase>(new Services.SandboxDatabaseApi());
         }
 
         /// <summary>
-        /// Destroys all services, before exiting
+        /// Destroys all services and the container, before exiting
         /// </summary>
         private static void TearDownServices()
         {
             ServiceContainer.Default?.Dispose();
+            ServiceContainer.Default = null;
         }
 
         /// <summary>
