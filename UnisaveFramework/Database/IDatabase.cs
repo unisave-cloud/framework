@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using LightJson;
 using Unisave.Database.Query;
+using Unisave.Exceptions;
 
 namespace Unisave.Database
 {
@@ -34,7 +35,15 @@ namespace Unisave.Database
         /// It is not guaranteed that all owners will be loaded,
         /// since there might be too many of them.
         /// </summary>
-        RawEntity LoadEntity(string id);
+        /// <param name="id">ID of the entity to be loaded</param>
+        /// <param name="lockType">
+        /// How to lock the entity:
+        /// - null ... no lock, default
+        /// - "shared" ... block modification by others
+        /// - "for_update" ... block modification and locking reads by others
+        /// </param>
+        /// <exception cref="DatabaseDeadlockException"></exception>
+        RawEntity LoadEntity(string id, string lockType = null);
 
         /// <summary>
         /// Iterates over all owners of a given entity.
@@ -63,5 +72,27 @@ namespace Unisave.Database
         /// Get entities of a given type, satisfying the provided query
         /// </summary>
         IEnumerable<RawEntity> QueryEntities(EntityQuery query);
+
+        /// <summary>
+        /// Starts a new database transaction
+        /// </summary>
+        void StartTransaction();
+
+        /// <summary>
+        /// Rolls back the top level transaction
+        /// Does nothing if no transaction open
+        /// </summary>
+        void RollbackTransaction();
+
+        /// <summary>
+        /// Commits the top level transaction
+        /// Does nothing if no transaction open
+        /// </summary>
+        void CommitTransaction();
+
+        /// <summary>
+        /// Returns the number of nested transactions that are open
+        /// </summary>
+        int TransactionLevel();
     }
 }

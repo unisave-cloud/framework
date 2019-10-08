@@ -96,6 +96,39 @@ namespace Unisave
         }
 
         /// <summary>
+        /// Pulls fresh entity data from database and locks the entity
+        /// for update, meaning that nobody else can modify or lock it.
+        ///
+        /// This method should be called inside a transaction.
+        /// </summary>
+        public void RefreshAndLockForUpdate()
+        {
+            var database = ServiceContainer.Default.Resolve<IDatabase>();
+            
+            LoadRawEntity(
+                database.LoadEntity(EntityId, "for_update"),
+                this
+            );
+        }
+        
+        /// <summary>
+        /// Pulls fresh entity data from database and locks the entity
+        /// in share mode, meaning that nobody else can modify it.
+        /// Others however can also lock it in share mode, but not for update.
+        ///
+        /// This method should be called inside a transaction.
+        /// </summary>
+        public void RefreshAndLockShared()
+        {
+            var database = ServiceContainer.Default.Resolve<IDatabase>();
+            
+            LoadRawEntity(
+                database.LoadEntity(EntityId, "shared"),
+                this
+            );
+        }
+
+        /// <summary>
         /// Delete the entity from database
         /// </summary>
         public bool Delete()

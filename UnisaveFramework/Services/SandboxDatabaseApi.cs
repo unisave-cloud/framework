@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using LightJson;
 using Unisave.Database;
 using Unisave.Database.Query;
+using Unisave.Exceptions;
 using Unisave.Runtime;
 
 namespace Unisave.Services
@@ -42,18 +43,26 @@ namespace Unisave.Services
             entity.ownerIds = EntityOwnerIds.FromJson(response["owner_ids"]);
         }
 
-        public RawEntity LoadEntity(string id) // 101
+        public RawEntity LoadEntity(string id, string lockType = null) // 101
         {
             JsonObject response = channel.SendJsonMessage(
                 101,
                 new JsonObject()
                     .Add("entity_id", id)
+                    .Add("lock_type", lockType)
             );
-
-            if (response["entity"].IsNull)
-                return null;
             
-            return RawEntity.FromJson(response["entity"]);
+            if (response.ContainsKey("exception"))
+            {
+                if (response["exception"].AsString == "deadlock")
+                    throw new DatabaseDeadlockException();
+                
+                throw new UnisaveException("Entity loading failed.");
+            }
+            
+            return RawEntity.FromJson(
+                response["entity"].AsJsonObject
+            );
         }
 
         public IEnumerable<string> GetEntityOwners(string entityId) // 102, 103, 104
@@ -145,6 +154,27 @@ namespace Unisave.Services
                     new JsonObject().Add("enumerator_id", enumeratorId)
                 );
             }
+        }
+
+        public void StartTransaction() // 110
+        {
+            channel.SendJsonMessage(110, new JsonObject());
+        }
+
+        public void RollbackTransaction() // 111
+        {
+            channel.SendJsonMessage(111, new JsonObject());
+        }
+
+        public void CommitTransaction() // 112
+        {
+            channel.SendJsonMessage(112, new JsonObject());
+        }
+
+        public int TransactionLevel() // 113
+        {
+            JsonObject response = channel.SendJsonMessage(113, new JsonObject());
+            return response["transaction_level"].AsInteger;
         }
     }
 }

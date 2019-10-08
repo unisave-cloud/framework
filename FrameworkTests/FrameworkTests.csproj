@@ -63,6 +63,7 @@
     <Compile Include="MigrationCallTest.cs" />
     <Compile Include="PlayerRegistrationHookCallTest.cs" />
     <Compile Include="Stubs\SomeEntity.cs" />
+    <Compile Include="TransactionNestingTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

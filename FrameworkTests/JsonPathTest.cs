@@ -1,3 +1,5 @@
+using System.Text;
+using LightJson;
 using NUnit.Framework;
 using Unisave.Database;
 
@@ -26,6 +28,18 @@ namespace FrameworkTests
             TestPath("foo[\"bar\"].baz", "foo.bar.baz");
             TestPath("[\"bar\"].baz", "bar.baz");
             TestPath("[\"Q:\\\"\"][\"baz\"]", "[\"Q:\\\"\"].baz");
+        }
+
+        [Test]
+        public void ItCanExtractValues()
+        {
+            var subject = new JsonObject()
+                .Add("code", "Foo");
+
+            Assert.IsTrue(
+                "Foo" ==
+                JsonPath.Parse("code").ExtractValue(subject)
+            );
         }
     }
 }
