@@ -4,6 +4,7 @@ using UnityEngine;
 using Unisave.Serialization;
 using LightJson;
 using System.Collections.Generic;
+using Unisave.Database;
 
 namespace FrameworkTests
 {
@@ -186,6 +187,14 @@ namespace FrameworkTests
                 exception.ToString(),
                 Serializer.FromJson(Serializer.ToJson(exception), typeof(Exception)).ToString()
             );
+        }
+
+        [Test]
+        public void EntityOwnerIdsCanBeLoadedFromMalformedJson()
+        {
+            EntityOwnerIds.FromJson(new JsonArray("asd", "bsd"));
+            EntityOwnerIds.FromJson(JsonValue.Null);
+            EntityOwnerIds.FromJson(new JsonObject());
         }
     }
 }

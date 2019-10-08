@@ -55,7 +55,9 @@ namespace Unisave.Database
         
         public EntityOwnerIds(IEnumerable<string> enumerable, bool isComplete)
         {
-            knownPlayers = new HashSet<string>(enumerable);
+            knownPlayers = new HashSet<string>(
+                enumerable ?? Enumerable.Empty<string>()
+            );
             IsComplete = isComplete;
         }
         
@@ -77,6 +79,9 @@ namespace Unisave.Database
         /// </summary>
         public void AddRange(IEnumerable<string> players)
         {
+            if (players == null)
+                return;
+            
             foreach (string p in players)
                 Add(p);
         }
@@ -188,16 +193,18 @@ namespace Unisave.Database
             var json = jsonValue.AsJsonObject;
             
             var instance = new EntityOwnerIds(
-                json["known_players"].AsJsonArray.Select(x => x.AsString),
-                json["is_complete"].AsBoolean
+                json?["known_players"].AsJsonArray?.Select(x => x.AsString),
+                json?["is_complete"].AsBoolean ?? false
             );
             
             instance.addedPlayers.UnionWith(
-                json["added_players"].AsJsonArray.Select(x => x.AsString)
+                json?["added_players"].AsJsonArray?.Select(x => x.AsString)
+                    ?? Enumerable.Empty<string>()
             );
             
             instance.removedPlayers.UnionWith(
-                json["removed_players"].AsJsonArray.Select(x => x.AsString)
+                json?["removed_players"].AsJsonArray?.Select(x => x.AsString)
+                    ?? Enumerable.Empty<string>()
             );
 
             return instance;
