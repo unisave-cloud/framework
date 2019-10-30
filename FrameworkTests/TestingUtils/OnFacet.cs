@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
+using System.Runtime.Serialization;
 using LightJson;
 using LightJson.Serialization;
 using Unisave;
@@ -113,8 +114,8 @@ namespace FrameworkTests.TestingUtils
                     var e = Serializer.FromJson<Exception>(
                         response["exception"]
                     );
-                    ExceptionDispatchInfo.Capture(e).Throw(); // rethrow
-                    break;
+                    PreserveStackTrace(e);
+                    throw e;
 
                 case "error":
                     throw new UnisaveException(
@@ -123,6 +124,21 @@ namespace FrameworkTests.TestingUtils
             }
 
             throw new Exception("Invalid result value: " + response.ToString());
+        }
+        
+        // magic
+        // https://stackoverflow.com/a/2085377
+        private static void PreserveStackTrace (Exception e)
+        {
+            var ctx = new StreamingContext(StreamingContextStates.CrossAppDomain);
+            var mgr = new ObjectManager(null, ctx);
+            var si = new SerializationInfo(e.GetType(), new FormatterConverter());
+
+            e.GetObjectData(si, ctx);
+            mgr.RegisterObject(e, 1, si); // prepare for SetObjectData
+            mgr.DoFixups(); // ObjectManager calls SetObjectData
+
+            // voila, e is unmodified save for _remoteStackTraceString
         }
     }
 }

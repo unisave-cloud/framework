@@ -11,24 +11,34 @@ namespace Unisave.Components.Matchmaking
     {
         /// <summary>
         /// Returns some name that identifies this matchmaker if multiple
-        /// matchmakers required. This default implementation returns the
-        /// full type name.
+        /// matchmakers required.
+        ///
+        /// This default implementation returns the type name.
         /// </summary>
-        /// <returns></returns>
         public virtual string GetMatchmakerName()
         {
-            return GetType().FullName;
+            return GetType().Name;
         }
 
         /// <summary>
         /// Obtains the corresponding matchmaker entity from database
         /// </summary>
-        protected virtual BasicMatchmakerEntity GetEntity()
+        private BasicMatchmakerEntity GetEntity()
         {
+            // try to load the entity
             var entity = GetEntity<BasicMatchmakerEntity>
                 .Where("MatchmakerName", GetMatchmakerName())
                 .First();
+            
+            // delete deprecated entity
+            if (entity != null
+                && entity.Version != BasicMatchmakerEntity.CurrentVersion)
+            {
+                entity.Delete();
+                entity = null;
+            }
 
+            // create new entity
             if (entity == null)
             {
                 entity = new BasicMatchmakerEntity {

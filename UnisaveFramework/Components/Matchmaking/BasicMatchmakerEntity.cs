@@ -7,6 +7,19 @@ namespace Unisave.Components.Matchmaking
 {
     public class BasicMatchmakerEntity : Entity
     {
+        public const int CurrentVersion = 1;
+
+        /// <summary>
+        /// Entity version
+        /// 
+        /// When incremented, the entity gets recreated.
+        /// This is to allow me to change entity schema
+        /// without making migrations since the data inside
+        /// the entity is not really that persistent.
+        /// </summary>
+        [X]
+        public int Version { get; set; } = CurrentVersion;
+        
         /// <summary>
         /// What matchmaker this entity belongs to
         /// </summary>

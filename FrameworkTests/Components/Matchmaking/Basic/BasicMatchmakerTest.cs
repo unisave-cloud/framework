@@ -45,6 +45,22 @@ namespace FrameworkTests.Components.Matchmaking.Basic
             var entity = GetEntity<BasicMatchmakerEntity>.First();
             UAssert.AreJsonEqual(ticket, entity.Tickets[0]);
         }
+
+        [Test]
+        public void DeprecatedEntityGetsRecreated()
+        {
+            var entity = new BasicMatchmakerEntity() {
+                Version = -1,
+                MatchmakerName = typeof(MatchmakerFacet).Name
+            };
+            entity.Save();
+            
+            var ticket = new MatchmakerTicket(john);
+            facet.Call("JoinMatchmaker", ticket);
+            
+            var newEntity = GetEntity<BasicMatchmakerEntity>.First();
+            Assert.AreNotEqual(entity.EntityId, newEntity.EntityId);
+        }
     }
     
     ///////////////////////////////
