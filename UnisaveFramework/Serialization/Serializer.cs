@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using LightJson;
 using LightJson.Serialization;
 
@@ -391,10 +392,24 @@ namespace Unisave.Serialization
         {
             JsonObject jsonObject = new JsonObject();
 
-            // get public non-static fields
-            foreach (FieldInfo fi in type.GetFields())
+            // get all fields
+            BindingFlags flags = BindingFlags.Instance
+                                 | BindingFlags.DeclaredOnly
+                                 | BindingFlags.Public
+                                 | BindingFlags.NonPublic;
+            
+            List<FieldInfo> fis = new List<FieldInfo>();
+            Type t = type;
+            while (t != null && t != typeof(object))
             {
-                if (fi.IsPublic && !fi.IsStatic)
+                fis.AddRange(t.GetFields(flags));
+                
+                t = t.BaseType;
+            }
+
+            foreach (FieldInfo fi in fis)
+            {
+                if (!fi.IsStatic)
                 {
                     jsonObject.Add(fi.Name, ToJson(fi.GetValue(subject)));
                 }
@@ -409,19 +424,27 @@ namespace Unisave.Serialization
             if (jsonObject == null)
                 return null;
 
-            ConstructorInfo ci = type.GetConstructor(new Type[] {});
-            if (ci == null)
+            object instance = FormatterServices.GetUninitializedObject(type);
+
+            // set all fields
+            BindingFlags flags = BindingFlags.Instance
+                                 | BindingFlags.DeclaredOnly
+                                 | BindingFlags.Public
+                                 | BindingFlags.NonPublic;
+            
+            List<FieldInfo> fis = new List<FieldInfo>();
+            Type t = type;
+            while (t != null && t != typeof(object))
             {
-                Warning($"Trying to load unknown type {type}, but it lacks public parameterless constructor.");
-                return null;
+                fis.AddRange(t.GetFields(flags));
+                
+                t = t.BaseType;
             }
-
-            object instance = ci.Invoke(new object[] {});
-
+            
             // set public non-static fields
-            foreach (FieldInfo fi in type.GetFields())
+            foreach (FieldInfo fi in fis)
             {
-                if (fi.IsPublic && !fi.IsStatic)
+                if (!fi.IsStatic)
                 {
                     fi.SetValue(instance, FromJson(jsonObject[fi.Name], fi.FieldType));
                 }

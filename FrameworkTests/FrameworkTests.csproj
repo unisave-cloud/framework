@@ -54,7 +54,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\Matchmaking\Basic\BasicMatchmakerTest.cs" />
     <Compile Include="EntityTest.cs" />
+    <Compile Include="InMemoryDatabase.cs" />
     <Compile Include="JsonPathTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SandboxDatabaseApiTest.cs" />
@@ -63,6 +65,8 @@
     <Compile Include="MigrationCallTest.cs" />
     <Compile Include="PlayerRegistrationHookCallTest.cs" />
     <Compile Include="Stubs\SomeEntity.cs" />
+    <Compile Include="TestingUtils\OnFacet.cs" />
+    <Compile Include="TestingUtils\UAssert.cs" />
     <Compile Include="TransactionNestingTest.cs" />
   </ItemGroup>
   <ItemGroup>

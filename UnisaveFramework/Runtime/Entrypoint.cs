@@ -78,6 +78,9 @@ namespace Unisave.Runtime
                 .ToString();
         }
 
+        // prevents teardown of testing-injected services
+        private static bool servicesHaveBeenAlreadyPrepared;
+
         /// <summary>
         /// Initializes services, like database connection
         /// </summary>
@@ -89,7 +92,14 @@ namespace Unisave.Runtime
             //
             // so won't create any services, since they should already be there
             if (ServiceContainer.Default != null)
+            {
+                servicesHaveBeenAlreadyPrepared = true;
                 return;
+            }
+            else
+            {
+                servicesHaveBeenAlreadyPrepared = false;
+            }
 
             // create container and fill it with services
             var container = ServiceContainer.Default = new ServiceContainer();
@@ -103,6 +113,9 @@ namespace Unisave.Runtime
         /// </summary>
         private static void TearDownServices()
         {
+            if (servicesHaveBeenAlreadyPrepared)
+                return;
+            
             ServiceContainer.Default?.Dispose();
             ServiceContainer.Default = null;
         }

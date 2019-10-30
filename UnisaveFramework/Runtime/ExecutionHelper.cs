@@ -135,6 +135,17 @@ namespace Unisave.Runtime
 
             return deserializedArguments;
         }
+        
+        /// <summary>
+        /// Serializes arguments for a method call
+        /// </summary>
+        public static JsonArray SerializeArguments(object[] arguments)
+        {
+            var jsonArgs = new JsonArray();
+            for (int i = 0; i < arguments.Length; i++)
+                jsonArgs.Add(Serializer.ToJson(arguments[i]));
+            return jsonArgs;
+        }
 
         /// <summary>
         /// Serializes value returned by some method
