@@ -71,10 +71,12 @@ namespace Unisave.Runtime
         /// </summary>
         public static MethodInfo FindMethodByName(Type type, string name)
         {
-            List<MethodInfo> methods = type.GetMethods(
-                BindingFlags.Instance | BindingFlags.DeclaredOnly
-                    | BindingFlags.Public | BindingFlags.NonPublic // non-public as well to print an error
-            )
+            // non-public as well to print an error
+            BindingFlags flags = BindingFlags.Instance
+                                 | BindingFlags.Public
+                                 | BindingFlags.NonPublic;
+            
+            List<MethodInfo> methods = type.GetMethods(flags)
                 .Where(m => m.Name == name)
                 .ToList();
 

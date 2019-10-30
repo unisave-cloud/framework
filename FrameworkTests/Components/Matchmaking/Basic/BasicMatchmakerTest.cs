@@ -63,18 +63,6 @@ namespace FrameworkTests.Components.Matchmaking.Basic
     
     public class MatchmakerFacet : BasicMatchmakerFacet<MatchmakerTicket, MatchEntity>
     {
-        // TODO: allow facet method calling of inherited methods
-        
-        // override needed to expose the method
-        // and allow it to be called by the client
-        public override void JoinMatchmaker(MatchmakerTicket ticket)
-            => base.JoinMatchmaker(ticket);
-        
-        // override needed to expose the method
-        // and allow it to be called by the client
-        public override MatchEntity PollMatchmaker()
-            => base.PollMatchmaker();
-
         protected override void CreateMatches(List<MatchmakerTicket> tickets)
         {
             /*
