@@ -12,13 +12,28 @@ namespace Unisave.Components.Matchmaking
         /// </summary>
         public UnisavePlayer Player { get; private set; }
         
-        public DateTime InsertedAt { get; private set; }
+        /// <summary>
+        /// When was the ticket inserted into the waiting queue
+        /// </summary>
+        public DateTime InsertedAt { get; set; }
+        
+        /// <summary>
+        /// When was the ticket polled for the last time
+        /// (triggers expiration)
+        /// </summary>
+        public DateTime LastPollAt { get; set; }
 
         /// <summary>
         /// For how many seconds is this ticket inside the matchmaker
         /// </summary>
         public double WaitingForSeconds
             => (DateTime.UtcNow - InsertedAt).TotalSeconds;
+        
+        /// <summary>
+        /// For how many seconds has the ticket not been polled
+        /// </summary>
+        public double NotPolledForSeconds
+            => (DateTime.UtcNow - LastPollAt).TotalSeconds;
 
         public BasicMatchmakerTicket(UnisavePlayer player)
         {
@@ -35,6 +50,16 @@ namespace Unisave.Components.Matchmaking
         public void InsertedNow()
         {
             InsertedAt = DateTime.UtcNow;
+            
+            PolledNow();
+        }
+
+        /// <summary>
+        /// Set last poll time to now
+        /// </summary>
+        public void PolledNow()
+        {
+            LastPollAt = DateTime.UtcNow;
         }
     }
 }

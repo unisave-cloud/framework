@@ -178,6 +178,7 @@ namespace Unisave
 
             targetInstance.EntityId = raw.id;
             targetInstance.Owners = new EntityOwners(raw.ownerIds);
+            targetInstance.Owners.ParentEntity = targetInstance;
             crawler.InsertData(targetInstance, raw.data);
             targetInstance.CreatedAt = raw.createdAt;
             targetInstance.UpdatedAt = raw.updatedAt;

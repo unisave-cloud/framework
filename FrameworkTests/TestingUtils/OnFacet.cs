@@ -99,13 +99,13 @@ namespace FrameworkTests.TestingUtils
             );
 
             var response = JsonReader.Parse(result);
-
+             
             switch (response["result"].AsString)
             {
                 case "ok":
-                    if (response["hasReturnValue"].AsBoolean)
+                    if (response["methodResponse"]["hasReturnValue"].AsBoolean)
                         return Serializer.FromJson<TReturn>(
-                            response["returnValue"]
+                            response["methodResponse"]["returnValue"]
                         );
                     else
                         return default(TReturn);

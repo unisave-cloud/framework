@@ -40,6 +40,7 @@
     <Compile Include="Components\Matchmaking\BasicMatchmakerEntity.cs" />
     <Compile Include="Components\Matchmaking\BasicMatchmakerFacet.cs" />
     <Compile Include="Components\Matchmaking\BasicMatchmakerTicket.cs" />
+    <Compile Include="Components\Matchmaking\Exceptions\UnknownPlayerPollingException.cs" />
     <Compile Include="Database\EntityOwnerIds.cs" />
     <Compile Include="Database\EntityOwners.cs" />
     <Compile Include="Database\JsonPath.cs" />

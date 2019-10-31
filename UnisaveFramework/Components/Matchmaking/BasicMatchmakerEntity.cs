@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using LightJson;
@@ -30,6 +31,24 @@ namespace Unisave.Components.Matchmaking
         /// </summary>
         [X] public List<JsonObject> Tickets { get; set; }
             = new List<JsonObject>();
+
+        /// <summary>
+        /// List of notifications to be sent to players
+        /// </summary>
+        [X] public List<Notification> Notifications { get; set; }
+            = new List<Notification>();
+
+        public class Notification
+        {
+            // whom to notify
+            public UnisavePlayer player;
+            
+            // ID of the matched match entity
+            public string matchId;
+
+            // when was the notification created
+            public DateTime createdAt = DateTime.UtcNow;
+        }
 
         public List<T> DeserializeTickets<T>() where T : BasicMatchmakerTicket
         {

@@ -4,6 +4,8 @@ using UnityEngine;
 using Unisave.Serialization;
 using LightJson;
 using System.Collections.Generic;
+using FrameworkTests.TestingUtils;
+using Unisave;
 using Unisave.Database;
 
 namespace FrameworkTests
@@ -235,6 +237,23 @@ namespace FrameworkTests
             public string addedField;
 
             public DerivedClassType(string a, string b) : base (a, b) { }
+        }
+
+        [Test]
+        public void ItSerializesEntities()
+        {
+            var entity = new SomeEntity();
+            
+            var serialized = Serializer.ToJson(entity).ToString();
+            var deserialized = Serializer.FromJsonString<SomeEntity>(serialized);
+
+            UAssert.AreJsonEqual(entity, deserialized);
+            Assert.AreEqual(entity.Foo, deserialized.Foo);
+        }
+
+        private class SomeEntity : Entity
+        {
+            [X] public string Foo { get; set; } = "bar";
         }
     }
 }
