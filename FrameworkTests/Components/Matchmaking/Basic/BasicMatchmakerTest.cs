@@ -54,6 +54,9 @@ namespace FrameworkTests.Components.Matchmaking.Basic
             var ticket = new MatchmakerTicket(john);
             facet.Call("JoinMatchmaker", ticket);
 
+            // fix ticket preprocessing
+            ticket.someValue = 42;
+
             var entity = GetEntity<BasicMatchmakerEntity>.First();
             UAssert.AreJsonEqual(ticket, entity.Tickets[0]);
         }
@@ -68,6 +71,18 @@ namespace FrameworkTests.Components.Matchmaking.Basic
             Assert.AreEqual(
                 john,
                 entity.DeserializeTickets<MatchmakerTicket>()[0].Player
+            );
+        }
+
+        [Test]
+        public void TicketPreparationGetsCalled()
+        {
+            facet.Call("JoinMatchmaker", new MatchmakerTicket());
+
+            var entity = GetEntity<BasicMatchmakerEntity>.First();
+            Assert.AreEqual(
+                42,
+                entity.DeserializeTickets<MatchmakerTicket>()[0].someValue
             );
         }
 
@@ -324,6 +339,8 @@ namespace FrameworkTests.Components.Matchmaking.Basic
 
     public class MatchmakerTicket : BasicMatchmakerTicket
     {
+        public int someValue;
+        
         public MatchmakerTicket() { }
         public MatchmakerTicket(UnisavePlayer player) : base(player) { }
     }
@@ -331,6 +348,11 @@ namespace FrameworkTests.Components.Matchmaking.Basic
     public class MatchmakerFacet : BasicMatchmakerFacet<MatchmakerTicket, MatchEntity>
     {
         public static string matching;
+        
+        protected override void PrepareNewTicket(MatchmakerTicket ticket)
+        {
+            ticket.someValue = 42;
+        }
 
         protected override void CreateMatches(List<MatchmakerTicket> tickets)
         {

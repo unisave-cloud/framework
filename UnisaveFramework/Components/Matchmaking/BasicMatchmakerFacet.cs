@@ -9,9 +9,9 @@ using Unisave.Services;
 namespace Unisave.Components.Matchmaking
 {
     public abstract class BasicMatchmakerFacet<
-        TMatchmakingTicket, TMatchEntity
+        TMatchmakerTicket, TMatchEntity
     > : Facet
-        where TMatchmakingTicket : BasicMatchmakerTicket
+        where TMatchmakerTicket : BasicMatchmakerTicket
         where TMatchEntity : Entity
     {
         /// <summary>
@@ -33,7 +33,7 @@ namespace Unisave.Components.Matchmaking
         /// <summary>
         /// Tickets matched during single matchmaking round
         /// </summary>
-        private List<TMatchmakingTicket> matchedTickets;
+        private List<TMatchmakerTicket> matchedTickets;
         
         /// <summary>
         /// Returns some name that identifies this matchmaker if multiple
@@ -84,7 +84,7 @@ namespace Unisave.Components.Matchmaking
         /// <exception cref="ArgumentException">
         /// Ticket owner and facet caller differ
         /// </exception>
-        public void JoinMatchmaker(TMatchmakingTicket ticket)
+        public void JoinMatchmaker(TMatchmakerTicket ticket)
         {
             // null ticket owner gets set to the caller
             if (ticket.Player == null)
@@ -98,11 +98,13 @@ namespace Unisave.Components.Matchmaking
                     nameof(ticket)
                 );
             
+            PrepareNewTicket(ticket);
+            
             entity = GetEntity();
 
             DB.Transaction(() => {
                 entity.RefreshAndLockForUpdate();
-                var tickets = entity.DeserializeTickets<TMatchmakingTicket>();
+                var tickets = entity.DeserializeTickets<TMatchmakerTicket>();
                 
                 // if already waiting, perform a re-insert
                 tickets.RemoveAll(t => t.Player == ticket.Player);
@@ -147,7 +149,7 @@ namespace Unisave.Components.Matchmaking
                 // unless there's a notification for this player
                 if (entity.Notifications.All(n => n.player != Caller))
                 {
-                    var tickets = entity.DeserializeTickets<TMatchmakingTicket>();
+                    var tickets = entity.DeserializeTickets<TMatchmakerTicket>();
                     if (tickets.All(t => t.Player != Caller))
                         throw new UnknownPlayerPollingException(
                             "Polling, but not waiting in ticket queue, " +
@@ -157,7 +159,7 @@ namespace Unisave.Components.Matchmaking
                 
                 // update poll time for this ticket
                 {
-                    var tickets = entity.DeserializeTickets<TMatchmakingTicket>();
+                    var tickets = entity.DeserializeTickets<TMatchmakerTicket>();
                     var ticket = tickets.FirstOrDefault(t => t.Player == Caller);
                     ticket?.PolledNow();
                     entity.SerializeTickets(tickets);
@@ -184,7 +186,7 @@ namespace Unisave.Components.Matchmaking
                 // stop waiting no match, but leaving requested
                 if (leave && returnedValue == null)
                 {
-                    var tickets = entity.DeserializeTickets<TMatchmakingTicket>();
+                    var tickets = entity.DeserializeTickets<TMatchmakerTicket>();
                     tickets.RemoveAll(t => t.Player == Caller);
                     entity.SerializeTickets(tickets);
                 }
@@ -201,7 +203,7 @@ namespace Unisave.Components.Matchmaking
         private void CleanUpExpiredItems()
         {
             // tickets
-            var tickets = entity.DeserializeTickets<TMatchmakingTicket>();
+            var tickets = entity.DeserializeTickets<TMatchmakerTicket>();
             tickets.RemoveAll(t => t.Player == null); // should not happen, but
             tickets.RemoveAll(
                 t => t.NotPolledForSeconds > TicketExpirySeconds
@@ -222,10 +224,10 @@ namespace Unisave.Components.Matchmaking
         /// </summary>
         private void CallCreateMatches()
         {
-            matchedTickets = new List<TMatchmakingTicket>();
+            matchedTickets = new List<TMatchmakerTicket>();
             
-            var tickets = entity.DeserializeTickets<TMatchmakingTicket>();
-            var ticketsPassed = entity.DeserializeTickets<TMatchmakingTicket>();
+            var tickets = entity.DeserializeTickets<TMatchmakerTicket>();
+            var ticketsPassed = entity.DeserializeTickets<TMatchmakerTicket>();
             
             CreateMatches(ticketsPassed);
             
@@ -243,7 +245,7 @@ namespace Unisave.Components.Matchmaking
         /// <param name="selectedTickets">Tickets matched together</param>
         /// <param name="match">Entity describing the match</param>
         protected void SaveAndStartMatch(
-            IEnumerable<TMatchmakingTicket> selectedTickets,
+            IEnumerable<TMatchmakerTicket> selectedTickets,
             TMatchEntity match
         )
         {
@@ -296,12 +298,21 @@ namespace Unisave.Components.Matchmaking
                     });
             }
         }
+        
+        /// <summary>
+        /// Modify or verify ticket data when a new ticket is inserted
+        /// </summary>
+        /// <param name="ticket">The inserted ticket</param>
+        protected virtual void PrepareNewTicket(TMatchmakerTicket ticket)
+        {
+            // nothing
+        }
 
         /// <summary>
         /// Given a list of tickets in queue (waiting players),
         /// generate matches by calling SaveAndReleaseMatch
         /// </summary>
         /// <param name="tickets">List of waiting players</param>
-        protected abstract void CreateMatches(List<TMatchmakingTicket> tickets);
+        protected abstract void CreateMatches(List<TMatchmakerTicket> tickets);
     }
 }
