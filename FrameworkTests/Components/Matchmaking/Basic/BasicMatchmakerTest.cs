@@ -57,6 +57,19 @@ namespace FrameworkTests.Components.Matchmaking.Basic
             var entity = GetEntity<BasicMatchmakerEntity>.First();
             UAssert.AreJsonEqual(ticket, entity.Tickets[0]);
         }
+        
+        [Test]
+        public void NullTicketOwnerGetsSetToTheCaller()
+        {
+            var ticket = new MatchmakerTicket();
+            facet.Call("JoinMatchmaker", ticket);
+
+            var entity = GetEntity<BasicMatchmakerEntity>.First();
+            Assert.AreEqual(
+                john,
+                entity.DeserializeTickets<MatchmakerTicket>()[0].Player
+            );
+        }
 
         [Test]
         public void InsertingAlreadyInsertedTicketDoesNotDuplicateIt()
@@ -311,6 +324,7 @@ namespace FrameworkTests.Components.Matchmaking.Basic
 
     public class MatchmakerTicket : BasicMatchmakerTicket
     {
+        public MatchmakerTicket() { }
         public MatchmakerTicket(UnisavePlayer player) : base(player) { }
     }
     

@@ -34,11 +34,6 @@ namespace Unisave.Components.Matchmaking
         /// Tickets matched during single matchmaking round
         /// </summary>
         private List<TMatchmakingTicket> matchedTickets;
-
-        /// <summary>
-        /// Matches created during single matchmaking round
-        /// </summary>
-        private List<TMatchEntity> matchedMatches;
         
         /// <summary>
         /// Returns some name that identifies this matchmaker if multiple
@@ -91,6 +86,10 @@ namespace Unisave.Components.Matchmaking
         /// </exception>
         public void JoinMatchmaker(TMatchmakingTicket ticket)
         {
+            // null ticket owner gets set to the caller
+            if (ticket.Player == null)
+                ticket.Player = Caller;
+            
             // ticket owner has to match the caller
             if (ticket.Player != Caller)
                 throw new ArgumentException(
@@ -125,6 +124,9 @@ namespace Unisave.Components.Matchmaking
         /// </summary>
         /// <param name="leave">Player wants to leave the matchmaker</param>
         /// <returns>Null if not matched yet, match entity otherwise</returns>
+        /// <exception cref="UnknownPlayerPollingException">
+        /// When the matchmaker has no clue why is this player polling
+        /// </exception>
         public TMatchEntity PollMatchmaker(bool leave)
         {
             entity = GetEntity();
@@ -200,6 +202,7 @@ namespace Unisave.Components.Matchmaking
         {
             // tickets
             var tickets = entity.DeserializeTickets<TMatchmakingTicket>();
+            tickets.RemoveAll(t => t.Player == null); // should not happen, but
             tickets.RemoveAll(
                 t => t.NotPolledForSeconds > TicketExpirySeconds
             );
@@ -220,7 +223,6 @@ namespace Unisave.Components.Matchmaking
         private void CallCreateMatches()
         {
             matchedTickets = new List<TMatchmakingTicket>();
-            matchedMatches = new List<TMatchEntity>();
             
             var tickets = entity.DeserializeTickets<TMatchmakingTicket>();
             var ticketsPassed = entity.DeserializeTickets<TMatchmakingTicket>();
@@ -245,6 +247,12 @@ namespace Unisave.Components.Matchmaking
             TMatchEntity match
         )
         {
+            if (selectedTickets == null)
+                throw new ArgumentNullException(nameof(selectedTickets));
+            
+            if (selectedTickets == null)
+                throw new ArgumentNullException(nameof(match));
+            
             // cannot start an already saved match
             if (match.EntityId != null)
                 throw new ArgumentException(
@@ -278,9 +286,6 @@ namespace Unisave.Components.Matchmaking
 
             // save match entity
             match.Save();
-            
-            // remember match entity
-            matchedMatches.Add(match);
 
             foreach (var ticket in selectedTickets)
             {

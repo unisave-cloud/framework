@@ -10,7 +10,7 @@ namespace Unisave.Components.Matchmaking
         /// <summary>
         /// Player who created this ticket
         /// </summary>
-        public UnisavePlayer Player { get; private set; }
+        public UnisavePlayer Player { get; set; }
         
         /// <summary>
         /// When was the ticket inserted into the waiting queue
@@ -35,13 +35,16 @@ namespace Unisave.Components.Matchmaking
         public double NotPolledForSeconds
             => (DateTime.UtcNow - LastPollAt).TotalSeconds;
 
-        public BasicMatchmakerTicket(UnisavePlayer player)
+        public BasicMatchmakerTicket()
         {
-            Player = player;
-            
             // Should get called later when inserted into the matchmaker,
             // but in case it won't, it's called here.
             InsertedNow();
+        }
+        
+        public BasicMatchmakerTicket(UnisavePlayer player) : this()
+        {
+            Player = player;
         }
 
         /// <summary>
