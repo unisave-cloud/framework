@@ -326,6 +326,37 @@ namespace FrameworkTests.Modules.Matchmaking.Basic
             entity.Refresh();
             Assert.IsEmpty(entity.Notifications);
         }
+
+        [Test]
+        public void ExpiredMatchesGetCleanedUp()
+        {
+            // create a new match
+            var newMatch = new MatchEntity();
+            newMatch.Save();
+            
+            // create an old match
+            var oldMatch = new MatchEntity();
+            oldMatch.Save();
+
+            // hack the old match to be old
+            database.entities[oldMatch.EntityId].createdAt
+                = DateTime.UtcNow.AddDays(-1).AddSeconds(-1);
+            oldMatch.Refresh();
+            
+            // needed for a poll to work
+            facet.Call("JoinMatchmaker", new MatchmakerTicket(john));
+            
+            // poll triggers the cleanup
+            Assert.IsNull(facet.Call<MatchEntity>("PollMatchmaker", false));
+            
+            // check that the old match has been deleted, but not the new one
+            Assert.IsNotNull(
+                GetEntity<MatchEntity>.OfAnyPlayers().Find(newMatch.EntityId)
+            );
+            Assert.IsNull(
+                GetEntity<MatchEntity>.OfAnyPlayers().Find(oldMatch.EntityId)
+            );
+        }
     }
     
     ///////////////////////////////

@@ -18,6 +18,8 @@ namespace FrameworkTests
     ///
     /// TODO: move database tests accordingly so that they can be run
     /// (into the framework probbably)
+    ///
+    /// TODO: allow some mocking, like setting custom timestamps
     /// </summary>
     public class InMemoryDatabase : IDatabase
     {
@@ -40,7 +42,8 @@ namespace FrameworkTests
         /// <summary>
         /// List of all entities
         /// </summary>
-        private Dictionary<string, RawEntity> entities = new Dictionary<string, RawEntity>();
+        public Dictionary<string, RawEntity> entities = new Dictionary<string, RawEntity>();
+        // HACK: it's public coz i need to mock timestamps and I plan to refactor this anyways
 
         /// <summary>
         /// Pairs of [ entity | player ]

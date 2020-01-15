@@ -12,7 +12,7 @@ namespace Unisave.Modules.Matchmaking
         TMatchmakerTicket, TMatchEntity
     > : Facet
         where TMatchmakerTicket : BasicMatchmakerTicket
-        where TMatchEntity : Entity
+        where TMatchEntity : Entity, new()
     {
         /// <summary>
         /// After how long an unpolled ticket gets removed
@@ -23,6 +23,11 @@ namespace Unisave.Modules.Matchmaking
         /// After how long an unpolled notification gets removed
         /// </summary>
         private const int NotificationExpirySeconds = 60;
+
+        /// <summary>
+        /// After how long is a match expired and should be removed
+        /// </summary>
+        private const int MatchExpiryMinutes = 60 * 24;
         
         /// <summary>
         /// Holds the entity while we perform operations on it.
@@ -215,6 +220,27 @@ namespace Unisave.Modules.Matchmaking
                 n => (n.createdAt - DateTime.UtcNow)
                      .TotalSeconds > NotificationExpirySeconds
             );
+            
+            // matches
+            CleanUpMatches();
+        }
+
+        /// <summary>
+        /// Goes through all matches and deletes old ones
+        /// </summary>
+        protected virtual void CleanUpMatches()
+        {
+            var matches = GetEntity<TMatchEntity>
+                .OfAnyPlayers()
+                .GetEnumerable();
+
+            var now = DateTime.UtcNow;
+
+            foreach (var match in matches)
+            {
+                if ((now - match.CreatedAt).TotalMinutes > MatchExpiryMinutes)
+                    match.Delete();
+            }
         }
 
         /// <summary>
