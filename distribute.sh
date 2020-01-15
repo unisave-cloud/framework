@@ -9,10 +9,10 @@
 
 VERSION=$(grep -oP "AssemblyInformationalVersion\(\"\K[^\"]+" UnisaveFramework/Properties/AssemblyInfo.cs)
 
-# web
-mkdir -p ~/ImportantCode/Unisave/Web/storage/app/unisave-framework/$VERSION
-cp -R UnisaveFramework/bin/Debug/* ~/ImportantCode/Unisave/Web/storage/app/unisave-framework/$VERSION
-echo $VERSION > ~/ImportantCode/Unisave/Web/storage/app/unisave-framework/latest.txt
+# services
+mkdir -p ~/ImportantCode/Unisave/Services/unisave-framework/$VERSION
+cp -R UnisaveFramework/bin/Debug/* ~/ImportantCode/Unisave/Services/unisave-framework/$VERSION
+echo $VERSION > ~/ImportantCode/Unisave/Services/unisave-framework/latest.txt
 
 # database proxy
 cp -R UnisaveFramework/bin/Debug/* ~/ImportantCode/Unisave/DatabaseProxy/dlls/UnisaveFramework
