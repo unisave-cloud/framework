@@ -4,7 +4,7 @@ using System.Linq;
 using LightJson;
 using Unisave.Serialization;
 
-namespace Unisave.Components.Matchmaking
+namespace Unisave.Modules.Matchmaking
 {
     public class BasicMatchmakerEntity : Entity
     {

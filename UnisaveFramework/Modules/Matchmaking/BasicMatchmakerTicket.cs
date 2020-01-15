@@ -1,6 +1,6 @@
 using System;
 
-namespace Unisave.Components.Matchmaking
+namespace Unisave.Modules.Matchmaking
 {
     /// <summary>
     /// Represents a player waiting for a match

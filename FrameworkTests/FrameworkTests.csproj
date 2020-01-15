@@ -54,7 +54,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Components\Matchmaking\Basic\BasicMatchmakerTest.cs" />
+    <Compile Include="Modules\Matchmaking\Basic\BasicMatchmakerTest.cs" />
     <Compile Include="EntityTest.cs" />
     <Compile Include="InMemoryDatabase.cs" />
     <Compile Include="JsonPathTest.cs" />

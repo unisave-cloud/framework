@@ -2,7 +2,7 @@ using System;
 using System.Runtime.Serialization;
 using Unisave.Exceptions;
 
-namespace Unisave.Components.Matchmaking.Exceptions
+namespace Unisave.Modules.Matchmaking.Exceptions
 {
     [Serializable]
     public class UnknownPlayerPollingException : UnisaveException

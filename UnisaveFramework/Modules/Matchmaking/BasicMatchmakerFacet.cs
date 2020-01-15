@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unisave.Components.Matchmaking.Exceptions;
+using Unisave.Modules.Matchmaking.Exceptions;
 using Unisave.Database;
 using Unisave.Serialization;
 using Unisave.Services;
 
-namespace Unisave.Components.Matchmaking
+namespace Unisave.Modules.Matchmaking
 {
     public abstract class BasicMatchmakerFacet<
         TMatchmakerTicket, TMatchEntity

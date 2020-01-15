@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using FrameworkTests.TestingUtils;
 using NUnit.Framework;
 using Unisave;
-using Unisave.Components.Matchmaking;
-using Unisave.Components.Matchmaking.Exceptions;
+using Unisave.Modules.Matchmaking;
+using Unisave.Modules.Matchmaking.Exceptions;
 using Unisave.Database;
 using Unisave.Services;
 
-namespace FrameworkTests.Components.Matchmaking.Basic
+namespace FrameworkTests.Modules.Matchmaking.Basic
 {
     [TestFixture]
     public class BasicMatchmakerTest
