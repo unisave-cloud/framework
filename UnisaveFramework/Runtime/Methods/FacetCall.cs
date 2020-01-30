@@ -14,33 +14,20 @@ namespace Unisave.Runtime.Methods
         /// <summary>
         /// Bootstrap a facet call
         /// </summary>
-        /// <param name="executionParameters">
-        /// Execution parameters as json
-        /// {
-        ///     "facetName": "MyFacet",
-        ///     "methodName": "DoCoolStuff",
-        ///     "arguments": [...], // serialized by the unisave serialization system
-        ///     "callerId": "...", // id of the calling player
-        /// }    
-        /// </param>
-        /// <param name="gameAssemblyTypes">
-        /// Game assembly types to look through to find the requested facet class
-        /// </param>
-        /// <returns>
-        /// Json string containing result of the execution.
-        /// {
-        ///     "hasReturnValue": true / false, // false if the method returned void
-        ///     "returnValue": <?> // unisave json serialized
-        /// }
-        /// </returns>
-        public static JsonObject Start(JsonObject executionParameters, Type[] gameAssemblyTypes)
+        public static JsonValue Start(
+            JsonObject methodParameters,
+            SpecialValues specialValues,
+            Type[] gameAssemblyTypes
+        )
         {
+            // TODO: generate or pass sessionId
+            specialValues.Add("sessionId", "123456789");
+            
             // extract arguments
-
-            string facetName = executionParameters["facetName"];
-            string methodName = executionParameters["methodName"];
-            JsonArray jsonArguments = executionParameters["arguments"];
-            string callerId = executionParameters["callerId"];
+            string facetName = methodParameters["facetName"];
+            string methodName = methodParameters["methodName"];
+            JsonArray jsonArguments = methodParameters["arguments"];
+            string callerId = methodParameters["callerId"];
 
             // find the requested facet
             Type facetType;
@@ -57,15 +44,13 @@ namespace Unisave.Runtime.Methods
             Facet facet = Facet.CreateInstance(facetType, new UnisavePlayer(callerId));
 
             // execute the method
-            MethodInfo methodInfo;
-            JsonValue returnedValue;
             try
             {
-                returnedValue = ExecutionHelper.ExecuteMethod(
+                return ExecutionHelper.ExecuteMethod(
                     facet,
                     methodName,
                     jsonArguments,
-                    out methodInfo
+                    out MethodInfo methodInfo
                 );
             }
             catch (MethodSearchException e)
@@ -80,11 +65,6 @@ namespace Unisave.Runtime.Methods
             {
                 throw new GameScriptException(e.InnerException);
             }
-
-            // build the response
-            return new JsonObject()
-                .Add("hasReturnValue", methodInfo.ReturnType != typeof(void))
-                .Add("returnValue", returnedValue);
         }
     }
 }

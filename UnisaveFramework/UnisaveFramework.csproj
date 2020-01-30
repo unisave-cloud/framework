@@ -53,10 +53,12 @@
     <Compile Include="FrameworkMeta.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Runtime\ApiChannel.cs" />
+    <Compile Include="Runtime\Methods\EntrypointTest.cs" />
     <Compile Include="Runtime\Methods\FacetCall.cs" />
     <Compile Include="Runtime\Methods\MigrationCall.cs" />
     <Compile Include="Runtime\Methods\PlayerRegistrationHookCall.cs" />
     <Compile Include="Runtime\SandboxApi.cs" />
+    <Compile Include="Runtime\SpecialValues.cs" />
     <Compile Include="Services\SandboxDatabaseApi.cs" />
     <Compile Include="Services\ServiceContainer.cs" />
     <Compile Include="UnisavePlayer.cs" />

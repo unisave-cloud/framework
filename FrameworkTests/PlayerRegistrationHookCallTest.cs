@@ -1,5 +1,7 @@
 ﻿using NUnit.Framework;
 using System;
+using FrameworkTests.Facets;
+using FrameworkTests.Facets.Stubs;
 using Unisave.Runtime;
 using Unisave;
 using LightJson;
