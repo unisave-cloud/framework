@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
-using Unisave.Exceptions;
+using System.Reflection;
 using LightJson;
+using Unisave.Exceptions;
 using Unisave.Serialization;
 
-namespace Unisave.Runtime
+namespace Unisave.Utils
 {
     /// <summary>
     /// Extracts commonly used procedures when executing game scripts

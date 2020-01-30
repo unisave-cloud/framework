@@ -4,6 +4,7 @@ using LightJson.Serialization;
 using Unisave.Serialization;
 using Unisave.Exceptions;
 using Unisave.Database;
+using Unisave.Runtime.Methods;
 using Unisave.Services;
 
 namespace Unisave.Runtime
@@ -18,7 +19,10 @@ namespace Unisave.Runtime
         /// Accepts execution parameters and returns execution result
         /// For more info see the internal documentation
         /// </summary>
-        public static string Start(string executionParametersAsJson, Type[] gameAssemblyTypes)
+        public static string Start(
+            string executionParametersAsJson,
+            Type[] gameAssemblyTypes
+        )
         {
             Console.WriteLine(
                 "Starting Unisave framework " + FrameworkMeta.Version

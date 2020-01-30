@@ -53,6 +53,9 @@
     <Compile Include="FrameworkMeta.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Runtime\ApiChannel.cs" />
+    <Compile Include="Runtime\Methods\FacetCall.cs" />
+    <Compile Include="Runtime\Methods\MigrationCall.cs" />
+    <Compile Include="Runtime\Methods\PlayerRegistrationHookCall.cs" />
     <Compile Include="Runtime\SandboxApi.cs" />
     <Compile Include="Services\SandboxDatabaseApi.cs" />
     <Compile Include="Services\ServiceContainer.cs" />
@@ -65,6 +68,7 @@
     <Compile Include="Database\IDatabase.cs" />
     <Compile Include="Database\RawEntity.cs" />
     <Compile Include="Facades\GetEntity.cs" />
+    <Compile Include="Utils\ExecutionHelper.cs" />
     <Compile Include="Utils\Str.cs" />
     <Compile Include="Serialization\SerializationParams.cs" />
     <Compile Include="Exceptions\NetworkingException.cs" />
@@ -73,14 +77,10 @@
     <Compile Include="Database\EntityCrawler.cs" />
     <Compile Include="CustomAttributes.cs" />
     <Compile Include="Runtime\Entrypoint.cs" />
-    <Compile Include="Runtime\FacetCall.cs" />
-    <Compile Include="Runtime\MigrationCall.cs" />
     <Compile Include="Migration.cs" />
     <Compile Include="Exceptions\GameScriptException.cs" />
     <Compile Include="Exceptions\InvalidMethodParametersException.cs" />
-    <Compile Include="Runtime\PlayerRegistrationHookCall.cs" />
     <Compile Include="PlayerRegistrationHook.cs" />
-    <Compile Include="Runtime\ExecutionHelper.cs" />
     <Compile Include="Exceptions\ExecutionSerializationException.cs" />
     <Compile Include="Serialization\Serializer.cs" />
     <Compile Include="Serialization\ITypeSerializer.cs" />

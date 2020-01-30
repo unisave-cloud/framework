@@ -2,7 +2,7 @@
 using LightJson;
 using Unisave.Exceptions;
 
-namespace Unisave.Runtime
+namespace Unisave.Runtime.Methods
 {
     public static class MigrationCall
     {

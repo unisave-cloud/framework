@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Linq;
-using System.Reflection;
 using System.Collections.Generic;
+using System.Linq;
 using LightJson;
 using Unisave.Exceptions;
 using Unisave.Serialization;
 
-namespace Unisave.Runtime
+namespace Unisave.Runtime.Methods
 {
     public static class PlayerRegistrationHookCall
     {

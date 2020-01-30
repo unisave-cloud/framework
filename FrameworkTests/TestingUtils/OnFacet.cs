@@ -8,6 +8,7 @@ using Unisave;
 using Unisave.Exceptions;
 using Unisave.Runtime;
 using Unisave.Serialization;
+using Unisave.Utils;
 
 namespace FrameworkTests.TestingUtils
 {
