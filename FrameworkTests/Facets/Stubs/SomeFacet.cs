@@ -1,5 +1,6 @@
 using System;
 using Unisave;
+using Unisave.Facets;
 
 namespace FrameworkTests.Facets.Stubs
 {

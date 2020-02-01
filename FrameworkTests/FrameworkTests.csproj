@@ -56,6 +56,8 @@
   <ItemGroup>
     <Compile Include="EntrypointTest.cs" />
     <Compile Include="Facets\FacetCallTest.cs" />
+    <Compile Include="Facets\MiddlewareTest.cs" />
+    <Compile Include="Facets\Stubs\FacetWithMiddleware.cs" />
     <Compile Include="Facets\Stubs\SomeFacet.cs" />
     <Compile Include="Facets\Stubs\WrongFacet.cs" />
     <Compile Include="Modules\Matchmaking\Basic\BasicMatchmakerTest.cs" />

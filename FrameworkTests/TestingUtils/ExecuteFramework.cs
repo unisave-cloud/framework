@@ -8,6 +8,7 @@ using Unisave;
 using Unisave.Runtime;
 using Unisave.Serialization;
 using Unisave.Services;
+using Unisave.Utils;
 
 namespace FrameworkTests.TestingUtils
 {
@@ -89,6 +90,25 @@ namespace FrameworkTests.TestingUtils
             );
 
             return new FrameworkExecutionResult(result);
+        }
+
+        /// <summary>
+        /// Executes the framework with the goal of calling a facet
+        /// </summary>
+        public FrameworkExecutionResult ExecuteFacet<TFacet>(
+            string methodName, params object[] arguments
+        )
+        {
+            return Execute(new JsonObject()
+                .Add("method", "facet-call")
+                .Add("methodParameters", new JsonObject()
+                    .Add("facetName", typeof(TFacet).Name)
+                    .Add("methodName", methodName)
+                    .Add("arguments",
+                        ExecutionHelper.SerializeArguments(arguments))
+                )
+                .ToString()
+            );
         }
     }
 

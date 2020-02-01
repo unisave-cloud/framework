@@ -37,6 +37,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Facets\Facet.cs" />
+    <Compile Include="Facets\FacetMiddleware.cs" />
+    <Compile Include="Facets\FacetRequest.cs" />
+    <Compile Include="Facets\FacetResponse.cs" />
     <Compile Include="Modules\Matchmaking\BasicMatchmakerEntity.cs" />
     <Compile Include="Modules\Matchmaking\BasicMatchmakerFacet.cs" />
     <Compile Include="Modules\Matchmaking\BasicMatchmakerTicket.cs" />
@@ -62,7 +66,6 @@
     <Compile Include="Services\SandboxDatabaseApi.cs" />
     <Compile Include="Services\ServiceContainer.cs" />
     <Compile Include="UnisavePlayer.cs" />
-    <Compile Include="Facet.cs" />
     <Compile Include="Exceptions\UnisaveException.cs" />
     <Compile Include="Exceptions\InstantiationException.cs" />
     <Compile Include="Exceptions\FacetSearchException.cs" />

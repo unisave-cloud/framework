@@ -69,7 +69,7 @@ namespace FrameworkTests.Facets
         [Test]
         public void ItChecksParentFacet()
         {
-            var e = Assert.Catch<InvalidMethodParametersException>(() => {
+            var e = Assert.Catch<FacetSearchException>(() => {
                 ExecuteFramework.Begin()
                     .Execute(@"
                         {
@@ -84,13 +84,13 @@ namespace FrameworkTests.Facets
                     .AssertSuccess();
             });
             
-            StringAssert.Contains("Facet class wasn't found.", e.Message);
+            StringAssert.Contains("Facet 'WrongFacet' was not found.", e.Message);
         }
 
         [Test]
         public void ItChecksMethodExistence()
         {
-            var e = Assert.Catch<InvalidMethodParametersException>(() => {
+            var e = Assert.Catch<MethodSearchException>(() => {
                 ExecuteFramework.Begin()
                     .Execute(@"
                         {
@@ -111,7 +111,7 @@ namespace FrameworkTests.Facets
         [Test]
         public void ItChecksAmbiguousMethods()
         {
-            var e = Assert.Catch<InvalidMethodParametersException>(() => {
+            var e = Assert.Catch<MethodSearchException>(() => {
                 ExecuteFramework.Begin()
                     .Execute(@"
                         {
@@ -132,7 +132,7 @@ namespace FrameworkTests.Facets
         [Test]
         public void ItChecksPublicMethods()
         {
-            var e = Assert.Catch<InvalidMethodParametersException>(() => {
+            var e = Assert.Catch<MethodSearchException>(() => {
                 ExecuteFramework.Begin()
                     .Execute(@"
                         {

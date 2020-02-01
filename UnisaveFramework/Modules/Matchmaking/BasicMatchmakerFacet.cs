@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unisave.Modules.Matchmaking.Exceptions;
 using Unisave.Database;
+using Unisave.Facets;
 using Unisave.Serialization;
 using Unisave.Services;
 

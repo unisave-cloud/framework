@@ -14,16 +14,19 @@ namespace Unisave.Utils
     public static class ExecutionHelper
     {
         /// <summary>
-        /// Creates concrete instance of some type that inherits from an abstract ancestor
-        /// The concrete type has to have parameterless contructor
-        /// Example: Concrete facet instantiation, but returned as an abstract Facet
+        /// Creates concrete instance of some type that inherits
+        /// from an abstract ancestor.
+        /// The concrete type has to have parameterless constructor.
+        /// Example: Concrete facet instantiation,
+        /// but returned as an abstract Facet
         /// </summary>
         public static TAbstract Instantiate<TAbstract>(Type concreteType)
         {
             // check proper parent
             if (!typeof(TAbstract).IsAssignableFrom(concreteType))
                 throw new InstantiationException(
-                    $"Provided type {concreteType} does not inherit from the {typeof(TAbstract)} class."
+                    $"Provided type {concreteType} does not inherit from "
+                    + $"the {typeof(TAbstract)} class."
                 );
 
             // get parameterless constructor
@@ -31,7 +34,8 @@ namespace Unisave.Utils
 
             if (ci == null)
                 throw new InstantiationException(
-                    $"Provided type {concreteType} lacks parameterless constructor."
+                    $"Provided type {concreteType} lacks "
+                    + "parameterless constructor."
                 );
 
             // create instance
@@ -40,11 +44,15 @@ namespace Unisave.Utils
 
         /// <summary>
         /// Executes a method, handles method search and serialization.
-        /// Throws MethodSearchException, ExecutionSerializationException, TargetInvocationException
+        /// Throws MethodSearchException, ExecutionSerializationException,
+        /// TargetInvocationException
         /// Inner exceptions are automatically wrapped inside GameScriptException
         /// </summary>
         public static JsonValue ExecuteMethod(
-            object instance, string methodName, JsonArray arguments, out MethodInfo methodInfo
+            object instance,
+            string methodName,
+            JsonArray arguments,
+            out MethodInfo methodInfo
         )
         {
             // find the requested method
@@ -56,6 +64,22 @@ namespace Unisave.Utils
             // call the facet method
             // RAISES: TargetInvocationException
             object returnedValue = methodInfo.Invoke(instance, deserializedArguments);
+
+            // if returned void
+            if (methodInfo.ReturnType == typeof(void))
+                return JsonValue.Null;
+
+            // serialize returned value
+            return SerializeReturnValue(methodInfo, returnedValue);
+        }
+
+        public static JsonValue ExecuteMethod(
+            object instance,
+            MethodInfo methodInfo,
+            object[] arguments
+        )
+        {
+            object returnedValue = methodInfo.Invoke(instance, arguments);
 
             // if returned void
             if (methodInfo.ReturnType == typeof(void))
@@ -83,20 +107,23 @@ namespace Unisave.Utils
             if (methods.Count > 1)
                 throw new MethodSearchException(
                     $"Class '{type}' has multiple methods called '{name}'. "
-                    + "Note that Unisave does not support method overloading for RPCs. "
-                    + "Also make sure you aren't using default values for some arguments."
+                    + "Note that Unisave does not support method overloading"
+                    + " for facets. Also make sure you aren't using default "
+                    + "values for some arguments."
                 );
 
             if (methods.Count == 0)
                 throw new MethodSearchException(
-                    $"Class '{type}' doesn't have public method called '{name}'."
+                    $"Class '{type}' doesn't have public method "
+                    + "called '{name}'."
                 );
 
             MethodInfo methodInfo = methods[0];
 
             if (!methodInfo.IsPublic)
                 throw new MethodSearchException(
-                    $"Method '{type}.{name}' has to be public in order to be called remotely."
+                    $"Method '{type}.{name}' has to be public in "
+                    + "order to be called remotely."
                 );
 
             return methodInfo;
@@ -107,15 +134,24 @@ namespace Unisave.Utils
         /// Skipped arguments will have null value and you can assign them later
         /// Throws ExecutionSerializationException
         /// </summary>
+        /// <param name="jsonArguments"></param>
         /// <param name="skip">How many first arguments to skip</param>
-        public static object[] DeserializeArguments(MethodInfo methodInfo, JsonArray jsonArguments, int skip = 0)
+        /// <param name="methodInfo"></param>
+        public static object[] DeserializeArguments(
+            MethodInfo methodInfo,
+            JsonArray jsonArguments,
+            int skip = 0
+        )
         {
-            ParameterInfo[] parameters = methodInfo.GetParameters(); // NOT including the "this" parameter
+            // (NOT including the "this" parameter)
+            ParameterInfo[] parameters = methodInfo.GetParameters();
 
             if (parameters.Length != jsonArguments.Count)
                 throw new ExecutionSerializationException(
-                    $"Method '{methodInfo.DeclaringType.Name}.{methodInfo.Name}' accepts different number of arguments than provided. "
-                    + "Make sure you don't use the params keyword or default argument values, "
+                    $"Method '{methodInfo.DeclaringType?.Name}.{methodInfo.Name}'"
+                    + " accepts different number of arguments than provided. "
+                    + "Make sure you don't use the params keyword or "
+                    + "default argument values, "
                     + "since it is not supported by Unisave."
                 );
 
@@ -125,12 +161,17 @@ namespace Unisave.Utils
             {
                 try
                 {
-                    deserializedArguments[i] = Serializer.FromJson(jsonArguments[i], parameters[i].ParameterType);
+                    deserializedArguments[i] = Serializer.FromJson(
+                        jsonArguments[i],
+                        parameters[i].ParameterType
+                    );
                 }
                 catch (Exception e)
                 {
                     throw new ExecutionSerializationException(
-                        $"Exception occured when deserializing the argument '{parameters[i].Name}'", e
+                        "Exception occured when deserializing "
+                        + $"the argument '{parameters[i].Name}'",
+                        e
                     );
                 }
             }
@@ -153,7 +194,10 @@ namespace Unisave.Utils
         /// Serializes value returned by some method
         /// Throws ExecutionSerializationException
         /// </summary>
-        public static JsonValue SerializeReturnValue(MethodInfo methodInfo, object value)
+        public static JsonValue SerializeReturnValue(
+            MethodInfo methodInfo,
+            object value
+        )
         {
             try
             {
@@ -162,8 +206,8 @@ namespace Unisave.Utils
             catch (Exception e)
             {
                 throw new ExecutionSerializationException(
-                    "Exception occured when serializing value "
-                    + $"returned from '{methodInfo.DeclaringType.Name}.{methodInfo.Name}'", e
+                    "Exception occured when serializing value returned from "
+                    + $"'{methodInfo.DeclaringType?.Name}.{methodInfo.Name}'", e
                 );
             }
         }

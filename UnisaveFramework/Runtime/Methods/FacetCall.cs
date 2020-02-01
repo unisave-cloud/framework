@@ -2,12 +2,13 @@
 using System.Reflection;
 using LightJson;
 using Unisave.Exceptions;
+using Unisave.Facets;
 using Unisave.Utils;
 
 namespace Unisave.Runtime.Methods
 {
     /// <summary>
-    /// Handles the "facet" execution method of server-side code execution
+    /// Handles the "facet-call" framework execution method
     /// </summary>
     public static class FacetCall
     {
@@ -23,48 +24,29 @@ namespace Unisave.Runtime.Methods
             // TODO: generate or pass sessionId
             specialValues.Add("sessionId", "123456789");
             
-            // extract arguments
-            string facetName = methodParameters["facetName"];
-            string methodName = methodParameters["methodName"];
-            JsonArray jsonArguments = methodParameters["arguments"];
-            string callerId = methodParameters["callerId"];
+            FacetRequest request = FacetRequest.CreateFrom(
+                methodParameters["facetName"],
+                methodParameters["methodName"],
+                methodParameters["arguments"],
+                gameAssemblyTypes
+            );
 
-            // find the requested facet
-            Type facetType;
-            try
-            {
-                facetType = Facet.FindFacetTypeByName(facetName, gameAssemblyTypes);
-            }
-            catch (FacetSearchException e)
-            {
-                throw new InvalidMethodParametersException("Facet class wasn't found.", e);
-            }
+            var response = FacetMiddleware.ExecuteMiddlewareStack(
+                request,
+                rq => {
+                    object returnedValue = rq.Method.Invoke(
+                        rq.Facet,
+                        rq.Arguments
+                    );
 
-            // create facet instance
-            Facet facet = Facet.CreateInstance(facetType, new UnisavePlayer(callerId));
+                    return FacetResponse.CreateFrom(
+                        returnedValue,
+                        request.Method
+                    );
+                }
+            );
 
-            // execute the method
-            try
-            {
-                return ExecutionHelper.ExecuteMethod(
-                    facet,
-                    methodName,
-                    jsonArguments,
-                    out MethodInfo methodInfo
-                );
-            }
-            catch (MethodSearchException e)
-            {
-                throw new InvalidMethodParametersException(e);
-            }
-            catch (ExecutionSerializationException e)
-            {
-                throw new InvalidMethodParametersException(e);
-            }
-            catch (TargetInvocationException e)
-            {
-                throw new GameScriptException(e.InnerException);
-            }
+            return response.ReturnedJson;
         }
     }
 }

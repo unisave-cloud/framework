@@ -1,30 +1,28 @@
 ﻿using System;
-using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using Unisave.Exceptions;
-using Unisave.Runtime;
 using Unisave.Utils;
 
-namespace Unisave
+namespace Unisave.Facets
 {
     public abstract class Facet
     {
         /// <summary>
         /// The player who called this facet
         /// </summary>
+        [Obsolete]
         protected UnisavePlayer Caller { get; private set; }
 
         /// <summary>
         /// Creates facet instance of given type
         /// </summary>
-        public static Facet CreateInstance(Type facetType, UnisavePlayer caller)
+        public static Facet CreateInstance(Type facetType)
         {
             Facet facet = ExecutionHelper.Instantiate<Facet>(facetType);
-
-            // assign properties
-            facet.Caller = caller;
-
+            
+            // Here I can assign additional values if needed in the future
+            
             return facet;
         }
 
@@ -53,7 +51,7 @@ namespace Unisave
             if (facetCandidates.Count == 0)
                 throw new FacetSearchException(
                     $"Facet '{facetName}' was not found. "
-                    + $"Make sure your class inherits from the {nameof(Unisave.Facet)} class.",
+                    + $"Make sure your class inherits from the {nameof(Facet)} class.",
                     FacetSearchException.ProblemType.FacetNotFound
                 );
 
