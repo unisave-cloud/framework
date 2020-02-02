@@ -5,6 +5,7 @@ using System.Reflection;
 using Unisave.Contracts;
 using Unisave.Exceptions;
 using Unisave.Database;
+using Unisave.Foundation;
 using Unisave.Runtime;
 using Unisave.Services;
 using Unisave.Utils;
@@ -39,7 +40,7 @@ namespace Unisave
             Migration migration = ExecutionHelper.Instantiate<Migration>(migrationType);
 
             // assign properties
-            migration.Db = ServiceContainer.Default.Resolve<IDatabase>();
+            migration.Db = Application.Default.Resolve<IDatabase>();
 
             return migration;
         }

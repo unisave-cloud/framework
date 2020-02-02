@@ -5,6 +5,7 @@ using Unisave;
 using Unisave.Contracts;
 using Unisave.Database;
 using Unisave.Exceptions;
+using Unisave.Foundation;
 using Unisave.Services;
 
 namespace FrameworkTests
@@ -28,8 +29,8 @@ namespace FrameworkTests
             dbMock.Setup(db => db.RollbackTransaction()).Callback(() => level--);
             dbMock.Setup(db => db.TransactionLevel()).Returns(() => level);
             
-            ServiceContainer.Default = new ServiceContainer();
-            ServiceContainer.Default.Register<IDatabase>(dbMock.Object);
+            //Application.Default = new Application(); // TODO HACK
+            Application.Default.Instance<IDatabase>(dbMock.Object);
         }
         
         [TestCase]

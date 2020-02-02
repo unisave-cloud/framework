@@ -22,14 +22,6 @@ namespace Unisave.Sessions
             session = new InMemorySession();
         }
 
-        /// <summary>
-        /// Generates new random session id
-        /// </summary>
-        public static string GenerateSessionId()
-        {
-            return Str.Random(32);
-        }
-
         public void LoadSession(string sessionId)
         {
             // communicate through the channel

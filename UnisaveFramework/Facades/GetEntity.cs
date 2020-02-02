@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unisave.Contracts;
 using Unisave.Database;
 using Unisave.Database.Query;
+using Unisave.Foundation;
 using Unisave.Runtime;
 using Unisave.Services;
 
@@ -24,7 +25,7 @@ namespace Unisave
         /// </summary>
         public static E Find(string entityId)
         {
-            var database = ServiceContainer.Default.Resolve<IDatabase>();
+            var database = Application.Default.Resolve<IDatabase>();
             
             return (E)Entity.FromRawEntity(
                 database.LoadEntity(entityId),

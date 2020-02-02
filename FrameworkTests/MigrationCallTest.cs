@@ -9,6 +9,7 @@ using LightJson.Serialization;
 using Moq;
 using Unisave.Contracts;
 using Unisave.Database;
+using Unisave.Foundation;
 using Unisave.Services;
 
 namespace FrameworkTests
@@ -75,8 +76,8 @@ namespace FrameworkTests
             executionParameters.Add("executionMethod", "migration");
             executionParameters.Add("methodParameters", methodParameters);
 
-            ServiceContainer.Default = new ServiceContainer();
-            ServiceContainer.Default.Register<IDatabase>(null);
+            //Application.Default = new Application(); // TODO HACK
+            Application.Default.Instance<IDatabase>(null);
             
             string result = Entrypoint.Start(executionParameters.ToString(), new Type[] {
                 typeof(FakeMigration),

@@ -1,6 +1,7 @@
 using System;
 using Unisave.Contracts;
 using Unisave.Facets;
+using Unisave.Foundation;
 using Unisave.Services;
 
 namespace Unisave.Sessions
@@ -10,6 +11,8 @@ namespace Unisave.Sessions
     /// </summary>
     public class SessionFacetMiddleware : FacetMiddleware
     {
+        public SessionFacetMiddleware(Application app) : base(app) { }
+        
         public override FacetResponse Handle(
             FacetRequest request,
             Func<FacetRequest, FacetResponse> next,
@@ -22,7 +25,7 @@ namespace Unisave.Sessions
                 );
             
             string sessionId = parameters[0];
-            ISession session = ServiceContainer.Default.Resolve<ISession>();
+            ISession session = App.Resolve<ISession>();
             
             session.LoadSession(sessionId);
             

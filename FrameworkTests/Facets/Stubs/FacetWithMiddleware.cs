@@ -1,6 +1,7 @@
 using System;
 using Unisave;
 using Unisave.Facets;
+using Unisave.Foundation;
 
 namespace FrameworkTests.Facets.Stubs
 {
@@ -23,6 +24,8 @@ namespace FrameworkTests.Facets.Stubs
     
     public class MyMiddleware : FacetMiddleware
     {
+        public MyMiddleware(Application app) : base(app) { }
+        
         public override FacetResponse Handle(
             FacetRequest request,
             Func<FacetRequest, FacetResponse> next,

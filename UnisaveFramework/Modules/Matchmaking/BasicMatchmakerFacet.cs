@@ -5,6 +5,7 @@ using Unisave.Contracts;
 using Unisave.Modules.Matchmaking.Exceptions;
 using Unisave.Database;
 using Unisave.Facets;
+using Unisave.Foundation;
 using Unisave.Serialization;
 using Unisave.Services;
 
@@ -180,7 +181,7 @@ namespace Unisave.Modules.Matchmaking
                     .FirstOrDefault(n => n.player == Caller);
                 if (notification != null)
                 {
-                    var database = ServiceContainer.Default.Resolve<IDatabase>();
+                    var database = Application.Default.Resolve<IDatabase>();
                     var rawEntity = database.LoadEntity(notification.matchId);
                     returnedValue = (TMatchEntity)Entity.FromRawEntity(
                         rawEntity,

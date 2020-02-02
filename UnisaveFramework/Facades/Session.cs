@@ -1,5 +1,6 @@
 using LightJson;
 using Unisave.Contracts;
+using Unisave.Foundation;
 using Unisave.Services;
 
 namespace Unisave
@@ -11,7 +12,7 @@ namespace Unisave
     {
         private static ISession GetSession()
         {
-            return ServiceContainer.Default.Resolve<ISession>();
+            return Application.Default.Resolve<ISession>();
         }
         
         /// <summary>

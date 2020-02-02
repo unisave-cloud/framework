@@ -6,6 +6,7 @@ using Unisave.Runtime;
 using Unisave.Database;
 using LightJson;
 using Unisave.Contracts;
+using Unisave.Foundation;
 using Unisave.Services;
 
 namespace Unisave
@@ -76,7 +77,7 @@ namespace Unisave
         /// </summary>
         public void Save()
         {
-            var database = ServiceContainer.Default.Resolve<IDatabase>();
+            var database = Application.Default.Resolve<IDatabase>();
             
             RawEntity raw = ToRawEntity();
             database.SaveEntity(raw);
@@ -88,7 +89,7 @@ namespace Unisave
         /// </summary>
         public void Refresh()
         {
-            var database = ServiceContainer.Default.Resolve<IDatabase>();
+            var database = Application.Default.Resolve<IDatabase>();
             
             LoadRawEntity(
                 database.LoadEntity(EntityId),
@@ -104,7 +105,7 @@ namespace Unisave
         /// </summary>
         public void RefreshAndLockForUpdate()
         {
-            var database = ServiceContainer.Default.Resolve<IDatabase>();
+            var database = Application.Default.Resolve<IDatabase>();
             
             LoadRawEntity(
                 database.LoadEntity(EntityId, "for_update"),
@@ -121,7 +122,7 @@ namespace Unisave
         /// </summary>
         public void RefreshAndLockShared()
         {
-            var database = ServiceContainer.Default.Resolve<IDatabase>();
+            var database = Application.Default.Resolve<IDatabase>();
             
             LoadRawEntity(
                 database.LoadEntity(EntityId, "shared"),
@@ -134,7 +135,7 @@ namespace Unisave
         /// </summary>
         public bool Delete()
         {
-            var database = ServiceContainer.Default.Resolve<IDatabase>();
+            var database = Application.Default.Resolve<IDatabase>();
             
             bool result = database.DeleteEntity(EntityId);
             

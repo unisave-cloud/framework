@@ -4,6 +4,7 @@ using System.Linq;
 using Unisave.Serialization;
 using LightJson;
 using Unisave.Contracts;
+using Unisave.Foundation;
 using Unisave.Services;
 
 namespace Unisave.Database.Query
@@ -39,7 +40,7 @@ namespace Unisave.Database.Query
         public static QueryBuilder<TEntity> Create()
         {
             return new QueryBuilder<TEntity>(
-                ServiceContainer.Default.Resolve<IDatabase>()
+                Application.Default.Resolve<IDatabase>()
             );
         }
 

@@ -4,6 +4,7 @@ using NUnit.Framework;
 using Unisave;
 using Unisave.Contracts;
 using Unisave.Database;
+using Unisave.Foundation;
 using Unisave.Services;
 
 namespace FrameworkTests
@@ -19,8 +20,8 @@ namespace FrameworkTests
         {
             dbMock = new Mock<IDatabase>();
             db = dbMock.Object;
-            ServiceContainer.Default = new ServiceContainer();
-            ServiceContainer.Default.Register<IDatabase>(db);
+            //Application.Default = new Application(); // TODO HACK
+            Application.Default.Instance<IDatabase>(db);
         }
         
         [Test]

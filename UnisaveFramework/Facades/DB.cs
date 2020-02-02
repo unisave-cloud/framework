@@ -2,6 +2,7 @@ using System;
 using Unisave.Contracts;
 using Unisave.Database;
 using Unisave.Exceptions;
+using Unisave.Foundation;
 using Unisave.Services;
 
 namespace Unisave
@@ -14,7 +15,7 @@ namespace Unisave
     {
         private static IDatabase GetDatabase()
         {
-            return ServiceContainer.Default.Resolve<IDatabase>();
+            return Application.Default.Resolve<IDatabase>();
         }
         
         /// <summary>

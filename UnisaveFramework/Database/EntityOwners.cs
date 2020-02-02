@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unisave.Contracts;
+using Unisave.Foundation;
 using Unisave.Services;
 
 namespace Unisave.Database
@@ -90,7 +91,7 @@ namespace Unisave.Database
                         "because parent entity is not known."
                     );
                 
-                var database = ServiceContainer.Default.Resolve<IDatabase>();
+                var database = Application.Default.Resolve<IDatabase>();
                 return database.IsEntityOwner(ParentEntity.EntityId, player.Id);
             }
 

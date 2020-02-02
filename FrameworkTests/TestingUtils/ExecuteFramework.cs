@@ -5,6 +5,7 @@ using LightJson;
 using LightJson.Serialization;
 using NUnit.Framework;
 using Unisave;
+using Unisave.Foundation;
 using Unisave.Runtime;
 using Unisave.Serialization;
 using Unisave.Services;
@@ -20,7 +21,7 @@ namespace FrameworkTests.TestingUtils
     {
         private IEnumerable<Type> types;
         private bool serializeExceptions;
-        private ServiceContainer serviceContainer;
+        private Application application;
         
         /// <summary>
         /// Creates the framework execution description
@@ -53,9 +54,9 @@ namespace FrameworkTests.TestingUtils
         /// <summary>
         /// Set the service container to use
         /// </summary>
-        public ExecuteFramework WithServiceContainer(ServiceContainer container)
+        public ExecuteFramework WithServiceContainer(Application container)
         {
-            serviceContainer = container;
+            application = container;
             return this;
         }
 
@@ -78,7 +79,7 @@ namespace FrameworkTests.TestingUtils
             // So there's no need to set it up.
 
             // set service container
-            ServiceContainer.Default = serviceContainer;
+            Application.Default = application;
 
             // set exception serialization
             Entrypoint.SerializeExceptions = serializeExceptions;

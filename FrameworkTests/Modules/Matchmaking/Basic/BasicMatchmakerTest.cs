@@ -7,6 +7,7 @@ using Unisave.Contracts;
 using Unisave.Modules.Matchmaking;
 using Unisave.Modules.Matchmaking.Exceptions;
 using Unisave.Database;
+using Unisave.Foundation;
 using Unisave.Services;
 
 namespace FrameworkTests.Modules.Matchmaking.Basic
@@ -24,8 +25,8 @@ namespace FrameworkTests.Modules.Matchmaking.Basic
             database = new InMemoryDatabase();
 
             // mock database
-            ServiceContainer.Default = new ServiceContainer();
-            ServiceContainer.Default.Register<IDatabase>(database);
+            //Application.Default = new Application(); // TODO HACK
+            Application.Default.Instance<IDatabase>(database);
             
             // populate database
             john = new UnisavePlayer(database.AddPlayer("john@doe.com"));

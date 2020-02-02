@@ -1,12 +1,10 @@
 ﻿using System;
 using LightJson;
-using LightJson.Serialization;
-using Unisave.Contracts;
 using Unisave.Serialization;
 using Unisave.Exceptions;
-using Unisave.Database;
+using Unisave.Foundation;
+using Unisave.Runtime.Kernels;
 using Unisave.Runtime.Methods;
-using Unisave.Services;
 
 namespace Unisave.Runtime
 {
@@ -27,26 +25,6 @@ namespace Unisave.Runtime
         /// </summary>
         private static bool someExecutionIsRunning;
         
-        /// <summary>
-        /// Should the service container be disposed after execution finishes
-        /// </summary>
-        private static bool tearDownServices;
-
-        /// <summary>
-        /// Parsed execution method name
-        /// </summary>
-        private static string methodName;
-        
-        /// <summary>
-        /// Parsed execution method parameters
-        /// </summary>
-        private static JsonValue methodParameters;
-
-        /// <summary>
-        /// Special values object built up during execution
-        /// </summary>
-        private static SpecialValues specialValues;
-
         /// <summary>
         /// Main entrypoint to the framework execution
         /// Given executionParameters it starts some action which results.
@@ -70,25 +48,36 @@ namespace Unisave.Runtime
             {
                 PrintGreeting();
 
-                ParseExecutionParameters(executionParametersAsJson);
+                var executionParameters = ExecutionParameters
+                    .Parse(executionParametersAsJson);
 
-                specialValues = new SpecialValues();
+                var specialValues = new SpecialValues();
 
-                JsonObject result = HandleExceptionSerialization(() => {
-
-                    BootUpServices();
-
-                    JsonValue methodResult = ExecuteProperMethod(
-                        gameAssemblyTypes
-                    );
-
-                    TearDownServices();
-
-                    return new JsonObject()
-                        .Add("result", "ok")
-                        .Add("returned", methodResult)
-                        .Add("special", specialValues.ToJsonObject());
-                });
+                JsonObject result = HandleExceptionSerialization(
+                    specialValues,
+                    () => {
+                        
+                        // NOTE: this place is where a test/emulation
+                        // is started. Simply boot the application and
+                        // then directly call proper kernel (method handler).
+                        using (var app = Bootstrap.Boot(
+                            gameAssemblyTypes,
+                            specialValues
+                        ))
+                        {
+                            JsonValue methodResult = ExecuteProperMethod(
+                                executionParameters,
+                                app
+                            );
+                            
+                            return new JsonObject()
+                                .Add("result", "ok")
+                                .Add("returned", methodResult)
+                                .Add("special", specialValues.ToJsonObject());
+                        }
+                        
+                    }
+                );
 
                 return result.ToString();
             }
@@ -109,55 +98,11 @@ namespace Unisave.Runtime
         }
 
         /// <summary>
-        /// Parses execution parameters JSON string
-        /// </summary>
-        private static void ParseExecutionParameters(string executionParameters)
-        {
-            JsonObject ep = JsonReader.Parse(executionParameters);
-
-            methodName = ep["method"];
-            methodParameters = ep["methodParameters"];
-        }
-
-        /// <summary>
-        /// Initializes services (e.g. database connection)
-        /// </summary>
-        private static void BootUpServices()
-        {
-            // If we already have a container, it has probably been
-            // given to us by some testing setup method so don't touch it
-            if (ServiceContainer.Default != null)
-            {
-                tearDownServices = false;
-                return;
-            }
-            
-            tearDownServices = true;
-            
-            // create container and fill it with services
-            var container = ServiceContainer.Default = new ServiceContainer();
-            
-            // database
-            container.Register<IDatabase>(new SandboxDatabaseApi());
-        }
-
-        /// <summary>
-        /// Destroys all services and the container
-        /// </summary>
-        private static void TearDownServices()
-        {
-            if (!tearDownServices)
-                return;
-            
-            ServiceContainer.Default?.Dispose();
-            ServiceContainer.Default = null;
-        }
-
-        /// <summary>
         /// Handles serialization of exceptions that
         /// might be thrown by the provided lambda
         /// </summary>
         private static JsonObject HandleExceptionSerialization(
+            SpecialValues specialValues,
             Func<JsonObject> action
         )
         {
@@ -193,39 +138,41 @@ namespace Unisave.Runtime
         /// <summary>
         /// Select proper execution method and handle it
         /// </summary>
-        private static JsonValue ExecuteProperMethod(Type[] gameAssemblyTypes)
+        private static JsonValue ExecuteProperMethod(
+            ExecutionParameters executionParameters,
+            Application app
+        )
         {
-            switch (methodName)
+            switch (executionParameters.Method)
             {
                 case "entrypoint-test":
                     return EntrypointTest.Start(
-                        methodParameters,
-                        specialValues
+                        executionParameters.MethodParameters,
+                        app.Resolve<SpecialValues>()
                     );
                 
                 case "facet-call":
-                    return FacetCall.Start(
-                        methodParameters,
-                        specialValues,
-                        gameAssemblyTypes
-                    );
+                    var kernel = app.Resolve<FacetCallKernel>();
+                    var parameters = FacetCallKernel.MethodParameters
+                        .Parse(executionParameters.MethodParameters);
+                    return kernel.Handle(parameters);
 
                 case "migration":
                     return MigrationCall.Start(
-                        methodParameters,
-                        gameAssemblyTypes
+                        executionParameters.MethodParameters,
+                        app.GameAssemblyTypes
                     );
 
                 case "player-registration-hook":
                     return PlayerRegistrationHookCall.Start(
-                        methodParameters,
-                        gameAssemblyTypes
+                        executionParameters.MethodParameters,
+                        app.GameAssemblyTypes
                     );
 
                 default:
                     throw new UnisaveException(
                         "UnisaveFramework: Unknown execution method: "
-                        + methodName
+                        + executionParameters.Method
                     );
             }
         }

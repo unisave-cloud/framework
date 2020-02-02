@@ -39,11 +39,15 @@
   <ItemGroup>
     <Compile Include="Contracts\IDatabase.cs" />
     <Compile Include="Contracts\ISession.cs" />
+    <Compile Include="Exceptions\BindingResolutionException.cs" />
     <Compile Include="Facades\Session.cs" />
     <Compile Include="Facets\Facet.cs" />
     <Compile Include="Facets\FacetMiddleware.cs" />
     <Compile Include="Facets\FacetRequest.cs" />
     <Compile Include="Facets\FacetResponse.cs" />
+    <Compile Include="Foundation\Application.cs" />
+    <Compile Include="Foundation\Bootstrap.cs" />
+    <Compile Include="Foundation\Container.cs" />
     <Compile Include="Modules\Matchmaking\BasicMatchmakerEntity.cs" />
     <Compile Include="Modules\Matchmaking\BasicMatchmakerFacet.cs" />
     <Compile Include="Modules\Matchmaking\BasicMatchmakerTicket.cs" />
@@ -59,15 +63,18 @@
     <Compile Include="Facades\DB.cs" />
     <Compile Include="FrameworkMeta.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Providers\DatabaseServiceProvider.cs" />
+    <Compile Include="Providers\ServiceProvider.cs" />
+    <Compile Include="Providers\SessionServiceProvider.cs" />
     <Compile Include="Runtime\ApiChannel.cs" />
+    <Compile Include="Runtime\ExecutionParameters.cs" />
+    <Compile Include="Runtime\Kernels\FacetCallKernel.cs" />
     <Compile Include="Runtime\Methods\EntrypointTest.cs" />
-    <Compile Include="Runtime\Methods\FacetCall.cs" />
     <Compile Include="Runtime\Methods\MigrationCall.cs" />
     <Compile Include="Runtime\Methods\PlayerRegistrationHookCall.cs" />
     <Compile Include="Runtime\SandboxApi.cs" />
     <Compile Include="Runtime\SpecialValues.cs" />
     <Compile Include="Services\SandboxDatabaseApi.cs" />
-    <Compile Include="Services\ServiceContainer.cs" />
     <Compile Include="Sessions\InMemorySession.cs" />
     <Compile Include="Sessions\SandboxApiSession.cs" />
     <Compile Include="Sessions\SessionFacetMiddleware.cs" />
