@@ -7,6 +7,7 @@ using Unisave.Runtime;
 using LightJson;
 using LightJson.Serialization;
 using Moq;
+using Unisave.Contracts;
 using Unisave.Database;
 using Unisave.Services;
 

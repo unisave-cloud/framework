@@ -37,6 +37,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Contracts\IDatabase.cs" />
+    <Compile Include="Contracts\ISession.cs" />
+    <Compile Include="Facades\Session.cs" />
     <Compile Include="Facets\Facet.cs" />
     <Compile Include="Facets\FacetMiddleware.cs" />
     <Compile Include="Facets\FacetRequest.cs" />
@@ -65,12 +68,14 @@
     <Compile Include="Runtime\SpecialValues.cs" />
     <Compile Include="Services\SandboxDatabaseApi.cs" />
     <Compile Include="Services\ServiceContainer.cs" />
+    <Compile Include="Sessions\InMemorySession.cs" />
+    <Compile Include="Sessions\SandboxApiSession.cs" />
+    <Compile Include="Sessions\SessionFacetMiddleware.cs" />
     <Compile Include="UnisavePlayer.cs" />
     <Compile Include="Exceptions\UnisaveException.cs" />
     <Compile Include="Exceptions\InstantiationException.cs" />
     <Compile Include="Exceptions\FacetSearchException.cs" />
     <Compile Include="Exceptions\MethodSearchException.cs" />
-    <Compile Include="Database\IDatabase.cs" />
     <Compile Include="Database\RawEntity.cs" />
     <Compile Include="Facades\GetEntity.cs" />
     <Compile Include="Utils\ExecutionHelper.cs" />

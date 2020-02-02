@@ -2,6 +2,7 @@ using System;
 using Moq;
 using NUnit.Framework;
 using Unisave;
+using Unisave.Contracts;
 using Unisave.Database;
 using Unisave.Exceptions;
 using Unisave.Services;

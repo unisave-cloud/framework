@@ -1,6 +1,7 @@
 ﻿using System;
 using LightJson;
 using LightJson.Serialization;
+using Unisave.Contracts;
 using Unisave.Serialization;
 using Unisave.Exceptions;
 using Unisave.Database;

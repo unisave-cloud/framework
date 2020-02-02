@@ -69,6 +69,8 @@
     <Compile Include="SerializerTest.cs" />
     <Compile Include="MigrationCallTest.cs" />
     <Compile Include="PlayerRegistrationHookCallTest.cs" />
+    <Compile Include="Sessions\InMemorySessionTest.cs" />
+    <Compile Include="Sessions\SandboxApiSessionTest.cs" />
     <Compile Include="Stubs\SomeEntity.cs" />
     <Compile Include="TestingUtils\ExecuteFramework.cs" />
     <Compile Include="TestingUtils\OnFacet.cs" />

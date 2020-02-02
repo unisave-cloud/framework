@@ -2,6 +2,7 @@ using FrameworkTests.Stubs;
 using Moq;
 using NUnit.Framework;
 using Unisave;
+using Unisave.Contracts;
 using Unisave.Database;
 using Unisave.Services;
 

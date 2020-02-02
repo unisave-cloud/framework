@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Reflection;
 using LightJson;
-using Unisave.Exceptions;
+using Unisave.Contracts;
 using Unisave.Facets;
-using Unisave.Utils;
+using Unisave.Services;
+using Unisave.Sessions;
 
 namespace Unisave.Runtime.Methods
 {
@@ -21,8 +21,21 @@ namespace Unisave.Runtime.Methods
             Type[] gameAssemblyTypes
         )
         {
-            // TODO: generate or pass sessionId
-            specialValues.Add("sessionId", "123456789");
+            // load or generate session id
+            string sessionId = methodParameters["sessionId"].AsString
+                ?? SandboxApiSession.GenerateSessionId();
+            
+            // send the session id back to the client
+            specialValues.Add("sessionId", sessionId);
+
+            // register session into container if not present already
+            // TODO: nope, create some sort of configuration -> session driver
+            if (!ServiceContainer.Default.CanResolve<ISession>())
+            {
+                ServiceContainer.Default.Register<ISession>(
+                    new SandboxApiSession()
+                );
+            }
             
             FacetRequest request = FacetRequest.CreateFrom(
                 methodParameters["facetName"],
@@ -31,7 +44,15 @@ namespace Unisave.Runtime.Methods
                 gameAssemblyTypes
             );
 
+            MiddlewareAttribute[] globalMiddleware = {
+                new MiddlewareAttribute(
+                    typeof(SessionFacetMiddleware),
+                    sessionId
+                )
+            };
+
             var response = FacetMiddleware.ExecuteMiddlewareStack(
+                globalMiddleware,
                 request,
                 rq => {
                     object returnedValue = rq.Method.Invoke(

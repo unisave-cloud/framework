@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unisave.Contracts;
 using Unisave.Database;
 using Unisave.Database.Query;
 using Unisave.Runtime;

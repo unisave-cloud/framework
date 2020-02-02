@@ -5,6 +5,7 @@ using System.Reflection;
 using Unisave.Runtime;
 using Unisave.Database;
 using LightJson;
+using Unisave.Contracts;
 using Unisave.Services;
 
 namespace Unisave

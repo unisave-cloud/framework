@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using FrameworkTests.TestingUtils;
 using NUnit.Framework;
 using Unisave;
+using Unisave.Contracts;
 using Unisave.Modules.Matchmaking;
 using Unisave.Modules.Matchmaking.Exceptions;
 using Unisave.Database;

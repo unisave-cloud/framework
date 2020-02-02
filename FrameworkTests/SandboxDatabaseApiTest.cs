@@ -3,6 +3,7 @@ using System.Linq;
 using LightJson;
 using Moq;
 using NUnit.Framework;
+using Unisave.Contracts;
 using Unisave.Database;
 using Unisave.Database.Query;
 using Unisave.Runtime;

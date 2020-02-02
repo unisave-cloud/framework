@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using LightJson;
+using Unisave.Contracts;
 using Unisave.Database;
 using Unisave.Database.Query;
 using Unisave.Exceptions;

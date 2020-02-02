@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using LightJson;
+﻿using System.Collections.Generic;
+using Unisave.Database;
 using Unisave.Database.Query;
 using Unisave.Exceptions;
 
-namespace Unisave.Database
+namespace Unisave.Contracts
 {
     /// <summary>
     /// Interface used to resolve database connection

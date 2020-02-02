@@ -25,12 +25,21 @@ namespace Unisave.Facets
         /// Executes provided closure inside all middleware layers
         /// </summary>
         public static FacetResponse ExecuteMiddlewareStack(
+            IEnumerable<MiddlewareAttribute> globalMiddleware,
             FacetRequest request,
             Func<FacetRequest, FacetResponse> action
         )
         {
-            List<Layer> layers = ObtainMiddlewareLayers(request);
-            LayerIterator iterator = new LayerIterator(layers, action);
+            List<Layer> layers = ObtainMiddlewareLayers(
+                globalMiddleware,
+                request
+            );
+            
+            LayerIterator iterator = new LayerIterator(
+                layers,
+                action
+            );
+            
             return iterator.Iterate(request);
         }
 
@@ -38,9 +47,14 @@ namespace Unisave.Facets
         /// Extracts and sorts middleware layers from a facet request
         /// </summary>
         private static List<Layer> ObtainMiddlewareLayers(
+            IEnumerable<MiddlewareAttribute> globalMiddleware,
             FacetRequest request
         )
         {
+            var globalLayers = globalMiddleware
+                .Select(attr => new Layer(attr))
+                .OrderBy(l => l.order);
+            
             var classLayers = request.FacetType
                 .GetCustomAttributes<MiddlewareAttribute>()
                 .Select(attr => new Layer(attr))
@@ -51,7 +65,10 @@ namespace Unisave.Facets
                 .Select(attr => new Layer(attr))
                 .OrderBy(l => l.order);
 
-            return classLayers.Concat(methodLayers).ToList();
+            return globalLayers
+                .Concat(classLayers)
+                .Concat(methodLayers)
+                .ToList();
         }
 
         /// <summary>

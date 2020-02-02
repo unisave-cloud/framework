@@ -34,10 +34,8 @@ namespace Unisave.Services
         /// <exception cref="UnisaveException">Service not found</exception>
         public T Resolve<T>()
         {
-            bool gotten = services.TryGetValue(typeof(T), out object service);
-
-            if (gotten)
-                return (T) service;
+            if (TryResolve(out T service))
+                return service;
             
             throw new UnisaveException(
                 $"Service of type {typeof(T)} could not be found inside" +
@@ -45,6 +43,38 @@ namespace Unisave.Services
             );
         }
 
+        /// <summary>
+        /// Tries to resolve a service from the container given an interface
+        /// that the service implements and was registered for
+        /// </summary>
+        /// <param name="service"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public bool TryResolve<T>(out T service)
+        {
+            bool gotten = services.TryGetValue(
+                typeof(T),
+                out object serviceObj
+            );
+
+            if (gotten)
+            {
+                service = (T) serviceObj;
+                return true;
+            }
+
+            service = default(T);
+            return false;
+        }
+
+        /// <summary>
+        /// Returns true if a given service can be resolved
+        /// </summary>
+        public bool CanResolve<T>()
+        {
+            return TryResolve(out T _);
+        }
+        
         /// <summary>
         /// Registers a service that implements interface T
         /// </summary>
