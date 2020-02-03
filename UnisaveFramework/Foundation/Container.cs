@@ -60,6 +60,7 @@ namespace Unisave.Foundation
                 object instance = singletonBinds[type].Invoke();
                 singletonBinds.Remove(type);
                 instanceBinds[type] = instance;
+                return instance;
             }
             
             // === find simple bind ===
