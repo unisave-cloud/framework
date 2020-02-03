@@ -35,11 +35,10 @@ namespace Unisave.Runtime.Kernels
             );
 
             MiddlewareAttribute[] globalMiddleware = {
-                // TODO: uncomment and setup session code
-//                new MiddlewareAttribute(
-//                    typeof(SessionFacetMiddleware),
-//                    sessionId
-//                )
+                new MiddlewareAttribute(
+                    typeof(SessionFacetMiddleware),
+                    sessionId
+                )
             };
 
             var response = FacetMiddleware.ExecuteMiddlewareStack(

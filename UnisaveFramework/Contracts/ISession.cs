@@ -56,8 +56,10 @@ namespace Unisave.Contracts
         void Set(string key, object value);
 
         /// <summary>
-        /// Alias for Set method
+        /// Set the value to be stored under a session key
         /// </summary>
+        /// <param name="key">Session key</param>
+        /// <param name="value">Value to store</param>
         void Put(string key, object value);
 
         /// <summary>

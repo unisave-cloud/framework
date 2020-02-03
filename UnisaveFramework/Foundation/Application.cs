@@ -22,7 +22,7 @@ namespace Unisave.Foundation
             GameAssemblyTypes = gameAssemblyTypes;
         }
 
-        // TODO: replace this for something more configurable later
+        // TODO: replace this with something more configurable later
         public void RegisterServiceProviders()
         {
             ServiceProvider[] providers = {

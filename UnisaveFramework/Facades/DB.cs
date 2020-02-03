@@ -15,7 +15,7 @@ namespace Unisave
     {
         private static IDatabase GetDatabase()
         {
-            return Application.Default.Resolve<IDatabase>();
+            return Facade.App.Resolve<IDatabase>();
         }
         
         /// <summary>

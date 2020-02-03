@@ -17,6 +17,11 @@ Framework serves multiple purposes:
 - [`facet-call` method](docs/api-facet-call.md)
 
 
+## Sandbox API Reference
+
+- [`session` channel](docs/channel-session.md)
+
+
 ## Documentation
 
 - [Application bootstrapping](docs/application-bootstrapping.md)

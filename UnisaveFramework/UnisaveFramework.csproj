@@ -40,6 +40,8 @@
     <Compile Include="Contracts\IDatabase.cs" />
     <Compile Include="Contracts\ISession.cs" />
     <Compile Include="Exceptions\BindingResolutionException.cs" />
+    <Compile Include="Exceptions\ConfigurationException.cs" />
+    <Compile Include="Facades\Facade.cs" />
     <Compile Include="Facades\Session.cs" />
     <Compile Include="Facets\Facet.cs" />
     <Compile Include="Facets\FacetMiddleware.cs" />
@@ -75,9 +77,11 @@
     <Compile Include="Runtime\SandboxApi.cs" />
     <Compile Include="Runtime\SpecialValues.cs" />
     <Compile Include="Services\SandboxDatabaseApi.cs" />
-    <Compile Include="Sessions\InMemorySession.cs" />
-    <Compile Include="Sessions\SandboxApiSession.cs" />
+    <Compile Include="Sessions\InMemorySessionStorage.cs" />
+    <Compile Include="Sessions\ISessionStorage.cs" />
+    <Compile Include="Sessions\SandboxApiSessionStorage.cs" />
     <Compile Include="Sessions\SessionFacetMiddleware.cs" />
+    <Compile Include="Sessions\SessionOverStorage.cs" />
     <Compile Include="UnisavePlayer.cs" />
     <Compile Include="Exceptions\UnisaveException.cs" />
     <Compile Include="Exceptions\InstantiationException.cs" />

@@ -65,10 +65,14 @@ namespace Unisave.Runtime
                             specialValues
                         ))
                         {
+                            Facade.SetApplication(app);
+                            
                             JsonValue methodResult = ExecuteProperMethod(
                                 executionParameters,
                                 app
                             );
+                            
+                            Facade.SetApplication(null);
                             
                             return new JsonObject()
                                 .Add("result", "ok")

@@ -21,7 +21,6 @@ namespace FrameworkTests.TestingUtils
     {
         private IEnumerable<Type> types;
         private bool serializeExceptions;
-        private Application application;
         
         /// <summary>
         /// Creates the framework execution description
@@ -50,36 +49,13 @@ namespace FrameworkTests.TestingUtils
             serializeExceptions = true;
             return this;
         }
-
-        /// <summary>
-        /// Set the service container to use
-        /// </summary>
-        public ExecuteFramework WithServiceContainer(Application container)
-        {
-            application = container;
-            return this;
-        }
-
+        
         /// <summary>
         /// Execute the framework with execution parameters
         /// </summary>
         public FrameworkExecutionResult Execute(string executionParameters)
         {
-            // When no types specified, use the entire testing project
-            // and the framework project to nicely pollute the scope.
-            // (pollute more than it would be in production)
-            if (types == null)
-            {
-                types = typeof(ExecuteFramework).Assembly.GetTypes()
-                    .Concat(typeof(FrameworkMeta).Assembly.GetTypes());
-            }
-            
-            // NOTE: Sandbox api is not tested here,
-            // instead it's tested on per service basis.
-            // So there's no need to set it up.
-
-            // set service container
-            Application.Default = application;
+            PrepareTypes();
 
             // set exception serialization
             Entrypoint.SerializeExceptions = serializeExceptions;
@@ -91,6 +67,18 @@ namespace FrameworkTests.TestingUtils
             );
 
             return new FrameworkExecutionResult(result);
+        }
+
+        private void PrepareTypes()
+        {
+            // When no types specified, use the entire testing project
+            // and the framework project to nicely pollute the scope.
+            // (pollute more than it would be in production)
+            if (types == null)
+            {
+                types = typeof(ExecuteFramework).Assembly.GetTypes()
+                    .Concat(typeof(FrameworkMeta).Assembly.GetTypes());
+            }
         }
 
         /// <summary>

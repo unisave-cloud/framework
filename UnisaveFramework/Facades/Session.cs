@@ -12,7 +12,7 @@ namespace Unisave
     {
         private static ISession GetSession()
         {
-            return Application.Default.Resolve<ISession>();
+            return Facade.App.Resolve<ISession>();
         }
         
         /// <summary>
@@ -65,8 +65,10 @@ namespace Unisave
         }
 
         /// <summary>
-        /// Alias for Set method
+        /// Set the value to be stored under a session key
         /// </summary>
+        /// <param name="key">Session key</param>
+        /// <param name="value">Value to store</param>
         public static void Put(string key, object value)
             => Set(key, value);
 
