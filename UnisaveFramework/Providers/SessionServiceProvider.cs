@@ -12,9 +12,10 @@ namespace Unisave.Providers
         public override void Register()
         {
             App.Singleton<ISession>(app => {
-                // TODO: pull this from configuration
-                string driver = "sandbox";
-                int lifetime = 3600; // 1h
+                var env = app.Resolve<Env>();
+                
+                string driver = env.GetString("SESSION_DRIVER", "sandbox");
+                int lifetime = env.GetInt("SESSION_LIFETIME", 3600); // 1h
 
                 switch (driver)
                 {

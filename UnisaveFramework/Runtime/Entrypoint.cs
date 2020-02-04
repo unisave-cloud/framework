@@ -60,8 +60,12 @@ namespace Unisave.Runtime
                         // NOTE: this place is where a test/emulation
                         // is started. Simply boot the application and
                         // then directly call proper kernel (method handler).
+
+                        var env = Env.Parse(executionParameters.EnvSource);
+                        
                         using (var app = Bootstrap.Boot(
                             gameAssemblyTypes,
+                            env,
                             specialValues
                         ))
                         {

@@ -18,13 +18,20 @@ namespace Unisave.Runtime
         /// </summary>
         public JsonValue MethodParameters { get; }
         
+        /// <summary>
+        /// Source text for env config
+        /// </summary>
+        public string EnvSource { get; }
+        
         public ExecutionParameters(
             string method,
-            JsonValue methodParameters
+            JsonValue methodParameters,
+            string envSource
         )
         {
             Method = method;
             MethodParameters = methodParameters;
+            EnvSource = envSource;
         }
 
         /// <summary>
@@ -36,7 +43,8 @@ namespace Unisave.Runtime
 
             return new ExecutionParameters(
                 ep["method"].AsString,
-                ep["methodParameters"]
+                ep["methodParameters"],
+                ep["env"]
             );
         }
     }

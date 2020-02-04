@@ -7,13 +7,16 @@
 ```json
 {
     "method": "facet-call",
-    "methodParameters": {}
+    "methodParameters": {},
+    "env": "..."
 }
 ```
 
 `method` Name of the requested method
 
 `methodParameters` Any JSON value, depends on the method requested
+
+`env` text of the env configuration file
 
 **Success**
 

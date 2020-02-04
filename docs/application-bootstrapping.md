@@ -46,7 +46,8 @@ Execution parameters take the following form:
 ```json
 {
     "method": "facet-call",
-    "methodParameters": {}
+    "methodParameters": {},
+    "env": "..."
 }
 ```
 
