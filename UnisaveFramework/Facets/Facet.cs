@@ -44,15 +44,13 @@ namespace Unisave.Facets
             if (facetCandidates.Count > 1)
                 throw new FacetSearchException(
                     $"Facet name '{facetName}' is ambiguous. "
-                    + "Make sure you don't have two facets with the same name.",
-                    FacetSearchException.ProblemType.FacetNameAmbiguous
+                    + "Make sure you don't have two facets with the same name."
                 );
 
             if (facetCandidates.Count == 0)
                 throw new FacetSearchException(
                     $"Facet '{facetName}' was not found. "
-                    + $"Make sure your class inherits from the {nameof(Facet)} class.",
-                    FacetSearchException.ProblemType.FacetNotFound
+                    + $"Make sure your class inherits from the {nameof(Facet)} class."
                 );
 
             return facetCandidates[0];

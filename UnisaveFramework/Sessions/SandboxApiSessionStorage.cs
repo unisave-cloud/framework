@@ -34,7 +34,7 @@ namespace Unisave.Sessions
         )
         {
             channel.SendJsonMessage(
-                100,
+                200,
                 new JsonObject()
                     .Add("sessionId", sessionId)
                     .Add("lifetime", lifetime)

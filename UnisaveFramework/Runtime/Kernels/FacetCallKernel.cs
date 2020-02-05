@@ -80,7 +80,7 @@ namespace Unisave.Runtime.Kernels
         /// </summary>
         public static string GenerateSessionId()
         {
-            return Str.Random(32);
+            return Str.Random(16);
         }
 
         /// <summary>
