@@ -7,6 +7,17 @@ namespace FrameworkTests
     [TestFixture]
     public class EntrypointTest
     {
+        // TODO: this can test entrypoint by mocking a kernel (e.g. facet kernel)
+        // TODO: and not by having a special method case
+        
+        // hmm: Not by mocking a kernel, but instead:
+        // - make methodName -> kernel mapping dynamic, initialized
+        // in the static constructor of Entrypoint class
+        // - add an additional method that will be our test method
+        
+        // TODO: also exception serialization should be extracted into an
+        // TODO: exception handler that should be tested separately
+        
         [Test]
         public void ItReturnsNull()
         {

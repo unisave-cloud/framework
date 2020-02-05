@@ -59,6 +59,16 @@ namespace Unisave.Foundation
         }
 
         /// <summary>
+        /// Override current settings with settings from a given env
+        /// (existing keys get replaced, new keys get created)
+        /// </summary>
+        public void OverrideWith(Env overrideEnv)
+        {
+            foreach (var pair in overrideEnv.values)
+                values[pair.Key] = pair.Value;
+        }
+
+        /// <summary>
         /// Parse out env config from a string
         /// </summary>
         public static Env Parse(string source)

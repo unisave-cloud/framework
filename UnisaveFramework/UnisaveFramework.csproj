@@ -83,6 +83,13 @@
     <Compile Include="Sessions\SandboxApiSessionStorage.cs" />
     <Compile Include="Sessions\SessionFacetMiddleware.cs" />
     <Compile Include="Sessions\SessionOverStorage.cs" />
+    <Compile Include="Testing\BasicBackendTestCase.CallsFacets.cs">
+      <DependentUpon>BasicBackendTestCase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Testing\BasicBackendTestCase.cs" />
+    <Compile Include="Testing\BasicBackendTestCase.MakesAssertions.cs">
+      <DependentUpon>BasicBackendTestCase.cs</DependentUpon>
+    </Compile>
     <Compile Include="UnisavePlayer.cs" />
     <Compile Include="Exceptions\UnisaveException.cs" />
     <Compile Include="Exceptions\InstantiationException.cs" />

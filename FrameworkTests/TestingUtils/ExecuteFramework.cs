@@ -17,6 +17,7 @@ namespace FrameworkTests.TestingUtils
     /// Helper to execute framework from the top-most level
     /// (by using execution parameters serialized via JSON)
     /// </summary>
+    [Obsolete]
     public class ExecuteFramework
     {
         private IEnumerable<Type> types;

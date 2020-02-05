@@ -15,7 +15,15 @@ namespace Unisave.Runtime
         /// </summary>
         public void Add(string key, JsonValue value)
         {
-            values.Add(key, value);
+            values[key] = value;
+        }
+
+        /// <summary>
+        /// Reads a special value
+        /// </summary>
+        public JsonValue Read(string key)
+        {
+            return values[key];
         }
 
         /// <summary>

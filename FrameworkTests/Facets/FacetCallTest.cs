@@ -1,6 +1,4 @@
 ﻿using NUnit.Framework;
-using System;
-using LightJson;
 using FrameworkTests.Facets.Stubs;
 using FrameworkTests.TestingUtils;
 using Unisave.Exceptions;
@@ -8,26 +6,20 @@ using Unisave.Exceptions;
 namespace FrameworkTests.Facets
 {
     [TestFixture]
-    public class FacetCallTest
+    public class FacetCallTest : BackendTestCase
     {
         [Test]
         public void ItRunsMyProcedure()
         {
             SomeFacet.flag = false;
-
-            ExecuteFramework.Begin()
-                .Execute(@"
-                    {
-                        ""method"": ""facet-call"",
-                        ""methodParameters"": {
-                            ""facetName"": ""SomeFacet"",
-                            ""methodName"": ""MyProcedure"",
-                            ""arguments"": []
-                        }
-                    }
-                ")
-                .AssertReturned(@"null")
-                .AssertHasSpecial("sessionId");
+            
+            Assert.IsNull(SessionId);
+            
+            OnFacet<SomeFacet>().CallSync(
+                nameof(SomeFacet.MyProcedure)
+            );
+            
+            Assert.IsNotNull(SessionId);
 
             Assert.IsTrue(SomeFacet.flag);
         }
@@ -36,33 +28,17 @@ namespace FrameworkTests.Facets
         public void ItRunsMyParametrizedProcedure()
         {
             SomeFacet.flag = false;
-
-            ExecuteFramework.Begin()
-                .Execute(@"
-                    {
-                        ""method"": ""facet-call"",
-                        ""methodParameters"": {
-                            ""facetName"": ""SomeFacet"",
-                            ""methodName"": ""MyParametrizedProcedure"",
-                            ""arguments"": [true]
-                        }
-                    }
-                ")
-                .AssertSuccess();
+            
+            OnFacet<SomeFacet>().CallSync(
+                nameof(SomeFacet.MyParametrizedProcedure),
+                true
+            );
             Assert.IsTrue(SomeFacet.flag);
             
-            ExecuteFramework.Begin()
-                .Execute(@"
-                    {
-                        ""method"": ""facet-call"",
-                        ""methodParameters"": {
-                            ""facetName"": ""SomeFacet"",
-                            ""methodName"": ""MyParametrizedProcedure"",
-                            ""arguments"": [false]
-                        }
-                    }
-                ")
-                .AssertSuccess();
+            OnFacet<SomeFacet>().CallSync(
+                nameof(SomeFacet.MyParametrizedProcedure),
+                false
+            );
             Assert.IsFalse(SomeFacet.flag);
         }
 
@@ -70,18 +46,9 @@ namespace FrameworkTests.Facets
         public void ItChecksParentFacet()
         {
             var e = Assert.Catch<FacetSearchException>(() => {
-                ExecuteFramework.Begin()
-                    .Execute(@"
-                        {
-                            ""method"": ""facet-call"",
-                            ""methodParameters"": {
-                                ""facetName"": ""WrongFacet"",
-                                ""methodName"": ""MyProcedure"",
-                                ""arguments"": []
-                            }
-                        }
-                    ")
-                    .AssertSuccess();
+                OnFacet("WrongFacet").CallSync(
+                    nameof(SomeFacet.MyProcedure)
+                );
             });
             
             StringAssert.Contains("Facet 'WrongFacet' was not found.", e.Message);
@@ -91,18 +58,9 @@ namespace FrameworkTests.Facets
         public void ItChecksMethodExistence()
         {
             var e = Assert.Catch<MethodSearchException>(() => {
-                ExecuteFramework.Begin()
-                    .Execute(@"
-                        {
-                            ""method"": ""facet-call"",
-                            ""methodParameters"": {
-                                ""facetName"": ""SomeFacet"",
-                                ""methodName"": ""NonExistingMethod"",
-                                ""arguments"": []
-                            }
-                        }
-                    ")
-                    .AssertSuccess();
+                OnFacet<SomeFacet>().CallSync(
+                    "NonExistingMethod"
+                );
             });
             
             StringAssert.Contains("doesn't have public method called", e.ToString());
@@ -112,18 +70,10 @@ namespace FrameworkTests.Facets
         public void ItChecksAmbiguousMethods()
         {
             var e = Assert.Catch<MethodSearchException>(() => {
-                ExecuteFramework.Begin()
-                    .Execute(@"
-                        {
-                            ""method"": ""facet-call"",
-                            ""methodParameters"": {
-                                ""facetName"": ""SomeFacet"",
-                                ""methodName"": ""AmbiguousMethod"",
-                                ""arguments"": []
-                            }
-                        }
-                    ")
-                    .AssertSuccess();
+                OnFacet<SomeFacet>().CallSync(
+                    nameof(SomeFacet.AmbiguousMethod),
+                    false
+                );
             });
             
             StringAssert.Contains("has multiple methods called", e.ToString());
@@ -133,18 +83,9 @@ namespace FrameworkTests.Facets
         public void ItChecksPublicMethods()
         {
             var e = Assert.Catch<MethodSearchException>(() => {
-                ExecuteFramework.Begin()
-                    .Execute(@"
-                        {
-                            ""method"": ""facet-call"",
-                            ""methodParameters"": {
-                                ""facetName"": ""SomeFacet"",
-                                ""methodName"": ""PrivateProcedure"",
-                                ""arguments"": []
-                            }
-                        }
-                    ")
-                    .AssertSuccess();
+                OnFacet<SomeFacet>().CallSync(
+                    "PrivateProcedure"
+                );
             });
             
             StringAssert.Contains("has to be public in order to be called", e.ToString());
@@ -153,18 +94,12 @@ namespace FrameworkTests.Facets
         [Test]
         public void ItRunsFunctions()
         {
-            ExecuteFramework.Begin()
-                .Execute(@"
-                    {
-                        ""method"": ""facet-call"",
-                        ""methodParameters"": {
-                            ""facetName"": ""SomeFacet"",
-                            ""methodName"": ""SquaringFunction"",
-                            ""arguments"": [5]
-                        }
-                    }
-                ")
-                .AssertReturned(@"25");
+            int result = OnFacet<SomeFacet>().CallSync<int>(
+                nameof(SomeFacet.SquaringFunction),
+                5
+            );
+            
+            Assert.AreEqual(25, result);
         }
     }
 }
