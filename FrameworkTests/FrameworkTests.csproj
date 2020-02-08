@@ -54,6 +54,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Arango\LinqToAqlParsingTest.cs" />
     <Compile Include="EntrypointTest.cs" />
     <Compile Include="EnvTest.cs" />
     <Compile Include="Facets\FacetCallTest.cs" />

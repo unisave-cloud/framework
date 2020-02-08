@@ -37,6 +37,24 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Arango\Database\Collection.cs" />
+    <Compile Include="Arango\Database\InMemoryArango.cs" />
+    <Compile Include="Arango\Expressions\AF.cs" />
+    <Compile Include="Arango\Expressions\AqlConstantExpression.cs" />
+    <Compile Include="Arango\Expressions\AqlExpression.cs" />
+    <Compile Include="Arango\Expressions\AqlExpressionType.cs" />
+    <Compile Include="Arango\Expressions\AqlFunctionExpression.cs" />
+    <Compile Include="Arango\Expressions\AqlJsonObjectExpression.cs" />
+    <Compile Include="Arango\Expressions\AqlMemberAccessExpression.cs" />
+    <Compile Include="Arango\Expressions\AqlParameterExpression.cs" />
+    <Compile Include="Arango\Expressions\AqlParsingException.cs" />
+    <Compile Include="Arango\Expressions\AqlUnaryOperator.cs" />
+    <Compile Include="Arango\Expressions\ArangoFunctionAttribute.cs" />
+    <Compile Include="Arango\Expressions\LinqToAqlExpressionParser.cs" />
+    <Compile Include="Arango\Query\AqlOperation.cs" />
+    <Compile Include="Arango\Query\AqlOperationType.cs" />
+    <Compile Include="Arango\Query\AqlQuery.cs" />
+    <Compile Include="Arango\Query\ReturnOperation.cs" />
     <Compile Include="Contracts\IDatabase.cs" />
     <Compile Include="Contracts\ISession.cs" />
     <Compile Include="Exceptions\BindingResolutionException.cs" />
