@@ -8,6 +8,14 @@ namespace Unisave.Arango.Expressions
         [ArangoFunction("DOCUMENT")]
         public static JsonObject Document(string collection, string key)
             => new JsonObject();
+        
+        /// <summary>
+        /// Not really a function, but allows you to access
+        /// a collection by name directly
+        /// </summary>
+        [ArangoFunction("COLLECTION")]
+        public static JsonArray Collection(string collectionName)
+            => new JsonArray();
 
         [ArangoFunction("CONCAT")]
         public static string Concat(JsonValue a, JsonValue b)

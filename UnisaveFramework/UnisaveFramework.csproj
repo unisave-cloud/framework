@@ -56,6 +56,8 @@
     <Compile Include="Arango\Expressions\AqlUnaryOperator.cs" />
     <Compile Include="Arango\Expressions\ArangoFunctionAttribute.cs" />
     <Compile Include="Arango\Expressions\LinqToAqlExpressionParser.cs" />
+    <Compile Include="Arango\Query\AqlForOperation.cs" />
+    <Compile Include="Arango\Query\AqlForOperationBuilder.cs" />
     <Compile Include="Arango\Query\AqlOperation.cs" />
     <Compile Include="Arango\Query\AqlOperationType.cs" />
     <Compile Include="Arango\Query\AqlQuery.cs" />

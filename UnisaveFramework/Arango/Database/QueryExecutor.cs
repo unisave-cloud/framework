@@ -42,6 +42,10 @@ namespace Unisave.Arango.Database
                     case AqlReturnOperation op:
                         return op.EvaluateInFrameStream(frameStream);
                     
+                    case AqlForOperation op:
+                        frameStream = op.ApplyToFrameStream(frameStream);
+                        break;
+                    
                     default:
                         throw new ArgumentException(
                             "Unknown operation type " + operation

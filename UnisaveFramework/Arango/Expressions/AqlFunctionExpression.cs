@@ -46,6 +46,14 @@ namespace Unisave.Arango.Expressions
         
         public override string ToAql()
         {
+            // handle collection access differently
+            if (FunctionName.ToUpper() == "COLLECTION"
+                && Arguments.Count == 1
+                && Arguments[0] is AqlConstantExpression c)
+            {
+                return c.Value.AsString;
+            }
+            
             return FunctionName + "(" +
                 string.Join(", ", Arguments.Select(a => a.ToAql())) +
                 ")";

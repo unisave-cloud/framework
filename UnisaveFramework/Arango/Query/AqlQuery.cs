@@ -17,18 +17,22 @@ namespace Unisave.Arango.Query
         /// <summary>
         /// List of AQL operations, making up the query
         /// </summary>
-        protected List<AqlOperation> operations = new List<AqlOperation>();
+        protected readonly List<AqlOperation> operations
+            = new List<AqlOperation>();
         
         /// <summary>
         /// Variables that have been defined so far and can be used
         /// </summary>
-        protected HashSet<string> variables = new HashSet<string>();
+        protected readonly HashSet<string> variables
+            = new HashSet<string>();
 
         /// <summary>
         /// Helper for parsing AQL expressions
         /// </summary>
         protected LinqToAqlExpressionParser Parser { get; }
             = new LinqToAqlExpressionParser();
+        
+        #region "Fluent API"
         
         public AqlQuery Return(Expression<Func<JsonValue>> e)
             => AddReturnOperation(e.Body);
@@ -38,6 +42,11 @@ namespace Unisave.Arango.Query
         
         public AqlQuery Return(Expression<Func<JsonValue, JsonValue, JsonValue>> e)
             => AddReturnOperation(e.Body);
+
+        public AqlForOperationBuilder For(string variableName)
+            => AddForOperation(variableName);
+        
+        #endregion
 
         public AqlQuery AddReturnOperation(Expression e)
         {
@@ -53,6 +62,29 @@ namespace Unisave.Arango.Query
             operations.Add(new AqlReturnOperation(parsed));
             
             return this;
+        }
+
+        public AqlForOperationBuilder AddForOperation(string variableName)
+        {
+            return new AqlForOperationBuilder(this, builder => {
+                if (builder.IsTraversal ?? false)
+                {
+                    throw new NotImplementedException(
+                        "Graph traversal via FOR operation is not implemented."
+                    );
+                }
+                else
+                {
+                    ValidateParametersCanBeResolved(
+                        builder.CollectionExpression.Parameters
+                    );
+                    variables.Add(variableName);
+                    operations.Add(new AqlForOperation(
+                        variableName,
+                        builder.CollectionExpression
+                    ));
+                }
+            });
         }
 
         protected void ValidateParametersCanBeResolved(
