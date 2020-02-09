@@ -54,7 +54,18 @@ namespace Unisave.Arango.Expressions
         
         public override JsonValue EvaluateInFrame(ExecutionFrame frame)
         {
-            throw new System.NotImplementedException();
+            JsonValue o = Operand.EvaluateInFrame(frame);
+            
+            switch (ExpressionType)
+            {
+                case AqlExpressionType.UnaryPlus: return +o;
+                case AqlExpressionType.UnaryMinus: return -o;
+                case AqlExpressionType.Not: return !o;
+            }
+            
+            throw new QueryExecutionException(
+                $"Cannot evaluate expression {ExpressionType} - not implemented"
+            );
         }
     }
 }

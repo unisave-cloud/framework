@@ -85,7 +85,37 @@ namespace Unisave.Arango.Expressions
 
         public override JsonValue EvaluateInFrame(ExecutionFrame frame)
         {
-            throw new System.NotImplementedException();
+            JsonValue l = Left.EvaluateInFrame(frame);
+            JsonValue r = Right.EvaluateInFrame(frame);
+            
+            switch (ExpressionType)
+            {
+                case AqlExpressionType.Add:
+                    if (l.IsString)
+                        return l.AsString + r;
+                    if (r.IsString)
+                        return l + r.AsString;
+                    return l.AsNumber + r.AsNumber;
+                
+                case AqlExpressionType.Subtract: return l - r;
+                case AqlExpressionType.Multiply: return l * r;
+                // NOTE: double conversion really IS IMPORTANT
+                case AqlExpressionType.Divide: return (double)l / (double)r;
+                case AqlExpressionType.Modulo: return l % r;
+
+                case AqlExpressionType.Equal: return l == r;
+                case AqlExpressionType.NotEqual: return l != r;
+                case AqlExpressionType.GreaterThan: return l > r;
+                case AqlExpressionType.GreaterThanOrEqual: return l >= r;
+                case AqlExpressionType.LessThan: return l < r;
+                case AqlExpressionType.LessThanOrEqual: return l <= r;
+                case AqlExpressionType.And: return l && r;
+                case AqlExpressionType.Or: return l || r;
+            }
+            
+            throw new QueryExecutionException(
+                $"Cannot evaluate expression {ExpressionType} - not implemented"
+            );
         }
     }
 }

@@ -54,6 +54,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Arango\ExpressionEvaluationTest.cs" />
     <Compile Include="Arango\LinqToAqlParsingTest.cs" />
     <Compile Include="Arango\QueryExecutionTest.cs" />
     <Compile Include="Arango\QueryToAqlTest.cs" />

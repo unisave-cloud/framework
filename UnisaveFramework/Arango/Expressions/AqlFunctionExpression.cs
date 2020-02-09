@@ -53,7 +53,14 @@ namespace Unisave.Arango.Expressions
         
         public override JsonValue EvaluateInFrame(ExecutionFrame frame)
         {
-            throw new System.NotImplementedException();
+            JsonValue[] evaluatedArguments = Arguments.Select(
+                a => a.EvaluateInFrame(frame)
+            ).ToArray();
+
+            return frame.FunctionRepository.EvaluateFunction(
+                FunctionName,
+                evaluatedArguments
+            );
         }
     }
 }

@@ -76,7 +76,7 @@ namespace Unisave.Arango.Expressions
         
         public override JsonValue EvaluateInFrame(ExecutionFrame frame)
         {
-            throw new System.NotImplementedException();
+            return Value;
         }
     }
 }

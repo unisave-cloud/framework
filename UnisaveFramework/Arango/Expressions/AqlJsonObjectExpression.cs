@@ -93,7 +93,12 @@ namespace Unisave.Arango.Expressions
         
         public override JsonValue EvaluateInFrame(ExecutionFrame frame)
         {
-            throw new System.NotImplementedException();
+            var result = new JsonObject();
+
+            foreach (var pair in Items)
+                result.Add(pair.Key, pair.Value.EvaluateInFrame(frame));
+            
+            return result;
         }
     }
 }

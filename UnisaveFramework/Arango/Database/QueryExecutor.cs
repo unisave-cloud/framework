@@ -12,6 +12,16 @@ namespace Unisave.Arango.Database
     public class QueryExecutor
     {
         /// <summary>
+        /// Repository containing implementations of AQL functions
+        /// </summary>
+        public AqlFunctionRepository FunctionRepository { get; }
+        
+        public QueryExecutor(AqlFunctionRepository functionRepository)
+        {
+            FunctionRepository = functionRepository;
+        }
+        
+        /// <summary>
         /// Executes an AQL query
         /// </summary>
         public IEnumerable<JsonValue> Execute(AqlQuery query)
@@ -21,10 +31,10 @@ namespace Unisave.Arango.Database
             
             query.ValidateQuery();
             
-            var initialFrame = new ExecutionFrame();
+            var initialFrame = new ExecutionFrame(FunctionRepository);
 
             var frameStream = Enumerable.Repeat(initialFrame, 1);
-
+            
             foreach (AqlOperation operation in query)
             {
                 switch (operation)
@@ -55,13 +65,5 @@ namespace Unisave.Arango.Database
 
             return array;
         }
-    }
-
-    /// <summary>
-    /// One frame of execution (holds values of variables)
-    /// </summary>
-    public class ExecutionFrame
-    {
-        
     }
 }

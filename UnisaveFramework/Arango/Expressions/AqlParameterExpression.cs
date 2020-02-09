@@ -34,7 +34,13 @@ namespace Unisave.Arango.Expressions
         
         public override JsonValue EvaluateInFrame(ExecutionFrame frame)
         {
-            throw new System.NotImplementedException();
+            if (!frame.Variables.ContainsKey(Name))
+                throw new QueryExecutionException(
+                    $"Parameter {Name} cannot be found. Available variables: "
+                    + string.Join(", ", frame.Variables.Keys)
+                );
+
+            return frame.Variables[Name];
         }
     }
 }

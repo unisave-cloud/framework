@@ -7,12 +7,16 @@ namespace FrameworkTests.Arango
     [TestFixture]
     public class QueryExecutionTest
     {
+        private AqlFunctionRepository functionRepository;
         private QueryExecutor executor;
         
         [SetUp]
         public void SetUp()
         {
-            executor = new QueryExecutor();
+            functionRepository = new AqlFunctionRepository();
+            functionRepository.RegisterFunctions();
+            
+            executor = new QueryExecutor(functionRepository);
         }
         
         [Test]

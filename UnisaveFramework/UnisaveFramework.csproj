@@ -37,8 +37,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Arango\Database\AqlFunctionRepository.cs" />
     <Compile Include="Arango\Database\Collection.cs" />
+    <Compile Include="Arango\Database\ExecutionFrame.cs" />
     <Compile Include="Arango\Database\InMemoryArango.cs" />
+    <Compile Include="Arango\Database\QueryExecutionException.cs" />
     <Compile Include="Arango\Database\QueryExecutor.cs" />
     <Compile Include="Arango\Expressions\AF.cs" />
     <Compile Include="Arango\Expressions\AqlBinaryOperator.cs" />
