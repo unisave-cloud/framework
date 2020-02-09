@@ -33,6 +33,12 @@ namespace Unisave.Arango.Expressions
         ) : this(attribute.FunctionName, arguments)
         { }
         
+        public AqlFunctionExpression(
+            string functionName,
+            params AqlExpression[] arguments
+        ) : this(functionName, arguments.ToList())
+        { }
+        
         public override string ToAql()
         {
             return FunctionName + "(" +

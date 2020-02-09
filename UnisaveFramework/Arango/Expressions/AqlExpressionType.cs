@@ -10,9 +10,19 @@ namespace Unisave.Arango.Expressions
         UnaryPlus,
         Not,
         
-        Plus,
-        Minus,
-        // ...
+        Add,
+        Subtract,
+        Multiply,
+        Divide,
+        Modulo,
+        Equal,
+        NotEqual,
+        GreaterThan,
+        GreaterThanOrEqual,
+        LessThan,
+        LessThanOrEqual,
+        And,
+        Or,
         
         JsonObject,
         // JsonArray ?

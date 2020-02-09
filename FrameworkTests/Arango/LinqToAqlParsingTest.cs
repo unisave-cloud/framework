@@ -273,12 +273,16 @@ namespace FrameworkTests.Arango
                 "(x OR true)",
                 parser.Parse((x) => x || true).ToAql()
             );
-        }
-
-        [Test]
-        public void ItParsesTernaryOperator()
-        {
-            Assert.Fail();
+            
+            Assert.AreEqual(
+                "(x AND false)",
+                parser.Parse((x) => x & false).ToAql()
+            );
+            
+            Assert.AreEqual(
+                "(x OR true)",
+                parser.Parse((x) => x | true).ToAql()
+            );
         }
 
         [Test]
@@ -290,13 +294,13 @@ namespace FrameworkTests.Arango
             );
             
             Assert.AreEqual(
-                "CONCAT(\"foo\", x, \"baz\")",
+                "CONCAT(CONCAT(\"foo\", x), \"baz\")",
                 parser.Parse((x) => "foo" + x + "baz").ToAql()
             );
             
             Assert.AreEqual(
-                "CONCAT(\"foo\", 5, x)",
-                parser.Parse((x) => "foo" + 5 + x).ToAql()
+                "CONCAT(\"foo\", CONCAT(5, x))",
+                parser.Parse((x) => "foo" + (5 + (string)x)).ToAql()
             );
         }
 
@@ -348,5 +352,7 @@ namespace FrameworkTests.Arango
         }
         
         // TODO: parametric and non-parametric JSON array creation
+        
+        // TODO: ternary operator
     }
 }

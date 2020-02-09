@@ -40,6 +40,7 @@
     <Compile Include="Arango\Database\Collection.cs" />
     <Compile Include="Arango\Database\InMemoryArango.cs" />
     <Compile Include="Arango\Expressions\AF.cs" />
+    <Compile Include="Arango\Expressions\AqlBinaryOperator.cs" />
     <Compile Include="Arango\Expressions\AqlConstantExpression.cs" />
     <Compile Include="Arango\Expressions\AqlExpression.cs" />
     <Compile Include="Arango\Expressions\AqlExpressionType.cs" />

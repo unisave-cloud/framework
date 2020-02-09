@@ -56,6 +56,9 @@ namespace Unisave.Arango.Expressions
                 case UnaryExpression e:
                     return ParseUnaryOperator(e);
                 
+                case BinaryExpression e:
+                    return ParseBinaryOperator(e);
+                
                 case ConstantExpression e:
                     return AqlConstantExpression.Create(e.Value);
                 
@@ -120,6 +123,102 @@ namespace Unisave.Arango.Expressions
                     return new AqlUnaryOperator(
                         parsedOperand,
                         AqlExpressionType.Not
+                    );
+            }
+            
+            throw new AqlParsingException(
+                $"Cannot parse node {expression.NodeType} - not implemented"
+            );
+        }
+        
+        private AqlExpression ParseBinaryOperator(BinaryExpression expression)
+        {
+            var parsedLeft = Parse(expression.Left);
+            var parsedRight = Parse(expression.Right);
+
+            // evaluate, when not parametrized
+            if (!parsedLeft.HasParameters && !parsedRight.HasParameters)
+                return EvaluateParameterlessExpression(expression);
+
+            switch (expression.NodeType)
+            {
+                case ExpressionType.Add:
+                case ExpressionType.AddChecked:
+                    if (expression.Left.Type == typeof(string)
+                        || expression.Right.Type == typeof(string))
+                    {
+                        return new AqlFunctionExpression(
+                            "CONCAT", parsedLeft, parsedRight
+                        );
+                    }
+                    return new AqlBinaryOperator(
+                        parsedLeft, parsedRight, AqlExpressionType.Add
+                    );
+                
+                case ExpressionType.Subtract:
+                case ExpressionType.SubtractChecked:
+                    return new AqlBinaryOperator(
+                        parsedLeft, parsedRight, AqlExpressionType.Subtract
+                    );
+                
+                case ExpressionType.Multiply:
+                case ExpressionType.MultiplyChecked:
+                    return new AqlBinaryOperator(
+                        parsedLeft, parsedRight, AqlExpressionType.Multiply
+                    );
+                
+                case ExpressionType.Divide:
+                    return new AqlBinaryOperator(
+                        parsedLeft, parsedRight, AqlExpressionType.Divide
+                    );
+                
+                case ExpressionType.Modulo:
+                    return new AqlBinaryOperator(
+                        parsedLeft, parsedRight, AqlExpressionType.Modulo
+                    );
+                
+                case ExpressionType.Equal:
+                    return new AqlBinaryOperator(
+                        parsedLeft, parsedRight, AqlExpressionType.Equal
+                    );
+                
+                case ExpressionType.NotEqual:
+                    return new AqlBinaryOperator(
+                        parsedLeft, parsedRight, AqlExpressionType.NotEqual
+                    );
+                
+                case ExpressionType.GreaterThan:
+                    return new AqlBinaryOperator(
+                        parsedLeft, parsedRight, AqlExpressionType.GreaterThan
+                    );
+                
+                case ExpressionType.GreaterThanOrEqual:
+                    return new AqlBinaryOperator(
+                        parsedLeft, parsedRight,
+                        AqlExpressionType.GreaterThanOrEqual
+                    );
+                
+                case ExpressionType.LessThan:
+                    return new AqlBinaryOperator(
+                        parsedLeft, parsedRight, AqlExpressionType.LessThan
+                    );
+                
+                case ExpressionType.LessThanOrEqual:
+                    return new AqlBinaryOperator(
+                        parsedLeft, parsedRight,
+                        AqlExpressionType.LessThanOrEqual
+                    );
+                
+                case ExpressionType.And:
+                case ExpressionType.AndAlso:
+                    return new AqlBinaryOperator(
+                        parsedLeft, parsedRight, AqlExpressionType.And
+                    );
+                
+                case ExpressionType.Or:
+                case ExpressionType.OrElse:
+                    return new AqlBinaryOperator(
+                        parsedLeft, parsedRight, AqlExpressionType.Or
                     );
             }
             
