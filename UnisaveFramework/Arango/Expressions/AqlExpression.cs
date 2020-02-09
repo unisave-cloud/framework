@@ -1,3 +1,7 @@
+using System.Collections.ObjectModel;
+using LightJson;
+using Unisave.Arango.Database;
+
 namespace Unisave.Arango.Expressions
 {
     /// <summary>
@@ -9,15 +13,27 @@ namespace Unisave.Arango.Expressions
         /// Type of the expression node
         /// </summary>
         public abstract AqlExpressionType ExpressionType { get; }
+
+        /// <summary>
+        /// Can this branch be evaluated at definition time?
+        /// </summary>
+        public virtual bool CanSimplify => Parameters.Count == 0;
         
         /// <summary>
-        /// Does this expression branch contain any parameters
+        /// Parameters that this expression branch contains
+        /// (and needs in order to be evaluated)
         /// </summary>
-        public abstract bool HasParameters { get; }
+        public abstract ReadOnlyCollection<string> Parameters { get; }
         
         /// <summary>
         /// Converts the expression to AQL string
         /// </summary>
         public abstract string ToAql();
+
+        /// <summary>
+        /// Evaluates the expression to a concrete value
+        /// in a given execution frame context
+        /// </summary>
+        public abstract JsonValue EvaluateInFrame(ExecutionFrame frame);
     }
 }

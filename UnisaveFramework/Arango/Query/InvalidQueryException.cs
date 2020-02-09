@@ -1,14 +1,13 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Unisave.Arango.Expressions
+namespace Unisave.Arango.Query
 {
     /// <summary>
-    /// There was some problem when parsing a LINQ expression tree
-    /// and converting it to an AQL expression
+    /// The query that's being constructed is invalid in some way
     /// </summary>
     [Serializable]
-    public class AqlParsingException : Exception
+    public class InvalidQueryException : Exception
     {
         //
         // For guidelines regarding the creation of new exception types, see
@@ -17,19 +16,19 @@ namespace Unisave.Arango.Expressions
         //    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dncscol/html/csharp07192001.asp
         //
 
-        public AqlParsingException()
+        public InvalidQueryException()
         {
         }
 
-        public AqlParsingException(string message) : base(message)
+        public InvalidQueryException(string message) : base(message)
         {
         }
 
-        public AqlParsingException(string message, Exception inner) : base(message, inner)
+        public InvalidQueryException(string message, Exception inner) : base(message, inner)
         {
         }
 
-        protected AqlParsingException(
+        protected InvalidQueryException(
             SerializationInfo info,
             StreamingContext context) : base(info, context)
         {

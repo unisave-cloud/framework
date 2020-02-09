@@ -1,3 +1,8 @@
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using LightJson;
+using Unisave.Arango.Database;
+
 namespace Unisave.Arango.Expressions
 {
     public class AqlParameterExpression : AqlExpression
@@ -5,7 +10,10 @@ namespace Unisave.Arango.Expressions
         public override AqlExpressionType ExpressionType
             => AqlExpressionType.Parameter;
         
-        public override bool HasParameters => true;
+        public override bool CanSimplify => false;
+        
+        public override ReadOnlyCollection<string> Parameters
+            => new ReadOnlyCollection<string>(new List<string> { Name });
         
         /// <summary>
         /// Name of the parameter
@@ -22,6 +30,11 @@ namespace Unisave.Arango.Expressions
         public override string ToAql()
         {
             return Name;
+        }
+        
+        public override JsonValue EvaluateInFrame(ExecutionFrame frame)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Include="Arango\Database\Collection.cs" />
     <Compile Include="Arango\Database\InMemoryArango.cs" />
+    <Compile Include="Arango\Database\QueryExecutor.cs" />
     <Compile Include="Arango\Expressions\AF.cs" />
     <Compile Include="Arango\Expressions\AqlBinaryOperator.cs" />
     <Compile Include="Arango\Expressions\AqlConstantExpression.cs" />
@@ -55,7 +56,8 @@
     <Compile Include="Arango\Query\AqlOperation.cs" />
     <Compile Include="Arango\Query\AqlOperationType.cs" />
     <Compile Include="Arango\Query\AqlQuery.cs" />
-    <Compile Include="Arango\Query\ReturnOperation.cs" />
+    <Compile Include="Arango\Query\AqlReturnOperation.cs" />
+    <Compile Include="Arango\Query\InvalidQueryException.cs" />
     <Compile Include="Contracts\IDatabase.cs" />
     <Compile Include="Contracts\ISession.cs" />
     <Compile Include="Exceptions\BindingResolutionException.cs" />

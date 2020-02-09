@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using LightJson;
 using LightJson.Serialization;
+using Unisave.Arango.Database;
 
 namespace Unisave.Arango.Expressions
 {
@@ -11,8 +13,10 @@ namespace Unisave.Arango.Expressions
         public override AqlExpressionType ExpressionType
             => AqlExpressionType.JsonObject;
 
-        public override bool HasParameters
-            => true; // this instance wouldn't exist otherwise
+        public override ReadOnlyCollection<string> Parameters => parameters; 
+        
+        private ReadOnlyCollection<string> parameters
+            = new ReadOnlyCollection<string>(new List<string>());
 
         /// <summary>
         /// Items of the JSON object
@@ -54,6 +58,13 @@ namespace Unisave.Arango.Expressions
 
         public AqlJsonObjectExpression Add(string key, AqlExpression expression)
         {
+            if (expression.Parameters.Count > 0)
+            {
+                parameters = new ReadOnlyCollection<string>(
+                    parameters.Union(expression.Parameters).ToList()
+                );
+            }
+            
             Items.Add(key, expression);
             return this;
         }
@@ -78,6 +89,11 @@ namespace Unisave.Arango.Expressions
             );
             
             return "{" + string.Join(", ", itemStream) + "}";
+        }
+        
+        public override JsonValue EvaluateInFrame(ExecutionFrame frame)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

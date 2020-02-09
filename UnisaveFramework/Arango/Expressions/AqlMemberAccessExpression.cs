@@ -1,4 +1,7 @@
+using System.Collections.ObjectModel;
 using System.Linq;
+using LightJson;
+using Unisave.Arango.Database;
 
 namespace Unisave.Arango.Expressions
 {
@@ -7,8 +10,7 @@ namespace Unisave.Arango.Expressions
         public override AqlExpressionType ExpressionType
             => AqlExpressionType.MemberAccess;
 
-        public override bool HasParameters
-            => true; // this instance wouldn't exist otherwise
+        public override ReadOnlyCollection<string> Parameters { get; }
         
         /// <summary>
         /// The instance that we are looking at (object / array)
@@ -27,6 +29,10 @@ namespace Unisave.Arango.Expressions
         {
             Subject = subject;
             Member = member;
+
+            Parameters = new ReadOnlyCollection<string>(
+                Subject.Parameters.Union(Member.Parameters).ToList()
+            );
         }
         
         public override string ToAql()
@@ -63,6 +69,11 @@ namespace Unisave.Arango.Expressions
                 return false;
             
             return s.All(c => charset.Contains(char.ToLower(c)));
+        }
+        
+        public override JsonValue EvaluateInFrame(ExecutionFrame frame)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

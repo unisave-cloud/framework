@@ -29,20 +29,23 @@ namespace Unisave.Arango.Expressions
         }
         
         public AqlExpression Parse(Expression<Func<JsonValue>> e)
-            => Parse(e.Body);
+            => ParseExpression(e.Body);
         
         public AqlExpression Parse(Expression<Func<JsonValue, JsonValue>> e)
-            => Parse(e.Body);
+            => ParseExpression(e.Body);
         
         public AqlExpression Parse(
             Expression<Func<JsonValue, JsonValue, JsonValue>> e
-        ) => Parse(e.Body);
+        ) => ParseExpression(e.Body);
         
         public AqlExpression Parse(
             Expression<Func<JsonValue, JsonValue, JsonValue, JsonValue>> e
-        ) => Parse(e.Body);
+        ) => ParseExpression(e.Body);
 
-        protected AqlExpression Parse(Expression expression)
+        /// <summary>
+        /// Parses a generic expression
+        /// </summary>
+        public AqlExpression ParseExpression(Expression expression)
         {
             switch (expression)
             {
@@ -86,11 +89,11 @@ namespace Unisave.Arango.Expressions
 
         private AqlExpression ParseConversion(UnaryExpression expression)
         {
-            AqlExpression parsedOperand = Parse(expression.Operand);
+            AqlExpression parsedOperand = ParseExpression(expression.Operand);
 
             // no parameters -> can be evaluated as a whole
-            if (!parsedOperand.HasParameters)
-                return EvaluateParameterlessExpression(expression);
+            if (parsedOperand.CanSimplify)
+                return SimplifyParameterlessExpression(expression);
             
             // has parameters -> ignore the cast, coz AQL does not support casts
             return parsedOperand;
@@ -98,11 +101,11 @@ namespace Unisave.Arango.Expressions
 
         private AqlExpression ParseUnaryOperator(UnaryExpression expression)
         {
-            var parsedOperand = Parse(expression.Operand);
+            var parsedOperand = ParseExpression(expression.Operand);
 
             // evaluate, when not parametrized
-            if (!parsedOperand.HasParameters)
-                return EvaluateParameterlessExpression(expression);
+            if (parsedOperand.CanSimplify)
+                return SimplifyParameterlessExpression(expression);
 
             switch (expression.NodeType)
             {
@@ -133,12 +136,12 @@ namespace Unisave.Arango.Expressions
         
         private AqlExpression ParseBinaryOperator(BinaryExpression expression)
         {
-            var parsedLeft = Parse(expression.Left);
-            var parsedRight = Parse(expression.Right);
+            var parsedLeft = ParseExpression(expression.Left);
+            var parsedRight = ParseExpression(expression.Right);
 
             // evaluate, when not parametrized
-            if (!parsedLeft.HasParameters && !parsedRight.HasParameters)
-                return EvaluateParameterlessExpression(expression);
+            if (parsedLeft.CanSimplify && parsedRight.CanSimplify)
+                return SimplifyParameterlessExpression(expression);
 
             switch (expression.NodeType)
             {
@@ -260,13 +263,13 @@ namespace Unisave.Arango.Expressions
         private AqlExpression ParseMethodCall(MethodCallExpression expression)
         {
             List<AqlExpression> parsedArguments = expression.Arguments
-                .Select(a => Parse(a))
+                .Select(a => ParseExpression(a))
                 .ToList();
 
-            AqlExpression parsedObject = Parse(expression.Object);
+            AqlExpression parsedObject = ParseExpression(expression.Object);
 
-            bool parsedObjectHasParameters = parsedObject?.HasParameters
-                                             ?? false;
+            bool parsedObjectCanSimplify = parsedObject?.CanSimplify
+                                             ?? true;
             
             // === handle arango functions ===
             
@@ -278,10 +281,10 @@ namespace Unisave.Arango.Expressions
             
             // === try to evaluate constant expression ===
 
-            if (parsedArguments.All(a => !a.HasParameters)
-                && !parsedObjectHasParameters)
+            if (parsedArguments.All(a => a.CanSimplify)
+                && parsedObjectCanSimplify)
             {
-                return EvaluateParameterlessExpression(expression);
+                return SimplifyParameterlessExpression(expression);
             }
             
             // === intercept indexing on JSON objects ===
@@ -305,9 +308,9 @@ namespace Unisave.Arango.Expressions
                     return obj.Add(parsedArguments);
                 
                 // start new construction
-                if (!parsedObjectHasParameters)
+                if (parsedObjectCanSimplify)
                 {
-                    var nonParametrizedPart = EvaluateParameterlessExpression(
+                    var nonParametrizedPart = SimplifyParameterlessExpression(
                         expression.Object
                     ).Value.AsJsonObject;
                     
@@ -330,11 +333,11 @@ namespace Unisave.Arango.Expressions
         private AqlExpression ParseConstructorCall(NewExpression expression)
         {
             List<AqlExpression> parsedArguments = expression.Arguments
-                .Select(a => Parse(a))
+                .Select(a => ParseExpression(a))
                 .ToList();
             
-            if (parsedArguments.All(a => !a.HasParameters))
-                return EvaluateParameterlessExpression(expression);
+            if (parsedArguments.All(a => a.CanSimplify))
+                return SimplifyParameterlessExpression(expression);
             
             throw new AqlParsingException(
                 "Constructors (when parametrized) cannot be translated to " +
@@ -346,7 +349,7 @@ namespace Unisave.Arango.Expressions
         /// If an expression contains no parameters, it can be evaluated
         /// to a constant.
         /// </summary>
-        private AqlConstantExpression EvaluateParameterlessExpression(
+        private AqlConstantExpression SimplifyParameterlessExpression(
             Expression expression
         )
         {

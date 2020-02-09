@@ -1,5 +1,8 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using LightJson;
+using Unisave.Arango.Database;
 
 namespace Unisave.Arango.Expressions
 {
@@ -8,8 +11,10 @@ namespace Unisave.Arango.Expressions
         public override AqlExpressionType ExpressionType
             => AqlExpressionType.Function;
 
-        public override bool HasParameters
-            => true; // this AQL function itself is a parameter
+        public override ReadOnlyCollection<string> Parameters { get; }
+            = new ReadOnlyCollection<string>(new List<string>());
+        
+        public override bool CanSimplify => false;
 
         /// <summary>
         /// Name of the AQL function
@@ -44,6 +49,11 @@ namespace Unisave.Arango.Expressions
             return FunctionName + "(" +
                 string.Join(", ", Arguments.Select(a => a.ToAql())) +
                 ")";
+        }
+        
+        public override JsonValue EvaluateInFrame(ExecutionFrame frame)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

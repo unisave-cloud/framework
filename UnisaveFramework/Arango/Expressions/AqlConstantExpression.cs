@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using LightJson;
+using Unisave.Arango.Database;
 
 namespace Unisave.Arango.Expressions
 {
@@ -8,7 +11,8 @@ namespace Unisave.Arango.Expressions
         public override AqlExpressionType ExpressionType
             => AqlExpressionType.Constant;
 
-        public override bool HasParameters => false;
+        public override ReadOnlyCollection<string> Parameters { get; }
+            = new ReadOnlyCollection<string>(new List<string>());
 
         /// <summary>
         /// The value of the constant
@@ -68,6 +72,11 @@ namespace Unisave.Arango.Expressions
         public override string ToAql()
         {
             return Value.ToString();
+        }
+        
+        public override JsonValue EvaluateInFrame(ExecutionFrame frame)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

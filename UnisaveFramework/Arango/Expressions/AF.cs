@@ -7,8 +7,18 @@ namespace Unisave.Arango.Expressions
     {
         [ArangoFunction("DOCUMENT")]
         public static JsonObject Document(string collection, string key)
-        {
-            return new JsonObject().Add("dummy", "object");
-        }
+            => new JsonObject();
+
+        [ArangoFunction("CONCAT")]
+        public static string Concat(JsonValue a, JsonValue b)
+            => "";
+        
+        [ArangoFunction("CONCAT")]
+        public static string Concat(JsonValue a, JsonValue b, JsonValue c)
+            => "";
+        
+        [ArangoFunction("CONCAT")]
+        public static string Concat(JsonValue a, JsonValue b, JsonValue c, JsonValue d)
+            => "";
     }
 }

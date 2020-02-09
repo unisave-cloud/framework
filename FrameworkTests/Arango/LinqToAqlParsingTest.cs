@@ -185,6 +185,11 @@ namespace FrameworkTests.Arango
                 "DOCUMENT(\"users\", \"123\")",
                 parser.Parse(() => AF.Document("users", "123")).ToAql()
             );
+            
+            Assert.AreEqual(
+                "DOCUMENT(\"users\", x.foo)",
+                parser.Parse((x) => AF.Document("users", x["foo"])).ToAql()
+            );
         }
 
         [Test]
@@ -301,6 +306,11 @@ namespace FrameworkTests.Arango
             Assert.AreEqual(
                 "CONCAT(\"foo\", CONCAT(5, x))",
                 parser.Parse((x) => "foo" + (5 + (string)x)).ToAql()
+            );
+            
+            Assert.AreEqual(
+                "CONCAT(\"foo\", 5, x)",
+                parser.Parse((x) => AF.Concat("foo", 5, x)).ToAql()
             );
         }
 

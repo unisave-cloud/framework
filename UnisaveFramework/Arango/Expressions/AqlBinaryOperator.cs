@@ -1,4 +1,8 @@
 using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using LightJson;
+using Unisave.Arango.Database;
 
 namespace Unisave.Arango.Expressions
 {
@@ -6,7 +10,7 @@ namespace Unisave.Arango.Expressions
     {
         public override AqlExpressionType ExpressionType { get; }
         
-        public override bool HasParameters { get; }
+        public override ReadOnlyCollection<string> Parameters { get; }
         
         /// <summary>
         /// Left operand
@@ -46,7 +50,9 @@ namespace Unisave.Arango.Expressions
             ExpressionType = type;
             Left = left;
             Right = right;
-            HasParameters = left.HasParameters || right.HasParameters;
+            Parameters = new ReadOnlyCollection<string>(
+                left.Parameters.Union(right.Parameters).ToList()
+            );
         }
         
         public override string ToAql()
@@ -75,6 +81,11 @@ namespace Unisave.Arango.Expressions
                 default:
                     return ExpressionType.ToString();
             }
+        }
+
+        public override JsonValue EvaluateInFrame(ExecutionFrame frame)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

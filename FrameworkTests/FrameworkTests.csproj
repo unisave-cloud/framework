@@ -55,6 +55,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Arango\LinqToAqlParsingTest.cs" />
+    <Compile Include="Arango\QueryExecutionTest.cs" />
+    <Compile Include="Arango\QueryToAqlTest.cs" />
+    <Compile Include="Arango\QueryVerificationTest.cs" />
     <Compile Include="EntrypointTest.cs" />
     <Compile Include="EnvTest.cs" />
     <Compile Include="Facets\FacetCallTest.cs" />

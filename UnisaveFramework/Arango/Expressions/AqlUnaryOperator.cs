@@ -1,12 +1,19 @@
 using System;
+using System.Collections.ObjectModel;
+using LightJson;
+using Unisave.Arango.Database;
 
 namespace Unisave.Arango.Expressions
 {
     public class AqlUnaryOperator : AqlExpression
     {
         public override AqlExpressionType ExpressionType { get; }
-        
-        public override bool HasParameters { get; }
+
+        public override bool CanSimplify
+            => Operand.CanSimplify;
+
+        public override ReadOnlyCollection<string> Parameters
+            => Operand.Parameters;
         
         /// <summary>
         /// The only operand of the unary operation
@@ -26,7 +33,6 @@ namespace Unisave.Arango.Expressions
             
             ExpressionType = type;
             Operand = operand;
-            HasParameters = operand.HasParameters;
         }
         
         public override string ToAql()
@@ -44,6 +50,11 @@ namespace Unisave.Arango.Expressions
             }
 
             return ExpressionType + " " + Operand.ToAql();
+        }
+        
+        public override JsonValue EvaluateInFrame(ExecutionFrame frame)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }
