@@ -29,6 +29,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="UnityEngine">
       <HintPath>..\Unity\UnityEngine.dll</HintPath>
     </Reference>
@@ -37,12 +38,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Arango\Database\AqlFunctionRepository.cs" />
-    <Compile Include="Arango\Database\Collection.cs" />
-    <Compile Include="Arango\Database\ExecutionFrame.cs" />
-    <Compile Include="Arango\Database\InMemoryArango.cs" />
-    <Compile Include="Arango\Database\QueryExecutionException.cs" />
-    <Compile Include="Arango\Database\QueryExecutor.cs" />
+    <Compile Include="Arango\ArangoConnection.cs" />
+    <Compile Include="Arango\ArangoException.cs" />
+    <Compile Include="Arango\Emulation\AqlFunctionRepository.cs" />
+    <Compile Include="Arango\Emulation\Collection.cs" />
+    <Compile Include="Arango\Emulation\ArangoInMemory.cs" />
+    <Compile Include="Arango\Execution\ExecutionFrame.cs" />
+    <Compile Include="Arango\Execution\QueryExecutionException.cs" />
+    <Compile Include="Arango\Execution\QueryExecutor.cs" />
     <Compile Include="Arango\Expressions\AF.cs" />
     <Compile Include="Arango\Expressions\AqlBinaryOperator.cs" />
     <Compile Include="Arango\Expressions\AqlConstantExpression.cs" />

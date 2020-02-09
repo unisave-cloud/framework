@@ -1,4 +1,4 @@
-namespace Unisave.Arango.Database
+namespace Unisave.Arango.Emulation
 {
     /// <summary>
     /// Holds data of a single ArangoDB collection

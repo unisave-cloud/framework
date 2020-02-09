@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Unisave.Arango.Database
+namespace Unisave.Arango.Execution
 {
     [Serializable]
     public class QueryExecutionException : Exception

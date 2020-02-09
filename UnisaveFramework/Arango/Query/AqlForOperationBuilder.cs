@@ -13,6 +13,7 @@ namespace Unisave.Arango.Query
          * For("u").In("users").Options(...).Do()
          * For("u").In(jsonConstantArray).Do()
          * For("v", "e", "p").InTraversal("1..3", "any", "graph")
+         *     .Prune(...).Do()
          */
         
         private readonly Action<AqlForOperationBuilder> doneCallback;

@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using LightJson;
+using Unisave.Arango.Execution;
 
-namespace Unisave.Arango.Database
+namespace Unisave.Arango.Emulation
 {
     /// <summary>
     /// Contains implementations of AQL functions

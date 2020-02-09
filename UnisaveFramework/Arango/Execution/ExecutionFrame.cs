@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using LightJson;
+using Unisave.Arango.Emulation;
 
-namespace Unisave.Arango.Database
+namespace Unisave.Arango.Execution
 {
     /// <summary>
     /// One frame of execution (holds values of variables)

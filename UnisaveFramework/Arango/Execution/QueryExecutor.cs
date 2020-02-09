@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using LightJson;
+using Unisave.Arango.Emulation;
 using Unisave.Arango.Query;
 
-namespace Unisave.Arango.Database
+namespace Unisave.Arango.Execution
 {
     /// <summary>
     /// Executes queries

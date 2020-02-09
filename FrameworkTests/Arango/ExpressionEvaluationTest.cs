@@ -1,6 +1,7 @@
 using LightJson;
 using NUnit.Framework;
-using Unisave.Arango.Database;
+using Unisave.Arango.Emulation;
+using Unisave.Arango.Execution;
 using Unisave.Arango.Expressions;
 
 namespace FrameworkTests.Arango
