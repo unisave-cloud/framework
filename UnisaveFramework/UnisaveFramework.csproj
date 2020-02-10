@@ -71,12 +71,15 @@
     <Compile Include="Arango\Query\AqlQuery.cs" />
     <Compile Include="Arango\Query\AqlReturnOperation.cs" />
     <Compile Include="Arango\Query\InvalidQueryException.cs" />
+    <Compile Include="Authentication\Authenticate.cs" />
+    <Compile Include="Authentication\AuthenticationManager.cs" />
     <Compile Include="Contracts\IArango.cs" />
     <Compile Include="Contracts\IDatabase.cs" />
     <Compile Include="Contracts\ISession.cs" />
     <Compile Include="Exceptions\BindingResolutionException.cs" />
     <Compile Include="Exceptions\ConfigurationException.cs" />
     <Compile Include="Facades\AQL.cs" />
+    <Compile Include="Facades\Auth.cs" />
     <Compile Include="Facades\Facade.cs" />
     <Compile Include="Facades\Session.cs" />
     <Compile Include="Facets\Facet.cs" />
@@ -103,6 +106,7 @@
     <Compile Include="FrameworkMeta.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\ArangoServiceProvider.cs" />
+    <Compile Include="Providers\AuthServiceProvider.cs" />
     <Compile Include="Providers\DatabaseServiceProvider.cs" />
     <Compile Include="Providers\ServiceProvider.cs" />
     <Compile Include="Providers\SessionServiceProvider.cs" />

@@ -1,7 +1,7 @@
 using System;
 using Unisave.Foundation;
 
-namespace Unisave
+namespace Unisave.Facades
 {
     /// <summary>
     /// Represents all facades

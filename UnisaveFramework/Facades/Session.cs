@@ -1,9 +1,7 @@
 using LightJson;
 using Unisave.Contracts;
-using Unisave.Foundation;
-using Unisave.Services;
 
-namespace Unisave
+namespace Unisave.Facades
 {
     /// <summary>
     /// Facade for working with the session storage

@@ -4,6 +4,7 @@ using Moq;
 using NUnit.Framework;
 using Unisave;
 using Unisave.Contracts;
+using Unisave.Facades;
 using Unisave.Foundation;
 using Unisave.Sessions;
 

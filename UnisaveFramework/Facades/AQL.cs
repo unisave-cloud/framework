@@ -3,7 +3,7 @@ using LightJson;
 using Unisave.Arango.Query;
 using Unisave.Contracts;
 
-namespace Unisave
+namespace Unisave.Facades
 {
     /// <summary>
     /// Facade for executing AQL requests
