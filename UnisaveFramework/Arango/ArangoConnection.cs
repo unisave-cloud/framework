@@ -1,16 +1,20 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using LightJson;
 using LightJson.Serialization;
+using Unisave.Arango.Query;
+using Unisave.Contracts;
 
 namespace Unisave.Arango
 {
     /// <summary>
     /// HTTP connection to a real arango database
     /// </summary>
-    public class ArangoConnection : IDisposable
+    public class ArangoConnection : IArango, IDisposable
     {
         public HttpClient Client { get; }
         public string BaseUrl { get; }
@@ -18,14 +22,26 @@ namespace Unisave.Arango
         public string Username { get; }
         public string Password { get; }
         
-        public ArangoConnection()
+        public ArangoConnection(
+            string baseUrl,
+            string database,
+            string username,
+            string password
+        )
         {
             Client = new HttpClient();
-            BaseUrl = "http://127.0.0.1:8529/";
-            Database = "_system";
-            Username = "root";
-            Password = "password";
+            BaseUrl = baseUrl;
+            Database = database;
+            Username = username;
+            Password = password;
         }
+        
+        public void Dispose()
+        {
+            Client.Dispose();
+        }
+        
+        #region "HTTP level API"
 
         public JsonObject Get(string url)
         {
@@ -49,6 +65,15 @@ namespace Unisave.Arango
         {
             return WrapRequest(() => Client
                 .PutAsync(BuildUrl(url), JsonContent(payload))
+                .GetAwaiter()
+                .GetResult()
+            );
+        }
+        
+        public JsonObject Put(string url)
+        {
+            return WrapRequest(() => Client
+                .PutAsync(BuildUrl(url), JsonContent(new JsonObject()))
                 .GetAwaiter()
                 .GetResult()
             );
@@ -97,11 +122,17 @@ namespace Unisave.Arango
                 );
 
             HttpResponseMessage response = action.Invoke();
+
+            if (response.Content == null)
+                return new JsonObject();
             
             string content = response.Content
                 .ReadAsStringAsync()
                 .GetAwaiter()
                 .GetResult();
+            
+            if (string.IsNullOrEmpty(content))
+                return new JsonObject();
 
             JsonObject parsedContent = JsonReader.Parse(content).AsJsonObject;
 
@@ -116,10 +147,48 @@ namespace Unisave.Arango
 
             return parsedContent;
         }
+        
+        #endregion
 
-        public void Dispose()
+        public IEnumerable<JsonValue> ExecuteAqlQuery(AqlQuery query)
         {
-            Client.Dispose();
+            string aql = query.ToAql();
+            
+            // create cursor
+            JsonObject response = Post("/_api/cursor", new JsonObject()
+                .Add("query", aql)
+            );
+
+            // may be null if the response is short
+            string cursorId = response["id"].AsString;
+
+            // get the first batch of results
+            foreach (JsonValue item in response["result"].AsJsonArray)
+                yield return item;
+            
+            // get all the remaining batches
+            while (response["hasMore"])
+            {
+                response = Put("/_api/cursor/" + Uri.EscapeUriString(cursorId));
+                
+                foreach (JsonValue item in response["result"].AsJsonArray)
+                    yield return item;
+            }
+        }
+
+        public void CreateCollection(string collectionName, CollectionType type)
+        {
+            Post("/_api/collection", new JsonObject()
+                .Add("name", collectionName)
+                .Add("waitForSync", false)
+                .Add("isSystem", false)
+                .Add("type", (int)type)
+            );
+        }
+
+        public void DeleteCollection(string collectionName)
+        {
+            Delete("/_api/collection/" + Uri.EscapeUriString(collectionName));
         }
     }
 }

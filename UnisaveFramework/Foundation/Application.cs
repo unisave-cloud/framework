@@ -27,7 +27,8 @@ namespace Unisave.Foundation
         {
             ServiceProvider[] providers = {
                 new SessionServiceProvider(this),
-                new DatabaseServiceProvider(this)
+                new DatabaseServiceProvider(this),
+                new ArangoServiceProvider(this), 
             };
             
             foreach (var p in providers)
