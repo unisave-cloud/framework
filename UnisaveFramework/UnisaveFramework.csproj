@@ -41,10 +41,11 @@
     <Compile Include="Arango\ArangoConnection.cs" />
     <Compile Include="Arango\ArangoException.cs" />
     <Compile Include="Arango\CollectionType.cs" />
-    <Compile Include="Arango\Emulation\AqlFunctionRepository.cs" />
     <Compile Include="Arango\Emulation\Collection.cs" />
     <Compile Include="Arango\Emulation\ArangoInMemory.cs" />
+    <Compile Include="Arango\Execution\AqlFunctionRepository.cs" />
     <Compile Include="Arango\Execution\ExecutionFrame.cs" />
+    <Compile Include="Arango\Execution\IExecutionDataSource.cs" />
     <Compile Include="Arango\Execution\QueryExecutionException.cs" />
     <Compile Include="Arango\Execution\QueryExecutor.cs" />
     <Compile Include="Arango\Expressions\AF.cs" />

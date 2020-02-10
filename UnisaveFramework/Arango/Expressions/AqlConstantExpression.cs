@@ -74,7 +74,10 @@ namespace Unisave.Arango.Expressions
             return Value.ToString();
         }
         
-        public override JsonValue EvaluateInFrame(ExecutionFrame frame)
+        public override JsonValue Evaluate(
+            QueryExecutor executor,
+            ExecutionFrame frame
+        )
         {
             return Value;
         }

@@ -52,9 +52,12 @@ namespace Unisave.Arango.Expressions
             return ExpressionType + " " + Operand.ToAql();
         }
         
-        public override JsonValue EvaluateInFrame(ExecutionFrame frame)
+        public override JsonValue Evaluate(
+            QueryExecutor executor,
+            ExecutionFrame frame
+        )
         {
-            JsonValue o = Operand.EvaluateInFrame(frame);
+            JsonValue o = Operand.Evaluate(executor, frame);
             
             switch (ExpressionType)
             {

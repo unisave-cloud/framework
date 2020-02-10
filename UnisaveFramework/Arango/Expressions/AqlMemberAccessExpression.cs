@@ -71,10 +71,13 @@ namespace Unisave.Arango.Expressions
             return s.All(c => charset.Contains(char.ToLower(c)));
         }
         
-        public override JsonValue EvaluateInFrame(ExecutionFrame frame)
+        public override JsonValue Evaluate(
+            QueryExecutor executor,
+            ExecutionFrame frame
+        )
         {
-            JsonValue m = Member.EvaluateInFrame(frame);
-            JsonValue s = Subject.EvaluateInFrame(frame);
+            JsonValue m = Member.Evaluate(executor, frame);
+            JsonValue s = Subject.Evaluate(executor, frame);
 
             if (s.IsJsonArray)
             {

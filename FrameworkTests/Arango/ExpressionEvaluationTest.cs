@@ -11,16 +11,19 @@ namespace FrameworkTests.Arango
     {
         private LinqToAqlExpressionParser parser;
         private ExecutionFrame frame;
-        private AqlFunctionRepository functionRepository;
+        private QueryExecutor executor;
+
+        private ArangoInMemory arango;
         
         [SetUp]
         public void SetUp()
         {
-            functionRepository = new AqlFunctionRepository();
-            functionRepository.RegisterFunctions();
-            
             parser = new LinqToAqlExpressionParser();
-            frame = new ExecutionFrame(functionRepository);
+            
+            arango = new ArangoInMemory();
+            executor = arango.Executor;
+            
+            frame = new ExecutionFrame();
         }
         
         [Test]
@@ -30,7 +33,7 @@ namespace FrameworkTests.Arango
                 "5",
                 parser
                     .Parse(() => 5)
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
         }
@@ -42,30 +45,32 @@ namespace FrameworkTests.Arango
                 "42",
                 parser
                     .Parse((x) => x)
-                    .EvaluateInFrame(frame.AddVariable("x", 42))
+                    .Evaluate(executor, frame.AddVariable("x", 42))
                     .ToString()
             );
 
             Assert.Throws<QueryExecutionException>(() => {
                 parser
                     .Parse((notX) => notX) // parameter cannot be resolved
-                    .EvaluateInFrame(frame.AddVariable("x", 42));
+                    .Evaluate(executor, frame.AddVariable("x", 42));
             });
         }
 
         [Test]
         public void ItEvaluatesArangoFunctions()
         {
-            functionRepository.Register("DOCUMENT", (args) => new JsonObject()
-                .Add("collection", args[0])
-                .Add("key", args[1])
-            );
+            // overwrite DOCUMENT function implementation
+            arango.FunctionRepository
+                .Register("DOCUMENT", (args) => new JsonObject()
+                    .Add("collection", args[0])
+                    .Add("key", args[1])
+                );
             
             Assert.AreEqual(
                 "{'collection':'foo','key':'bar'}".Replace("'", "\""),
                 parser
                     .Parse(() => AF.Document("foo", "bar"))
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
         }
@@ -81,7 +86,7 @@ namespace FrameworkTests.Arango
                 "5".Replace("'", "\""),
                 parser
                     .Parse((x2) => x2 + 3)
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
             
@@ -89,7 +94,7 @@ namespace FrameworkTests.Arango
                 "5.5".Replace("'", "\""),
                 parser
                     .Parse((x2) => x2 + 3.5)
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
             
@@ -97,7 +102,7 @@ namespace FrameworkTests.Arango
                 "'2asd'".Replace("'", "\""),
                 parser
                     .Parse((x2) => x2 + "asd")
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
             
@@ -105,7 +110,7 @@ namespace FrameworkTests.Arango
                 "1".Replace("'", "\""),
                 parser
                     .Parse((x2) => x2 - 1)
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
             
@@ -113,7 +118,7 @@ namespace FrameworkTests.Arango
                 "8".Replace("'", "\""),
                 parser
                     .Parse((x2) => x2 * 4)
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
             
@@ -121,7 +126,7 @@ namespace FrameworkTests.Arango
                 "0.5".Replace("'", "\""),
                 parser
                     .Parse((x2) => x2 / 4)
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
             
@@ -129,7 +134,7 @@ namespace FrameworkTests.Arango
                 "2".Replace("'", "\""),
                 parser
                     .Parse((x2) => x2 % 3)
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
             
@@ -137,7 +142,7 @@ namespace FrameworkTests.Arango
                 "true".Replace("'", "\""),
                 parser
                     .Parse((x2) => x2 == 2)
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
             
@@ -145,7 +150,7 @@ namespace FrameworkTests.Arango
                 "false".Replace("'", "\""),
                 parser
                     .Parse((x2) => x2 != 2)
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
             
@@ -153,7 +158,7 @@ namespace FrameworkTests.Arango
                 "false".Replace("'", "\""),
                 parser
                     .Parse((x2) => x2 > 2)
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
             
@@ -161,7 +166,7 @@ namespace FrameworkTests.Arango
                 "true".Replace("'", "\""),
                 parser
                     .Parse((x2) => x2 >= 2)
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
             
@@ -169,7 +174,7 @@ namespace FrameworkTests.Arango
                 "false".Replace("'", "\""),
                 parser
                     .Parse((x2) => x2 < 2)
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
             
@@ -177,7 +182,7 @@ namespace FrameworkTests.Arango
                 "true".Replace("'", "\""),
                 parser
                     .Parse((x2) => x2 <= 2)
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
             
@@ -185,7 +190,7 @@ namespace FrameworkTests.Arango
                 "false".Replace("'", "\""),
                 parser
                     .Parse((t) => t && false)
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
             
@@ -193,7 +198,7 @@ namespace FrameworkTests.Arango
                 "true".Replace("'", "\""),
                 parser
                     .Parse((t) => t || true)
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
         }
@@ -209,7 +214,7 @@ namespace FrameworkTests.Arango
                 "2".Replace("'", "\""),
                 parser
                     .Parse((x2) => +x2)
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
             
@@ -217,7 +222,7 @@ namespace FrameworkTests.Arango
                 "-2".Replace("'", "\""),
                 parser
                     .Parse((x2) => -x2)
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
             
@@ -225,7 +230,7 @@ namespace FrameworkTests.Arango
                 "false".Replace("'", "\""),
                 parser
                     .Parse((t) => !t)
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
         }
@@ -245,7 +250,7 @@ namespace FrameworkTests.Arango
                 "42".Replace("'", "\""),
                 parser
                     .Parse((o) => o["foo"])
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
             
@@ -253,7 +258,7 @@ namespace FrameworkTests.Arango
                 "'a'".Replace("'", "\""),
                 parser
                     .Parse((a) => a[0])
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
             
@@ -261,7 +266,7 @@ namespace FrameworkTests.Arango
                 "'c'".Replace("'", "\""),
                 parser
                     .Parse((a) => a[-1])
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
         }
@@ -279,7 +284,7 @@ namespace FrameworkTests.Arango
                         .Add("foo", x)
                         .Add("bar", x * 2)
                     )
-                    .EvaluateInFrame(frame)
+                    .Evaluate(executor, frame)
                     .ToString()
             );
         }

@@ -29,11 +29,14 @@ namespace Unisave.Arango.Query
         /// <summary>
         /// Evaluates the return statement in the context of a frame stream
         /// </summary>
-        public IEnumerable<JsonValue> EvaluateInFrameStream(
-            IEnumerable<ExecutionFrame> stream
+        public IEnumerable<JsonValue> ApplyToFrameStream(
+            QueryExecutor executor,
+            IEnumerable<ExecutionFrame> frameStream
         )
         {
-            return stream.Select(f => Expression.EvaluateInFrame(f));
+            return frameStream.Select(
+                f => Expression.Evaluate(executor, f)
+            );
         }
     }
 }

@@ -32,7 +32,10 @@ namespace Unisave.Arango.Expressions
             return Name;
         }
         
-        public override JsonValue EvaluateInFrame(ExecutionFrame frame)
+        public override JsonValue Evaluate(
+            QueryExecutor executor,
+            ExecutionFrame frame
+        )
         {
             if (!frame.Variables.ContainsKey(Name))
                 throw new QueryExecutionException(

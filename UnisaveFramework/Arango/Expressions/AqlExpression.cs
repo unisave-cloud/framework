@@ -32,8 +32,11 @@ namespace Unisave.Arango.Expressions
 
         /// <summary>
         /// Evaluates the expression to a concrete value
-        /// in a given execution frame context
+        /// in a given execution context
         /// </summary>
-        public abstract JsonValue EvaluateInFrame(ExecutionFrame frame);
+        public abstract JsonValue Evaluate(
+            QueryExecutor executor,
+            ExecutionFrame frame
+        );
     }
 }

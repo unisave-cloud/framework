@@ -9,16 +9,14 @@ namespace FrameworkTests.Arango
     [TestFixture]
     public class QueryExecutionTest
     {
-        private AqlFunctionRepository functionRepository;
         private QueryExecutor executor;
+        private ArangoInMemory arango;
         
         [SetUp]
         public void SetUp()
         {
-            functionRepository = new AqlFunctionRepository();
-            functionRepository.RegisterFunctions();
-            
-            executor = new QueryExecutor(functionRepository);
+            arango = new ArangoInMemory();
+            executor = arango.Executor;
         }
         
         [Test]
@@ -36,12 +34,14 @@ namespace FrameworkTests.Arango
         [Test]
         public void TestFor()
         {
-            functionRepository.Register("COLLECTION", args => new JsonArray(
-                new JsonObject()
-                    .Add("c", args[0]),
-                new JsonObject()
-                    .Add("foo", "bar")
-            ));
+            // overwrite the COLLECTION function
+            arango.FunctionRepository
+                .Register("COLLECTION", args => new JsonArray(
+                    new JsonObject()
+                        .Add("c", args[0]),
+                    new JsonObject()
+                        .Add("foo", "bar")
+                ));
             
             Assert.AreEqual(
                 "[{'c':'users'},{'foo':'bar'}]".Replace("'", "\""),

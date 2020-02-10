@@ -13,19 +13,14 @@ namespace Unisave.Arango.Execution
     public class ExecutionFrame
     {
         public ReadOnlyDictionary<string, JsonValue> Variables { get; }
-        public AqlFunctionRepository FunctionRepository { get; }
 
         public ExecutionFrame(
-            AqlFunctionRepository functionRepository,
             Dictionary<string, JsonValue> variables = null
         )
         {
             Variables = new ReadOnlyDictionary<string, JsonValue>(
                 variables ?? new Dictionary<string, JsonValue>()
             );
-            
-            FunctionRepository = functionRepository
-                                 ?? throw new ArgumentNullException(nameof(functionRepository));
         }
 
         /// <summary>
@@ -37,7 +32,6 @@ namespace Unisave.Arango.Execution
             newVars[key] = value;
             
             return new ExecutionFrame(
-                FunctionRepository,
                 newVars
             );
         }

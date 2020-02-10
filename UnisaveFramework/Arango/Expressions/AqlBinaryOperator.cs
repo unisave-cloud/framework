@@ -83,10 +83,13 @@ namespace Unisave.Arango.Expressions
             }
         }
 
-        public override JsonValue EvaluateInFrame(ExecutionFrame frame)
+        public override JsonValue Evaluate(
+            QueryExecutor executor,
+            ExecutionFrame frame
+        )
         {
-            JsonValue l = Left.EvaluateInFrame(frame);
-            JsonValue r = Right.EvaluateInFrame(frame);
+            JsonValue l = Left.Evaluate(executor, frame);
+            JsonValue r = Right.Evaluate(executor, frame);
             
             switch (ExpressionType)
             {

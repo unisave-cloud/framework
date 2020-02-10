@@ -16,9 +16,18 @@ namespace Unisave.Arango.Execution
         /// Repository containing implementations of AQL functions
         /// </summary>
         public AqlFunctionRepository FunctionRepository { get; }
+
+        /// <summary>
+        /// Source of data for the execution
+        /// </summary>
+        public IExecutionDataSource DataSource { get; }
         
-        public QueryExecutor(AqlFunctionRepository functionRepository)
+        public QueryExecutor(
+            IExecutionDataSource dataSource,
+            AqlFunctionRepository functionRepository
+        )
         {
+            DataSource = dataSource;
             FunctionRepository = functionRepository;
         }
         
@@ -32,7 +41,7 @@ namespace Unisave.Arango.Execution
             
             query.ValidateQuery();
             
-            var initialFrame = new ExecutionFrame(FunctionRepository);
+            var initialFrame = new ExecutionFrame();
 
             var frameStream = Enumerable.Repeat(initialFrame, 1);
             
@@ -41,10 +50,10 @@ namespace Unisave.Arango.Execution
                 switch (operation)
                 {
                     case AqlReturnOperation op:
-                        return op.EvaluateInFrameStream(frameStream);
+                        return op.ApplyToFrameStream(this, frameStream);
                     
                     case AqlForOperation op:
-                        frameStream = op.ApplyToFrameStream(frameStream);
+                        frameStream = op.ApplyToFrameStream(this, frameStream);
                         break;
                     
                     default:

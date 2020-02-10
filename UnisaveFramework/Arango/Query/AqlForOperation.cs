@@ -32,18 +32,22 @@ namespace Unisave.Arango.Query
         /// Applies the FOR operation to a frame stream, expanding it
         /// </summary>
         public IEnumerable<ExecutionFrame> ApplyToFrameStream(
+            QueryExecutor executor,
             IEnumerable<ExecutionFrame> frameStream
         )
         {
-            return frameStream.SelectMany(MultiplyFrameByCollection);
+            return frameStream.SelectMany(
+                f => MultiplyFrameByCollection(executor, f)
+            );
         }
 
         private IEnumerable<ExecutionFrame> MultiplyFrameByCollection(
+            QueryExecutor executor,
             ExecutionFrame frame
         )
         {
             IEnumerable<JsonValue> collection = CollectionExpression
-                .EvaluateInFrame(frame)
+                .Evaluate(executor, frame)
                 .AsJsonArray;
 
             return collection.Select(

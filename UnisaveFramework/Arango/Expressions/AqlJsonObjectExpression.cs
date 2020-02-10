@@ -91,12 +91,15 @@ namespace Unisave.Arango.Expressions
             return "{" + string.Join(", ", itemStream) + "}";
         }
         
-        public override JsonValue EvaluateInFrame(ExecutionFrame frame)
+        public override JsonValue Evaluate(
+            QueryExecutor executor,
+            ExecutionFrame frame
+        )
         {
             var result = new JsonObject();
 
             foreach (var pair in Items)
-                result.Add(pair.Key, pair.Value.EvaluateInFrame(frame));
+                result.Add(pair.Key, pair.Value.Evaluate(executor, frame));
             
             return result;
         }

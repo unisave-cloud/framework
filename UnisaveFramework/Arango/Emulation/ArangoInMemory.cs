@@ -10,7 +10,7 @@ namespace Unisave.Arango.Emulation
     /// <summary>
     /// Simulates ArangoDB database in memory
     /// </summary>
-    public class ArangoInMemory : IArango
+    public class ArangoInMemory : IExecutionDataSource, IArango
     {
         /// <summary>
         /// All collections in the database
@@ -18,14 +18,51 @@ namespace Unisave.Arango.Emulation
         public Dictionary<string, Collection> Collections { get; }
             = new Dictionary<string, Collection>();
         
+        /// <summary>
+        /// Function repository, bound to this database instance
+        /// </summary>
+        public AqlFunctionRepository FunctionRepository { get; }
+        
+        /// <summary>
+        /// Executor instance used for query execution
+        /// </summary>
+        public QueryExecutor Executor { get; }
+
+        public ArangoInMemory()
+        {
+            FunctionRepository = new AqlFunctionRepository(this);
+            Executor = new QueryExecutor(this, FunctionRepository);
+        }
+
+        /// <summary>
+        /// Returns a collection by name or throws and arango exception
+        /// </summary>
+        /// <exception cref="ArangoException"></exception>
+        public Collection GetCollection(string collectionName)
+        {
+            if (!Collections.ContainsKey(collectionName))
+                throw new ArangoException(404, 1203,
+                    "collection or view not found");
+
+            return Collections[collectionName];
+        }
+        
+        #region "IExecutionDataSource interface"
+
+        public JsonObject GetDocument(string collectionName, string key)
+            => GetCollection(collectionName).GetDocument(key);
+
+        IEnumerable<JsonObject> IExecutionDataSource.GetCollection(
+            string collectionName
+        ) => GetCollection(collectionName);
+        
+        #endregion
+        
+        #region "IArango interface"
+        
         public IEnumerable<JsonValue> ExecuteAqlQuery(AqlQuery query)
         {
-            var functionRepository = new AqlFunctionRepository();
-            functionRepository.RegisterFunctions();
-            //functionRepository.Register("COLLECTION", args => Collections[args[0]]);
-            var executor = new QueryExecutor(functionRepository);
-
-            return executor.Execute(query);
+            return Executor.Execute(query);
         }
 
         public void CreateCollection(string collectionName, CollectionType type)
@@ -33,8 +70,9 @@ namespace Unisave.Arango.Emulation
             if (Collections.ContainsKey(collectionName))
                 throw new ArangoException(409, 1207, "duplicate name");
             
-            // TODO: store the type
-            Collections[collectionName] = new Collection();
+            // TODO: validate name length and characters
+            
+            Collections[collectionName] = new Collection(collectionName, type);
         }
 
         public void DeleteCollection(string collectionName)
@@ -42,8 +80,10 @@ namespace Unisave.Arango.Emulation
             if (!Collections.ContainsKey(collectionName))
                 throw new ArangoException(404, 1203,
                     "collection or view not found");
-            
-            throw new NotImplementedException();
+
+            Collections.Remove(collectionName);
         }
+        
+        #endregion
     }
 }
