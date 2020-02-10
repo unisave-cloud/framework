@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using LightJson;
 using LightJson.Serialization;
+using Unisave.Utils;
 
 namespace Unisave.Arango.Emulation
 {
@@ -14,7 +16,8 @@ namespace Unisave.Arango.Emulation
         /// <summary>
         /// Documents of the collection
         /// </summary>
-        private readonly List<JsonObject> documents = new List<JsonObject>();
+        private readonly Dictionary<string, JsonObject> documents
+            = new Dictionary<string, JsonObject>();
         
         /// <summary>
         /// Name of the collection
@@ -26,6 +29,11 @@ namespace Unisave.Arango.Emulation
         /// Type of the collection
         /// </summary>
         public CollectionType CollectionType { get; }
+
+        /// <summary>
+        /// Next auto increment key
+        /// </summary>
+        private long nextKey = 1;
 
         public Collection(string name, CollectionType type)
         {
@@ -41,15 +49,77 @@ namespace Unisave.Arango.Emulation
             if (key == null)
                 return null;
             
-            JsonObject doc = documents.Find(i => i["_key"].AsString == key);
+            if (!documents.ContainsKey(key))
+                return null;
 
-            return PrepareDocumentForReturn(doc);
+            return PrepareDocumentForReturn(key, documents[key]);
+        }
+
+        /// <summary>
+        /// Inserts a document into the collection with options and
+        /// returns the exact value that will be stored after the insert
+        /// </summary>
+        public JsonObject InsertDocument(JsonObject document, JsonObject options)
+        {
+            if (document == null)
+                document = new JsonObject();
+            
+            if (options == null)
+                throw new ArgumentNullException(nameof(options));
+            
+            if (CollectionType == CollectionType.Edge)
+                ValidateEdgeAttributes(document);
+            
+            string key = document["_key"].AsString ?? GenerateNewKey();
+
+            if (documents.ContainsKey(key) && !options["overwrite"])
+            {
+                // do not insert, but do not throw either
+                if (options["ignoreErrors"])
+                    return null;
+                
+                throw new ArangoException(
+                    409, 1210, "unique constraint violated"
+                );
+            }
+
+            JsonObject insertedDocument = PrepareDocumentForWrite(
+                GenerateNewRevision(),
+                document
+            );
+
+            documents[key] = insertedDocument;
+            return insertedDocument;
+        }
+
+        private void ValidateEdgeAttributes(JsonObject document)
+        {
+            string from = document["_from"].AsString ?? "";
+            string to = document["_to"].AsString ?? "";
+            
+            if (!from.Contains('/') || !to.Contains('/'))
+                throw new ArangoException(
+                    400, 1233, "edge attribute missing or invalid"
+                );
+        }
+
+        protected string GenerateNewKey()
+        {
+            return (nextKey++).ToString();
+        }
+
+        protected string GenerateNewRevision()
+        {
+            return Str.Random(8);
         }
 
         /// <summary>
         /// Clones the document and adds pseudo fields
         /// </summary>
-        private JsonObject PrepareDocumentForReturn(JsonObject document)
+        private JsonObject PrepareDocumentForReturn(
+            string key,
+            JsonObject document
+        )
         {
             if (document == null)
                 return null;
@@ -58,7 +128,32 @@ namespace Unisave.Arango.Emulation
             document = JsonReader.Parse(document.ToString());
             
             // pseudo fields
-            document.Add("_id", Name + "/" + document["_key"]);
+            document.Add("_key", key);
+            document.Add("_id", Name + "/" + key);
+            
+            return document;
+        }
+
+        /// <summary>
+        /// Clones and removes unnecessary pseudo-fields
+        /// </summary>
+        private JsonObject PrepareDocumentForWrite(
+            string revision,
+            JsonObject document
+        )
+        {
+            // handle null & clone
+            if (document == null)
+                document = new JsonObject();
+            else
+                document = JsonReader.Parse(document.ToString());
+            
+            // remove pseudo fields
+            document.Remove("_key");
+            document.Remove("_id");
+
+            // set revision
+            document["_rev"] = revision;
             
             return document;
         }
@@ -73,7 +168,9 @@ namespace Unisave.Arango.Emulation
 
         public IEnumerator<JsonObject> GetEnumerator()
         {
-            return documents.Select(PrepareDocumentForReturn).GetEnumerator();
+            return documents
+                .Select(pair => PrepareDocumentForReturn(pair.Key, pair.Value))
+                .GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

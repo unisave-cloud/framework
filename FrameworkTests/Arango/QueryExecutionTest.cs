@@ -1,7 +1,9 @@
 using LightJson;
 using NUnit.Framework;
+using Unisave.Arango;
 using Unisave.Arango.Emulation;
 using Unisave.Arango.Execution;
+using Unisave.Arango.Expressions;
 using Unisave.Arango.Query;
 
 namespace FrameworkTests.Arango
@@ -58,6 +60,33 @@ namespace FrameworkTests.Arango
                     new AqlQuery()
                         .For("u").In("users").Do()
                         .Return(() => 2)
+                ).ToString()
+            );
+        }
+
+        [Test]
+        public void TestInsert()
+        {
+            arango.CreateCollection("stuff", CollectionType.Document);
+            
+            JsonObject obj = new JsonObject()
+                .Add("_key", "key")
+                .Add("foo", 42);
+            
+            Assert.AreEqual(
+                "[42]".Replace("'", "\""),
+                executor.ExecuteToArray(
+                    new AqlQuery()
+                        .Insert(() => obj).Into("stuff")
+                        .Return((NEW) => NEW["foo"])
+                ).ToString()
+            );
+            
+            Assert.AreEqual(
+                "[42]".Replace("'", "\""),
+                executor.ExecuteToArray(
+                    new AqlQuery()
+                        .Return(() => AF.Document("stuff", "key")["foo"])
                 ).ToString()
             );
         }

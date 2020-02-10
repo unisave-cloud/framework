@@ -9,13 +9,24 @@ namespace Unisave.Arango.Execution
     public interface IExecutionDataSource
     {
         /// <summary>
-        /// Returns document by its collection and key
-        /// </summary>
-        JsonObject GetDocument(string collectionName, string key);
-        
-        /// <summary>
         /// Returns collection to be enumerated
         /// </summary>
         IEnumerable<JsonObject> GetCollection(string collectionName);
+        
+        /// <summary>
+        /// Returns document by its collection and key
+        /// </summary>
+        JsonObject GetDocument(string collectionName, string key);
+
+        /// <summary>
+        /// Inserts document into a collection and returns
+        /// the actual stored value of the document after insertion.
+        /// Options object can be provided as well.
+        /// </summary>
+        JsonObject InsertDocument(
+            string collectionName,
+            JsonObject document,
+            JsonObject options
+        );
     }
 }

@@ -40,5 +40,31 @@ namespace FrameworkTests.Arango
                     .ToAql()
             );
         }
+
+        [Test]
+        public void TestInsertOperator()
+        {
+            Assert.AreEqual(
+                "FOR u IN users\n" +
+                "INSERT u INTO backup\n" +
+                "RETURN NEW",
+                new AqlQuery()
+                    .For("u").In("users").Do()
+                    .Insert((u) => u).Into("backup")
+                    .Return((NEW) => NEW)
+                    .ToAql()
+            );
+            
+            Assert.AreEqual(
+                ("FOR u IN users\n" +
+                "INSERT u INTO backup OPTIONS {'ignoreErrors':true}\n" +
+                "RETURN NEW").Replace("'", "\""),
+                new AqlQuery()
+                    .For("u").In("users").Do()
+                    .Insert((u) => u).IgnoreErrors().Into("backup")
+                    .Return((NEW) => NEW)
+                    .ToAql()
+            );
+        }
     }
 }

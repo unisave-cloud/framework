@@ -49,13 +49,19 @@ namespace Unisave.Arango.Emulation
         
         #region "IExecutionDataSource interface"
 
-        public JsonObject GetDocument(string collectionName, string key)
-            => GetCollection(collectionName).GetDocument(key);
-
         IEnumerable<JsonObject> IExecutionDataSource.GetCollection(
             string collectionName
         ) => GetCollection(collectionName);
         
+        public JsonObject GetDocument(string collectionName, string key)
+            => GetCollection(collectionName).GetDocument(key);
+
+        public JsonObject InsertDocument(
+            string collectionName,
+            JsonObject document,
+            JsonObject options
+        ) => GetCollection(collectionName).InsertDocument(document, options);
+
         #endregion
         
         #region "IArango interface"
@@ -70,7 +76,7 @@ namespace Unisave.Arango.Emulation
             if (Collections.ContainsKey(collectionName))
                 throw new ArangoException(409, 1207, "duplicate name");
             
-            // TODO: validate name length and characters
+            ArangoUtils.ValidateCollectionName(collectionName);
             
             Collections[collectionName] = new Collection(collectionName, type);
         }

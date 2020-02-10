@@ -40,6 +40,7 @@
   <ItemGroup>
     <Compile Include="Arango\ArangoConnection.cs" />
     <Compile Include="Arango\ArangoException.cs" />
+    <Compile Include="Arango\ArangoUtils.cs" />
     <Compile Include="Arango\CollectionType.cs" />
     <Compile Include="Arango\Emulation\Collection.cs" />
     <Compile Include="Arango\Emulation\ArangoInMemory.cs" />
@@ -63,6 +64,8 @@
     <Compile Include="Arango\Expressions\LinqToAqlExpressionParser.cs" />
     <Compile Include="Arango\Query\AqlForOperation.cs" />
     <Compile Include="Arango\Query\AqlForOperationBuilder.cs" />
+    <Compile Include="Arango\Query\AqlInsertOperation.cs" />
+    <Compile Include="Arango\Query\AqlInsertOperationBuilder.cs" />
     <Compile Include="Arango\Query\AqlOperation.cs" />
     <Compile Include="Arango\Query\AqlOperationType.cs" />
     <Compile Include="Arango\Query\AqlQuery.cs" />

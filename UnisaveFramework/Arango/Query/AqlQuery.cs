@@ -46,6 +46,17 @@ namespace Unisave.Arango.Query
         public AqlForOperationBuilder For(string variableName)
             => AddForOperation(variableName);
         
+        public AqlInsertOperationBuilder Insert(Expression<Func<JsonObject>> e)
+            => AddInsertOperation(e.Body);
+        
+        public AqlInsertOperationBuilder Insert(
+            Expression<Func<JsonValue, JsonObject>> e
+        ) => AddInsertOperation(e.Body);
+        
+        public AqlInsertOperationBuilder Insert(
+            Expression<Func<JsonValue, JsonValue, JsonObject>> e
+        ) => AddInsertOperation(e.Body);
+        
         #endregion
 
         public AqlQuery AddReturnOperation(Expression e)
@@ -84,6 +95,24 @@ namespace Unisave.Arango.Query
                         builder.CollectionExpression
                     ));
                 }
+            });
+        }
+        
+        public AqlInsertOperationBuilder AddInsertOperation(Expression e)
+        {
+            var parsed = Parser.ParseExpression(e);
+            
+            ValidateParametersCanBeResolved(parsed.Parameters);
+            
+            return new AqlInsertOperationBuilder(this, builder => {
+                variables.Add("NEW");
+                operations.Add(
+                    new AqlInsertOperation(
+                        parsed,
+                        builder.CollectionName,
+                        builder.Options
+                    )
+                );
             });
         }
 

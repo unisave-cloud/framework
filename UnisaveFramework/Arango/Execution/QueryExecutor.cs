@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using LightJson;
-using Unisave.Arango.Emulation;
 using Unisave.Arango.Query;
 
 namespace Unisave.Arango.Execution
@@ -53,6 +52,10 @@ namespace Unisave.Arango.Execution
                         return op.ApplyToFrameStream(this, frameStream);
                     
                     case AqlForOperation op:
+                        frameStream = op.ApplyToFrameStream(this, frameStream);
+                        break;
+                    
+                    case AqlInsertOperation op:
                         frameStream = op.ApplyToFrameStream(this, frameStream);
                         break;
                     
