@@ -71,6 +71,8 @@ namespace Unisave.Arango.Emulation
                 ValidateEdgeAttributes(document);
             
             string key = document["_key"].AsString ?? GenerateNewKey();
+            
+            ArangoUtils.ValidateDocumentKey(key);
 
             if (documents.ContainsKey(key) && !options["overwrite"])
             {

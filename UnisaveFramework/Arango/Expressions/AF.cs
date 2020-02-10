@@ -6,6 +6,10 @@ namespace Unisave.Arango.Expressions
     public static class AF
     {
         [ArangoFunction("DOCUMENT")]
+        public static JsonObject Document(string id)
+            => new JsonObject();
+        
+        [ArangoFunction("DOCUMENT")]
         public static JsonObject Document(string collection, string key)
             => new JsonObject();
         

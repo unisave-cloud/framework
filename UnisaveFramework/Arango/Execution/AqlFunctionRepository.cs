@@ -77,18 +77,8 @@ namespace Unisave.Arango.Execution
         {
             if (arguments.Length == 1)
             {
-                string id = arguments[0].AsString;
-                int i = id.IndexOf('/');
-                
-                if (i == -1)
-                    throw new QueryExecutionException(
-                        $"Given document id '{id}' is invalid"
-                    );
-
-                string collection = id.Substring(0, i);
-                string key = id.Substring(i + 1);
-
-                return dataSource.GetDocument(collection, key);
+                var id = ArangoUtils.ParseDocumentId(arguments[0].AsString);
+                return dataSource.GetDocument(id.collection, id.key);
             }
             
             if (arguments.Length == 2)
