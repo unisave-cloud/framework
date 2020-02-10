@@ -76,6 +76,7 @@
     <Compile Include="Contracts\ISession.cs" />
     <Compile Include="Exceptions\BindingResolutionException.cs" />
     <Compile Include="Exceptions\ConfigurationException.cs" />
+    <Compile Include="Facades\AQL.cs" />
     <Compile Include="Facades\Facade.cs" />
     <Compile Include="Facades\Session.cs" />
     <Compile Include="Facets\Facet.cs" />
