@@ -7,7 +7,6 @@ using Unisave.Arango;
 using Unisave.Contracts;
 using Unisave.Entities;
 using Unisave.Foundation;
-using EntityCrawler = Unisave.Entities.EntityCrawler;
 
 namespace Unisave
 {

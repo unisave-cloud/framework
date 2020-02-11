@@ -104,13 +104,21 @@ namespace Unisave.Entities
         private JsonObject AttemptInsert(string type, JsonObject entity)
         {
             JsonObject document = JsonReader.Parse(entity.ToString());
+            
+            // don't store entity type
             document.Remove("$type");
+            
+            // set timestamps
+            DateTime now = DateTime.UtcNow;
+            document["CreatedAt"] = now;
+            document["UpdatedAt"] = now;
             
             var newEntity = arango.ExecuteAqlQuery(new AqlQuery()
                 .Insert(document).Into(CollectionPrefix + type)
                 .Return("NEW")
             ).First().AsJsonObject;
 
+            // add entity type to the object
             newEntity["$type"] = type;
 
             return newEntity;

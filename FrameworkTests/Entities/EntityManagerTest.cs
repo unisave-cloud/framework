@@ -94,9 +94,27 @@ namespace FrameworkTests.Entities
             manager.Insert(new JsonObject()
                 .Add("$type", "PlayerEntity")
                 .Add("Name", "George")
+                .Add("_key")
+                .Add("_id")
+                .Add("_rev")
             );
 
             Assert.IsTrue(players.Any(d => d["Name"] == "George"));
+        }
+
+        [Test]
+        public void InsertUpdatesTimestamps()
+        {
+            var insertedEntity = manager.Insert(new JsonObject()
+                .Add("$type", "PlayerEntity")
+                .Add("Name", "George")
+            );
+            
+            Assert.IsTrue(insertedEntity.ContainsKey("CreatedAt"));
+            Assert.IsTrue(insertedEntity.ContainsKey("UpdatedAt"));
+
+            Assert.AreNotEqual(default(DateTime), insertedEntity["CreatedAt"]);
+            Assert.AreNotEqual(default(DateTime), insertedEntity["UpdatedAt"]);
         }
 
         [Test]
