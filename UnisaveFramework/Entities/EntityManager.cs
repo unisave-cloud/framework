@@ -19,7 +19,7 @@ namespace Unisave.Entities
         /// <summary>
         /// Prefix for entity collection names
         /// </summary>
-        private const string CollectionPrefix = "entities_";
+        public const string CollectionPrefix = "entities_";
         
         /// <summary>
         /// The underlying arango database
@@ -36,18 +36,28 @@ namespace Unisave.Entities
         /// </summary>
         public JsonObject Find(string entityId)
         {
-            var id = ArangoUtils.ParseDocumentId(entityId);
-            
-            var entity = arango.ExecuteAqlQuery(new AqlQuery()
-                .Return(() => AF.Document(id.collection, id.key))
-            ).First().AsJsonObject;
+            try
+            {
+                var id = ArangoUtils.ParseDocumentId(entityId);
 
-            if (entity == null)
+                var entity = arango.ExecuteAqlQuery(new AqlQuery()
+                    .Return(() => AF.Document(id.collection, id.key))
+                ).First().AsJsonObject;
+
+                if (entity == null)
+                    return null;
+
+                entity["_type"] = id.collection.Substring(
+                    CollectionPrefix.Length
+                );
+
+                return entity;
+            }
+            catch (ArangoException e) when (e.ErrorNumber == 1203)
+            {
+                // collection or view not found
                 return null;
-
-            entity["_type"] = id.collection.Substring(CollectionPrefix.Length);
-
-            return entity;
+            }
         }
 
         /// <summary>
@@ -55,31 +65,52 @@ namespace Unisave.Entities
         /// </summary>
         public JsonObject Find(string entityType, string entityKey)
             => Find(CollectionPrefix + entityType + "/" + entityKey);
-
+        
         /// <summary>
         /// Insert a new entity into the database and return the modified entity
         /// </summary>
         public JsonObject Insert(JsonObject entity)
         {
-            string type = entity["_type"].AsString;
+            string type = entity["$type"].AsString;
             
             if (string.IsNullOrEmpty(type))
-                throw new ArgumentException("Provided entity has no '_type'");
+                throw new ArgumentException("Provided entity has no '$type'");
             
             if (!string.IsNullOrEmpty(entity["_key"]))
                 throw new ArgumentException(
                     "Provided entity already exists, so cannot be inserted"
                 );
+            
+            try
+            {
+                return AttemptInsert(type, entity);
+            }
+            catch (ArangoException e) when (e.ErrorNumber == 1203)
+            {
+                // collection not found -> create it
+                arango.CreateCollection(
+                    CollectionPrefix + type,
+                    CollectionType.Document
+                );
+                
+                return AttemptInsert(type, entity);
+            }
+        }
 
+        /// <summary>
+        /// Attempt to insert an entity, leaving any exceptions go
+        /// </summary>
+        private JsonObject AttemptInsert(string type, JsonObject entity)
+        {
             JsonObject document = JsonReader.Parse(entity.ToString());
-            document.Remove("_type");
+            document.Remove("$type");
             
             var newEntity = arango.ExecuteAqlQuery(new AqlQuery()
-                .Insert(() => document).Into(CollectionPrefix + type)
-                .Return((NEW) => NEW)
+                .Insert(document).Into(CollectionPrefix + type)
+                .Return("NEW")
             ).First().AsJsonObject;
 
-            newEntity["_type"] = type;
+            newEntity["$type"] = type;
 
             return newEntity;
         }

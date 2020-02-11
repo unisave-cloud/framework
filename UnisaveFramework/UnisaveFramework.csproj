@@ -180,6 +180,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Entities\Query" />
     <Folder Include="Serialization\" />
     <Folder Include="Runtime\" />
     <Folder Include="Exceptions\" />

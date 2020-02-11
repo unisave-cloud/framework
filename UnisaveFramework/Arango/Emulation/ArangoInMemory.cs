@@ -71,7 +71,7 @@ namespace Unisave.Arango.Emulation
             return Executor.Execute(query);
         }
 
-        public void CreateCollection(string collectionName, CollectionType type)
+        public Collection CreateCollection(string collectionName, CollectionType type)
         {
             if (Collections.ContainsKey(collectionName))
                 throw new ArangoException(409, 1207, "duplicate name");
@@ -79,7 +79,12 @@ namespace Unisave.Arango.Emulation
             ArangoUtils.ValidateCollectionName(collectionName);
             
             Collections[collectionName] = new Collection(collectionName, type);
+
+            return Collections[collectionName];
         }
+
+        void IArango.CreateCollection(string collectionName, CollectionType type)
+            => CreateCollection(collectionName, type);
 
         public void DeleteCollection(string collectionName)
         {
