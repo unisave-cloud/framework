@@ -10,8 +10,6 @@ namespace Unisave.Arango.Expressions
         public override AqlExpressionType ExpressionType
             => AqlExpressionType.Parameter;
         
-        public override bool CanSimplify => false;
-        
         public override ReadOnlyCollection<string> Parameters
             => new ReadOnlyCollection<string>(new List<string> { Name });
         

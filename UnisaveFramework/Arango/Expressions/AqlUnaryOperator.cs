@@ -9,9 +9,6 @@ namespace Unisave.Arango.Expressions
     {
         public override AqlExpressionType ExpressionType { get; }
 
-        public override bool CanSimplify
-            => Operand.CanSimplify;
-
         public override ReadOnlyCollection<string> Parameters
             => Operand.Parameters;
         

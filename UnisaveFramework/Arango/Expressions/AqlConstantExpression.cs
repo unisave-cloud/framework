@@ -64,7 +64,7 @@ namespace Unisave.Arango.Expressions
             }
             catch (InvalidCastException) {}
             
-            throw new ArgumentException(
+            throw new AqlParsingException(
                 $"Value {value} is not a JSON constant."
             );
         }

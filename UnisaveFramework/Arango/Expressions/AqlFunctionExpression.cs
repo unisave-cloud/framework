@@ -14,8 +14,6 @@ namespace Unisave.Arango.Expressions
         public override ReadOnlyCollection<string> Parameters { get; }
             = new ReadOnlyCollection<string>(new List<string>());
         
-        public override bool CanSimplify => false;
-
         /// <summary>
         /// Name of the AQL function
         /// </summary>

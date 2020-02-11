@@ -13,11 +13,6 @@ namespace Unisave.Arango.Expressions
         /// Type of the expression node
         /// </summary>
         public abstract AqlExpressionType ExpressionType { get; }
-
-        /// <summary>
-        /// Can this branch be evaluated at definition time?
-        /// </summary>
-        public virtual bool CanSimplify => Parameters.Count == 0;
         
         /// <summary>
         /// Parameters that this expression branch contains

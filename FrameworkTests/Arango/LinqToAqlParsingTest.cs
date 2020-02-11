@@ -2,6 +2,7 @@ using System;
 using LightJson;
 using NUnit.Framework;
 using Unisave.Arango.Expressions;
+using UnityEngine;
 
 namespace FrameworkTests.Arango
 {
@@ -139,6 +140,62 @@ namespace FrameworkTests.Arango
         }
 
         [Test]
+        public void MemberAccessOnParametersCannotBeDone()
+        {
+            var e = Assert.Throws<AqlParsingException>(() => {
+                parser.Parse((x) => x.AsString).ToAql();
+            });
+            Assert.That(e.Message, Contains.Substring(
+                "AQL cannot represent the following member access operation"
+            ));
+            
+            e = Assert.Throws<AqlParsingException>(() => {
+                parser.Parse((x) => x["foo"].IsDateTime).ToAql();
+            });
+            Assert.That(e.Message, Contains.Substring(
+                "AQL cannot represent the following member access operation"
+            ));
+        }
+
+        // used in the following test
+        private static int MyFunction(Vector2 v)
+            => (int) v.sqrMagnitude;
+
+        [Test]
+        public void NonJsonValuesInSimplifiablePartsCanAppear()
+        {
+            Func<Vector2, float> myLambda = (Vector2 v) => v.sqrMagnitude;
+            
+            Assert.AreEqual(
+                "(x + 1)",
+                parser.Parse((x) => x + myLambda(Vector2.down)).ToAql()
+            );
+            
+            Assert.AreEqual(
+                "(x + 1)",
+                parser.Parse((x) => x + MyFunction(Vector2.down)).ToAql()
+            );
+        }
+
+        [Test]
+        public void MethodAccessOnParametersCannotBeDone()
+        {
+            var e = Assert.Throws<AqlParsingException>(() => {
+                parser.Parse((x) => x.ToString()).ToAql();
+            });
+            Assert.That(e.Message, Contains.Substring(
+                "Expression uses parameters in method"
+            ));
+            
+            e = Assert.Throws<AqlParsingException>(() => {
+                parser.Parse((x) => x["foo"].ToString()).ToAql();
+            });
+            Assert.That(e.Message, Contains.Substring(
+                "Expression uses parameters in method"
+            ));
+        }
+
+        [Test]
         public void ItParsesExternalConstants()
         {
             // let's have some external constant
@@ -174,7 +231,7 @@ namespace FrameworkTests.Arango
             });
             
             Assert.That(e.Message, Contains.Substring(
-                "but this function cannot be translated to AQL"
+                "but this method cannot be translated to AQL"
             ));
         }
 
@@ -361,7 +418,27 @@ namespace FrameworkTests.Arango
             );
         }
         
-        // TODO: parametric and non-parametric JSON array creation
+        [Test]
+        public void ItParsesJsonArrayCreation()
+        {
+            Assert.AreEqual(
+                "[1,2,3,'foo','bar']".Replace("'", "\""),
+                parser.Parse(() => new JsonArray(1, 2, 3)
+                    .Add("foo")
+                    .Add("bar")
+                ).ToAql()
+            );
+            
+            Assert.AreEqual(
+                "[null,null,null,'foo','bar']".Replace("'", "\""),
+                parser.Parse(() => new JsonArray(new JsonValue[3])
+                    .Add("foo")
+                    .Add("bar")
+                ).ToAql()
+            );
+        }
+        
+        // TODO: parametric JSON array creation
         
         // TODO: ternary operator
     }
