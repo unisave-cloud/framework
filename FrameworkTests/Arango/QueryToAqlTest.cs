@@ -62,7 +62,22 @@ namespace FrameworkTests.Arango
                 new AqlQuery()
                     .For("u").In("users").Do()
                     .Insert((u) => u).IgnoreErrors().Into("backup")
-                    .Return((NEW) => NEW)
+                    .Return("NEW")
+                    .ToAql()
+            );
+        }
+
+        [Test]
+        public void TestFilterOperator()
+        {
+            Assert.AreEqual(
+                "FOR u IN users\n" +
+                "FILTER (u.name == \"John\")\n" +
+                "RETURN u",
+                new AqlQuery()
+                    .For("u").In("users").Do()
+                    .Filter(u => u["name"] == "John")
+                    .Return("u")
                     .ToAql()
             );
         }

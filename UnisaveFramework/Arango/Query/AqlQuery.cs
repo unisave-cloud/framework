@@ -34,44 +34,56 @@ namespace Unisave.Arango.Query
         
         #region "Fluent API"
         
+        public AqlQuery Return(string variable)
+            => AddReturnOperation(new AqlParameterExpression(variable));
+        
         public AqlQuery Return(Expression<Func<JsonValue>> e)
-            => AddReturnOperation(e.Body);
+            => AddReturnOperation(Parser.ParseExpression(e.Body));
 
         public AqlQuery Return(Expression<Func<JsonValue, JsonValue>> e)
-            => AddReturnOperation(e.Body);
+            => AddReturnOperation(Parser.ParseExpression(e.Body));
         
         public AqlQuery Return(Expression<Func<JsonValue, JsonValue, JsonValue>> e)
-            => AddReturnOperation(e.Body);
+            => AddReturnOperation(Parser.ParseExpression(e.Body));
 
         public AqlForOperationBuilder For(string variableName)
             => AddForOperation(variableName);
         
-        public AqlInsertOperationBuilder Insert(Expression<Func<JsonObject>> e)
-            => AddInsertOperation(e.Body);
+        public AqlInsertOperationBuilder Insert(JsonObject obj)
+            => AddInsertOperation(new AqlConstantExpression(obj));
+        
+        public AqlInsertOperationBuilder Insert(
+            Expression<Func<JsonObject>> e
+        ) => AddInsertOperation(Parser.ParseExpression(e.Body));
         
         public AqlInsertOperationBuilder Insert(
             Expression<Func<JsonValue, JsonObject>> e
-        ) => AddInsertOperation(e.Body);
+        ) => AddInsertOperation(Parser.ParseExpression(e.Body));
         
         public AqlInsertOperationBuilder Insert(
             Expression<Func<JsonValue, JsonValue, JsonObject>> e
-        ) => AddInsertOperation(e.Body);
+        ) => AddInsertOperation(Parser.ParseExpression(e.Body));
+        
+        public AqlQuery Filter(Expression<Func<bool>> e)
+            => AddFilterOperation(e.Body);
+
+        public AqlQuery Filter(Expression<Func<JsonValue, bool>> e)
+            => AddFilterOperation(e.Body);
+        
+        public AqlQuery Filter(Expression<Func<JsonValue, JsonValue, bool>> e)
+            => AddFilterOperation(e.Body);
         
         #endregion
 
-        public AqlQuery AddReturnOperation(Expression e)
+        public AqlQuery AddReturnOperation(AqlExpression e)
         {
             if (operations.Any(o => o is AqlReturnOperation))
                 throw new InvalidQueryException(
                     "Query already contains a RETURN operation."
                 );
             
-            var parsed = Parser.ParseExpression(e);
-            
-            ValidateParametersCanBeResolved(parsed.Parameters);
-            
-            operations.Add(new AqlReturnOperation(parsed));
-            
+            ValidateParametersCanBeResolved(e.Parameters);
+            operations.Add(new AqlReturnOperation(e));
             return this;
         }
 
@@ -97,23 +109,28 @@ namespace Unisave.Arango.Query
                 }
             });
         }
-        
-        public AqlInsertOperationBuilder AddInsertOperation(Expression e)
+
+        public AqlInsertOperationBuilder AddInsertOperation(AqlExpression e)
         {
-            var parsed = Parser.ParseExpression(e);
-            
-            ValidateParametersCanBeResolved(parsed.Parameters);
-            
+            ValidateParametersCanBeResolved(e.Parameters);
             return new AqlInsertOperationBuilder(this, builder => {
                 variables.Add("NEW");
                 operations.Add(
                     new AqlInsertOperation(
-                        parsed,
+                        e,
                         builder.CollectionName,
                         builder.Options
                     )
                 );
             });
+        }
+        
+        public AqlQuery AddFilterOperation(Expression e)
+        {
+            var parsed = Parser.ParseExpression(e);
+            ValidateParametersCanBeResolved(parsed.Parameters);
+            operations.Add(new AqlFilterOperation(parsed));
+            return this;
         }
 
         protected void ValidateParametersCanBeResolved(
@@ -136,7 +153,9 @@ namespace Unisave.Arango.Query
         /// </summary>
         public void ValidateQuery()
         {
-            ValidateHasWorkhorseOperation();
+            // TODO: validations are disabled for now
+            // TODO: implement validations at some point later on
+            //ValidateHasWorkhorseOperation();
         }
 
         /// <summary>

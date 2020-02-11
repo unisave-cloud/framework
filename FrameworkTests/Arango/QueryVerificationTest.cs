@@ -6,6 +6,7 @@ using Unisave.Arango.Query;
 namespace FrameworkTests.Arango
 {
     [TestFixture]
+    [Ignore("Query verification is disabled")]
     public class QueryVerificationTest
     {
         [Test]

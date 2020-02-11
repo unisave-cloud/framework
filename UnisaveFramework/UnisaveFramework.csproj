@@ -65,6 +65,7 @@
     <Compile Include="Arango\Expressions\ExpressionConverter.cs" />
     <Compile Include="Arango\Expressions\ExpressionDemungifier.cs" />
     <Compile Include="Arango\Expressions\LinqToAqlExpressionParser.cs" />
+    <Compile Include="Arango\Query\AqlFilterOperation.cs" />
     <Compile Include="Arango\Query\AqlForOperation.cs" />
     <Compile Include="Arango\Query\AqlForOperationBuilder.cs" />
     <Compile Include="Arango\Query\AqlInsertOperation.cs" />

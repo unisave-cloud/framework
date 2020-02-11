@@ -77,7 +77,7 @@ namespace FrameworkTests.Arango
                 "[42]".Replace("'", "\""),
                 executor.ExecuteToArray(
                     new AqlQuery()
-                        .Insert(() => obj).Into("stuff")
+                        .Insert(obj).Into("stuff")
                         .Return((NEW) => NEW["foo"])
                 ).ToString()
             );
@@ -87,6 +87,28 @@ namespace FrameworkTests.Arango
                 executor.ExecuteToArray(
                     new AqlQuery()
                         .Return(() => AF.Document("stuff", "key")["foo"])
+                ).ToString()
+            );
+        }
+
+        [Test]
+        public void TestFilter()
+        {
+            arango.CreateCollection("stuff", CollectionType.Document);
+            
+            executor.Execute(
+                new AqlQuery()
+                    .For("i").In(() => new JsonArray(1, 2, 3, 4, 5, 6)).Do()
+                    .Insert((i) => new JsonObject().Add("i", i)).Into("stuff")
+            );
+            
+            Assert.AreEqual(
+                "[4,5,6]".Replace("'", "\""),
+                executor.ExecuteToArray(
+                    new AqlQuery()
+                        .For("s").In("stuff").Do()
+                        .Filter(s => s["i"] > 3)
+                        .Return(s => s["i"])
                 ).ToString()
             );
         }

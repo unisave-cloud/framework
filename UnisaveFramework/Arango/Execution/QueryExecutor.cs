@@ -49,13 +49,20 @@ namespace Unisave.Arango.Execution
                 switch (operation)
                 {
                     case AqlReturnOperation op:
-                        return op.ApplyToFrameStream(this, frameStream);
+                        return op
+                            .ApplyToFrameStream(this, frameStream)
+                            .ToList(); // make sure the query is executed
+                                        // even if nobody looks at the results
                     
                     case AqlForOperation op:
                         frameStream = op.ApplyToFrameStream(this, frameStream);
                         break;
                     
                     case AqlInsertOperation op:
+                        frameStream = op.ApplyToFrameStream(this, frameStream);
+                        break;
+                    
+                    case AqlFilterOperation op:
                         frameStream = op.ApplyToFrameStream(this, frameStream);
                         break;
                     
@@ -66,7 +73,13 @@ namespace Unisave.Arango.Execution
                 }
             }
             
-            // there was no return statement
+            // there was no return statement, so we return an empty collection
+            // BUT !!! we still need to enumerate over it, otherwise nothing
+            // happens (inserts, updates, deletes, ...)
+
+            foreach (var _ in frameStream)
+            { /* do nothing (let the pipeline work) */ }
+            
             return Enumerable.Empty<JsonValue>();
         }
 
