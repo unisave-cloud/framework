@@ -25,7 +25,7 @@ namespace Unisave.Arango.Expressions
         Or,
         
         JsonObject,
-        // JsonArray ?
+        JsonArray,
         
         MemberAccess
     }

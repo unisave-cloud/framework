@@ -33,8 +33,6 @@ namespace Unisave.Arango.Expressions
         /// </summary>
         public AqlExpression Convert(Expression expression)
         {
-            // TODO: once working, remove simplification code from expressions
-            
             return Visit(expression);
         }
 
@@ -64,6 +62,13 @@ namespace Unisave.Arango.Expressions
                 case MethodCallExpression e
                     when e.NodeType == ExpressionType.Call:
                     return VisitCall(e);
+                
+                case NewArrayExpression e
+                    when e.NodeType == ExpressionType.NewArrayInit:
+                    return VisitNewArrayInit(e);
+                
+                case NewExpression e:
+                    return VisitNew(e);
             }
             
             throw new AqlParsingException(
@@ -305,7 +310,22 @@ namespace Unisave.Arango.Expressions
                 
                 // continue construction
                 if (instance is AqlJsonObjectExpression obj)
-                    return obj.Add(args);
+                    return obj.CallAddViaArgs(args);
+            }
+            
+            // === handle JSON array construction ===
+            
+            // if we call .Add on a JsonArray instance
+            if (node.Object?.Type == typeof(JsonArray)
+                && node.Method.Name == "Add")
+            {
+                // start construction
+                if (instance is AqlConstantExpression constant)
+                    instance = new AqlJsonArrayExpression(constant.Value);
+                
+                // continue construction
+                if (instance is AqlJsonArrayExpression arr)
+                    return arr.CallAddViaArgs(args);
             }
 
             // === expression is invalid ===
@@ -314,6 +334,51 @@ namespace Unisave.Arango.Expressions
                 $"Expression uses parameters in method '{node.Method}'" +
                 ", but this method cannot be translated to AQL"
             );
+        }
+
+        private AqlExpression VisitNewArrayInit(NewArrayExpression node)
+        {
+            // allow construction only of JsonValue[] arrays
+            // (as an argument to the JsonArray constructor)
+            if (node.Type.GetElementType() != typeof(JsonValue))
+                throw new AqlParsingException(
+                    $"Expression {node} cannot be converted to AQL expression"
+                );
+            
+            List<AqlExpression> args = node.Expressions.Select(Visit).ToList();
+            
+            var result = new AqlJsonArrayExpression();
+
+            foreach (AqlExpression item in args)
+                result.Add(item);
+
+            return result;
+        }
+
+        private AqlExpression VisitNew(NewExpression node)
+        {
+            // allow ONLY construction of JsonArray instances
+            // (everything else fails)
+            if (node.Type != typeof(JsonArray))
+                throw new AqlParsingException(
+                    $"Expression {node} cannot be converted to AQL expression"
+                );
+            
+            if (node.Arguments.Count != 1)
+                throw new Exception(
+                    "JsonArray constructor is expected " +
+                    "to have only one argument"
+                );
+            
+            var jsonValueArrayArgument = Visit(node.Arguments[0]);
+            
+            if (!(jsonValueArrayArgument is AqlJsonArrayExpression))
+                throw new Exception(
+                    "Visiting JsonValue[] is expected to " +
+                    "return AqlJsonArrayExpression"
+                );
+
+            return jsonValueArrayArgument;
         }
     }
 }

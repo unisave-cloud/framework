@@ -29,7 +29,12 @@ namespace Unisave.Arango.Expressions
             AddAll(nonParametrizedPart);
         }
 
-        public AqlJsonObjectExpression Add(List<AqlExpression> arguments)
+        /// <summary>
+        /// See the only usage in ExpressionConverter to understand
+        /// </summary>
+        public AqlJsonObjectExpression CallAddViaArgs(
+            List<AqlExpression> arguments
+        )
         {
             if (arguments.Count != 1 && arguments.Count != 2)
                 throw new ArgumentException("Unexpected number of arguments");

@@ -438,7 +438,33 @@ namespace FrameworkTests.Arango
             );
         }
         
-        // TODO: parametric JSON array creation
+        [Test]
+        public void ItParsesParametricJsonArrayCreation()
+        {
+            Assert.AreEqual(
+                "[x, 'bar']".Replace("'", "\""),
+                parser.Parse((x) => new JsonArray()
+                    .Add(x)
+                    .Add("bar")
+                ).ToAql()
+            );
+            
+            Assert.AreEqual(
+                "[1, 2, x, 'foo', 'bar']".Replace("'", "\""),
+                parser.Parse((x) => new JsonArray(1, 2, x)
+                    .Add("foo")
+                    .Add("bar")
+                ).ToAql()
+            );
+            
+            Assert.AreEqual(
+                "[null, null, null, x, 'bar']".Replace("'", "\""),
+                parser.Parse((x) => new JsonArray(new JsonValue[3])
+                    .Add(x)
+                    .Add("bar")
+                ).ToAql()
+            );
+        }
         
         // TODO: ternary operator
     }

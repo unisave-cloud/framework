@@ -55,6 +55,7 @@
     <Compile Include="Arango\Expressions\AqlExpression.cs" />
     <Compile Include="Arango\Expressions\AqlExpressionType.cs" />
     <Compile Include="Arango\Expressions\AqlFunctionExpression.cs" />
+    <Compile Include="Arango\Expressions\AqlJsonArrayExpression.cs" />
     <Compile Include="Arango\Expressions\AqlJsonObjectExpression.cs" />
     <Compile Include="Arango\Expressions\AqlMemberAccessExpression.cs" />
     <Compile Include="Arango\Expressions\AqlParameterExpression.cs" />
