@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using LightJson;
+using Unisave.Entities;
 
 namespace Unisave.Arango.Expressions
 {
@@ -20,7 +22,8 @@ namespace Unisave.Arango.Expressions
             possibleIndexerMethods = new[] {
                     typeof(JsonValue),
                     typeof(JsonObject),
-                    typeof(JsonArray)
+                    typeof(JsonArray),
+                    typeof(Entity),
                 }
                 .SelectMany(t => t.GetProperties())
                 .Where(p => p.Name == "Item" && p.GetIndexParameters().Length == 1)
@@ -206,70 +209,33 @@ namespace Unisave.Arango.Expressions
         
         private AqlExpression VisitMemberAccess(MemberExpression node)
         {
-            // all possible member accesses have been simplified
+            // NOTE: all possible member accesses have been simplified
+            // by the demungifier, so all remaining access only parameters
+            
+            // NOTE: indexer access is a method call, not member access
+            
+            // === handle entity attribute access ===
+
+            if (typeof(Entity).IsAssignableFrom(node.Expression.Type))
+            {
+                var instance = Visit(node.Expression);
+                return new AqlMemberAccessExpression(
+                    instance,
+                    new AqlConstantExpression(
+                        EntityUtils.MemberInfoToDocumentAttributeName(
+                            node.Expression.Type,
+                            node.Member
+                        )
+                    )
+                );
+            }
+            
+            // === no other options left, throw an exception ===
             
             throw new AqlParsingException(
                 "AQL cannot represent the following member " +
                 "access operation: " + node
             );
-            
-            /*
-             * Member access does not really exist in AQL, so it will be
-             * always evaluated (simplified to constant), unless:
-             * 1) indexer access (foo["bar"]) - handled by method call parsing
-             * 2) parameter field access (x.bar) - throws exception
-             * 3) entity field access (foo.bar) - actual member access expresion
-             */
-            
-            // === first we need to get the instance containing the member ===
-            
-            object instance;
-            
-            if (node.Expression == null)
-            {
-                // we are accessing a static member
-                instance = null;
-            }
-            else
-            {
-                var parsedExpression = Visit(node.Expression);
-                
-                // TODO handle entity member access
-                
-                //if (parsedExpression.CanSimplify)
-                
-                throw new AqlParsingException(
-                    "AQL cannot represent the following member " +
-                    "access operation: " + node
-                );
-                
-//                instance = SimplifyParameterlessExpression(
-//                    node.Expression
-//                );
-            }
-
-            // === now we need to evaluate the member value itself ===
-            
-            object evaluatedMember;
-                
-            switch (node.Member)
-            {
-                case PropertyInfo pi:
-                    evaluatedMember = pi.GetValue(instance);
-                    break;
-                
-                case FieldInfo fi:
-                    evaluatedMember = fi.GetValue(instance);
-                    break;
-                
-                default:
-                    throw new ArgumentException(
-                        "Cannot parse member access to member type:"
-                        + node.Member.MemberType
-                    );
-            }
-            
-            return AqlConstantExpression.Create(evaluatedMember);
         }
         
         private AqlExpression VisitCall(MethodCallExpression node)
@@ -287,7 +253,7 @@ namespace Unisave.Arango.Expressions
             if (attribute != null)
                 return new AqlFunctionExpression(attribute, args);
             
-            // === intercept indexing on JSON objects ===
+            // === intercept indexing on JSON objects, arrays and entities ===
 
             if (possibleIndexerMethods.Contains(node.Method)
                 && args.Count == 1)

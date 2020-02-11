@@ -1,6 +1,7 @@
 using System;
 using LightJson;
 using NUnit.Framework;
+using Unisave;
 using Unisave.Arango.Expressions;
 using UnityEngine;
 
@@ -164,7 +165,7 @@ namespace FrameworkTests.Arango
         [Test]
         public void NonJsonValuesInSimplifiablePartsCanAppear()
         {
-            Func<Vector2, float> myLambda = (Vector2 v) => v.sqrMagnitude;
+            Func<Vector2, float> myLambda = (v) => v.sqrMagnitude;
             
             Assert.AreEqual(
                 "(x + 1)",
@@ -193,6 +194,30 @@ namespace FrameworkTests.Arango
             Assert.That(e.Message, Contains.Substring(
                 "Expression uses parameters in method"
             ));
+        }
+
+        // used in the test below
+        public class PlayerEntity : Entity
+        {
+            [X] public string Name { get; set; }
+        }
+
+        [Test]
+        public void MemberAccessCanBeDoneOnEntities()
+        {
+            Assert.AreEqual(
+                "player.Name",
+                parser.ParseEntity<PlayerEntity>(
+                    player => player.Name
+                ).ToAql()
+            );
+            
+            Assert.AreEqual(
+                "player.Name",
+                parser.ParseEntity<PlayerEntity>(
+                    player => player["Name"]
+                ).ToAql()
+            );
         }
 
         [Test]
@@ -465,6 +490,8 @@ namespace FrameworkTests.Arango
                 ).ToAql()
             );
         }
+        
+        // TODO: query expressions ... LENGTH(FOR ... RETURN ...)
         
         // TODO: ternary operator
     }

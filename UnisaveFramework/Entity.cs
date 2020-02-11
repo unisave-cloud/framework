@@ -39,6 +39,16 @@ namespace Unisave
         /// Has default DateTime value if the entity hasn't been created yet
         /// </summary>
         public DateTime UpdatedAt { get; private set; }
+        
+        /// <summary>
+        /// Access to the underlying arango document attributes
+        /// </summary>
+        /// <param name="attributeName">Name of the attribute to access</param>
+        public JsonValue this[string attributeName]
+        {
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Entity constructor

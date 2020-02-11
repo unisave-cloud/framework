@@ -80,6 +80,7 @@
     <Compile Include="Contracts\IDatabase.cs" />
     <Compile Include="Contracts\ISession.cs" />
     <Compile Include="Entities\EntityManager.cs" />
+    <Compile Include="Entities\EntityUtils.cs" />
     <Compile Include="Exceptions\BindingResolutionException.cs" />
     <Compile Include="Exceptions\ConfigurationException.cs" />
     <Compile Include="Facades\AQL.cs" />

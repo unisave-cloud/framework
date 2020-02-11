@@ -31,6 +31,11 @@ namespace Unisave.Arango.Expressions
             Expression<Func<JsonValue, JsonValue, JsonValue, JsonValue>> e
         ) => ParseExpression(e.Body);
 
+        public AqlExpression ParseEntity<TEntity>(
+            Expression<Func<TEntity, JsonValue>> e
+        ) where TEntity : Entity
+            => ParseExpression(e.Body);
+
         /// <summary>
         /// Parse an expression tree directly, without the lambda wrapper
         /// </summary>
