@@ -77,8 +77,9 @@ namespace Unisave.Arango.Execution
         {
             if (arguments.Length == 1)
             {
-                var id = ArangoUtils.ParseDocumentId(arguments[0].AsString);
-                return dataSource.GetDocument(id.collection, id.key);
+                var id = DocumentId.Parse(arguments[0].AsString);
+                id.ThrowIfHasNull();
+                return dataSource.GetDocument(id.Collection, id.Key);
             }
             
             if (arguments.Length == 2)

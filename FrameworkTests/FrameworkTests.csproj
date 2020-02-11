@@ -62,6 +62,7 @@
     <Compile Include="Entities\CollectionExtensions.cs" />
     <Compile Include="Entities\EntityManagerTest.cs" />
     <Compile Include="Entities\EntityQueryTest.cs" />
+    <Compile Include="Entities\EntityAttributesTest.cs" />
     <Compile Include="EntrypointTest.cs" />
     <Compile Include="EnvTest.cs" />
     <Compile Include="Facets\FacetCallTest.cs" />

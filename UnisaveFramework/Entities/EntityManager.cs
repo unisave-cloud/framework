@@ -38,16 +38,17 @@ namespace Unisave.Entities
         {
             try
             {
-                var id = ArangoUtils.ParseDocumentId(entityId);
+                var id = DocumentId.Parse(entityId);
+                id.ThrowIfHasNull();
 
                 var entity = arango.ExecuteAqlQuery(new AqlQuery()
-                    .Return(() => AF.Document(id.collection, id.key))
+                    .Return(() => AF.Document(id.Collection, id.Key))
                 ).First().AsJsonObject;
 
                 if (entity == null)
                     return null;
 
-                entity["_type"] = id.collection.Substring(
+                entity["_type"] = id.Collection.Substring(
                     CollectionPrefix.Length
                 );
 

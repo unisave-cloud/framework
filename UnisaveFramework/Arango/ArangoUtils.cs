@@ -44,39 +44,5 @@ namespace Unisave.Arango
                     400, 1221, "illegal document key"
                 );
         }
-
-        /// <summary>
-        /// Parses document id into its two components
-        /// </summary>
-        public static DocumentId ParseDocumentId(string id)
-        {
-            if (id == null)
-                throw new ArangoException(
-                    400, 1221, "null document id is invalid"
-                );
-            
-            int i = id.IndexOf('/');
-            
-            if (i == -1)
-                throw new ArangoException(
-                    400, 1221,
-                    $"Given document id '{id}' is invalid"
-                );
-            
-            var documentId = new DocumentId();
-            documentId.collection = id.Substring(0, i);
-            documentId.key = id.Substring(i + 1);
-            
-            ValidateCollectionName(documentId.collection);
-            ValidateDocumentKey(documentId.key);
-            
-            return documentId;
-        }
-
-        public class DocumentId
-        {
-            public string collection;
-            public string key;
-        }
     }
 }

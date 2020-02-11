@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Unisave.Runtime;
 using Unisave.Database;
 using LightJson;
+using Unisave.Arango;
 using Unisave.Contracts;
+using Unisave.Entities;
 using Unisave.Foundation;
-using Unisave.Services;
+using EntityCrawler = Unisave.Entities.EntityCrawler;
 
 namespace Unisave
 {
@@ -17,28 +17,52 @@ namespace Unisave
     public abstract class Entity
     {
         /// <summary>
-        /// Id that uniquely identifies the entity instance
+        /// ID that uniquely identifies the entity globally
         /// </summary>
-        public string EntityId { get; private set; }
+        public string EntityId
+        {
+            get => documentId?.Id;
+            set => documentId = DocumentId.Parse(value);
+        }
 
         /// <summary>
-        /// Players that own this entity
+        /// Backing field for EntityId and EntityKey
         /// </summary>
-        public EntityOwners Owners { get; private set; } = new EntityOwners(
-            isComplete: true // assume a new entity is being created
-        );
+        private DocumentId documentId = DocumentId.Null;
+
+        /// <summary>
+        /// Key that uniquely identifies the entity within its type
+        /// </summary>
+        public string EntityKey
+        {
+            get => documentId?.Key;
+
+            set
+            {
+                if (documentId == null)
+                    documentId = DocumentId.Null;
+
+                documentId.Key = value;
+            }
+        }
+        
+        /// <summary>
+        /// Revision value for this entity
+        /// Used by the database to detect changes
+        /// </summary>
+        public string EntityRevision { get; set; }
 
         /// <summary>
         /// When has been the entity created
         /// Has default DateTime value if the entity hasn't been created yet
         /// </summary>
-        public DateTime CreatedAt { get; private set; }
+        [X] public DateTime CreatedAt { get; set; } = default(DateTime);
 
         /// <summary>
         /// Last time the entity has been saved
         /// Has default DateTime value if the entity hasn't been created yet
         /// </summary>
-        public DateTime UpdatedAt { get; private set; }
+        [X] public DateTime UpdatedAt { get; set; } = default(DateTime);
         
         /// <summary>
         /// Access to the underlying arango document attributes
@@ -46,18 +70,96 @@ namespace Unisave
         /// <param name="attributeName">Name of the attribute to access</param>
         public JsonValue this[string attributeName]
         {
-            get => throw new NotImplementedException();
-            set => throw new NotImplementedException();
-        }
+            get
+            {
+                if (attributeName == "$type")
+                    return EntityUtils.GetEntityType(GetType());
+                
+                if (attributeName == "_id") return EntityId;
+                if (attributeName == "_key") return EntityKey;
+                if (attributeName == "_rev") return EntityRevision;
+                
+                return EntityCrawler
+                    .GetMappingFor(GetType())
+                    .GetAttributeValue(this, attributeName);
+            }
 
+            set
+            {
+                if (attributeName == "_id") EntityId = value;
+                if (attributeName == "_key") EntityKey = value;
+                if (attributeName == "_rev") EntityRevision = value;
+
+                EntityCrawler
+                    .GetMappingFor(GetType())
+                    .SetAttributeValue(this, attributeName, value);
+            }
+        }
+        
         /// <summary>
         /// Entity constructor
         /// Has to be parameterless due to the inheritance model
         /// </summary>
         protected Entity()
         {
-            Owners.ParentEntity = this;
+            // empty for now
         }
+        
+        /// <summary>
+        /// Sets values according to the provided attribute set
+        /// </summary>
+        public void SetAttributes(JsonObject newAttributes)
+        {
+            if (newAttributes == null)
+                throw new ArgumentNullException();
+
+            foreach (var pair in newAttributes)
+                this[pair.Key] = pair.Value;
+        }
+
+        /// <summary>
+        /// Returns values of entity attributes
+        /// </summary>
+        public JsonObject GetAttributes()
+        {
+            var attributes = new JsonObject();
+
+            string[] defaultNames = {
+                "$type",
+                "_key",
+                "_id",
+                "_rev"
+            };
+            
+            var names = EntityCrawler
+                .GetMappingFor(GetType())
+                .GetAttributeNames();
+            
+            foreach (var name in defaultNames.Concat(names))
+                attributes[name] = this[name];
+
+            return attributes;
+        }
+
+        
+        
+        
+        
+        
+        
+        // OLD CODE =========================================
+        
+        
+        
+        
+        
+
+        /// <summary>
+        /// Players that own this entity
+        /// </summary>
+        public EntityOwners Owners { get; private set; } = new EntityOwners(
+            isComplete: true // assume a new entity is being created
+        );
 
         /// <summary>
         /// Extracts database entity type from a c# entity type
@@ -161,16 +263,7 @@ namespace Unisave
         /// </summary>
         protected RawEntity ToRawEntity()
         {
-            var crawler = new EntityCrawler(GetType());
-
-            return new RawEntity {
-                id = EntityId,
-                type = GetEntityType(GetType()),
-                ownerIds = Owners.OwnerIds,
-                data = crawler.ExtractData(this),
-                createdAt = CreatedAt,
-                updatedAt = UpdatedAt
-            };
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -178,22 +271,7 @@ namespace Unisave
         /// </summary>
         private static void LoadRawEntity(RawEntity raw, Entity targetInstance)
         {
-            string targetType = GetEntityType(targetInstance.GetType());
-            if (raw.type != targetType)
-                throw new ArgumentException(
-                    nameof(targetInstance),
-                    $"Trying to load raw entity of type {raw.type} into " +
-                    $"entity instance of type {targetType}."
-                );
-
-            var crawler = new EntityCrawler(targetInstance.GetType());
-
-            targetInstance.EntityId = raw.id;
-            targetInstance.Owners = new EntityOwners(raw.ownerIds);
-            targetInstance.Owners.ParentEntity = targetInstance;
-            crawler.InsertData(targetInstance, raw.data);
-            targetInstance.CreatedAt = raw.createdAt;
-            targetInstance.UpdatedAt = raw.updatedAt;
+            throw new NotImplementedException();
         }
 
         /// <summary>
