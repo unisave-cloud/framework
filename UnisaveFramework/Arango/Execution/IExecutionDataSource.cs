@@ -28,5 +28,22 @@ namespace Unisave.Arango.Execution
             JsonObject document,
             JsonObject options
         );
+
+        /// <summary>
+        /// Replaces document in a collection with a given key.
+        /// Replaces it with a given document value and options.
+        /// Returns the new document state after replacement,
+        /// </summary>
+        /// <param name="collectionName">Collection to update</param>
+        /// <param name="key">Key to find the document</param>
+        /// <param name="document">New document value</param>
+        /// <param name="options">Options of the operation</param>
+        /// <returns>The value that ends up being stored</returns>
+        JsonObject ReplaceDocument(
+            string collectionName,
+            string key,
+            JsonObject document,
+            JsonObject options
+        );
     }
 }

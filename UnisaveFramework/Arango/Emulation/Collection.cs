@@ -78,13 +78,65 @@ namespace Unisave.Arango.Emulation
             {
                 // do not insert, but do not throw either
                 if (options["ignoreErrors"])
-                    return null;
+                    return null; // ignore write
                 
                 throw new ArangoException(
                     409, 1210, "unique constraint violated"
                 );
             }
 
+            JsonObject insertedDocument = PrepareDocumentForWrite(
+                GenerateNewRevision(),
+                document
+            );
+
+            documents[key] = insertedDocument;
+            return insertedDocument;
+        }
+
+        /// <summary>
+        /// Replace a document in the collection
+        /// </summary>
+        public JsonObject ReplaceDocument(
+            string key,
+            JsonObject document,
+            JsonObject options
+        )
+        {
+            if (document == null)
+                document = new JsonObject();
+            
+            if (options == null)
+                throw new ArgumentNullException(nameof(options));
+
+            if (CollectionType == CollectionType.Edge)
+                ValidateEdgeAttributes(document);
+
+            JsonObject oldDocument = GetDocument(key);
+            
+            // validate the key
+            if (oldDocument == null)
+            {
+                if (options["ignoreErrors"])
+                    return null; // ignore write
+                
+                throw new ArangoException(404, 1202, "document not found");
+            }
+            
+            // validate revision
+            bool checkRevs = options["checkRevs"].IsBoolean
+                             && options["checkRevs"].AsBoolean;
+            if (checkRevs
+                && oldDocument["_rev"].AsString != document["_rev"].AsString)
+            {
+                // revisions differ and we DO check them
+                
+                if (options["ignoreErrors"])
+                    return null; // ignore write
+                
+                throw new ArangoException(409, 1200, "conflict");
+            }
+            
             JsonObject insertedDocument = PrepareDocumentForWrite(
                 GenerateNewRevision(),
                 document

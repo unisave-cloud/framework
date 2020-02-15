@@ -60,7 +60,16 @@ namespace Unisave.Arango.Emulation
             string collectionName,
             JsonObject document,
             JsonObject options
-        ) => GetCollection(collectionName).InsertDocument(document, options);
+        ) => GetCollection(collectionName)
+            .InsertDocument(document, options);
+
+        public JsonObject ReplaceDocument(
+            string collectionName,
+            string key,
+            JsonObject document,
+            JsonObject options
+        ) => GetCollection(collectionName)
+            .ReplaceDocument(key, document, options);
 
         #endregion
         

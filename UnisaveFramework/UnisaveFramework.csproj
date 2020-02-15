@@ -74,6 +74,8 @@
     <Compile Include="Arango\Query\AqlOperation.cs" />
     <Compile Include="Arango\Query\AqlOperationType.cs" />
     <Compile Include="Arango\Query\AqlQuery.cs" />
+    <Compile Include="Arango\Query\AqlReplaceOperation.cs" />
+    <Compile Include="Arango\Query\AqlReplaceOperationBuilder.cs" />
     <Compile Include="Arango\Query\AqlReturnOperation.cs" />
     <Compile Include="Arango\Query\InvalidQueryException.cs" />
     <Compile Include="Authentication\Authenticate.cs" />

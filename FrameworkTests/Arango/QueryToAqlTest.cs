@@ -81,5 +81,36 @@ namespace FrameworkTests.Arango
                     .ToAql()
             );
         }
+        
+        [Test]
+        public void TestReplace()
+        {
+            Assert.AreEqual(
+                "FOR u IN users\n" +
+                "REPLACE u WITH {} IN foo",
+                new AqlQuery()
+                    .For("u").In("users").Do()
+                    .Replace(u => u).With(u => new JsonObject()).In("foo")
+                    .ToAql()
+            );
+            
+            Assert.AreEqual(
+                "FOR u IN users\n" +
+                "REPLACE u IN foo",
+                new AqlQuery()
+                    .For("u").In("users").Do()
+                    .Replace(u => u).In("foo")
+                    .ToAql()
+            );
+            
+            Assert.AreEqual(
+                "FOR u IN users\n" +
+                "REPLACE u IN foo OPTIONS {\"ignoreRevs\":false}",
+                new AqlQuery()
+                    .For("u").In("users").Do()
+                    .Replace(u => u).CheckRevs().In("foo")
+                    .ToAql()
+            );
+        }
     }
 }

@@ -34,6 +34,8 @@ namespace Unisave.Arango.Query
         
         #region "Fluent API"
         
+        // RETURN
+        
         public AqlQuery Return(string variable)
             => AddReturnOperation(new AqlParameterExpression(variable));
         
@@ -46,11 +48,15 @@ namespace Unisave.Arango.Query
         public AqlQuery Return(Expression<Func<JsonValue, JsonValue, JsonValue>> e)
             => AddReturnOperation(Parser.ParseExpression(e.Body));
 
+        // FOR
+        
         public AqlForOperationBuilder For(string variableName)
             => AddForOperation(variableName);
         
         public AqlInsertOperationBuilder Insert(JsonObject obj)
             => AddInsertOperation(new AqlConstantExpression(obj));
+        
+        // INSERT
         
         public AqlInsertOperationBuilder Insert(
             Expression<Func<JsonObject>> e
@@ -64,6 +70,8 @@ namespace Unisave.Arango.Query
             Expression<Func<JsonValue, JsonValue, JsonObject>> e
         ) => AddInsertOperation(Parser.ParseExpression(e.Body));
         
+        // FILTER
+        
         public AqlQuery Filter(Expression<Func<bool>> e)
             => AddFilterOperation(e.Body);
 
@@ -72,6 +80,20 @@ namespace Unisave.Arango.Query
         
         public AqlQuery Filter(Expression<Func<JsonValue, JsonValue, bool>> e)
             => AddFilterOperation(e.Body);
+        
+        // REPLACE
+        
+        public AqlReplaceOperationBuilder Replace(
+            Expression<Func<JsonValue>> e
+        ) => AddReplaceOperation(Parser.ParseExpression(e.Body));
+
+        public AqlReplaceOperationBuilder Replace(
+            Expression<Func<JsonValue, JsonValue>> e
+        ) => AddReplaceOperation(Parser.ParseExpression(e.Body));
+        
+        public AqlReplaceOperationBuilder Replace(
+            Expression<Func<JsonValue, JsonValue, JsonValue>> e
+        ) => AddReplaceOperation(Parser.ParseExpression(e.Body));
         
         #endregion
 
@@ -118,6 +140,27 @@ namespace Unisave.Arango.Query
                 operations.Add(
                     new AqlInsertOperation(
                         e,
+                        builder.CollectionName,
+                        builder.Options
+                    )
+                );
+            });
+        }
+        
+        public AqlReplaceOperationBuilder AddReplaceOperation(AqlExpression e)
+        {
+            ValidateParametersCanBeResolved(e.Parameters);
+            return new AqlReplaceOperationBuilder(this, builder => {
+                variables.Add("NEW");
+                variables.Add("OLD");
+                if (builder.WithExpression != null)
+                    ValidateParametersCanBeResolved(
+                        builder.WithExpression.Parameters
+                    );
+                operations.Add(
+                    new AqlReplaceOperation(
+                        e,
+                        builder.WithExpression,
                         builder.CollectionName,
                         builder.Options
                     )

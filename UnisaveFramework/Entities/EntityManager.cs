@@ -24,7 +24,7 @@ namespace Unisave.Entities
         /// <summary>
         /// The underlying arango database
         /// </summary>
-        private IArango arango;
+        private readonly IArango arango;
         
         public EntityManager(IArango arango)
         {
