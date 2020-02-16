@@ -64,6 +64,17 @@ namespace Unisave
         [X] public DateTime UpdatedAt { get; set; } = default(DateTime);
         
         /// <summary>
+        /// Entity constructor
+        /// Has to be parameterless due to the inheritance model
+        /// </summary>
+        protected Entity()
+        {
+            // empty for now
+        }
+        
+        #region "Attributes"
+        
+        /// <summary>
         /// Access to the underlying arango document attributes
         /// </summary>
         /// <param name="attributeName">Name of the attribute to access</param>
@@ -93,15 +104,6 @@ namespace Unisave
                     .GetMappingFor(GetType())
                     .SetAttributeValue(this, attributeName, value);
             }
-        }
-        
-        /// <summary>
-        /// Entity constructor
-        /// Has to be parameterless due to the inheritance model
-        /// </summary>
-        protected Entity()
-        {
-            // empty for now
         }
         
         /// <summary>
@@ -139,6 +141,60 @@ namespace Unisave
 
             return attributes;
         }
+        
+        #endregion
+        
+        #region "Serialization"
+
+        /// <summary>
+        /// Creates entity of the provided type
+        /// (checks that the type matches)
+        /// and returns the newly created instance
+        /// </summary>
+        public static Entity FromJson(JsonObject json, Type entityType)
+        {
+            Entity entity = CreateInstance(entityType);
+            entity.SetAttributes(json);
+            return entity;
+        }
+
+        /// <summary>
+        /// Serialize the entity into json
+        /// </summary>
+        public JsonObject ToJson()
+        {
+            return GetAttributes();
+        }
+        
+        /// <summary>
+        /// Create instance of a given entity type in a non-generic way
+        /// (needed for deserialization)
+        /// </summary>
+        public static Entity CreateInstance(Type entityType)
+        {
+            // check proper parent
+            if (!typeof(Entity).IsAssignableFrom(entityType))
+                throw new ArgumentException(
+                    $"Provided type {entityType} does not " +
+                    "inherit from the Entity class."
+                );
+
+            // get parameterless constructor
+            ConstructorInfo ci = entityType.GetConstructor(new Type[] { });
+
+            if (ci == null)
+                throw new ArgumentException(
+                    $"Provided entity type {entityType} lacks " +
+                    "parameterless constructor."
+                );
+
+            // create instance
+            Entity entity = (Entity)ci.Invoke(new object[] { });
+
+            return entity;
+        }
+        
+        #endregion
 
         
         
@@ -274,34 +330,6 @@ namespace Unisave
         }
 
         /// <summary>
-        /// Create instance of a given entity type in a non-generic way
-        /// (needed for deserialization)
-        /// </summary>
-        public static Entity CreateInstance(Type entityType)
-        {
-            // check proper parent
-            if (!typeof(Entity).IsAssignableFrom(entityType))
-                throw new ArgumentException(
-                    $"Provided type {entityType} does not " +
-                    "inherit from the Entity class."
-                );
-
-            // get parameterless constructor
-            ConstructorInfo ci = entityType.GetConstructor(new Type[] { });
-
-            if (ci == null)
-                throw new ArgumentException(
-                    $"Provided entity type {entityType} lacks " +
-                    "parameterless constructor."
-                );
-
-            // create instance
-            Entity entity = (Entity)ci.Invoke(new object[] { });
-
-            return entity;
-        }
-
-        /// <summary>
         /// Creates entity from a raw entity instance
         /// </summary>
         public static Entity FromRawEntity(RawEntity raw, Type entityType)
@@ -312,24 +340,6 @@ namespace Unisave
             Entity entityInstance = CreateInstance(entityType);
             LoadRawEntity(raw, entityInstance);
             return entityInstance;
-        }
-
-        /// <summary>
-        /// Creates entity of the provided type
-        /// (checks that the type matches)
-        /// and returns the newly created instance
-        /// </summary>
-        public static Entity FromJson(JsonObject json, Type entityType)
-        {
-            return FromRawEntity(RawEntity.FromJson(json), entityType);
-        }
-
-        /// <summary>
-        /// Serialize the entity into json
-        /// </summary>
-        public JsonObject ToJson()
-        {
-            return ToRawEntity().ToJson();
         }
     }
 }
