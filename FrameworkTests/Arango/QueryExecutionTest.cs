@@ -147,5 +147,37 @@ namespace FrameworkTests.Arango
                 ).ToString()
             );
         }
+
+        [Test]
+        public void TestRemove()
+        {
+            arango.CreateCollection("stuff", CollectionType.Document);
+            
+            executor.Execute(
+                new AqlQuery()
+                    .For("i").In(() => new JsonArray(1, 2, 3, 4, 5, 6)).Do()
+                    .Insert((i) => new JsonObject().Add("i", i)).Into("stuff")
+            );
+            
+            Assert.AreEqual(
+                "[1,2,3]".Replace("'", "\""),
+                executor.ExecuteToArray(
+                    new AqlQuery()
+                        .For("s").In("stuff").Do()
+                        .Filter(s => s["i"] <= 3)
+                        .Remove(s => s["_key"]).In("stuff")
+                        .Return(OLD => OLD["i"])
+                ).ToString()
+            );
+            
+            Assert.AreEqual(
+                "[4,5,6]".Replace("'", "\""),
+                executor.ExecuteToArray(
+                    new AqlQuery()
+                        .For("s").In("stuff").Do()
+                        .Return(s => s["i"])
+                ).ToString()
+            );
+        }
     }
 }

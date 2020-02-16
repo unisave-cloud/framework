@@ -95,6 +95,20 @@ namespace Unisave.Arango.Query
             Expression<Func<JsonValue, JsonValue, JsonValue>> e
         ) => AddReplaceOperation(Parser.ParseExpression(e.Body));
         
+        // REMOVE
+        
+        public AqlRemoveOperationBuilder Remove(
+            Expression<Func<JsonValue>> e
+        ) => AddRemoveOperation(Parser.ParseExpression(e.Body));
+
+        public AqlRemoveOperationBuilder Remove(
+            Expression<Func<JsonValue, JsonValue>> e
+        ) => AddRemoveOperation(Parser.ParseExpression(e.Body));
+        
+        public AqlRemoveOperationBuilder Remove(
+            Expression<Func<JsonValue, JsonValue, JsonValue>> e
+        ) => AddRemoveOperation(Parser.ParseExpression(e.Body));
+        
         #endregion
 
         public AqlQuery AddReturnOperation(AqlExpression e)
@@ -161,6 +175,21 @@ namespace Unisave.Arango.Query
                     new AqlReplaceOperation(
                         e,
                         builder.WithExpression,
+                        builder.CollectionName,
+                        builder.Options
+                    )
+                );
+            });
+        }
+        
+        public AqlRemoveOperationBuilder AddRemoveOperation(AqlExpression e)
+        {
+            ValidateParametersCanBeResolved(e.Parameters);
+            return new AqlRemoveOperationBuilder(this, builder => {
+                variables.Add("OLD");
+                operations.Add(
+                    new AqlRemoveOperation(
+                        e,
                         builder.CollectionName,
                         builder.Options
                     )

@@ -45,5 +45,19 @@ namespace Unisave.Arango.Execution
             JsonObject document,
             JsonObject options
         );
+
+        /// <summary>
+        /// Removes a document from a collection
+        /// </summary>
+        /// <param name="collectionName">Collection to remove from</param>
+        /// <param name="key">Document to remove</param>
+        /// <param name="rev">Revision to check, can be null</param>
+        /// <param name="options">Options for the operation</param>
+        void RemoveDocument(
+            string collectionName,
+            string key,
+            string rev,
+            JsonObject options
+        );
     }
 }

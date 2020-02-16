@@ -112,5 +112,27 @@ namespace FrameworkTests.Arango
                     .ToAql()
             );
         }
+
+        [Test]
+        public void TestRemove()
+        {
+            Assert.AreEqual(
+                "FOR u IN users\n" +
+                "REMOVE u IN foo",
+                new AqlQuery()
+                    .For("u").In("users").Do()
+                    .Remove(u => u).In("foo")
+                    .ToAql()
+            );
+            
+            Assert.AreEqual(
+                "FOR u IN users\n" +
+                "REMOVE u IN foo OPTIONS {\"ignoreRevs\":false}",
+                new AqlQuery()
+                    .For("u").In("users").Do()
+                    .Remove(u => u).CheckRevs().In("foo")
+                    .ToAql()
+            );
+        }
     }
 }

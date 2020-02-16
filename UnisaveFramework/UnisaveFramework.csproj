@@ -74,6 +74,8 @@
     <Compile Include="Arango\Query\AqlOperation.cs" />
     <Compile Include="Arango\Query\AqlOperationType.cs" />
     <Compile Include="Arango\Query\AqlQuery.cs" />
+    <Compile Include="Arango\Query\AqlRemoveOperation.cs" />
+    <Compile Include="Arango\Query\AqlRemoveOperationBuilder.cs" />
     <Compile Include="Arango\Query\AqlReplaceOperation.cs" />
     <Compile Include="Arango\Query\AqlReplaceOperationBuilder.cs" />
     <Compile Include="Arango\Query\AqlReturnOperation.cs" />

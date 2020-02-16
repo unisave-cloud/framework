@@ -1,15 +1,14 @@
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using LightJson;
 using Unisave.Arango.Execution;
 using Unisave.Arango.Expressions;
 
 namespace Unisave.Arango.Query
 {
-    public class AqlReplaceOperation : AqlOperation
+    public class AqlRemoveOperation : AqlOperation
     {
         public override AqlOperationType OperationType
-            => AqlOperationType.Replace;
+            => AqlOperationType.Remove;
         
         /// <summary>
         /// Expression that defines the key
@@ -17,23 +16,17 @@ namespace Unisave.Arango.Query
         public AqlExpression KeyExpression { get; }
         
         /// <summary>
-        /// Expression that defines what gets inserted instead of the document
-        /// </summary>
-        public AqlExpression WithExpression { get; }
-        
-        /// <summary>
-        /// Name of the collection to insert into
+        /// Name of the collection to remove from
         /// </summary>
         public string CollectionName { get; }
         
         /// <summary>
-        /// Options object used for the replacement
+        /// Options object used for the removal
         /// </summary>
         public JsonObject Options { get; }
         
-        public AqlReplaceOperation(
+        public AqlRemoveOperation(
             AqlExpression keyExpression,
-            AqlExpression withExpression,
             string collectionName,
             JsonObject options = null
         )
@@ -41,17 +34,13 @@ namespace Unisave.Arango.Query
             ArangoUtils.ValidateCollectionName(collectionName);
             
             KeyExpression = keyExpression;
-            WithExpression = withExpression;
             CollectionName = collectionName;
             Options = options ?? new JsonObject();
         }
         
         public override string ToAql()
         {
-            string aql = "REPLACE " + KeyExpression.ToAql();
-            
-            if (WithExpression != null)
-                aql += " WITH " + WithExpression.ToAql();
+            string aql = "REMOVE " + KeyExpression.ToAql();
 
             aql += " IN " + CollectionName;
             
@@ -62,7 +51,7 @@ namespace Unisave.Arango.Query
         }
         
         /// <summary>
-        /// Performs the REPLACE operation on a frame stream
+        /// Performs the REMOVE operation on a frame stream
         /// </summary>
         public IEnumerable<ExecutionFrame> ApplyToFrameStream(
             QueryExecutor executor,
@@ -71,16 +60,21 @@ namespace Unisave.Arango.Query
         {
             foreach (ExecutionFrame frame in frameStream)
             {
-                // get key
                 JsonValue keyResult = KeyExpression.Evaluate(executor, frame);
-                string key = keyResult.AsString;
+                
+                // get key & ref
+                string key;
+                string rev;
                 if (keyResult.IsJsonObject)
+                {
                     key = keyResult["_key"].AsString;
-
-                // get document
-                JsonObject document = keyResult;
-                if (WithExpression != null)
-                    document = WithExpression.Evaluate(executor, frame);
+                    rev = keyResult["_rev"].AsString;
+                }
+                else
+                {
+                    key = keyResult.AsString;
+                    rev = null;
+                }
 
                 // OLD
                 JsonObject oldDocument = executor.DataSource.GetDocument(
@@ -88,18 +82,17 @@ namespace Unisave.Arango.Query
                     key
                 );
                 
-                // replace & NEW
-                JsonObject newDocument = executor.DataSource.ReplaceDocument(
+                // remove
+                executor.DataSource.RemoveDocument(
                     CollectionName,
                     key,
-                    document,
+                    rev,
                     Options
                 );
 
                 // update frame
                 yield return frame
-                    .AddVariable("OLD", oldDocument)
-                    .AddVariable("NEW", newDocument);
+                    .AddVariable("OLD", oldDocument);
             }
         }
     }

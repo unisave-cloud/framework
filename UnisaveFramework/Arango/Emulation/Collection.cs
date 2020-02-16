@@ -146,6 +146,45 @@ namespace Unisave.Arango.Emulation
             return insertedDocument;
         }
 
+        /// <summary>
+        /// Removes a document from the collection
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="rev"></param>
+        /// <param name="options"></param>
+        public void RemoveDocument(string key, string rev, JsonObject options)
+        {
+            if (options == null)
+                throw new ArgumentNullException(nameof(options));
+
+            JsonObject oldDocument = GetDocument(key);
+            
+            // validate the key
+            if (oldDocument == null)
+            {
+                if (options["ignoreErrors"])
+                    return; // ignore write
+                
+                throw new ArangoException(404, 1202, "document not found");
+            }
+            
+            // validate revision
+            bool checkRevs = options["checkRevs"].IsBoolean
+                             && options["checkRevs"].AsBoolean;
+            if (checkRevs
+                && oldDocument["_rev"].AsString != rev)
+            {
+                // revisions differ and we DO check them
+                
+                if (options["ignoreErrors"])
+                    return; // ignore write
+                
+                throw new ArangoException(409, 1200, "conflict");
+            }
+
+            documents.Remove(key);
+        }
+
         private void ValidateEdgeAttributes(JsonObject document)
         {
             string from = document["_from"].AsString ?? "";

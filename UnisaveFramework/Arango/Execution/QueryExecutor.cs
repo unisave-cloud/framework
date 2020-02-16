@@ -70,6 +70,10 @@ namespace Unisave.Arango.Execution
                         frameStream = op.ApplyToFrameStream(this, frameStream);
                         break;
                     
+                    case AqlRemoveOperation op:
+                        frameStream = op.ApplyToFrameStream(this, frameStream);
+                        break;
+                    
                     default:
                         throw new ArgumentException(
                             "Unknown operation type " + operation

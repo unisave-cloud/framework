@@ -71,6 +71,14 @@ namespace Unisave.Arango.Emulation
         ) => GetCollection(collectionName)
             .ReplaceDocument(key, document, options);
 
+        public void RemoveDocument(
+            string collectionName,
+            string key,
+            string rev,
+            JsonObject options
+        ) => GetCollection(collectionName)
+            .RemoveDocument(key, rev, options);
+
         #endregion
         
         #region "IArango interface"
