@@ -1,4 +1,5 @@
 using System;
+using Unisave.Entities;
 
 namespace Unisave.Authentication
 {

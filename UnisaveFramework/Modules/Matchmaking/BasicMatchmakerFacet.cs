@@ -4,6 +4,7 @@ using System.Linq;
 using Unisave.Contracts;
 using Unisave.Modules.Matchmaking.Exceptions;
 using Unisave.Database;
+using Unisave.Entities;
 using Unisave.Facades;
 using Unisave.Facets;
 using Unisave.Foundation;

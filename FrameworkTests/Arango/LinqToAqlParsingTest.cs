@@ -3,6 +3,7 @@ using LightJson;
 using NUnit.Framework;
 using Unisave;
 using Unisave.Arango.Expressions;
+using Unisave.Entities;
 using UnityEngine;
 
 namespace FrameworkTests.Arango

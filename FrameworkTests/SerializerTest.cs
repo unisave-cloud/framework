@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using FrameworkTests.TestingUtils;
 using Unisave;
 using Unisave.Database;
+using Unisave.Entities;
 
 namespace FrameworkTests
 {

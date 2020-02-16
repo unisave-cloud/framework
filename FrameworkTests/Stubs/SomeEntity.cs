@@ -1,4 +1,5 @@
 using Unisave;
+using Unisave.Entities;
 
 namespace FrameworkTests.Stubs
 {

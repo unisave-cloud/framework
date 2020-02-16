@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using LightJson;
+using Unisave.Entities;
 using Unisave.Serialization;
 
 namespace Unisave.Modules.Matchmaking

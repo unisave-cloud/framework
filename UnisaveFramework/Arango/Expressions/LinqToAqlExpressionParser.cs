@@ -1,6 +1,7 @@
 using System;
 using System.Linq.Expressions;
 using LightJson;
+using Unisave.Entities;
 
 namespace Unisave.Arango.Expressions
 {

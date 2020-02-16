@@ -86,6 +86,7 @@
     <Compile Include="Contracts\IDatabase.cs" />
     <Compile Include="Contracts\ISession.cs" />
     <Compile Include="Entities\AttributeMapping.cs" />
+    <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\EntityCrawler.cs" />
     <Compile Include="Entities\EntityManager.cs" />
     <Compile Include="Entities\EntityPersistenceException.cs" />
@@ -159,7 +160,6 @@
     <Compile Include="Serialization\SerializationParams.cs" />
     <Compile Include="Exceptions\NetworkingException.cs" />
     <Compile Include="Exceptions\ConnectionEndedException.cs" />
-    <Compile Include="Entity.cs" />
     <Compile Include="CustomAttributes.cs" />
     <Compile Include="Runtime\Entrypoint.cs" />
     <Compile Include="Migration.cs" />

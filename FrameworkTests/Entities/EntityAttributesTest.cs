@@ -2,6 +2,7 @@ using System;
 using LightJson;
 using NUnit.Framework;
 using Unisave;
+using Unisave.Entities;
 
 namespace FrameworkTests.Entities
 {

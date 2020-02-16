@@ -1,5 +1,6 @@
 ﻿using System;
 using LightJson;
+using Unisave.Entities;
 using UnityEngine;
 
 namespace Unisave.Serialization

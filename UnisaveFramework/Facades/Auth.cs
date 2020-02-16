@@ -1,4 +1,5 @@
 using Unisave.Authentication;
+using Unisave.Entities;
 
 namespace Unisave.Facades
 {

@@ -7,6 +7,7 @@ using Unisave.Contracts;
 using Unisave.Modules.Matchmaking;
 using Unisave.Modules.Matchmaking.Exceptions;
 using Unisave.Database;
+using Unisave.Entities;
 using Unisave.Foundation;
 using Unisave.Services;
 

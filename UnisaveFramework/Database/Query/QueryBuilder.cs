@@ -4,6 +4,7 @@ using System.Linq;
 using Unisave.Serialization;
 using LightJson;
 using Unisave.Contracts;
+using Unisave.Entities;
 using Unisave.Foundation;
 using Unisave.Services;
 
