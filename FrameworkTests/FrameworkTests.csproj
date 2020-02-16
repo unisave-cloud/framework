@@ -71,21 +71,18 @@
     <Compile Include="Facets\Stubs\SomeFacet.cs" />
     <Compile Include="Facets\Stubs\WrongFacet.cs" />
     <Compile Include="Modules\Matchmaking\Basic\BasicMatchmakerTest.cs" />
-    <Compile Include="EntityTest.cs" />
     <Compile Include="InMemoryDatabase.cs" />
     <Compile Include="JsonPathTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SandboxDatabaseApiTest.cs" />
     <Compile Include="SerializerTest.cs" />
     <Compile Include="MigrationCallTest.cs" />
-    <Compile Include="PlayerRegistrationHookCallTest.cs" />
     <Compile Include="Sessions\SessionOverStorageTest.cs" />
     <Compile Include="Stubs\SomeEntity.cs" />
     <Compile Include="TestingUtils\BackendTestCase.cs" />
     <Compile Include="TestingUtils\ExecuteFramework.cs" />
     <Compile Include="TestingUtils\OnFacet.cs" />
     <Compile Include="TestingUtils\UAssert.cs" />
-    <Compile Include="TransactionNestingTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
