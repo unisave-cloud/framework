@@ -111,8 +111,8 @@ namespace Unisave.Modules.Matchmaking
             
             entity = GetEntity();
 
-            DB.Transaction(() => {
-                entity.RefreshAndLockForUpdate();
+            DB.RetryOnConflict(() => {
+                entity.Refresh();
                 var tickets = entity.DeserializeTickets<TMatchmakerTicket>();
                 
                 // if already waiting, perform a re-insert
@@ -126,7 +126,7 @@ namespace Unisave.Modules.Matchmaking
                 tickets.Add(ticket);
                 
                 entity.SerializeTickets(tickets);
-                entity.Save();
+                entity.SaveCarefully();
             });
         }
 
@@ -145,14 +145,14 @@ namespace Unisave.Modules.Matchmaking
             TMatchEntity returnedValue = null;
 
             // first perform cleanup
-            DB.Transaction(() => {
-                entity.RefreshAndLockForUpdate();
+            DB.RetryOnConflict(() => {
+                entity.Refresh();
                 CleanUpExpiredItems();
-                entity.Save();
+                entity.SaveCarefully();
             });
             
-            DB.Transaction(() => {
-                entity.RefreshAndLockForUpdate();
+            DB.RetryOnConflict(() => {
+                entity.Refresh();
                 
                 // player not waiting -> throw
                 // unless there's a notification for this player
@@ -200,7 +200,7 @@ namespace Unisave.Modules.Matchmaking
                     entity.SerializeTickets(tickets);
                 }
 
-                entity.Save();
+                entity.SaveCarefully();
             });
 
             return returnedValue;

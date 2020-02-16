@@ -43,121 +43,40 @@ namespace Unisave.Facades
             return new EntityQuery<TEntity>(GetArango());
         }
 
-        
-        
-        
-        // ============= OLD CODE =================
-        
-        
-        
-        
-        
-        
-        private static IDatabase GetDatabase()
-        {
-            return Facade.App.Resolve<IDatabase>();
-        }
-        
         /// <summary>
-        /// Starts new database transaction
+        /// Re-runs a closure multiple times, whenever a write-write
+        /// conflict is thrown
         /// </summary>
-        public static void StartTransaction()
-        {
-            GetDatabase().StartTransaction();
-        }
-        
-        /// <summary>
-        /// Rolls back the top level transaction
-        /// Does nothing if no transaction open
-        /// </summary>
-        public static void Rollback()
-        {
-            GetDatabase().RollbackTransaction();
-        }
-        
-        /// <summary>
-        /// Commits the top level transaction
-        /// Does nothing if no transaction open
-        /// </summary>
-        public static void Commit()
-        {
-            GetDatabase().CommitTransaction();
-        }
-        
-        /// <summary>
-        /// Returns the number of nested transactions that are open
-        /// </summary>
-        public static int TransactionLevel()
-        {
-            return GetDatabase().TransactionLevel();
-        }
-
-        /// <summary>
-        /// Executes a closure within a transaction
-        /// </summary>
-        /// <param name="closure">Closure to execute</param>
-        /// <param name="attempts">
-        /// Total number of attempts when deadlock causes the failure
-        /// </param>
-        public static void Transaction(Action closure, int attempts = 1)
+        public static void RetryOnConflict(Action closure, int attempts = 3)
         {
             if (closure == null)
                 throw new ArgumentNullException(nameof(closure));
             
-            Transaction(() => {
+            RetryOnConflict<bool>(() => {
                 closure.Invoke();
                 return true;
             }, attempts);
         }
 
         /// <summary>
-        /// Executes a closure within a transaction
+        /// Re-runs a closure multiple times, whenever a write-write
+        /// conflict is thrown
         /// </summary>
-        /// <param name="closure">Closure to execute</param>
-        /// <param name="attempts">
-        /// Total number of attempts when deadlock causes the failure
-        /// </param>
-        public static T Transaction<T>(Func<T> closure, int attempts = 1)
+        public static T RetryOnConflict<T>(Func<T> closure, int attempts = 3)
         {
             if (closure == null)
                 throw new ArgumentNullException(nameof(closure));
             
             for (int attempt = 1; attempt <= attempts; attempt++)
             {
-                StartTransaction();
-
-                int currentTransactionLevel = TransactionLevel();
-
                 try
                 {
-                    var returnedValue = closure.Invoke();
-                    Commit();
-                    return returnedValue; // also breaks the attempt cycle
+                    return closure.Invoke();
                 }
-                catch (DatabaseDeadlockException)
+                catch (EntityRevConflictException)
                 {
-                    // deadlock goes through any nested transactions simply
-                    // because the database rolled back
-                    // all the nested transactions because that's what it does
-                    if (currentTransactionLevel != 1)
-                        throw;
-                    
-                    // ok, now we are on the top-level transaction
-                    // now we want to retry this transaction
-                    // unless attempts have been exhausted
-                    
-                    // attempts exhausted
                     if (attempt >= attempts)
                         throw;
-                    
-                    // retry transaction
-                    // (just let the for cycle repeat, so do nothing here)
-                }
-                catch
-                {
-                    // just kill it
-                    Rollback();
-                    throw;
                 }
             }
             

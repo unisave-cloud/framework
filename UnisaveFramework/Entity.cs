@@ -6,7 +6,9 @@ using LightJson;
 using Unisave.Arango;
 using Unisave.Contracts;
 using Unisave.Entities;
+using Unisave.Facades;
 using Unisave.Foundation;
+using UnityEngine.Experimental.PlayerLoop;
 
 namespace Unisave
 {
@@ -196,8 +198,93 @@ namespace Unisave
         
         #endregion
 
+        #region "Database operations"
+
+        /// <summary>
+        /// Obtains the entity manager used to access the database
+        /// (normally accessed via the Facade.App instance)
+        /// </summary>
+        protected virtual EntityManager GetEntityManager()
+        {
+            return Facade.App.Resolve<EntityManager>();
+        }
         
+        /// <summary>
+        /// Saves the entity state into the database
+        /// </summary>
+        /// <param name="carefully">Whether to check document revisions</param>
+        public virtual void Save(bool carefully = false)
+        {
+            if (EntityId == null)
+                Insert();
+            else
+                Update(carefully);
+        }
         
+        /// <summary>
+        /// Saves the entity into the database and performs revision checks
+        /// </summary>
+        /// <exception cref="EntityRevConflictException">
+        /// Entity in the database has been changed while we worked on our copy
+        /// </exception>
+        public void SaveCarefully() => Save(carefully: true);
+
+        /// <summary>
+        /// Inserts the entity into the database
+        /// </summary>
+        protected virtual void Insert()
+        {
+            var manager = GetEntityManager();
+            var attributes = GetAttributes();
+            var newAttributes = manager.Insert(attributes);
+            SetAttributes(newAttributes);
+        }
+
+        /// <summary>
+        /// Updates the entity inside the database
+        /// </summary>
+        /// <param name="carefully">Whether to check revisions</param>
+        protected virtual void Update(bool carefully)
+        {
+            var manager = GetEntityManager();
+            var attributes = GetAttributes();
+            var newAttributes = manager.Update(attributes, carefully);
+            SetAttributes(newAttributes);
+        }
+        
+        /// <summary>
+        /// Pulls the entity from the database again, to get fresh data
+        /// </summary>
+        public virtual void Refresh()
+        {
+            // nothing to refresh, it's not even saved yet
+            if (EntityId == null)
+                return;
+
+            var manager = GetEntityManager();
+            var newAttributes = manager.Find(EntityId);
+            SetAttributes(newAttributes);
+        }
+        
+        /// <summary>
+        /// Delete the entity from database
+        /// </summary>
+        public virtual void Delete(bool carefully = false)
+        {
+            // nothing to delete, it's not even saved yet
+            if (EntityId == null)
+                return;
+
+            var manager = GetEntityManager();
+            var attributes = GetAttributes();
+            manager.Delete(attributes, carefully);
+            
+            // clear metadata
+            EntityId = null;
+        }
+        
+        #endregion
+
         
         
         
@@ -237,90 +324,7 @@ namespace Unisave
 
             return entityType.Name;
         }
-
-        /// <summary>
-        /// Create or save entity into the database
-        /// New id for the entity will be generated and set
-        /// </summary>
-        public void Save()
-        {
-            var database = Application.Default.Resolve<IDatabase>();
-            
-            RawEntity raw = ToRawEntity();
-            database.SaveEntity(raw);
-            LoadRawEntity(raw, this); // id, updated_at, created_at
-        }
-
-        /// <summary>
-        /// Pulls the entity from the database again, to get fresh data
-        /// </summary>
-        public void Refresh()
-        {
-            var database = Application.Default.Resolve<IDatabase>();
-            
-            LoadRawEntity(
-                database.LoadEntity(EntityId),
-                this
-            );
-        }
-
-        /// <summary>
-        /// Pulls fresh entity data from database and locks the entity
-        /// for update, meaning that nobody else can modify or lock it.
-        ///
-        /// This method should be called inside a transaction.
-        /// </summary>
-        public void RefreshAndLockForUpdate()
-        {
-            var database = Application.Default.Resolve<IDatabase>();
-            
-            LoadRawEntity(
-                database.LoadEntity(EntityId, "for_update"),
-                this
-            );
-        }
         
-        /// <summary>
-        /// Pulls fresh entity data from database and locks the entity
-        /// in share mode, meaning that nobody else can modify it.
-        /// Others however can also lock it in share mode, but not for update.
-        ///
-        /// This method should be called inside a transaction.
-        /// </summary>
-        public void RefreshAndLockShared()
-        {
-            var database = Application.Default.Resolve<IDatabase>();
-            
-            LoadRawEntity(
-                database.LoadEntity(EntityId, "shared"),
-                this
-            );
-        }
-
-        /// <summary>
-        /// Delete the entity from database
-        /// </summary>
-        public bool Delete()
-        {
-            var database = Application.Default.Resolve<IDatabase>();
-            
-            bool result = database.DeleteEntity(EntityId);
-            
-            // deletion clears all the metadata (but not the actual data)
-            EntityId = null;
-
-            return result;
-        }
-
-        /// <summary>
-        /// Converts the entity to a raw representation,
-        /// that is used in the lower levels of the framework
-        /// </summary>
-        protected RawEntity ToRawEntity()
-        {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         /// Loads data from raw entity into an entity instance
         /// </summary>
