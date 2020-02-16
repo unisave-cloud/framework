@@ -124,8 +124,8 @@ namespace Unisave.Arango.Emulation
             }
             
             // validate revision
-            bool checkRevs = options["checkRevs"].IsBoolean
-                             && options["checkRevs"].AsBoolean;
+            bool checkRevs = options["ignoreRevs"].IsBoolean
+                             && !options["ignoreRevs"].AsBoolean;
             if (checkRevs
                 && oldDocument["_rev"].AsString != document["_rev"].AsString)
             {
@@ -169,8 +169,8 @@ namespace Unisave.Arango.Emulation
             }
             
             // validate revision
-            bool checkRevs = options["checkRevs"].IsBoolean
-                             && options["checkRevs"].AsBoolean;
+            bool checkRevs = options["ignoreRevs"].IsBoolean
+                             && !options["ignoreRevs"].AsBoolean;
             if (checkRevs
                 && oldDocument["_rev"].AsString != rev)
             {

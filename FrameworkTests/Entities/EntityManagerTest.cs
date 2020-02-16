@@ -35,18 +35,24 @@ namespace FrameworkTests.Entities
 
             players.Add(@"{
                 '_key': 'john',
-                'Name': 'John Doe'
+                'Name': 'John Doe',
+                'CreatedAt': '2020-02-16T14:18:00',
+                'UpdatedAt': '2020-02-16T14:18:00'
             }");
             
             players.Add(@"{
                 '_key': 'peter',
-                'Name': 'Peter'
+                'Name': 'Peter',
+                'CreatedAt': '2020-02-16T14:18:00',
+                'UpdatedAt': '2020-02-16T14:18:00'
             }");
             
             motorbikes.Add(@"{
                 '_key': 'john',
                 'Name': 'John-deer',
-                'Model': 'latest'
+                'Model': 'latest',
+                'CreatedAt': '2020-02-16T14:18:00',
+                'UpdatedAt': '2020-02-16T14:18:00'
             }");
         }
         
@@ -155,6 +161,150 @@ namespace FrameworkTests.Entities
                 arango
                     .Collections["entities_NewEntity"]
                     .Any(d => d["Name"] == "George")
+            );
+        }
+
+        [Test]
+        public void ItCanUpdateEntity()
+        {
+            Assert.AreEqual(
+                "John Doe",
+                manager.Find("PlayerEntity", "john")["Name"].AsString
+            );
+            
+            manager.Update(new JsonObject()
+                .Add("$type", "PlayerEntity")
+                .Add("Name", "Johnny")
+                .Add("Foo", "bar")
+                .Add("_key", "john")
+                .Add("_id", "entities_PlayerEntity/john")
+                .Add("_rev", "123456789")
+                // rev does not match, but we're not careful
+            );
+
+            Assert.AreEqual(
+                "Johnny",
+                manager.Find("PlayerEntity", "john")["Name"].AsString
+            );
+            
+            Assert.AreEqual(
+                "bar",
+                manager.Find("PlayerEntity", "john")["Foo"].AsString
+            );
+        }
+
+        [Test]
+        public void UpdatingInNonExistingCollectionThrows()
+        {
+            Assert.Throws<EntityPersistenceException>(() => {
+                manager.Update(new JsonObject()
+                    .Add("$type", "NonExistingEntity")
+                    .Add("_key", "john")
+                    .Add("Name", "Johnny")
+                );
+            });
+        }
+
+        [Test]
+        public void UpdatingNonExistingEntityThrows()
+        {
+            Assert.Throws<EntityPersistenceException>(() => {
+                manager.Update(new JsonObject()
+                    .Add("$type", "PlayerEntity")
+                    .Add("_key", "jim")
+                    .Add("Name", "Jimmy")
+                );
+            });
+        }
+
+        [Test]
+        public void UpdatingUpdatesTimestamp()
+        {
+            JsonObject john = manager.Find("PlayerEntity", "john");
+            DateTime createdAt = john["CreatedAt"];
+            DateTime updatedAt = john["UpdatedAt"];
+
+            manager.Update(new JsonObject()
+                .Add("$type", "PlayerEntity")
+                .Add("_key", "john")
+                .Add("Name", "Johnny")
+            );
+            
+            john = manager.Find("PlayerEntity", "john");
+            
+            Assert.AreEqual(createdAt, john["CreatedAt"].AsDateTime);
+            Assert.AreNotEqual(updatedAt, john["UpdatedAt"].AsDateTime);
+        }
+
+        [Test]
+        public void UpdatedEntityHasToHaveKey()
+        {
+            Assert.Throws<ArgumentException>(() => {
+                manager.Update(new JsonObject()
+                    .Add("$type", "PlayerEntity")
+                    .Add("Name", "Johnny")
+                );
+            });
+        }
+        
+        [Test]
+        public void UpdatedEntityHasToHaveType()
+        {
+            Assert.Throws<ArgumentException>(() => {
+                manager.Update(new JsonObject()
+                    .Add("_key", "john")
+                    .Add("Name", "Johnny")
+                );
+            });
+        }
+
+        [Test]
+        public void ItCanUpdateCarefully()
+        {
+            Assert.AreEqual(
+                "John Doe",
+                manager.Find("PlayerEntity", "john")["Name"].AsString
+            );
+            
+            var rev = manager.Find("PlayerEntity", "john")["_rev"].AsString;
+            
+            manager.Update(
+                new JsonObject()
+                    .Add("$type", "PlayerEntity")
+                    .Add("_key", "john")
+                    .Add("_rev", rev)
+                    .Add("Name", "Johnny"),
+                carefully: true
+            );
+            
+            Assert.AreEqual(
+                "Johnny",
+                manager.Find("PlayerEntity", "john")["Name"].AsString
+            );
+        }
+
+        [Test]
+        public void UpdatingCarefullyChecksRevisions()
+        {
+            Assert.AreEqual(
+                "John Doe",
+                manager.Find("PlayerEntity", "john")["Name"].AsString
+            );
+            
+            Assert.Throws<EntityRevConflictException>(() => {
+                manager.Update(
+                    new JsonObject()
+                        .Add("$type", "PlayerEntity")
+                        .Add("_key", "john")
+                        .Add("_rev", "123456789")
+                        .Add("Name", "Johnny"),
+                    carefully: true
+                );
+            });
+            
+            Assert.AreEqual(
+                "John Doe",
+                manager.Find("PlayerEntity", "john")["Name"].AsString
             );
         }
     }

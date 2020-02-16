@@ -79,7 +79,7 @@ namespace Unisave.Entities
             
             if (!string.IsNullOrEmpty(entity["_key"]))
                 throw new ArgumentException(
-                    "Provided entity already exists, so cannot be inserted"
+                    "Provided entity has already been inserted"
                 );
             
             try
@@ -123,7 +123,74 @@ namespace Unisave.Entities
 
             return newEntity;
         }
+
+        /// <summary>
+        /// Updates the entity in the database and returns the updated entity
+        /// Careful insert checks revisions to detect write-write conflicts
+        /// </summary>
+        public JsonObject Update(JsonObject entity, bool carefully = false)
+        {
+            string type = entity["$type"].AsString;
+            
+            if (string.IsNullOrEmpty(type))
+                throw new ArgumentException("Provided entity has no '$type'");
+
+            string key = entity["_key"].AsString;
+            
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentException(
+                    "Provided entity has not been inserted yet"
+                );
+            
+            try
+            {
+                JsonObject oldDocument = Find(type, key);
+                
+                if (oldDocument == null)
+                    throw new ArangoException(404, 1202, "document not found");
+                
+                JsonObject newDocument = JsonReader.Parse(entity.ToString());
+                
+                // don't store entity type
+                newDocument.Remove("$type");
+            
+                // set timestamps
+                newDocument["CreatedAt"] = oldDocument["CreatedAt"];
+                newDocument["UpdatedAt"] = DateTime.UtcNow;
+                
+                var newEntity = arango.ExecuteAqlQuery(new AqlQuery()
+                    .Replace(() => newDocument)
+                    .CheckRevs(carefully)
+                    .In(CollectionPrefix + type)
+                    .Return("NEW")
+                ).First().AsJsonObject;
+                
+                // add entity type to the object
+                newEntity["$type"] = type;
+
+                return newEntity;
+            }
+            catch (ArangoException e)
+            {
+                if (e.ErrorNumber == 1203) // collection not found
+                    throw new EntityPersistenceException(
+                        "Entity has not yet been inserted, or already deleted"
+                    );
+                
+                if (e.ErrorNumber == 1202) // document not found
+                    throw new EntityPersistenceException(
+                        "Entity has not yet been inserted, or already deleted"
+                    );
+                
+                if (e.ErrorNumber == 1200) // conflict
+                    throw new EntityRevConflictException(
+                        "Entity has been modified since the last refresh"
+                    );
+
+                throw;
+            }
+        }
         
-        // TODO: save, saveCarefully, delete, deleteCarefully
+        // TODO: delete, deleteCarefully
     }
 }
