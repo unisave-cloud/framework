@@ -34,7 +34,7 @@ namespace Unisave.Entities
         /// <summary>
         /// Find entity by its ID
         /// </summary>
-        public JsonObject Find(string entityId)
+        public virtual JsonObject Find(string entityId)
         {
             try
             {
@@ -64,13 +64,13 @@ namespace Unisave.Entities
         /// <summary>
         /// Find entity by type and key
         /// </summary>
-        public JsonObject Find(string entityType, string entityKey)
+        public virtual JsonObject Find(string entityType, string entityKey)
             => Find(CollectionPrefix + entityType + "/" + entityKey);
         
         /// <summary>
         /// Insert a new entity into the database and return the modified entity
         /// </summary>
-        public JsonObject Insert(JsonObject entity)
+        public virtual JsonObject Insert(JsonObject entity)
         {
             string type = entity["$type"].AsString;
             
@@ -128,7 +128,10 @@ namespace Unisave.Entities
         /// Updates the entity in the database and returns the updated entity
         /// Careful insert checks revisions to detect write-write conflicts
         /// </summary>
-        public JsonObject Update(JsonObject entity, bool carefully = false)
+        public virtual JsonObject Update(
+            JsonObject entity,
+            bool carefully = false
+        )
         {
             string type = entity["$type"].AsString;
             
@@ -195,7 +198,7 @@ namespace Unisave.Entities
         /// Deletes an entity
         /// Careful deletes check revisions
         /// </summary>
-        public void Delete(JsonObject entity, bool carefully = false)
+        public virtual void Delete(JsonObject entity, bool carefully = false)
         {
             string type = entity["$type"].AsString;
             

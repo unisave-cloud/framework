@@ -27,7 +27,7 @@ namespace Unisave.Foundation
         {
             ServiceProvider[] providers = {
                 new SessionServiceProvider(this),
-                new DatabaseServiceProvider(this),
+                new EntityServiceProvider(this),
                 new ArangoServiceProvider(this),
                 new AuthServiceProvider(this), 
             };

@@ -12,6 +12,7 @@ namespace Unisave
     /// <summary>
     /// Facade for accessing database entities
     /// </summary>
+    [Obsolete]
     public static class GetEntity<E> where E : Entity, new()
     {
         public static IEnumerable<E> Get() // for entities belonging to the game

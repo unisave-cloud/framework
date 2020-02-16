@@ -1,12 +1,10 @@
 using System;
 using Unisave.Contracts;
-using Unisave.Database;
+using Unisave.Entities;
+using Unisave.Entities.Query;
 using Unisave.Exceptions;
-using Unisave.Facades;
-using Unisave.Foundation;
-using Unisave.Services;
 
-namespace Unisave
+namespace Unisave.Facades
 {
     /// <summary>
     /// Facade for working with the database
@@ -14,6 +12,47 @@ namespace Unisave
     // ReSharper disable once InconsistentNaming
     public static class DB
     {
+        private static IArango GetArango()
+        {
+            return Facade.App.Resolve<IArango>();
+        }
+
+        private static EntityManager GetEntityManager()
+        {
+            return Facade.App.Resolve<EntityManager>();
+        }
+        
+        /// <summary>
+        /// Finds a single entity of given type
+        /// </summary>
+        public static TEntity Find<TEntity>(string entityId)
+            where TEntity : Entity
+        {
+            return (TEntity) Entity.FromJson(
+                GetEntityManager().Find(entityId),
+                typeof(TEntity)
+            );
+        }
+        
+        /// <summary>
+        /// Starts a query on all entities of a given type
+        /// </summary>
+        public static EntityQuery<TEntity> TakeAll<TEntity>()
+            where TEntity : Entity
+        {
+            return new EntityQuery<TEntity>(GetArango());
+        }
+
+        
+        
+        
+        // ============= OLD CODE =================
+        
+        
+        
+        
+        
+        
         private static IDatabase GetDatabase()
         {
             return Facade.App.Resolve<IDatabase>();
