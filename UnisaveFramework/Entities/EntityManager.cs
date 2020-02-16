@@ -190,7 +190,52 @@ namespace Unisave.Entities
                 throw;
             }
         }
-        
-        // TODO: delete, deleteCarefully
+
+        /// <summary>
+        /// Deletes an entity
+        /// Careful deletes check revisions
+        /// </summary>
+        public void Delete(JsonObject entity, bool carefully = false)
+        {
+            string type = entity["$type"].AsString;
+            
+            if (string.IsNullOrEmpty(type))
+                throw new ArgumentException("Provided entity has no '$type'");
+
+            string key = entity["_key"].AsString;
+            
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentException(
+                    "Provided entity has not been inserted yet"
+                );
+            
+            try
+            {
+                arango.ExecuteAqlQuery(new AqlQuery()
+                    .Remove(() => entity)
+                    .CheckRevs(carefully)
+                    .In(CollectionPrefix + type)
+                );
+            }
+            catch (ArangoException e)
+            {
+                if (e.ErrorNumber == 1203) // collection not found
+                    throw new EntityPersistenceException(
+                        "Entity has not yet been inserted, or already deleted"
+                    );
+                
+                if (e.ErrorNumber == 1202) // document not found
+                    throw new EntityPersistenceException(
+                        "Entity has not yet been inserted, or already deleted"
+                    );
+                
+                if (e.ErrorNumber == 1200) // conflict
+                    throw new EntityRevConflictException(
+                        "Entity has been modified since the last refresh"
+                    );
+                
+                throw;
+            }
+        }
     }
 }

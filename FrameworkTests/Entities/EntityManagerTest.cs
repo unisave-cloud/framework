@@ -307,5 +307,99 @@ namespace FrameworkTests.Entities
                 manager.Find("PlayerEntity", "john")["Name"].AsString
             );
         }
+
+        [Test]
+        public void ItCanDelete()
+        {
+            Assert.IsNotNull(manager.Find("PlayerEntity", "john"));
+            
+            manager.Delete(new JsonObject()
+                .Add("$type", "PlayerEntity")
+                .Add("_key", "john")
+                .Add("_rev", "123456789") // should be ignored
+                .Add("Foo", "bar")
+                .Add("Name", "John Doe")
+            );
+            
+            Assert.IsNull(manager.Find("PlayerEntity", "john"));
+        }
+
+        [Test]
+        public void DeletingNonExistingCollectionThrows()
+        {
+            Assert.Throws<EntityPersistenceException>(() => {
+                manager.Delete(new JsonObject()
+                    .Add("$type", "NonExistingEntity")
+                    .Add("_key", "john")
+                    .Add("Foo", "bar")
+                    .Add("Name", "John Doe")
+                );
+            });
+        }
+
+        [Test]
+        public void DeletingNonExistingEntityThrows()
+        {
+            Assert.Throws<EntityPersistenceException>(() => {
+                manager.Delete(new JsonObject()
+                    .Add("$type", "PlayerEntity")
+                    .Add("_key", "jim")
+                    .Add("Name", "Jimmy")
+                );
+            });
+        }
+
+        [Test]
+        public void DeletedEntityHasToHaveType()
+        {
+            Assert.Throws<ArgumentException>(() => {
+                manager.Delete(new JsonObject()
+                    .Add("_key", "john")
+                );
+            });
+        }
+
+        [Test]
+        public void DeletedEntityHasToHaveKey()
+        {
+            Assert.Throws<ArgumentException>(() => {
+                manager.Delete(new JsonObject()
+                    .Add("$type", "PlayerEntity")
+                );
+            });
+        }
+
+        [Test]
+        public void ItCanDeleteCarefully()
+        {
+            Assert.IsNotNull(manager.Find("PlayerEntity", "john"));
+            string rev = manager.Find("PlayerEntity", "john")["_rev"];
+            
+            manager.Delete(
+                new JsonObject()
+                    .Add("$type", "PlayerEntity")
+                    .Add("_key", "john")
+                    .Add("_rev", rev)
+                    .Add("Name", "John Doe"),
+                carefully: true
+            );
+            
+            Assert.IsNull(manager.Find("PlayerEntity", "john"));
+        }
+
+        [Test]
+        public void DeletingCarefullyChecksRevisions()
+        {
+            Assert.Throws<EntityRevConflictException>(() => {
+                manager.Delete(
+                    new JsonObject()
+                        .Add("$type", "PlayerEntity")
+                        .Add("_key", "john")
+                        .Add("_rev", "123456789")
+                        .Add("Name", "John Doe"),
+                    carefully: true
+                );
+            });
+        }
     }
 }
