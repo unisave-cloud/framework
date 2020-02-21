@@ -83,7 +83,6 @@
     <Compile Include="Authentication\Authenticate.cs" />
     <Compile Include="Authentication\AuthenticationManager.cs" />
     <Compile Include="Contracts\IArango.cs" />
-    <Compile Include="Contracts\IDatabase.cs" />
     <Compile Include="Contracts\ISession.cs" />
     <Compile Include="Entities\AttributeMapping.cs" />
     <Compile Include="Entities\Entity.cs" />
@@ -111,13 +110,6 @@
     <Compile Include="Modules\Matchmaking\BasicMatchmakerFacet.cs" />
     <Compile Include="Modules\Matchmaking\BasicMatchmakerTicket.cs" />
     <Compile Include="Modules\Matchmaking\Exceptions\UnknownPlayerPollingException.cs" />
-    <Compile Include="Database\EntityOwnerIds.cs" />
-    <Compile Include="Database\EntityOwners.cs" />
-    <Compile Include="Database\JsonPath.cs" />
-    <Compile Include="Database\Query\BasicWhereClause.cs" />
-    <Compile Include="Database\Query\EntityQuery.cs" />
-    <Compile Include="Database\Query\QueryBuilder.cs" />
-    <Compile Include="Database\Query\WhereClause.cs" />
     <Compile Include="Exceptions\DatabaseDeadlockException.cs" />
     <Compile Include="Facades\DB.cs" />
     <Compile Include="FrameworkMeta.cs" />
@@ -131,11 +123,8 @@
     <Compile Include="Runtime\ExecutionParameters.cs" />
     <Compile Include="Runtime\Kernels\FacetCallKernel.cs" />
     <Compile Include="Runtime\Methods\EntrypointTest.cs" />
-    <Compile Include="Runtime\Methods\MigrationCall.cs" />
-    <Compile Include="Runtime\Methods\PlayerRegistrationHookCall.cs" />
     <Compile Include="Runtime\SandboxApi.cs" />
     <Compile Include="Runtime\SpecialValues.cs" />
-    <Compile Include="Services\SandboxDatabaseApi.cs" />
     <Compile Include="Sessions\InMemorySessionStorage.cs" />
     <Compile Include="Sessions\ISessionStorage.cs" />
     <Compile Include="Sessions\SandboxApiSessionStorage.cs" />
@@ -151,13 +140,10 @@
     <Compile Include="Testing\BasicBackendTestCase.MakesAssertions.cs">
       <DependentUpon>BasicBackendTestCase.cs</DependentUpon>
     </Compile>
-    <Compile Include="UnisavePlayer.cs" />
     <Compile Include="Exceptions\UnisaveException.cs" />
     <Compile Include="Exceptions\InstantiationException.cs" />
     <Compile Include="Exceptions\FacetSearchException.cs" />
     <Compile Include="Exceptions\MethodSearchException.cs" />
-    <Compile Include="Database\RawEntity.cs" />
-    <Compile Include="Facades\GetEntity.cs" />
     <Compile Include="Utils\ExecutionHelper.cs" />
     <Compile Include="Utils\Str.cs" />
     <Compile Include="Serialization\SerializationParams.cs" />
@@ -165,10 +151,8 @@
     <Compile Include="Exceptions\ConnectionEndedException.cs" />
     <Compile Include="CustomAttributes.cs" />
     <Compile Include="Runtime\Entrypoint.cs" />
-    <Compile Include="Migration.cs" />
     <Compile Include="Exceptions\GameScriptException.cs" />
     <Compile Include="Exceptions\InvalidMethodParametersException.cs" />
-    <Compile Include="PlayerRegistrationHook.cs" />
     <Compile Include="Exceptions\ExecutionSerializationException.cs" />
     <Compile Include="Serialization\Serializer.cs" />
     <Compile Include="Serialization\ITypeSerializer.cs" />
@@ -195,7 +179,6 @@
     <Folder Include="Serialization\" />
     <Folder Include="Runtime\" />
     <Folder Include="Exceptions\" />
-    <Folder Include="Database\" />
     <Folder Include="Facades\" />
     <Folder Include="Utils\" />
     <Folder Include="Exceptions\ServerConnection\" />

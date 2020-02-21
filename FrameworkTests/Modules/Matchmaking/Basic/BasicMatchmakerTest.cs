@@ -46,6 +46,14 @@ namespace FrameworkTests.Modules.Matchmaking.Basic
         }
 
         [Test]
+        public void MatchmakerHasToSetEntityRelations()
+        {
+            // see the TODOs below and inside the matchmaker facet
+            // (this test method is just not to forget, delete it)
+            throw new NotImplementedException();
+        }
+
+        [Test]
         public void TicketCanBeInserted()
         {
             ActingAs(john);

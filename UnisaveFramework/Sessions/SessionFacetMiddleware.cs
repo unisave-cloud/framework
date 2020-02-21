@@ -2,7 +2,6 @@ using System;
 using Unisave.Contracts;
 using Unisave.Facets;
 using Unisave.Foundation;
-using Unisave.Services;
 
 namespace Unisave.Sessions
 {

@@ -3,7 +3,6 @@ using System.Linq;
 using System.Reflection;
 using LightJson;
 using Unisave.Arango;
-using Unisave.Database;
 using Unisave.Facades;
 
 namespace Unisave.Entities
@@ -283,66 +282,5 @@ namespace Unisave.Entities
         }
         
         #endregion
-
-        
-        
-        
-        
-        // OLD CODE =========================================
-        
-        
-        
-        
-        
-
-        /// <summary>
-        /// Players that own this entity
-        /// </summary>
-        public EntityOwners Owners { get; private set; } = new EntityOwners(
-            isComplete: true // assume a new entity is being created
-        );
-
-        /// <summary>
-        /// Extracts database entity type from a c# entity type
-        /// </summary>
-        public static string GetEntityType<T>() where T : Entity
-        {
-            return GetEntityType(typeof(T));
-        }
-
-        /// <summary>
-        /// Extracts database entity type from a c# entity type
-        /// </summary>
-        public static string GetEntityType(Type entityType)
-        {
-            if (!typeof(Entity).IsAssignableFrom(entityType))
-                throw new ArgumentException(
-                    "Provided type is not an entity type.",
-                    nameof(entityType)
-                );
-
-            return entityType.Name;
-        }
-        
-        /// <summary>
-        /// Loads data from raw entity into an entity instance
-        /// </summary>
-        private static void LoadRawEntity(RawEntity raw, Entity targetInstance)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Creates entity from a raw entity instance
-        /// </summary>
-        public static Entity FromRawEntity(RawEntity raw, Type entityType)
-        {
-            if (raw == null)
-                return null;
-
-            Entity entityInstance = CreateInstance(entityType);
-            LoadRawEntity(raw, entityInstance);
-            return entityInstance;
-        }
     }
 }

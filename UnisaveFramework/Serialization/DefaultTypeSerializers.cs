@@ -31,15 +31,6 @@ namespace Unisave.Serialization
                 new ExceptionSerializer()
             );
 
-            Serializer.SetExactTypeSerializer(typeof(UnisavePlayer), new LambdaTypeSerializer()
-                .ToJson((subject) => {
-                    return (JsonValue)((UnisavePlayer)subject).Id;
-                })
-                .FromJson((json, type) => {
-                    return new UnisavePlayer(json.AsString);
-                })
-            );
-
             Serializer.SetAssignableTypeSerializer(typeof(Entity), new LambdaTypeSerializer()
                 .ToJson((subject) => {
                     return ((Entity)subject).ToJson();

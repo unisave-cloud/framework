@@ -31,7 +31,8 @@ namespace Unisave.Entities.Query
             var query = new EntityQuery<TEntity>(arango);
             
             query.Query.For("entity").In(
-                EntityManager.CollectionPrefix + Entity.GetEntityType<TEntity>()
+                EntityManager.CollectionPrefix
+                    + EntityUtils.GetEntityType(typeof(TEntity))
             ).Do();
             
             return query;

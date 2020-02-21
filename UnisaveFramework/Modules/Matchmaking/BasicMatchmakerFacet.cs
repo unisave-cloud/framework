@@ -336,12 +336,13 @@ namespace Unisave.Modules.Matchmaking
                 );
             
             // cannot start match that has some owners
-            if (match.Owners.Count != 0)
-                throw new ArgumentException(
-                    "Match entity already has some owners. " +
-                    "They will be added automatically, don't add them yourself.",
-                    nameof(match)
-                );
+            // TODO: turn this into relations
+//            if (match.Owners.Count != 0)
+//                throw new ArgumentException(
+//                    "Match entity already has some owners. " +
+//                    "They will be added automatically, don't add them yourself.",
+//                    nameof(match)
+//                );
             
             foreach (var ticket in selectedTickets)
             {

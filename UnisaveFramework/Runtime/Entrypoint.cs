@@ -166,18 +166,6 @@ namespace Unisave.Runtime
                         .Parse(executionParameters.MethodParameters);
                     return kernel.Handle(parameters);
 
-                case "migration":
-                    return MigrationCall.Start(
-                        executionParameters.MethodParameters,
-                        app.GameAssemblyTypes
-                    );
-
-                case "player-registration-hook":
-                    return PlayerRegistrationHookCall.Start(
-                        executionParameters.MethodParameters,
-                        app.GameAssemblyTypes
-                    );
-
                 default:
                     throw new UnisaveException(
                         "UnisaveFramework: Unknown execution method: "

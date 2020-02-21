@@ -3,6 +3,8 @@ using Unisave.Runtime;
 
 namespace Unisave.Sessions
 {
+    // TODO: replace this with session over IArango
+    
     public class SandboxApiSessionStorage : ISessionStorage
     {
         private readonly ApiChannel channel;
