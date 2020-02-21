@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using LightJson;
 using Unisave.Exceptions;
+using Unisave.Facets;
 using Unisave.Serialization;
 
 namespace Unisave.Utils
@@ -209,6 +211,33 @@ namespace Unisave.Utils
                     "Exception occured when serializing value returned from "
                     + $"'{methodInfo.DeclaringType?.Name}.{methodInfo.Name}'", e
                 );
+            }
+        }
+
+        /// <summary>
+        /// Invokes method via method info with transparent
+        /// exception propagation
+        /// </summary>
+        public static object InvokeMethodInfo(
+            MethodInfo method,
+            object target,
+            object[] arguments
+        )
+        {
+            try
+            {
+                return method.Invoke(
+                    target,
+                    arguments
+                );
+            }
+            catch (TargetInvocationException e)
+            {
+                if (e.InnerException == null)
+                    throw;
+                        
+                ExceptionDispatchInfo.Capture(e.InnerException).Throw();
+                throw;
             }
         }
     }

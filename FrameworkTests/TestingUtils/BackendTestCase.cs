@@ -24,6 +24,8 @@ namespace FrameworkTests.TestingUtils
         protected void SetUpEnv(Env env)
         {
             env["SESSION_DRIVER"] = "memory";
+            
+            env["ARANGO_DRIVER"] = "memory";
         }
         
         [TearDown]

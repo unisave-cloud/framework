@@ -1,106 +1,108 @@
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using FrameworkTests.TestingUtils;
 using NUnit.Framework;
 using Unisave;
-using Unisave.Contracts;
+using Unisave.Arango.Expressions;
+using Unisave.Facades;
 using Unisave.Modules.Matchmaking;
 using Unisave.Modules.Matchmaking.Exceptions;
-using Unisave.Database;
-using Unisave.Entities;
-using Unisave.Foundation;
-using Unisave.Services;
+using Unisave.Serialization;
 
 namespace FrameworkTests.Modules.Matchmaking.Basic
 {
     [TestFixture]
-    public class BasicMatchmakerTest
+    public class BasicMatchmakerTest : BackendTestCase
     {
-        private InMemoryDatabase database;
-        private UnisavePlayer john, peter;
-        private OnFacet<MatchmakerFacet> facet;
+        private BmPlayerEntity john, peter;
         
         [SetUp]
         public void SetUp()
         {
-            database = new InMemoryDatabase();
-
-            // mock database
-            //Application.Default = new Application(); // TODO HACK
-            Application.Default.Instance<IDatabase>(database);
-            
             // populate database
-            john = new UnisavePlayer(database.AddPlayer("john@doe.com"));
-            peter = new UnisavePlayer(database.AddPlayer("peter@doe.com"));
-            
-            // prepare facet calls
-            facet = OnFacet<MatchmakerFacet>
-                .AsPlayer(john)
-                .WithTypes(typeof(MatchmakerFacet));
+            john = new BmPlayerEntity { Name = "John" };
+            peter = new BmPlayerEntity { Name = "Pater" };
+            john.Save();
+            peter.Save();
 
             // match pairs by default
-            MatchmakerFacet.matching = "pairs";
+            BmMatchmakerFacet.matching = "pairs";
         }
 
         private BasicMatchmakerEntity CreateEntity()
         {
             var entity = new BasicMatchmakerEntity {
-                MatchmakerName = typeof(MatchmakerFacet).Name
+                MatchmakerName = typeof(BmMatchmakerFacet).Name
             };
             entity.Save();
             return entity;
         }
-        
+
+        [Test]
+        public void PlayerHasToBeAuthorizedToInsertTicket()
+        {
+            throw new NotImplementedException();
+            //Assert.Throws<AuthenticationException>()
+        }
+
         [Test]
         public void TicketCanBeInserted()
         {
-            var ticket = new MatchmakerTicket(john);
-            facet.Call("JoinMatchmaker", ticket);
+            ActingAs(john);
+            var ticket = new BmMatchmakerTicket(john.EntityId);
+            OnFacet<BmMatchmakerFacet>().CallSync("JoinMatchmaker", ticket);
 
-            // fix ticket preprocessing
+            // ticket will be modified by preprocessing,
+            // so make sure it matches in the assertion below
             ticket.someValue = 42;
 
-            var entity = GetEntity<BasicMatchmakerEntity>.First();
+            var entity = DB.First<BasicMatchmakerEntity>();
             UAssert.AreJsonEqual(ticket, entity.Tickets[0]);
         }
         
         [Test]
         public void NullTicketOwnerGetsSetToTheCaller()
         {
-            var ticket = new MatchmakerTicket();
-            facet.Call("JoinMatchmaker", ticket);
+            ActingAs(john);
+            var ticket = new BmMatchmakerTicket();
+            OnFacet<BmMatchmakerFacet>().CallSync("JoinMatchmaker", ticket);
 
-            var entity = GetEntity<BasicMatchmakerEntity>.First();
+            var entity = DB.First<BasicMatchmakerEntity>();
             Assert.AreEqual(
-                john,
-                entity.DeserializeTickets<MatchmakerTicket>()[0].Player
+                john.EntityId,
+                entity.DeserializeTickets<BmMatchmakerTicket>()[0].PlayerId
             );
         }
 
         [Test]
         public void TicketPreparationGetsCalled()
         {
-            facet.Call("JoinMatchmaker", new MatchmakerTicket());
+            ActingAs(john);
+            OnFacet<BmMatchmakerFacet>().CallSync(
+                "JoinMatchmaker", new BmMatchmakerTicket()
+            );
 
-            var entity = GetEntity<BasicMatchmakerEntity>.First();
+            var entity = DB.First<BasicMatchmakerEntity>();
             Assert.AreEqual(
                 42,
-                entity.DeserializeTickets<MatchmakerTicket>()[0].someValue
+                entity.DeserializeTickets<BmMatchmakerTicket>()[0].someValue
             );
         }
 
         [Test]
         public void InsertingAlreadyInsertedTicketDoesNotDuplicateIt()
         {
+            ActingAs(john);
+            
             // insert once
-            var ticket = new MatchmakerTicket(john);
-            facet.Call("JoinMatchmaker", ticket);
+            var ticket = new BmMatchmakerTicket(john.EntityId);
+            OnFacet<BmMatchmakerFacet>().CallSync("JoinMatchmaker", ticket);
             
             // insert twice
-            facet.Call("JoinMatchmaker", ticket);
+            OnFacet<BmMatchmakerFacet>().CallSync("JoinMatchmaker", ticket);
             
             // check only once
-            var entity = GetEntity<BasicMatchmakerEntity>.First();
+            var entity = DB.First<BasicMatchmakerEntity>();
             Assert.AreEqual(1, entity.Tickets.Count);
         }
 
@@ -109,13 +111,14 @@ namespace FrameworkTests.Modules.Matchmaking.Basic
         {
             var entity = CreateEntity();
             entity.Notifications.Add(new BasicMatchmakerEntity.Notification {
-                player = john,
+                playerId = john.EntityId,
                 matchId = "some-match-id"
             });
             entity.Save();
             
-            var ticket = new MatchmakerTicket(john);
-            facet.Call("JoinMatchmaker", ticket);
+            var ticket = new BmMatchmakerTicket(john.EntityId);
+            ActingAs(john);
+            OnFacet<BmMatchmakerFacet>().CallSync("JoinMatchmaker", ticket);
             
             entity.Refresh();
             Assert.IsEmpty(entity.Notifications);
@@ -124,16 +127,17 @@ namespace FrameworkTests.Modules.Matchmaking.Basic
         [Test]
         public void DeprecatedEntityGetsRecreated()
         {
-            var entity = new BasicMatchmakerEntity() {
+            var entity = new BasicMatchmakerEntity {
                 Version = -1,
-                MatchmakerName = typeof(MatchmakerFacet).Name
+                MatchmakerName = typeof(BmMatchmakerFacet).Name
             };
             entity.Save();
+
+            ActingAs(john);
+            var ticket = new BmMatchmakerTicket(john.EntityId);
+            OnFacet<BmMatchmakerFacet>().CallSync("JoinMatchmaker", ticket);
             
-            var ticket = new MatchmakerTicket(john);
-            facet.Call("JoinMatchmaker", ticket);
-            
-            var newEntity = GetEntity<BasicMatchmakerEntity>.First();
+            var newEntity = DB.First<BasicMatchmakerEntity>();
             Assert.AreNotEqual(entity.EntityId, newEntity.EntityId);
         }
 
@@ -142,21 +146,27 @@ namespace FrameworkTests.Modules.Matchmaking.Basic
         {
             var entity = CreateEntity();
             // start waiting to prevent exception from being thrown
-            facet.Call("JoinMatchmaker", new MatchmakerTicket(john));
+            ActingAs(john);
+            OnFacet<BmMatchmakerFacet>().CallSync(
+                "JoinMatchmaker", new BmMatchmakerTicket(john.EntityId)
+            );
             
-            var match = facet.Call<MatchEntity>("PollMatchmaker", false);
+            var match = OnFacet<BmMatchmakerFacet>().CallSync<BmMatchEntity>(
+                "PollMatchmaker", false
+            );
             Assert.IsNull(match);
             
-            match = new MatchEntity();
+            match = new BmMatchEntity();
             match.Save();
             entity.Refresh();
             entity.Notifications.Add(new BasicMatchmakerEntity.Notification {
-                player = john,
+                playerId = john.EntityId,
                 matchId = match.EntityId
             });
             entity.Save();
             
-            var polledMatch = facet.Call<MatchEntity>("PollMatchmaker", false);
+            var polledMatch = OnFacet<BmMatchmakerFacet>()
+                .CallSync<BmMatchEntity>("PollMatchmaker", false);
             Assert.IsNotNull(polledMatch);
             Assert.AreEqual(match.EntityId, polledMatch.EntityId);
         }
@@ -164,21 +174,29 @@ namespace FrameworkTests.Modules.Matchmaking.Basic
         [Test]
         public void PollingWhenNotWaitingThrows()
         {
+            ActingAs(john);
+            
             Assert.Catch<UnknownPlayerPollingException>(() => {
-                facet.Call<MatchEntity>("PollMatchmaker", false);
+                OnFacet<BmMatchmakerFacet>()
+                    .CallSync<BmMatchEntity>("PollMatchmaker", false);
             });
         }
 
         [Test]
         public void PlayerCanLeaveTheMatchmaker()
         {
+            ActingAs(john);
+            
             var entity = CreateEntity();
-            facet.Call("JoinMatchmaker", new MatchmakerTicket(john));
+            OnFacet<BmMatchmakerFacet>().CallSync(
+                "JoinMatchmaker", new BmMatchmakerTicket(john.EntityId)
+            );
             
             entity.Refresh();
             Assert.IsNotEmpty(entity.Tickets);
             
-            var polledMatch = facet.Call<MatchEntity>("PollMatchmaker", true);
+            var polledMatch = OnFacet<BmMatchmakerFacet>()
+                .CallSync<BmMatchEntity>("PollMatchmaker", true);
             Assert.IsNull(polledMatch);
             
             entity.Refresh();
@@ -188,22 +206,27 @@ namespace FrameworkTests.Modules.Matchmaking.Basic
         [Test]
         public void PlayerMightWantToLeaveTheMatchmakerButBeMatched()
         {
+            ActingAs(john);
+            
             var entity = CreateEntity();
-            facet.Call("JoinMatchmaker", new MatchmakerTicket(john));
+            OnFacet<BmMatchmakerFacet>().CallSync(
+                "JoinMatchmaker", new BmMatchmakerTicket(john.EntityId)
+            );
             
             entity.Refresh();
             Assert.IsNotEmpty(entity.Tickets);
             
-            var match = new MatchEntity();
+            var match = new BmMatchEntity();
             match.Save();
             entity.Refresh();
             entity.Notifications.Add(new BasicMatchmakerEntity.Notification {
-                player = john,
+                playerId = john.EntityId,
                 matchId = match.EntityId
             });
             entity.Save();
             
-            var polledMatch = facet.Call<MatchEntity>("PollMatchmaker", true);
+            var polledMatch = OnFacet<BmMatchmakerFacet>()
+            .CallSync<BmMatchEntity>("PollMatchmaker", true);
             Assert.IsNotNull(polledMatch);
             Assert.AreEqual(match.EntityId, polledMatch.EntityId);
         }
@@ -212,34 +235,41 @@ namespace FrameworkTests.Modules.Matchmaking.Basic
         public void TestPairingProcess()
         {
             var entity = CreateEntity();
-            facet.Call("JoinMatchmaker", new MatchmakerTicket(john));
+            ActingAs(john);
+            OnFacet<BmMatchmakerFacet>()
+                .CallSync(
+                "JoinMatchmaker", new BmMatchmakerTicket(john.EntityId)
+            );
             
-            Assert.IsNull(facet.Call<MatchEntity>("PollMatchmaker", false));
+            Assert.IsNull(OnFacet<BmMatchmakerFacet>()
+                .CallSync<BmMatchEntity>("PollMatchmaker", false));
             
-            OnFacet<MatchmakerFacet>
-                .AsPlayer(peter)
-                .WithTypes(typeof(MatchmakerFacet))
-                .Call("JoinMatchmaker", new MatchmakerTicket(peter));
+            ActingAs(peter);
+            OnFacet<BmMatchmakerFacet>().CallSync(
+                "JoinMatchmaker", new BmMatchmakerTicket(peter.EntityId)
+            );
             
             // does the matching
-            var johnMatch = facet.Call<MatchEntity>("PollMatchmaker", false);
+            ActingAs(john);
+            var johnMatch = OnFacet<BmMatchmakerFacet>()
+                .CallSync<BmMatchEntity>("PollMatchmaker", false);
             entity.Refresh();
             Assert.IsEmpty(entity.Tickets); // empties tickets
             Assert.IsNotEmpty(entity.Notifications); // fills notifications
             
             // returns the last notification
-            var peterMatch = OnFacet<MatchmakerFacet>
-                .AsPlayer(peter)
-                .WithTypes(typeof(MatchmakerFacet))
-                .Call<MatchEntity>("PollMatchmaker", false);
+            ActingAs(peter);
+            var peterMatch = OnFacet<BmMatchmakerFacet>()
+                .CallSync<BmMatchEntity>("PollMatchmaker", false);
             
             Assert.NotNull(johnMatch);
             Assert.NotNull(peterMatch);
             
             Assert.AreEqual(johnMatch.EntityId, peterMatch.EntityId);
             
-            Assert.IsTrue(johnMatch.Owners.Contains(john));
-            Assert.IsTrue(johnMatch.Owners.Contains(peter));
+            // TODO: entity ownership is now relations
+//            Assert.IsTrue(johnMatch.Owners.Contains(john));
+//            Assert.IsTrue(johnMatch.Owners.Contains(peter));
             
             entity.Refresh();
             Assert.IsEmpty(entity.Tickets);
@@ -249,24 +279,32 @@ namespace FrameworkTests.Modules.Matchmaking.Basic
         [Test]
         public void TicketShouldNotBeMatchedTwice()
         {
-            MatchmakerFacet.matching = "match-twice";
-            
-            facet.Call("JoinMatchmaker", new MatchmakerTicket(john));
+            BmMatchmakerFacet.matching = "match-twice";
+
+            ActingAs(john);
+            OnFacet<BmMatchmakerFacet>().CallSync(
+                "JoinMatchmaker", new BmMatchmakerTicket(john.EntityId)
+            );
             
             Assert.Catch<InvalidOperationException>(() => {
-                facet.Call<MatchEntity>("PollMatchmaker", false);
+                OnFacet<BmMatchmakerFacet>()
+                    .CallSync<BmMatchEntity>("PollMatchmaker", false);
             });
         }
         
         [Test]
         public void CannotStartMatchThatIsAlreadySaved()
         {
-            MatchmakerFacet.matching = "match-saved";
-            
-            facet.Call("JoinMatchmaker", new MatchmakerTicket(john));
+            BmMatchmakerFacet.matching = "match-saved";
+
+            ActingAs(john);
+            OnFacet<BmMatchmakerFacet>().CallSync(
+                "JoinMatchmaker", new BmMatchmakerTicket(john.EntityId)
+            );
             
             Assert.Catch<ArgumentException>(() => {
-                facet.Call<MatchEntity>("PollMatchmaker", false);
+                OnFacet<BmMatchmakerFacet>()
+                    .CallSync<BmMatchEntity>("PollMatchmaker", false);
             });
         }
 
@@ -274,17 +312,21 @@ namespace FrameworkTests.Modules.Matchmaking.Basic
         public void ExpiredTicketsGetCleanedUp()
         {
             var entity = CreateEntity();
-            facet.Call("JoinMatchmaker", new MatchmakerTicket(john));
+            ActingAs(john);
+            OnFacet<BmMatchmakerFacet>().CallSync(
+                "JoinMatchmaker", new BmMatchmakerTicket(john.EntityId)
+            );
             
             // time warp
             entity.Refresh();
-            var tickets = entity.DeserializeTickets<MatchmakerTicket>();
+            var tickets = entity.DeserializeTickets<BmMatchmakerTicket>();
             tickets[0].LastPollAt = DateTime.UtcNow.AddHours(-1);
             entity.SerializeTickets(tickets);
             entity.Save();
 
             Assert.Catch<UnknownPlayerPollingException>(() => {
-                facet.Call<MatchEntity>("PollMatchmaker", false);
+                OnFacet<BmMatchmakerFacet>()
+                    .CallSync<BmMatchEntity>("PollMatchmaker", false);
             });
             
             entity.Refresh();
@@ -295,19 +337,23 @@ namespace FrameworkTests.Modules.Matchmaking.Basic
         public void PollResetsTicketExpirationTime()
         {
             var entity = CreateEntity();
-            facet.Call("JoinMatchmaker", new MatchmakerTicket(john));
+            ActingAs(john);
+            OnFacet<BmMatchmakerFacet>().CallSync(
+                "JoinMatchmaker", new BmMatchmakerTicket(john.EntityId)
+            );
             
             // time warp
             entity.Refresh();
-            var tickets = entity.DeserializeTickets<MatchmakerTicket>();
+            var tickets = entity.DeserializeTickets<BmMatchmakerTicket>();
             tickets[0].LastPollAt = DateTime.UtcNow.AddSeconds(-30);
             entity.SerializeTickets(tickets);
             entity.Save();
 
-            facet.Call<MatchEntity>("PollMatchmaker", false);
+            OnFacet<BmMatchmakerFacet>()
+                .CallSync<BmMatchEntity>("PollMatchmaker", false);
             
             entity.Refresh();
-            tickets = entity.DeserializeTickets<MatchmakerTicket>();
+            tickets = entity.DeserializeTickets<BmMatchmakerTicket>();
             Assert.True(tickets[0].NotPolledForSeconds < 20);
         }
 
@@ -315,16 +361,20 @@ namespace FrameworkTests.Modules.Matchmaking.Basic
         public void ExpiredNotificationsGetCleanedUp()
         {
             var entity = CreateEntity();
-            facet.Call("JoinMatchmaker", new MatchmakerTicket(john));
+            ActingAs(john);
+            OnFacet<BmMatchmakerFacet>().CallSync(
+                "JoinMatchmaker", new BmMatchmakerTicket(john.EntityId)
+            );
             
             entity.Refresh();
             entity.Notifications.Add(new BasicMatchmakerEntity.Notification {
-                player = john,
+                playerId = john.EntityId,
                 matchId = "some-match-id"
             });
             
             // returns null, coz it gets cleaned up
-            Assert.IsNull(facet.Call<MatchEntity>("PollMatchmaker", false));
+            Assert.IsNull(OnFacet<BmMatchmakerFacet>()
+                .CallSync<BmMatchEntity>("PollMatchmaker", false));
             
             entity.Refresh();
             Assert.IsEmpty(entity.Notifications);
@@ -334,151 +384,45 @@ namespace FrameworkTests.Modules.Matchmaking.Basic
         public void ExpiredMatchesGetCleanedUp()
         {
             // create a new match
-            var newMatch = new MatchEntity();
+            var newMatch = new BmMatchEntity();
             newMatch.Save();
             
             // create an old match
-            var oldMatch = new MatchEntity();
+            var oldMatch = new BmMatchEntity();
             oldMatch.Save();
 
             // hack the old match to be old
-            database.entities[oldMatch.EntityId].createdAt
-                = DateTime.UtcNow.AddDays(-1).AddSeconds(-1);
+            var document = AQL.Query()
+                .Return(() => AF.Document(oldMatch.EntityId))
+                .Execute()
+                .First();
+            document["CreatedAt"] = Serializer.ToJson(
+                DateTime.UtcNow
+                    .AddMinutes(-1 * 60 * 24)
+                    .AddSeconds(-1)
+            );
+            AQL.Query()
+                .Replace(() => document).In("entities_BmMatchEntity")
+                .Execute();
             oldMatch.Refresh();
             
             // needed for a poll to work
-            facet.Call("JoinMatchmaker", new MatchmakerTicket(john));
+            ActingAs(john);
+            OnFacet<BmMatchmakerFacet>().CallSync(
+                "JoinMatchmaker", new BmMatchmakerTicket(john.EntityId)
+            );
             
             // poll triggers the cleanup
-            Assert.IsNull(facet.Call<MatchEntity>("PollMatchmaker", false));
+            Assert.IsNull(OnFacet<BmMatchmakerFacet>()
+                .CallSync<BmMatchEntity>("PollMatchmaker", false));
             
             // check that the old match has been deleted, but not the new one
             Assert.IsNotNull(
-                GetEntity<MatchEntity>.OfAnyPlayers().Find(newMatch.EntityId)
+                DB.Find<BmMatchEntity>(newMatch.EntityId)
             );
             Assert.IsNull(
-                GetEntity<MatchEntity>.OfAnyPlayers().Find(oldMatch.EntityId)
+                DB.Find<BmMatchEntity>(oldMatch.EntityId)
             );
-        }
-    }
-    
-    ///////////////////////////////
-    // Matchmaker implementation //
-    ///////////////////////////////
-
-    public class MatchEntity : Entity
-    {
-        
-    }
-
-    public class MatchmakerTicket : BasicMatchmakerTicket
-    {
-        public int someValue;
-        
-        public MatchmakerTicket() { }
-        public MatchmakerTicket(UnisavePlayer player) : base(player) { }
-    }
-    
-    public class MatchmakerFacet : BasicMatchmakerFacet<MatchmakerTicket, MatchEntity>
-    {
-        public static string matching;
-        
-        protected override void PrepareNewTicket(MatchmakerTicket ticket)
-        {
-            ticket.someValue = 42;
-        }
-
-        protected override void CreateMatches(List<MatchmakerTicket> tickets)
-        {
-            switch (matching)
-            {
-                case "singles":
-                    MatchPairs(tickets);
-                    break;
-                
-                case "pairs":
-                    MatchPairs(tickets);
-                    break;
-                
-                case "match-twice":
-                    MatchTwice(tickets);
-                    break;
-                
-                case "match-saved":
-                    MatchSaved(tickets);
-                    break;
-            }
-        }
-        
-        private void MatchSingles(List<MatchmakerTicket> tickets)
-        {
-            while (tickets.Count >= 1)
-            {
-                var selectedTickets = tickets.GetRange(index: 0, count: 1);
-                var match = new MatchEntity {
-                    //
-                };
-                SaveAndStartMatch(selectedTickets, match);
-                tickets.RemoveRange(index: 0, count: 1);
-            }
-        }
-        
-        private void MatchPairs(List<MatchmakerTicket> tickets)
-        {
-            while (tickets.Count >= 2)
-            {
-                // get players that will be matched together
-                List<MatchmakerTicket> selectedTickets
-                    = tickets.GetRange(index: 0, count: 2);
-                
-                // create and initialize the match
-                var match = new MatchEntity {
-                    //
-                };
-
-                // save the match, set entity owners and notify the players
-                // that they are no longer waiting
-                SaveAndStartMatch(selectedTickets, match);
-                
-                // make sure we don't match those tickets again
-                tickets.RemoveRange(index: 0, count: 2);
-            }
-        }
-
-        private void MatchTwice(List<MatchmakerTicket> tickets)
-        {
-            while (tickets.Count >= 1)
-            {
-                var selectedTickets = tickets.GetRange(index: 0, count: 1);
-                
-                var match = new MatchEntity {
-                    //
-                };
-                SaveAndStartMatch(selectedTickets, match);
-                
-                match = new MatchEntity {
-                    //
-                };
-                SaveAndStartMatch(selectedTickets, match); // twice!
-                
-                tickets.RemoveRange(index: 0, count: 1);
-            }
-        }
-        
-        private void MatchSaved(List<MatchmakerTicket> tickets)
-        {
-            while (tickets.Count >= 1)
-            {
-                var selectedTickets = tickets.GetRange(index: 0, count: 1);
-                
-                var match = new MatchEntity {
-                    //
-                };
-                SaveAndStartMatch(selectedTickets, match);
-                SaveAndStartMatch(selectedTickets, match); // already saved!
-                
-                tickets.RemoveRange(index: 0, count: 1);
-            }
         }
     }
 }

@@ -121,6 +121,19 @@ namespace FrameworkTests.Entities
 
             Assert.AreNotEqual(default(DateTime), insertedEntity["CreatedAt"]);
             Assert.AreNotEqual(default(DateTime), insertedEntity["UpdatedAt"]);
+            
+            Assert.IsTrue(Math.Abs(
+                (
+                    DateTime.UtcNow - (insertedEntity["CreatedAt"].AsDateTime
+                                     ?? default(DateTime))
+                ).Seconds
+            ) < 1);
+            Assert.IsTrue(Math.Abs(
+                (
+                  DateTime.UtcNow - (insertedEntity["UpdatedAt"].AsDateTime
+                                     ?? default(DateTime))
+                ).Seconds
+            ) < 1);
         }
 
         [Test]
@@ -234,6 +247,13 @@ namespace FrameworkTests.Entities
             
             Assert.AreEqual(createdAt, john["CreatedAt"].AsDateTime);
             Assert.AreNotEqual(updatedAt, john["UpdatedAt"].AsDateTime);
+
+            Assert.IsTrue(Math.Abs(
+                (
+                    DateTime.UtcNow
+                    - (john["UpdatedAt"].AsDateTime ?? default(DateTime))
+                 ).Seconds
+            ) < 1);
         }
 
         [Test]
@@ -400,6 +420,19 @@ namespace FrameworkTests.Entities
                     carefully: true
                 );
             });
+        }
+
+        [Test]
+        public void ItStoresTimestampsProperly()
+        {
+            // around the time of entity insertion
+            DateTime now = DateTime.Parse("2020-02-16T14:18:00");
+
+            JsonObject john = manager.Find("PlayerEntity", "john");
+            DateTime created = john["CreatedAt"].AsDateTime
+                               ?? default(DateTime);
+            
+            Assert.IsTrue(Math.Abs((now - created).Seconds) < 1);
         }
     }
 }

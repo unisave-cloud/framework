@@ -36,5 +36,11 @@ namespace Unisave.Facades
         /// </summary>
         public static string Id()
             => GetManager().Id();
+
+        /// <summary>
+        /// Get the authorized player entity or null
+        /// </summary>
+        public static T GetPlayer<T>() where T : Entity
+            => GetManager().GetPlayer<T>();
     }
 }

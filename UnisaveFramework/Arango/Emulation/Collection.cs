@@ -91,7 +91,8 @@ namespace Unisave.Arango.Emulation
             );
 
             documents[key] = insertedDocument;
-            return insertedDocument;
+            
+            return PrepareDocumentForReturn(key, insertedDocument);
         }
 
         /// <summary>
@@ -143,7 +144,8 @@ namespace Unisave.Arango.Emulation
             );
 
             documents[key] = insertedDocument;
-            return insertedDocument;
+
+            return PrepareDocumentForReturn(key, insertedDocument);
         }
 
         /// <summary>

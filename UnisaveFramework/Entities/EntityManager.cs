@@ -6,6 +6,7 @@ using Unisave.Arango;
 using Unisave.Arango.Expressions;
 using Unisave.Arango.Query;
 using Unisave.Contracts;
+using Unisave.Serialization;
 
 namespace Unisave.Entities
 {
@@ -109,9 +110,12 @@ namespace Unisave.Entities
             document.Remove("$type");
             
             // set timestamps
+            // (serializer instead of direct setting, because the serializer
+            // does not store "Z" (timezone), so deserialization does not
+            // correct for timezones and loads it as it is)
             DateTime now = DateTime.UtcNow;
-            document["CreatedAt"] = now;
-            document["UpdatedAt"] = now;
+            document["CreatedAt"] = Serializer.ToJson(now);
+            document["UpdatedAt"] = Serializer.ToJson(now);
             
             var newEntity = arango.ExecuteAqlQuery(new AqlQuery()
                 .Insert(document).Into(CollectionPrefix + type)
@@ -158,8 +162,11 @@ namespace Unisave.Entities
                 newDocument.Remove("$type");
             
                 // set timestamps
+                // (serializer instead of direct setting, because the serializer
+                // does not store "Z" (timezone), so deserialization does not
+                // correct for timezones and loads it as it is)
                 newDocument["CreatedAt"] = oldDocument["CreatedAt"];
-                newDocument["UpdatedAt"] = DateTime.UtcNow;
+                newDocument["UpdatedAt"] = Serializer.ToJson(DateTime.UtcNow);
                 
                 var newEntity = arango.ExecuteAqlQuery(new AqlQuery()
                     .Replace(() => newDocument)

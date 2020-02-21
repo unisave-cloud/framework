@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using Unisave.Database;
 using LightJson;
 using Unisave.Arango;
-using Unisave.Contracts;
-using Unisave.Entities;
+using Unisave.Database;
 using Unisave.Facades;
-using Unisave.Foundation;
-using UnityEngine.Experimental.PlayerLoop;
 
-namespace Unisave
+namespace Unisave.Entities
 {
     /// <summary>
     /// Base class for all entities you create
@@ -155,6 +151,9 @@ namespace Unisave
         /// </summary>
         public static Entity FromJson(JsonObject json, Type entityType)
         {
+            if (json == null)
+                return null;
+            
             Entity entity = CreateInstance(entityType);
             entity.SetAttributes(json);
             return entity;

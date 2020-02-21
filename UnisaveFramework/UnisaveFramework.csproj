@@ -145,6 +145,9 @@
       <DependentUpon>BasicBackendTestCase.cs</DependentUpon>
     </Compile>
     <Compile Include="Testing\BasicBackendTestCase.cs" />
+    <Compile Include="Testing\BasicBackendTestCase.InteractsWithAuthentication.cs">
+      <DependentUpon>BasicBackendTestCase.cs</DependentUpon>
+    </Compile>
     <Compile Include="Testing\BasicBackendTestCase.MakesAssertions.cs">
       <DependentUpon>BasicBackendTestCase.cs</DependentUpon>
     </Compile>

@@ -1,3 +1,5 @@
+using System.Reflection;
+using System.Runtime.ExceptionServices;
 using LightJson;
 using Unisave.Facets;
 using Unisave.Foundation;
@@ -46,7 +48,8 @@ namespace Unisave.Runtime.Kernels
                 globalMiddleware,
                 request,
                 rq => {
-                    object returnedValue = rq.Method.Invoke(
+                    object returnedValue = ExecutionHelper.InvokeMethodInfo(
+                        rq.Method,
                         rq.Facet,
                         rq.Arguments
                     );

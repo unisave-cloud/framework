@@ -214,8 +214,8 @@ namespace Unisave.Arango.Query
                 if (!variables.Contains(parameter))
                     throw new InvalidQueryException(
                         $"Cannot resolve expression parameter '{parameter}', "
-                        + "available variables are: " +
-                        string.Join(", ", variables)
+                        + "available variables are (" +
+                        string.Join(", ", variables) + ")"
                     );
             }
         }

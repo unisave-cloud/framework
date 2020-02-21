@@ -33,15 +33,40 @@ namespace Unisave.Facades
                 typeof(TEntity)
             );
         }
+
+        /// <summary>
+        /// Take the first (and probably only) entity of a given type.
+        /// Returns null if no such entity exists.
+        /// </summary>
+        public static TEntity First<TEntity>()
+            where TEntity : Entity, new()
+        {
+            return TakeAll<TEntity>().First();
+        }
+        
+        // TODO FirstOrFail variant
         
         /// <summary>
         /// Starts a query on all entities of a given type
         /// </summary>
         public static EntityQuery<TEntity> TakeAll<TEntity>()
-            where TEntity : Entity
+            where TEntity : Entity, new()
         {
-            return new EntityQuery<TEntity>(GetArango());
+            return EntityQuery<TEntity>.TakeAll(GetArango());
         }
+
+//        /// <summary>
+//        /// Starts a query on all neighbours of a given entity
+//        /// via a given relation type
+//        /// </summary>
+//        public static EntityQuery<TNeighbour> TakeNeighbours<TNeighbour, TRelation>(
+//            Entity entity, string direction = "ANY"
+//        ) where TNeighbour : Entity where TRelation : Entity
+//        {
+//            return EntityQuery<TNeighbour>.TakeNeighbours<TRelation>(
+//                GetArango(), entity
+//            );
+//        }
 
         /// <summary>
         /// Re-runs a closure multiple times, whenever a write-write

@@ -9,12 +9,6 @@ namespace Unisave.Facets
     public abstract class Facet
     {
         /// <summary>
-        /// The player who called this facet
-        /// </summary>
-        [Obsolete]
-        protected UnisavePlayer Caller { get; private set; }
-
-        /// <summary>
         /// Creates facet instance of given type
         /// </summary>
         public static Facet CreateInstance(Type facetType)

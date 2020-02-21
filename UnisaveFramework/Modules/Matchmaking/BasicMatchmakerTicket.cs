@@ -1,4 +1,5 @@
 using System;
+using Unisave.Entities;
 
 namespace Unisave.Modules.Matchmaking
 {
@@ -8,9 +9,9 @@ namespace Unisave.Modules.Matchmaking
     public class BasicMatchmakerTicket
     {
         /// <summary>
-        /// Player who created this ticket
+        /// Player entity id of the player who created this ticket
         /// </summary>
-        public UnisavePlayer Player { get; set; }
+        public string PlayerId { get; set; }
         
         /// <summary>
         /// When was the ticket inserted into the waiting queue
@@ -42,9 +43,9 @@ namespace Unisave.Modules.Matchmaking
             InsertedNow();
         }
         
-        public BasicMatchmakerTicket(UnisavePlayer player) : this()
+        public BasicMatchmakerTicket(string playerId) : this()
         {
-            Player = player;
+            PlayerId = playerId;
         }
 
         /// <summary>
