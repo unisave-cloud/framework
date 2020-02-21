@@ -1,9 +1,12 @@
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using LightJson;
+using Unisave.Authentication;
+using Unisave.Authentication.Middleware;
 using Unisave.Facets;
 using Unisave.Foundation;
 using Unisave.Sessions;
+using Unisave.Sessions.Middleware;
 using Unisave.Utils;
 
 namespace Unisave.Runtime.Kernels
@@ -38,8 +41,13 @@ namespace Unisave.Runtime.Kernels
 
             MiddlewareAttribute[] globalMiddleware = {
                 new MiddlewareAttribute(
-                    typeof(SessionFacetMiddleware),
+                    1,
+                    typeof(StartSession),
                     sessionId
+                ),
+                new MiddlewareAttribute(
+                    2,
+                    typeof(AuthenticateSession)
                 )
             };
 

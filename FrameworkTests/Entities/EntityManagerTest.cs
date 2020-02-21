@@ -63,7 +63,7 @@ namespace FrameworkTests.Entities
             
             Assert.AreEqual("john", john["_key"].AsString);
             Assert.AreEqual("John Doe", john["Name"].AsString);
-            Assert.AreEqual("PlayerEntity", john["_type"].AsString);
+            Assert.AreEqual("PlayerEntity", john["$type"].AsString);
             
             Assert.AreEqual(null, john["Model"].AsString);
         }
@@ -75,7 +75,7 @@ namespace FrameworkTests.Entities
             
             Assert.AreEqual("john", john["_key"].AsString);
             Assert.AreEqual("John-deer", john["Name"].AsString);
-            Assert.AreEqual("MotorbikeEntity", john["_type"].AsString);
+            Assert.AreEqual("MotorbikeEntity", john["$type"].AsString);
         }
 
         [Test]

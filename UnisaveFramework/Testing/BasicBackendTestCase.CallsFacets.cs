@@ -1,5 +1,8 @@
 using System;
 using LightJson;
+using Unisave.Authentication;
+using Unisave.Authentication.Middleware;
+using Unisave.Contracts;
 using Unisave.Facets;
 using Unisave.Foundation;
 using Unisave.Runtime;
@@ -69,6 +72,9 @@ namespace Unisave.Testing
                 params object[] arguments
             )
             {
+                StoreAuthState();
+                StoreSessionState();
+                
                 var methodParameters = new FacetCallKernel.MethodParameters(
                     facetName,
                     methodName,
@@ -97,6 +103,43 @@ namespace Unisave.Testing
             )
             {
                 CallSync<JsonValue>(methodName, arguments);
+            }
+
+            /// <summary>
+            /// Authenticated player might have been modified inside
+            /// the test case and we want to preserve it into the application
+            ///
+            /// (Works against the auth middleware, that would otherwise
+            /// overwrite the player id by the value stored in session)
+            /// </summary>
+            private void StoreAuthState()
+            {
+                var session = app.Resolve<ISession>();
+                var auth = app.Resolve<AuthenticationManager>();
+                session.Set(AuthenticateSession.SessionKey, auth.Id());
+            }
+
+            /// <summary>
+            /// Session might have been modified inside the test case
+            /// and we want to preserve it into the application
+            ///
+            /// (To make sure the session-loading middleware does not
+            /// overwrite changes by loading the session by its id)
+            /// </summary>
+            private void StoreSessionState()
+            {
+                var session = app.Resolve<ISession>();
+                
+                // generate session ID if session has been used
+                if (sessionId == null && session.All().Count > 0)
+                {
+                    sessionId = FacetCallKernel.GenerateSessionId();
+                    setSessionId.Invoke(sessionId);
+                }
+                
+                // store the session state
+                if (sessionId != null)
+                    session.StoreSession(sessionId);
             }
         }
     }

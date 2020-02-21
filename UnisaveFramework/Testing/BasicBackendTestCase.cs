@@ -42,7 +42,7 @@ namespace Unisave.Testing
             // by the application (so Env is not enough), you can perform
             // some container surgery here:
             //
-            // App.Instance<IDatabase>(mySpecialInstance);
+            // App.Instance<IArango>(mySpecialInstance);
         }
 
         /// <summary>

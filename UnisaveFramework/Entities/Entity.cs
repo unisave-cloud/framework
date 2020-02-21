@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using LightJson;
@@ -80,7 +81,7 @@ namespace Unisave.Entities
             get
             {
                 if (attributeName == "$type")
-                    return EntityUtils.GetEntityType(GetType());
+                    return EntityUtils.GetEntityStringType(GetType());
                 
                 if (attributeName == "_id") return EntityId;
                 if (attributeName == "_key") return EntityKey;
@@ -144,18 +145,51 @@ namespace Unisave.Entities
         #region "Serialization"
 
         /// <summary>
-        /// Creates entity of the provided type
-        /// (checks that the type matches)
-        /// and returns the newly created instance
+        /// Creates entity from its JSON representation
+        /// by having the type provided.
+        /// The provided type will be checked to be correct.
         /// </summary>
         public static Entity FromJson(JsonObject json, Type entityType)
         {
             if (json == null)
                 return null;
+
+            // verify $type to match Type
+            string type = json["$type"].AsString;
+            if (type != EntityUtils.GetEntityStringType(entityType))
+                throw new ArgumentException(
+                    $"Provided JSON entity representation has type '{type}', "
+                    + $"but {entityType} was requested in the argument."
+                );
             
-            Entity entity = CreateInstance(entityType);
+            Entity entity = EntityUtils.CreateInstance(entityType);
             entity.SetAttributes(json);
             return entity;
+        }
+
+        /// <summary>
+        /// Creates entity from its JSON representation
+        /// by searching for the proper entity C# type
+        /// </summary>
+        public static Entity FromJson(
+            JsonObject json,
+            IEnumerable<Type> typesToSearch
+        )
+        {
+            if (json == null)
+                return null;
+            
+            string type = json["$type"].AsString;
+            
+            if (type == null)
+                throw new ArgumentException(
+                    "Given JSON entity representation does not contain $type"
+                );
+            
+            return FromJson(
+                json,
+                EntityUtils.GetEntityClassType(type, typesToSearch)
+            );
         }
 
         /// <summary>
@@ -164,34 +198,6 @@ namespace Unisave.Entities
         public JsonObject ToJson()
         {
             return GetAttributes();
-        }
-        
-        /// <summary>
-        /// Create instance of a given entity type in a non-generic way
-        /// (needed for deserialization)
-        /// </summary>
-        public static Entity CreateInstance(Type entityType)
-        {
-            // check proper parent
-            if (!typeof(Entity).IsAssignableFrom(entityType))
-                throw new ArgumentException(
-                    $"Provided type {entityType} does not " +
-                    "inherit from the Entity class."
-                );
-
-            // get parameterless constructor
-            ConstructorInfo ci = entityType.GetConstructor(new Type[] { });
-
-            if (ci == null)
-                throw new ArgumentException(
-                    $"Provided entity type {entityType} lacks " +
-                    "parameterless constructor."
-                );
-
-            // create instance
-            Entity entity = (Entity)ci.Invoke(new object[] { });
-
-            return entity;
         }
         
         #endregion

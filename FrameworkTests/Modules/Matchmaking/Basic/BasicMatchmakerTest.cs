@@ -4,6 +4,7 @@ using FrameworkTests.TestingUtils;
 using NUnit.Framework;
 using Unisave;
 using Unisave.Arango.Expressions;
+using Unisave.Authentication;
 using Unisave.Facades;
 using Unisave.Modules.Matchmaking;
 using Unisave.Modules.Matchmaking.Exceptions;
@@ -39,10 +40,17 @@ namespace FrameworkTests.Modules.Matchmaking.Basic
         }
 
         [Test]
-        public void PlayerHasToBeAuthorizedToInsertTicket()
+        public void PlayerHasToBeAuthenticatedToInsertTicket()
         {
-            throw new NotImplementedException();
-            //Assert.Throws<AuthenticationException>()
+            ActingAs(null);
+            
+            Assert.Throws<AuthenticationException>(() => {
+                OnFacet<BmMatchmakerFacet>()
+                    .CallSync(
+                        "JoinMatchmaker",
+                        new BmMatchmakerTicket(john.EntityId)
+                    );
+            });
         }
 
         [Test]

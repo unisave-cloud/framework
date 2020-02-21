@@ -3,14 +3,14 @@ using Unisave.Contracts;
 using Unisave.Facets;
 using Unisave.Foundation;
 
-namespace Unisave.Sessions
+namespace Unisave.Sessions.Middleware
 {
     /// <summary>
     /// Loads and stores session data
     /// </summary>
-    public class SessionFacetMiddleware : FacetMiddleware
+    public class StartSession : FacetMiddleware
     {
-        public SessionFacetMiddleware(Application app) : base(app) { }
+        public StartSession(Application app) : base(app) { }
         
         public override FacetResponse Handle(
             FacetRequest request,

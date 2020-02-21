@@ -80,8 +80,10 @@
     <Compile Include="Arango\Query\AqlReplaceOperationBuilder.cs" />
     <Compile Include="Arango\Query\AqlReturnOperation.cs" />
     <Compile Include="Arango\Query\InvalidQueryException.cs" />
-    <Compile Include="Authentication\Authenticate.cs" />
+    <Compile Include="Authentication\AuthenticationException.cs" />
     <Compile Include="Authentication\AuthenticationManager.cs" />
+    <Compile Include="Authentication\Middleware\Authenticate.cs" />
+    <Compile Include="Authentication\Middleware\AuthenticateSession.cs" />
     <Compile Include="Contracts\IArango.cs" />
     <Compile Include="Contracts\ISession.cs" />
     <Compile Include="Entities\AttributeMapping.cs" />
@@ -90,6 +92,7 @@
     <Compile Include="Entities\EntityManager.cs" />
     <Compile Include="Entities\EntityPersistenceException.cs" />
     <Compile Include="Entities\EntityRevConflictException.cs" />
+    <Compile Include="Entities\EntitySearchException.cs" />
     <Compile Include="Entities\EntityUtils.cs" />
     <Compile Include="Entities\Query\EntityQuery.cs" />
     <Compile Include="Exceptions\BindingResolutionException.cs" />
@@ -127,8 +130,8 @@
     <Compile Include="Runtime\SpecialValues.cs" />
     <Compile Include="Sessions\InMemorySessionStorage.cs" />
     <Compile Include="Sessions\ISessionStorage.cs" />
+    <Compile Include="Sessions\Middleware\StartSession.cs" />
     <Compile Include="Sessions\SandboxApiSessionStorage.cs" />
-    <Compile Include="Sessions\SessionFacetMiddleware.cs" />
     <Compile Include="Sessions\SessionOverStorage.cs" />
     <Compile Include="Testing\BasicBackendTestCase.CallsFacets.cs">
       <DependentUpon>BasicBackendTestCase.cs</DependentUpon>

@@ -1,21 +1,29 @@
 using System;
 using Unisave.Contracts;
+using Unisave.Entities;
 using Unisave.Facets;
 using Unisave.Foundation;
 
-namespace Unisave.Authentication
+namespace Unisave.Authentication.Middleware
 {
-    public class Authenticate : FacetMiddleware
+    /// <summary>
+    /// Middleware that before a request pulls the authenticated
+    /// player from the session and after the request stores
+    /// the authenticated player to the session
+    /// </summary>
+    public class AuthenticateSession : FacetMiddleware
     {
         public const string SessionKey = "authenticatedPlayerId";
         
-        private ISession session;
-        private AuthenticationManager auth;
+        private readonly ISession session;
+        private readonly AuthenticationManager auth;
+        private readonly EntityManager entityManager;
         
-        public Authenticate(Application app) : base(app)
+        public AuthenticateSession(Application app) : base(app)
         {
             session = app.Resolve<ISession>();
             auth = app.Resolve<AuthenticationManager>();
+            entityManager = app.Resolve<EntityManager>();
         }
 
         public override FacetResponse Handle(
@@ -33,10 +41,11 @@ namespace Unisave.Authentication
             }
             else
             {
-                // TODO: update this code once you implement Entities properly
-                // 1) load entity from the database by ID, as a JsonObject
-                // 2) convert it to a concrete instance of an entity
-                // 3) auth.SetPlayer(entity)
+                Entity player = Entity.FromJson(
+                    entityManager.Find(id),
+                    App.GameAssemblyTypes
+                );
+                auth.SetPlayer(player);
             }
 
             try

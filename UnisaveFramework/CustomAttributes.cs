@@ -25,7 +25,7 @@ namespace Unisave
     /// </summary>
     [AttributeUsage(
         AttributeTargets.Method | AttributeTargets.Class,
-        Inherited = false,
+        Inherited = true,
         AllowMultiple = true
     )]
     public sealed class MiddlewareAttribute : Attribute

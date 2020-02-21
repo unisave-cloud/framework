@@ -67,12 +67,12 @@ namespace Unisave.Facets
                 .OrderBy(l => l.order);
             
             var classLayers = request.FacetType
-                .GetCustomAttributes<MiddlewareAttribute>()
+                .GetCustomAttributes<MiddlewareAttribute>(inherit: true)
                 .Select(attr => new Layer(app, attr))
                 .OrderBy(l => l.order);
             
             var methodLayers = request.Method
-                .GetCustomAttributes<MiddlewareAttribute>()
+                .GetCustomAttributes<MiddlewareAttribute>(inherit: true)
                 .Select(attr => new Layer(app, attr))
                 .OrderBy(l => l.order);
 

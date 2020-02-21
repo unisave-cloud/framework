@@ -1,16 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unisave.Contracts;
+using Unisave.Authentication.Middleware;
 using Unisave.Modules.Matchmaking.Exceptions;
 using Unisave.Entities;
 using Unisave.Facades;
 using Unisave.Facets;
-using Unisave.Foundation;
 using Unisave.Serialization;
 
 namespace Unisave.Modules.Matchmaking
 {
+    [Middleware(typeof(Authenticate))]
     public abstract class BasicMatchmakerFacet<
         TPlayerEntity,
         TMatchmakerTicket,

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using LightJson;
 using Unisave.Arango;
 using Unisave.Arango.Query;
 using Unisave.Contracts;
@@ -32,7 +33,7 @@ namespace Unisave.Entities.Query
             
             query.Query.For("entity").In(
                 EntityManager.CollectionPrefix
-                    + EntityUtils.GetEntityType(typeof(TEntity))
+                    + EntityUtils.GetEntityStringType(typeof(TEntity))
             ).Do();
             
             return query;
@@ -76,18 +77,25 @@ namespace Unisave.Entities.Query
             {
                 return Arango
                     .ExecuteAqlQuery(Query)
-                    .Select(
-                        document => (TEntity) Entity.FromJson(
-                            document,
-                            typeof(TEntity)
-                        )
-                    );
+                    .Select(d => TurnDocumentToEntity(d));
             }
             catch (ArangoException e) when (e.ErrorNumber == 1203)
             {
                 // collection or view not found
                 return Enumerable.Empty<TEntity>();
             }
+        }
+
+        private TEntity TurnDocumentToEntity(JsonObject document)
+        {
+            document["$type"] = EntityUtils.GetEntityStringType(
+                typeof(TEntity)
+            );
+            
+            return (TEntity) Entity.FromJson(
+                document,
+                typeof(TEntity)
+            );
         }
 
         /// <summary>

@@ -49,7 +49,7 @@ namespace Unisave.Entities
                 if (entity == null)
                     return null;
 
-                entity["_type"] = id.Collection.Substring(
+                entity["$type"] = id.Collection.Substring(
                     CollectionPrefix.Length
                 );
 
