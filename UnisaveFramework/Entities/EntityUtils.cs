@@ -12,6 +12,46 @@ namespace Unisave.Entities
     public static class EntityUtils
     {
         /// <summary>
+        /// Prefix for entity collection names
+        /// </summary>
+        public const string CollectionPrefix = "entities_";
+
+        /// <summary>
+        /// Builds collection name from entity string type
+        /// </summary>
+        public static string CollectionFromType(string entityType)
+            => CollectionPrefix + entityType;
+
+        /// <summary>
+        /// Builds collection name from entity class type
+        /// </summary>
+        public static string CollectionFromType(Type entityType)
+            => CollectionFromType(GetEntityStringType(entityType));
+
+        /// <summary>
+        /// Extracts entity string type from a collection name.
+        /// Throws on invalid collection name.
+        /// </summary>
+        public static string TypeFromCollection(string collectionName)
+        {
+            if (!collectionName.StartsWith(CollectionPrefix)
+                || collectionName.Contains("/"))
+                throw new ArgumentException(
+                    $"Collection name '{collectionName}' has invalid format"
+                );
+            
+            return collectionName.Substring(CollectionPrefix.Length);
+        }
+
+        /// <summary>
+        /// Builds entity ID from entity string type and key
+        /// </summary>
+        public static string EntityIdFromParts(
+            string entityType,
+            string entityKey
+        ) => CollectionPrefix + entityType + "/" + entityKey;
+        
+        /// <summary>
         /// Converts MemberInfo of a given entity type to
         /// the corresponding arango document attribute name
         /// </summary>

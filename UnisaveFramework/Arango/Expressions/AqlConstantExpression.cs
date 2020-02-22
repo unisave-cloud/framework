@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using LightJson;
 using Unisave.Arango.Execution;
+using Unisave.Entities;
 
 namespace Unisave.Arango.Expressions
 {
@@ -55,7 +56,7 @@ namespace Unisave.Arango.Expressions
                 case string v:
                     return new AqlConstantExpression(v);
             }
-
+            
             // try unboxing a boxed, json-valued null
             try
             {
@@ -63,6 +64,24 @@ namespace Unisave.Arango.Expressions
                 return new AqlConstantExpression(unboxedValue);
             }
             catch (InvalidCastException) {}
+            
+            // get type of the value
+            Type valueType = value.GetType();
+
+            // try handling entity reference
+            // (when entity reference is compared to an entity, the
+            // entity is automatically converted to an entity reference
+            // by the demungifier)
+            if (valueType.IsGenericType && valueType.GetGenericTypeDefinition()
+                == typeof(EntityReference<>))
+            {
+                var pi = valueType.GetProperty(
+                    nameof(EntityReference<Entity>.TargetId)
+                );
+                return new AqlConstantExpression(
+                    (string)pi.GetValue(value)
+                );
+            }
             
             throw new AqlParsingException(
                 $"Value {value} is not a JSON constant."

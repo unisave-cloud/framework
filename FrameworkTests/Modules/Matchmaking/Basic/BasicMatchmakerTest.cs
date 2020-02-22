@@ -18,8 +18,10 @@ namespace FrameworkTests.Modules.Matchmaking.Basic
         private BmPlayerEntity john, peter;
         
         [SetUp]
-        public void SetUp()
+        public override void SetUp()
         {
+            base.SetUp();
+            
             // populate database
             john = new BmPlayerEntity { Name = "John" };
             peter = new BmPlayerEntity { Name = "Pater" };

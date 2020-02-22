@@ -18,11 +18,6 @@ namespace Unisave.Entities
     public class EntityManager
     {
         /// <summary>
-        /// Prefix for entity collection names
-        /// </summary>
-        public const string CollectionPrefix = "entities_";
-        
-        /// <summary>
         /// The underlying arango database
         /// </summary>
         private readonly IArango arango;
@@ -49,9 +44,7 @@ namespace Unisave.Entities
                 if (entity == null)
                     return null;
 
-                entity["$type"] = id.Collection.Substring(
-                    CollectionPrefix.Length
-                );
+                entity["$type"] = EntityUtils.TypeFromCollection(id.Collection);
 
                 return entity;
             }
@@ -66,7 +59,7 @@ namespace Unisave.Entities
         /// Find entity by type and key
         /// </summary>
         public virtual JsonObject Find(string entityType, string entityKey)
-            => Find(CollectionPrefix + entityType + "/" + entityKey);
+            => Find(EntityUtils.EntityIdFromParts(entityType, entityKey));
         
         /// <summary>
         /// Insert a new entity into the database and return the modified entity
@@ -91,7 +84,7 @@ namespace Unisave.Entities
             {
                 // collection not found -> create it
                 arango.CreateCollection(
-                    CollectionPrefix + type,
+                    EntityUtils.CollectionFromType(type),
                     CollectionType.Document
                 );
                 
@@ -118,7 +111,7 @@ namespace Unisave.Entities
             document["UpdatedAt"] = Serializer.ToJson(now);
             
             var newEntity = arango.ExecuteAqlQuery(new AqlQuery()
-                .Insert(document).Into(CollectionPrefix + type)
+                .Insert(document).Into(EntityUtils.CollectionFromType(type))
                 .Return("NEW")
             ).First().AsJsonObject;
 
@@ -171,7 +164,7 @@ namespace Unisave.Entities
                 var newEntity = arango.ExecuteAqlQuery(new AqlQuery()
                     .Replace(() => newDocument)
                     .CheckRevs(carefully)
-                    .In(CollectionPrefix + type)
+                    .In(EntityUtils.CollectionFromType(type))
                     .Return("NEW")
                 ).First().AsJsonObject;
                 
@@ -224,7 +217,7 @@ namespace Unisave.Entities
                 arango.ExecuteAqlQuery(new AqlQuery()
                     .Remove(() => entity)
                     .CheckRevs(carefully)
-                    .In(CollectionPrefix + type)
+                    .In(EntityUtils.CollectionFromType(type))
                 );
             }
             catch (ArangoException e)

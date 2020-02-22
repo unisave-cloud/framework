@@ -117,6 +117,20 @@ namespace FrameworkTests
         }
 
         [Test]
+        public void ItSerializesEntityReferences()
+        {
+            string id = "entities_Entity/foo";
+            var reference = new EntityReference<Entity>(id);
+
+            Assert.AreEqual(id, Serializer.ToJson(reference).AsString);
+            
+            Assert.AreEqual(
+                id,
+                Serializer.FromJson<EntityReference<Entity>>(id).TargetId
+            );
+        }
+
+        [Test]
         public void ItSerializesVectors()
         {
             Assert.AreEqual(@"{""x"":1,""y"":2,""z"":3}", Serializer.ToJson(new Vector3(1, 2, 3)).ToString());

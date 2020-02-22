@@ -91,6 +91,7 @@
     <Compile Include="Entities\EntityCrawler.cs" />
     <Compile Include="Entities\EntityManager.cs" />
     <Compile Include="Entities\EntityPersistenceException.cs" />
+    <Compile Include="Entities\EntityReference.cs" />
     <Compile Include="Entities\EntityRevConflictException.cs" />
     <Compile Include="Entities\EntitySearchException.cs" />
     <Compile Include="Entities\EntityUtils.cs" />
