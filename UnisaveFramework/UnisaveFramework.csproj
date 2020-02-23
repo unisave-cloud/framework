@@ -110,6 +110,7 @@
     <Compile Include="Foundation\Bootstrap.cs" />
     <Compile Include="Foundation\Container.cs" />
     <Compile Include="Foundation\Env.cs" />
+    <Compile Include="Modules\Matchmaking\BasicMatchEntity.cs" />
     <Compile Include="Modules\Matchmaking\BasicMatchmakerEntity.cs" />
     <Compile Include="Modules\Matchmaking\BasicMatchmakerFacet.cs" />
     <Compile Include="Modules\Matchmaking\BasicMatchmakerTicket.cs" />

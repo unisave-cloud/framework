@@ -30,7 +30,10 @@ namespace Unisave.Arango.Expressions
             => "";
         
         [ArangoFunction("CONCAT")]
-        public static string Concat(JsonValue a, JsonValue b, JsonValue c, JsonValue d)
-            => "";
+        public static string Concat(
+            JsonValue a, JsonValue b, JsonValue c, JsonValue d
+        ) => "";
+        
+        // TODO: AF.In(item, array) (IN array operator), .Contains in List<>
     }
 }

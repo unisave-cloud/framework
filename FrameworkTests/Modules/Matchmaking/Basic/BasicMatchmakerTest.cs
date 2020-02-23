@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using FrameworkTests.TestingUtils;
 using NUnit.Framework;
-using Unisave;
 using Unisave.Arango.Expressions;
 using Unisave.Authentication;
 using Unisave.Facades;
@@ -53,14 +52,6 @@ namespace FrameworkTests.Modules.Matchmaking.Basic
                         new BmMatchmakerTicket(john.EntityId)
                     );
             });
-        }
-
-        [Test]
-        public void MatchmakerHasToSetEntityRelations()
-        {
-            // see the TODOs below and inside the matchmaker facet
-            // (this test method is just not to forget, delete it)
-            throw new NotImplementedException();
         }
 
         [Test]
@@ -285,9 +276,8 @@ namespace FrameworkTests.Modules.Matchmaking.Basic
             
             Assert.AreEqual(johnMatch.EntityId, peterMatch.EntityId);
             
-            // TODO: entity ownership is now relations
-//            Assert.IsTrue(johnMatch.Owners.Contains(john));
-//            Assert.IsTrue(johnMatch.Owners.Contains(peter));
+            Assert.IsTrue(johnMatch.Participants.Contains(john));
+            Assert.IsTrue(johnMatch.Participants.Contains(peter));
             
             entity.Refresh();
             Assert.IsEmpty(entity.Tickets);

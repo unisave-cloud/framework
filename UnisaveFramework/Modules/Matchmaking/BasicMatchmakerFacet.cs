@@ -18,7 +18,7 @@ namespace Unisave.Modules.Matchmaking
     > : Facet
         where TPlayerEntity : Entity, new()
         where TMatchmakerTicket : BasicMatchmakerTicket
-        where TMatchEntity : Entity, new()
+        where TMatchEntity : BasicMatchEntity<TPlayerEntity>, new()
     {
         /// <summary>
         /// After how long an unpolled ticket gets removed
@@ -311,7 +311,7 @@ namespace Unisave.Modules.Matchmaking
         }
 
         /// <summary>
-        /// Set match entity owners to ticket owners, save the match
+        /// Set match entity participants to ticket owners, save the match
         /// and notify these players that they are no longer waiting
         /// </summary>
         /// <param name="selectedTickets">Tickets matched together</param>
@@ -335,20 +335,20 @@ namespace Unisave.Modules.Matchmaking
                     nameof(match)
                 );
             
-            // cannot start match that has some owners
-            // TODO: turn this into relations
-//            if (match.Owners.Count != 0)
-//                throw new ArgumentException(
-//                    "Match entity already has some owners. " +
-//                    "They will be added automatically, don't add them yourself.",
-//                    nameof(match)
-//                );
+            // cannot start match that has some participants
+            if (match.Participants.Count != 0)
+                throw new ArgumentException(
+                    "Match entity already has some participants. " +
+                    "They will be added automatically, don't add them yourself.",
+                    nameof(match)
+                );
             
             foreach (var ticket in selectedTickets)
             {
-                // add owners
-                // TODO: turn ownership into relations
-                //match.Owners.Add(ticket.Player);
+                // add participants
+                match.Participants.Add(
+                    new EntityReference<TPlayerEntity>(ticket.PlayerId)
+                );
                 
                 // remember matched tickets
                 // (check that no ticket gets matched twice)

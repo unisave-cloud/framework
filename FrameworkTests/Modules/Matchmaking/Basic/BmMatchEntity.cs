@@ -1,8 +1,8 @@
-using Unisave.Entities;
+using Unisave.Modules.Matchmaking;
 
 namespace FrameworkTests.Modules.Matchmaking.Basic
 {
-    public class BmMatchEntity : Entity
+    public class BmMatchEntity : BasicMatchEntity<BmPlayerEntity>
     {
         
     }
