@@ -260,6 +260,49 @@ namespace Unisave.Arango.Emulation
         {
             documents.Clear();
         }
+        
+        #region "Serialization"
+
+        /// <summary>
+        /// Serializes the collection to JSON
+        /// </summary>
+        public JsonObject ToJson()
+        {
+            var documents = new JsonObject();
+
+            foreach (var pair in documents)
+            {
+                documents.Add(
+                    pair.Key,
+                    JsonReader.Parse(pair.Value.ToString()) // clone
+                );
+            }
+
+            return new JsonObject()
+                .Add("type", (int)CollectionType)
+                .Add("documents", documents);
+        }
+
+        /// <summary>
+        /// Loads the collection from JSON
+        /// </summary>
+        public static Collection FromJson(string name, JsonObject json)
+        {
+            var collection = new Collection(
+                name,
+                (CollectionType)json["type"].AsInteger
+            );
+
+            foreach (var pair in json["documents"].AsJsonObject)
+            {
+                collection.documents[pair.Key]
+                    = JsonReader.Parse(pair.Value.ToString()); // clone
+            }
+
+            return collection;
+        }
+        
+        #endregion
 
         public IEnumerator<JsonObject> GetEnumerator()
         {
