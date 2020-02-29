@@ -8,9 +8,6 @@ namespace Unisave.Foundation
     /// </summary>
     public class Application : Container, IDisposable
     {
-        // TODO: move this to some Facet app access point
-        public static Application Default { get; set; }
-
         /// <summary>
         /// All types defined inside the game assembly that
         /// can be searched for appropriate user implementation

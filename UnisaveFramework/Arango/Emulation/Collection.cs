@@ -268,11 +268,11 @@ namespace Unisave.Arango.Emulation
         /// </summary>
         public JsonObject ToJson()
         {
-            var documents = new JsonObject();
+            var docs = new JsonObject();
 
             foreach (var pair in documents)
             {
-                documents.Add(
+                docs.Add(
                     pair.Key,
                     JsonReader.Parse(pair.Value.ToString()) // clone
                 );
@@ -280,7 +280,7 @@ namespace Unisave.Arango.Emulation
 
             return new JsonObject()
                 .Add("type", (int)CollectionType)
-                .Add("documents", documents);
+                .Add("documents", docs);
         }
 
         /// <summary>
