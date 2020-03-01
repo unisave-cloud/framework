@@ -35,6 +35,11 @@ namespace Unisave.Arango.Emulation
         /// </summary>
         private long nextKey = 1;
 
+        /// <summary>
+        /// Returns the number of documents in the collection
+        /// </summary>
+        public int DocumentCount => documents.Count;
+
         public Collection(string name, CollectionType type)
         {
             Name = name;
@@ -200,7 +205,14 @@ namespace Unisave.Arango.Emulation
 
         protected string GenerateNewKey()
         {
-            return (nextKey++).ToString();
+            string key;
+            
+            do
+            {
+                key = (nextKey++).ToString();
+            } while (documents.ContainsKey(key));
+            
+            return key;
         }
 
         protected string GenerateNewRevision()
@@ -280,6 +292,7 @@ namespace Unisave.Arango.Emulation
 
             return new JsonObject()
                 .Add("type", (int)CollectionType)
+                .Add("nextKey", nextKey)
                 .Add("documents", docs);
         }
 
@@ -292,6 +305,8 @@ namespace Unisave.Arango.Emulation
                 name,
                 (CollectionType)json["type"].AsInteger
             );
+
+            collection.nextKey = json["nextKey"].AsInteger;
 
             foreach (var pair in json["documents"].AsJsonObject)
             {
