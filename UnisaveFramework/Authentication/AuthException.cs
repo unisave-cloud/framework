@@ -3,8 +3,12 @@ using System.Runtime.Serialization;
 
 namespace Unisave.Authentication
 {
+    /// <summary>
+    /// Thrown when the player is not authenticated, and needs to be, in order
+    /// to perform a given action, or is not authorized to perform that action.
+    /// </summary>
     [Serializable]
-    public class AuthenticationException : Exception
+    public class AuthException : Exception
     {
         //
         // For guidelines regarding the creation of new exception types, see
@@ -13,19 +17,19 @@ namespace Unisave.Authentication
         //    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dncscol/html/csharp07192001.asp
         //
 
-        public AuthenticationException()
+        public AuthException()
         {
         }
 
-        public AuthenticationException(string message) : base(message)
+        public AuthException(string message) : base(message)
         {
         }
 
-        public AuthenticationException(string message, Exception inner) : base(message, inner)
+        public AuthException(string message, Exception inner) : base(message, inner)
         {
         }
 
-        protected AuthenticationException(
+        protected AuthException(
             SerializationInfo info,
             StreamingContext context) : base(info, context)
         {

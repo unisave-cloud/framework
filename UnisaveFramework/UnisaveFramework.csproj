@@ -80,7 +80,7 @@
     <Compile Include="Arango\Query\AqlReplaceOperationBuilder.cs" />
     <Compile Include="Arango\Query\AqlReturnOperation.cs" />
     <Compile Include="Arango\Query\InvalidQueryException.cs" />
-    <Compile Include="Authentication\AuthenticationException.cs" />
+    <Compile Include="Authentication\AuthException.cs" />
     <Compile Include="Authentication\AuthenticationManager.cs" />
     <Compile Include="Authentication\Middleware\Authenticate.cs" />
     <Compile Include="Authentication\Middleware\AuthenticateSession.cs" />

@@ -45,7 +45,7 @@ namespace FrameworkTests.Modules.Matchmaking.Basic
         {
             ActingAs(null);
             
-            Assert.Throws<AuthenticationException>(() => {
+            Assert.Throws<AuthException>(() => {
                 OnFacet<BmMatchmakerFacet>()
                     .CallSync(
                         "JoinMatchmaker",

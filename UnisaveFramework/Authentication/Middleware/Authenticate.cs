@@ -23,7 +23,7 @@ namespace Unisave.Authentication.Middleware
         )
         {
             if (!auth.Check())
-                throw new AuthenticationException("Unauthenticated");
+                throw new AuthException("Unauthenticated");
             
             return next.Invoke(request);
         }
