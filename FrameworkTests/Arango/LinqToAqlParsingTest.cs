@@ -200,7 +200,7 @@ namespace FrameworkTests.Arango
         // used in the test below
         public class PlayerEntity : Entity
         {
-            [X] public string Name { get; set; }
+            public string Name { get; set; }
         }
 
         [Test]

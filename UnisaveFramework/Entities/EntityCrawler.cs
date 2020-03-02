@@ -35,8 +35,12 @@ namespace Unisave.Entities
             
             foreach (PropertyInfo pi in properties)
             {
-                // skip those not marked with [X]
-                if (!pi.GetCustomAttributes().Any(a => a is XAttribute))
+                // skip those not having both getter and setter
+                if (!pi.CanRead || !pi.CanWrite)
+                    continue;
+                
+                // skip those that shouldn't be serialized
+                if (pi.GetCustomAttribute<DontSerializeAttribute>() != null)
                     continue;
                 
                 if (typeof(Entity).IsAssignableFrom(pi.PropertyType))

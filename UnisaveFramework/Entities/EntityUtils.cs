@@ -65,9 +65,11 @@ namespace Unisave.Entities
                     $"Given type {entityType} is not an entity"
                 );
             
-            // validate it's a marked member [X]
-            if (!member.GetCustomAttributes().Any(a => a is XAttribute))
-                throw new ArgumentException("Given member is not [X] marked");
+            // validate it's a serializable member
+            if (member.GetCustomAttribute<DontSerializeAttribute>() != null)
+                throw new ArgumentException(
+                    $"Given member '{member}' is not serializable"
+                );
             
             // validate it does not start with an underscore
             if (member.Name.StartsWith("_"))

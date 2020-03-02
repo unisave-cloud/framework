@@ -5,6 +5,6 @@ namespace FrameworkTests.Authentication.Stubs
 {
     public class AuthStubPlayer : Entity
     {
-        [X] public string Name { get; set; }
+        public string Name { get; set; }
     }
 }

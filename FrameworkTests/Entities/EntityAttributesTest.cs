@@ -11,8 +11,8 @@ namespace FrameworkTests.Entities
     {
         public class PlayerEntity : Entity
         {
-            [X] public string Name { get; set; }
-            [X] public int Coins { get; set; }
+            public string Name { get; set; }
+            public int Coins { get; set; }
 
             public bool HasName => !string.IsNullOrEmpty(Name);
             public int foo = 42;

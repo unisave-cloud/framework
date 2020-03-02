@@ -5,6 +5,6 @@ namespace FrameworkTests.Modules.Matchmaking.Basic
 {
     public class BmPlayerEntity : Entity
     {
-        [X] public string Name { get; set; }
+        public string Name { get; set; }
     }
 }

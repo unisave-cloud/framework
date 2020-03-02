@@ -15,7 +15,6 @@ namespace Unisave.Modules.Matchmaking
         /// <summary>
         /// Players who participate in the match
         /// </summary>
-        [X]
         public List<EntityReference<TPlayerEntity>> Participants
         {
             get

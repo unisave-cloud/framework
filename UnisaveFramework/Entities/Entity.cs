@@ -16,6 +16,7 @@ namespace Unisave.Entities
         /// <summary>
         /// ID that uniquely identifies the entity globally
         /// </summary>
+        [DontSerialize]
         public string EntityId
         {
             get => documentId?.Id;
@@ -30,6 +31,7 @@ namespace Unisave.Entities
         /// <summary>
         /// Key that uniquely identifies the entity within its type
         /// </summary>
+        [DontSerialize]
         public string EntityKey
         {
             get => documentId?.Key;
@@ -47,19 +49,20 @@ namespace Unisave.Entities
         /// Revision value for this entity
         /// Used by the database to detect changes
         /// </summary>
+        [DontSerialize]
         public string EntityRevision { get; set; }
 
         /// <summary>
         /// When has been the entity created
         /// Has default DateTime value if the entity hasn't been created yet
         /// </summary>
-        [X] public DateTime CreatedAt { get; set; } = default(DateTime);
+        public DateTime CreatedAt { get; set; } = default(DateTime);
 
         /// <summary>
         /// Last time the entity has been saved
         /// Has default DateTime value if the entity hasn't been created yet
         /// </summary>
-        [X] public DateTime UpdatedAt { get; set; } = default(DateTime);
+        public DateTime UpdatedAt { get; set; } = default(DateTime);
         
         /// <summary>
         /// Entity constructor
@@ -76,6 +79,7 @@ namespace Unisave.Entities
         /// Access to the underlying arango document attributes
         /// </summary>
         /// <param name="attributeName">Name of the attribute to access</param>
+        [DontSerialize]
         public JsonValue this[string attributeName]
         {
             get

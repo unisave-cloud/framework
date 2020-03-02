@@ -259,7 +259,7 @@ namespace FrameworkTests
 
         private class SomeEntity : Entity
         {
-            [X] public string Foo { get; set; } = "bar";
+            public string Foo { get; set; } = "bar";
         }
     }
 }

@@ -16,7 +16,7 @@ namespace FrameworkTests.Entities
         
         private class StubMatchEntity : Entity
         {
-            [X] public EntityReference<StubPlayerEntity> Owner { get; set; }
+            public EntityReference<StubPlayerEntity> Owner { get; set; }
         }
 
         private StubPlayerEntity player;

@@ -3,20 +3,20 @@
 namespace Unisave
 {
     /*
-        Here are defined all of the custom attributes of Unisave
+        Here are defined all the custom attributes of Unisave
      */
 
     /// <summary>
-    /// "cross" attribute, used to quickly mark certain properties
+    /// Marks a property or field to not be serialized
     /// </summary>
     [AttributeUsage(
-        AttributeTargets.Property,
+        AttributeTargets.Property | AttributeTargets.Field,
         Inherited = false,
         AllowMultiple = false
     )]
-    public sealed class XAttribute : Attribute
+    public class DontSerializeAttribute : Attribute
     {
-        public XAttribute()
+        public DontSerializeAttribute()
         { }
     }
 

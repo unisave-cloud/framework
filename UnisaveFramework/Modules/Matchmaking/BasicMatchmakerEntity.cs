@@ -19,24 +19,23 @@ namespace Unisave.Modules.Matchmaking
         /// without making migrations since the data inside
         /// the entity is not really that persistent.
         /// </summary>
-        [X]
         public int Version { get; set; } = CurrentVersion;
         
         /// <summary>
         /// What matchmaker this entity belongs to
         /// </summary>
-        [X] public string MatchmakerName { get; set; }
+        public string MatchmakerName { get; set; }
         
         /// <summary>
         /// Waiting tickets
         /// </summary>
-        [X] public List<JsonObject> Tickets { get; set; }
+        public List<JsonObject> Tickets { get; set; }
             = new List<JsonObject>();
 
         /// <summary>
         /// List of notifications to be sent to players
         /// </summary>
-        [X] public List<Notification> Notifications { get; set; }
+        public List<Notification> Notifications { get; set; }
             = new List<Notification>();
 
         public class Notification
