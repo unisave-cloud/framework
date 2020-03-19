@@ -99,6 +99,12 @@ namespace Unisave.Entities
         {
             JsonObject document = JsonReader.Parse(entity.ToString());
             
+            // make sure _key and _rev are not even present
+            // (they will be set automatically to null, but arango
+            // requires them to not be present at all - null is not enough)
+            document.Remove("_key");
+            document.Remove("_rev");
+            
             // don't store entity type
             document.Remove("$type");
             
