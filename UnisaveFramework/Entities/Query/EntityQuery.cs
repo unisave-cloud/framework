@@ -72,16 +72,54 @@ namespace Unisave.Entities.Query
             // add the return statement, otherwise nothing gets returned
             Query.Return("entity");
             
+            // NOTE:
+            // What follows is basically just a foreach that casts
+            // json values to entity instances.
+            //
+            // The problem is that we need to check for "missing collection"
+            // exception and that's where the clutter is produced.
+
+            IEnumerator<TEntity> enumerator = null;
+            
             try
             {
-                return Arango
-                    .ExecuteAqlQuery(Query)
-                    .Select(d => TurnDocumentToEntity(d));
+                // === create enumerator ===
+
+                try
+                {
+                    enumerator = Arango.ExecuteAqlQuery(Query)
+                        .Select(d => TurnDocumentToEntity(d))
+                        .GetEnumerator();
+                }
+                catch (ArangoException e) when (e.ErrorNumber == 1203)
+                {
+                    yield break;
+                }
+
+                // === iterate over the enumerator ===
+                
+                while (true)
+                {
+                    TEntity current;
+                    
+                    try
+                    {
+                        if (!enumerator.MoveNext())
+                            break;
+
+                        current = enumerator.Current;
+                    }
+                    catch (ArangoException e) when (e.ErrorNumber == 1203)
+                    {
+                        yield break;
+                    }
+
+                    yield return current;
+                }
             }
-            catch (ArangoException e) when (e.ErrorNumber == 1203)
+            finally
             {
-                // collection or view not found
-                return Enumerable.Empty<TEntity>();
+                enumerator?.Dispose();
             }
         }
 
