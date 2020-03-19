@@ -102,12 +102,18 @@ namespace Unisave.Arango
         /// </summary>
         public Uri BuildUrl(string url)
         {
+            if (url == null)
+                throw new ArgumentNullException(nameof(url));
+            
+            if (!url.StartsWith("/"))
+                url = "/" + url;
+
+            string baseUrl = BaseUrl;
+            if (!baseUrl.EndsWith("/"))
+                baseUrl += "/";
+
             return new Uri(
-                new Uri(
-                    new Uri(BaseUrl),
-                    "/_db/" + Uri.EscapeUriString(Database) + "/"
-                ),
-                url
+                baseUrl + "_db/" + Uri.EscapeUriString(Database) + url
             );
         }
 
