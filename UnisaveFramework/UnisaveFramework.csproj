@@ -150,6 +150,7 @@
     <Compile Include="Exceptions\FacetSearchException.cs" />
     <Compile Include="Exceptions\MethodSearchException.cs" />
     <Compile Include="Utils\ExecutionHelper.cs" />
+    <Compile Include="Utils\Hash.cs" />
     <Compile Include="Utils\Str.cs" />
     <Compile Include="Serialization\SerializationParams.cs" />
     <Compile Include="Exceptions\NetworkingException.cs" />
