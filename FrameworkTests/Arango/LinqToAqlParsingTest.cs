@@ -1,9 +1,11 @@
 using System;
+using System.Linq.Expressions;
 using LightJson;
 using NUnit.Framework;
 using Unisave;
 using Unisave.Arango.Expressions;
 using Unisave.Entities;
+using Unisave.Serialization;
 using UnityEngine;
 
 namespace FrameworkTests.Arango
@@ -239,7 +241,7 @@ namespace FrameworkTests.Arango
                 parser.Parse(() => Math.Abs(-x)).ToAql()
             );
         }
-        
+
         [Test]
         public void NonParametrizedFunctionsGetExecuted()
         {
@@ -272,6 +274,43 @@ namespace FrameworkTests.Arango
             Assert.AreEqual(
                 "DOCUMENT(\"users\", x.foo)",
                 parser.Parse((x) => AF.Document("users", x["foo"])).ToAql()
+            );
+        }
+        
+        [Test]
+        public void ItParsesDateTimeConstants()
+        {
+            // This test checks whether entities can be filtered by attributes.
+
+            DateTime time = DateTime.UtcNow;
+            string timeString = Serializer.ToJson(time);
+            Expression<Func<Entity, bool>> expression
+                = (entity) => entity.UpdatedAt <= time;
+            
+            Assert.AreEqual(
+                $"(entity.UpdatedAt <= \"{timeString}\")",
+                parser.ParseExpression(expression.Body).ToAql()
+            );
+        }
+
+        // this class is used in the test below
+        private class EntityWithEnumAttribute : Entity
+        {
+            public ConsoleColor EnumAttribute { get; set; }
+        }
+        
+        [Test]
+        public void ItParsesEnumConstants()
+        {
+            // This test checks whether entities can be filtered by attributes.
+
+            Expression<Func<EntityWithEnumAttribute, bool>> expression
+                = (entity) => entity.EnumAttribute == ConsoleColor.Cyan;
+
+            int code = (int)ConsoleColor.Cyan;
+            Assert.AreEqual(
+                $"(entity.UpdatedAt == \"Cyan={code}\")",
+                parser.ParseExpression(expression.Body).ToAql()
             );
         }
 
