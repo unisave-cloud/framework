@@ -223,13 +223,25 @@ namespace Unisave.Serialization
 
         private static JsonValue EnumToJson(object subject, Type type)
         {
-            // NOTE: String part is for "What the f**k does value 5 mean?"
-            //       Integer part is used for the actual deserialization
+            // NOTE: Enums used to be serialized as strings "Name=42",
+            // but that caused problems in linq expression trees
+            // and enum arithmetic: "Foo.A | Foo.B"
 
-            return subject.ToString() + "=" + ((int)subject).ToString();
+            return (int)subject;
+            
+            // Legacy serialization:
+            // return subject.ToString() + "=" + ((int)subject).ToString();
         }
 
         private static object EnumFromJson(JsonValue json, Type type)
+        {
+            if (json.IsInteger)
+                return json.AsInteger;
+
+            return LegacyEnumFromJson(json, type);
+        }
+
+        private static object LegacyEnumFromJson(JsonValue json, Type type)
         {
             // NOTE: String part is for "What the f**k does value 5 mean?"
             //       Integer part is used for the actual deserialization
@@ -238,7 +250,8 @@ namespace Unisave.Serialization
 
             if (value == null)
             {
-                Warning($"Loading enum {type} failed because the provided value was invalid: {json.ToString()}");
+                Warning($"Loading enum {type} failed because the provided " +
+                        $"value was invalid: {json.ToString()}");
                 return 0;
             }
 
@@ -246,13 +259,15 @@ namespace Unisave.Serialization
 
             if (parts.Length != 2)
             {
-                Warning($"Loading enum {type} failed because the provided value was invalid: {json.ToString()}");
+                Warning($"Loading enum {type} failed because the provided " +
+                        $"value was invalid: {json.ToString()}");
                 return 0;
             }
 
             if (!int.TryParse(parts[1], out int intValue))
             {
-                Warning($"Loading enum {type} failed because the provided value was invalid: {json.ToString()}");
+                Warning($"Loading enum {type} failed because the provided " +
+                        $"value was invalid: {json.ToString()}");
                 return 0;
             }
 

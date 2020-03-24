@@ -309,7 +309,7 @@ namespace FrameworkTests.Arango
 
             int code = (int)ConsoleColor.Cyan;
             Assert.AreEqual(
-                $"(entity.UpdatedAt == \"Cyan={code}\")",
+                $"(entity.EnumAttribute == {code})",
                 parser.ParseExpression(expression.Body).ToAql()
             );
         }
