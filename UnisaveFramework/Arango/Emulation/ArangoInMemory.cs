@@ -82,7 +82,7 @@ namespace Unisave.Arango.Emulation
         /// <summary>
         /// Executes an AQL query against the database
         /// </summary>
-        public IEnumerable<JsonValue> ExecuteAqlQuery(AqlQuery query)
+        public List<JsonValue> ExecuteAqlQuery(AqlQuery query)
         {
             return Executor.Execute(query);
         }
@@ -97,7 +97,7 @@ namespace Unisave.Arango.Emulation
         
         #region "IArango interface"
 
-        IEnumerable<JsonValue> IArango.ExecuteAqlQuery(AqlQuery query)
+        List<JsonValue> IArango.ExecuteAqlQuery(AqlQuery query)
             => ExecuteAqlQuery(query);
 
         void IArango.CreateCollection(

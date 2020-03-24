@@ -276,7 +276,7 @@ namespace Unisave.Modules.Matchmaking
         /// </summary>
         protected virtual void CleanUpMatches()
         {
-            var matches = DB.TakeAll<TMatchEntity>().GetEnumerable();
+            var matches = DB.TakeAll<TMatchEntity>().Get();
 
             var now = DateTime.UtcNow;
 

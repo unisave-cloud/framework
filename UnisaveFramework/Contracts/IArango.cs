@@ -13,7 +13,7 @@ namespace Unisave.Contracts
         /// <summary>
         /// Run an AQL query on the database
         /// </summary>
-        IEnumerable<JsonValue> ExecuteAqlQuery(AqlQuery query);
+        List<JsonValue> ExecuteAqlQuery(AqlQuery query);
 
         /// <summary>
         /// Create a new collection

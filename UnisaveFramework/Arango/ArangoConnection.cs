@@ -156,8 +156,10 @@ namespace Unisave.Arango
         
         #endregion
 
-        public IEnumerable<JsonValue> ExecuteAqlQuery(AqlQuery query)
+        public List<JsonValue> ExecuteAqlQuery(AqlQuery query)
         {
+            var results = new List<JsonValue>();
+            
             string aql = query.ToAql();
             
             // create cursor
@@ -170,7 +172,7 @@ namespace Unisave.Arango
 
             // get the first batch of results
             foreach (JsonValue item in response["result"].AsJsonArray)
-                yield return item;
+                results.Add(item);
             
             // get all the remaining batches
             while (response["hasMore"])
@@ -178,8 +180,10 @@ namespace Unisave.Arango
                 response = Put("/_api/cursor/" + Uri.EscapeUriString(cursorId));
                 
                 foreach (JsonValue item in response["result"].AsJsonArray)
-                    yield return item;
+                    results.Add(item);
             }
+
+            return results;
         }
 
         public void CreateCollection(string collectionName, CollectionType type)

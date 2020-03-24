@@ -67,59 +67,21 @@ namespace Unisave.Entities.Query
         /// <summary>
         /// Get all entities matching the query as an enumerable
         /// </summary>
-        public IEnumerable<TEntity> GetEnumerable()
+        public List<TEntity> Get()
         {
             // add the return statement, otherwise nothing gets returned
             Query.Return("entity");
-            
-            // NOTE:
-            // What follows is basically just a foreach that casts
-            // json values to entity instances.
-            //
-            // The problem is that we need to check for "missing collection"
-            // exception and that's where the clutter is produced.
 
-            IEnumerator<TEntity> enumerator = null;
-            
             try
             {
-                // === create enumerator ===
-
-                try
-                {
-                    enumerator = Arango.ExecuteAqlQuery(Query)
-                        .Select(d => TurnDocumentToEntity(d))
-                        .GetEnumerator();
-                }
-                catch (ArangoException e) when (e.ErrorNumber == 1203)
-                {
-                    yield break;
-                }
-
-                // === iterate over the enumerator ===
-                
-                while (true)
-                {
-                    TEntity current;
-                    
-                    try
-                    {
-                        if (!enumerator.MoveNext())
-                            break;
-
-                        current = enumerator.Current;
-                    }
-                    catch (ArangoException e) when (e.ErrorNumber == 1203)
-                    {
-                        yield break;
-                    }
-
-                    yield return current;
-                }
+                return Arango.ExecuteAqlQuery(Query)
+                    .Select(d => TurnDocumentToEntity(d))
+                    .ToList();
             }
-            finally
+            catch (ArangoException e) when (e.ErrorNumber == 1203)
             {
-                enumerator?.Dispose();
+                // collection does not exist
+                return new List<TEntity>();
             }
         }
 
@@ -136,21 +98,19 @@ namespace Unisave.Entities.Query
         }
 
         /// <summary>
-        /// Get all entities matching the query as a list
-        /// </summary>
-        public List<TEntity> Get()
-        {
-            return GetEnumerable().ToList();
-        }
-
-        /// <summary>
         /// Get the first entity in the query
         /// </summary>
         public TEntity First()
         {
             // TODO: use proper limit operation
             // Query.AddLimitOperation(...)
-            return GetEnumerable().FirstOrDefault();
+
+            var entities = Get();
+            
+            if (entities.Count == 0)
+                return null;
+
+            return entities[0];
         }
     }
 }

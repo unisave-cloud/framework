@@ -33,7 +33,7 @@ namespace Unisave.Arango.Execution
         /// <summary>
         /// Executes an AQL query
         /// </summary>
-        public IEnumerable<JsonValue> Execute(AqlQuery query)
+        public List<JsonValue> Execute(AqlQuery query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
@@ -88,7 +88,7 @@ namespace Unisave.Arango.Execution
             foreach (var _ in frameStream)
             { /* do nothing (let the pipeline work) */ }
             
-            return Enumerable.Empty<JsonValue>();
+            return new List<JsonValue>();
         }
 
         /// <summary>
