@@ -84,31 +84,24 @@ namespace UnityEngine
 		
 		#region "Useful constants"
 		
-		private static readonly Vector3 zeroVector = new Vector3(0f, 0f, 0f);
-		private static readonly Vector3 oneVector = new Vector3(1f, 1f, 1f);
-		private static readonly Vector3 upVector = new Vector3(0f, 1f, 0f);
-		private static readonly Vector3 downVector = new Vector3(0f, -1f, 0f);
-		private static readonly Vector3 leftVector = new Vector3(-1f, 0f, 0f);
-		private static readonly Vector3 rightVector = new Vector3(1f, 0f, 0f);
-		private static readonly Vector3 forwardVector = new Vector3(0f, 0f, 1f);
-		private static readonly Vector3 backVector = new Vector3(0f, 0f, -1f);
-		private static readonly Vector3 positiveInfinityVector = new Vector3(
-			float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity
+		public static Vector3 zero => new Vector3(0f, 0f, 0f);
+		public static Vector3 one => new Vector3(1f, 1f, 1f);
+		public static Vector3 forward => new Vector3(0f, 0f, 1f);
+		public static Vector3 back => new Vector3(0f, 0f, -1f);
+		public static Vector3 up => new Vector3(0f, 1f, 0f);
+		public static Vector3 down => new Vector3(0f, -1f, 0f);
+		public static Vector3 left => new Vector3(-1f, 0f, 0f);
+		public static Vector3 right => new Vector3(1f, 0f, 0f);
+		public static Vector3 positiveInfinity => new Vector3(
+			float.PositiveInfinity,
+			float.PositiveInfinity,
+			float.PositiveInfinity
 		);
-		private static readonly Vector3 negativeInfinityVector = new Vector3(
-			float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity
+		public static Vector3 negativeInfinity => new Vector3(
+			float.NegativeInfinity,
+			float.NegativeInfinity,
+			float.NegativeInfinity
 		);
-
-		public static Vector3 zero => zeroVector;
-		public static Vector3 one => oneVector;
-		public static Vector3 forward => forwardVector;
-		public static Vector3 back => backVector;
-		public static Vector3 up => upVector;
-		public static Vector3 down => downVector;
-		public static Vector3 left => leftVector;
-		public static Vector3 right => rightVector;
-		public static Vector3 positiveInfinity => positiveInfinityVector;
-		public static Vector3 negativeInfinity => negativeInfinityVector;
 		
 		#endregion
 		
