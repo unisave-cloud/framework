@@ -30,9 +30,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="UnityEngine">
-      <HintPath>..\Unity\UnityEngine.dll</HintPath>
-    </Reference>
     <Reference Include="RSG.Promise">
       <HintPath>..\packages\RSG.Promise.3.0.1\lib\net35\RSG.Promise.dll</HintPath>
     </Reference>
@@ -176,6 +173,10 @@
     <Compile Include="Exceptions\PlayerRegistration\InvalidPasswordException.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FakeUnity\FakeUnity.csproj">
+      <Project>{013b37ef-0121-48d1-83ab-4d8a9322871d}</Project>
+      <Name>FakeUnity</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LightJson\Sources\LightJson\LightJson.csproj">
       <Project>{3BC85E8B-8A37-4015-B4A8-2D973F8622F1}</Project>
       <Name>LightJson</Name>

@@ -68,15 +68,15 @@ namespace UnityEngine
 		#region "Useful constants"
 		
 		public static Vector2 zero => new Vector2(0f, 0f);
-		private static Vector2 one => new Vector2(1f, 1f);
-		private static Vector2 up => new Vector2(0f, 1f);
-		private static Vector2 down => new Vector2(0f, -1f);
-		private static Vector2 left => new Vector2(-1f, 0f);
-		private static Vector2 right => new Vector2(1f, 0f);
-		private static Vector2 positiveInfinity => new Vector2(
+		public static Vector2 one => new Vector2(1f, 1f);
+		public static Vector2 up => new Vector2(0f, 1f);
+		public static Vector2 down => new Vector2(0f, -1f);
+		public static Vector2 left => new Vector2(-1f, 0f);
+		public static Vector2 right => new Vector2(1f, 0f);
+		public static Vector2 positiveInfinity => new Vector2(
 			float.PositiveInfinity, float.PositiveInfinity
 		);
-		private static Vector2 negativeInfinity => new Vector2(
+		public static Vector2 negativeInfinity => new Vector2(
 			float.NegativeInfinity, float.NegativeInfinity
 		);
 		

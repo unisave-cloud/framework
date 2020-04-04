@@ -49,9 +49,6 @@
       <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.1\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>..\Unity\UnityEngine.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Arango\ExpressionEvaluationTest.cs" />
@@ -97,6 +94,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FakeUnity\FakeUnity.csproj">
+      <Project>{013b37ef-0121-48d1-83ab-4d8a9322871d}</Project>
+      <Name>FakeUnity</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LightJson\Sources\LightJson\LightJson.csproj">
       <Project>{3BC85E8B-8A37-4015-B4A8-2D973F8622F1}</Project>
       <Name>LightJson</Name>

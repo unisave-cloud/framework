@@ -20,6 +20,16 @@ namespace FrameworkTests.Serialization
                 Serializer.FromJsonString<Vector2>(@"{""x"":1.0,""y"":2.0}")
             );
             
+            // Vector2Int
+            Assert.AreEqual(
+                @"{""x"":1,""y"":2}",
+                Serializer.ToJson(new Vector2Int(1, 2)).ToString()
+            );
+            Assert.AreEqual(
+                new Vector2Int(1, 2),
+                Serializer.FromJsonString<Vector2Int>(@"{""x"":1,""y"":2}")
+            );
+            
             // Vector3
             Assert.AreEqual(
                 @"{""x"":1,""y"":2,""z"":3}",
@@ -29,6 +39,18 @@ namespace FrameworkTests.Serialization
                 new Vector3(1, 2, 3),
                 Serializer.FromJsonString<Vector3>(
                     @"{""x"":1.0,""y"":2.0,""z"":3.0}"
+                )
+            );
+            
+            // Vector3Int
+            Assert.AreEqual(
+                @"{""x"":1,""y"":2,""z"":3}",
+                Serializer.ToJson(new Vector3Int(1, 2, 3)).ToString()
+            );
+            Assert.AreEqual(
+                new Vector3Int(1, 2, 3),
+                Serializer.FromJsonString<Vector3Int>(
+                    @"{""x"":1,""y"":2,""z"":3}"
                 )
             );
             
