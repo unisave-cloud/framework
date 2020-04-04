@@ -108,7 +108,7 @@ namespace UnityEngine
 		#region "Magnitude related stuff"
 		
 		public Vector3 normalized => Normalize(this);
-		public float magnitude => (float)Math.Sqrt(sqrMagnitude);
+		public float magnitude => Mathf.Sqrt(sqrMagnitude);
 		public float sqrMagnitude => x * x + y * y + z * z;
 		
 		public static float Magnitude(Vector3 vector)
@@ -116,6 +116,9 @@ namespace UnityEngine
 
 		public static float SqrMagnitude(Vector3 vector)
 			=> vector.sqrMagnitude;
+		
+		public float SqrMagnitude()
+			=> sqrMagnitude;
 		
 		public static Vector3 Normalize(Vector3 value)
 		{
