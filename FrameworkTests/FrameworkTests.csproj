@@ -94,10 +94,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FakeUnity\FakeUnity.csproj">
-      <Project>{013b37ef-0121-48d1-83ab-4d8a9322871d}</Project>
-      <Name>FakeUnity</Name>
-    </ProjectReference>
     <ProjectReference Include="..\LightJson\Sources\LightJson\LightJson.csproj">
       <Project>{3BC85E8B-8A37-4015-B4A8-2D973F8622F1}</Project>
       <Name>LightJson</Name>
@@ -105,6 +101,10 @@
     <ProjectReference Include="..\UnisaveFramework\UnisaveFramework.csproj">
       <Project>{DBFE1B89-FF6D-4ED7-BEA3-C6377F6A0B40}</Project>
       <Name>UnisaveFramework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UnityEngine\UnityEngine.csproj">
+      <Project>{013b37ef-0121-48d1-83ab-4d8a9322871d}</Project>
+      <Name>UnityEngine</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

@@ -6,7 +6,7 @@
     <ProjectGuid>{013B37EF-0121-48D1-83AB-4D8A9322871D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>UnityEngine</RootNamespace>
-    <AssemblyName>FakeUnity</AssemblyName>
+    <AssemblyName>UnityEngine</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
