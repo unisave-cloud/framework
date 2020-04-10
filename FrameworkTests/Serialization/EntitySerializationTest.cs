@@ -28,7 +28,7 @@ namespace FrameworkTests.Serialization
         [Test]
         public void ItSerializesEntityReferences()
         {
-            string id = "entities_Entity/foo";
+            string id = EntityUtils.CollectionPrefix + "Entity/foo";
             var reference = new EntityReference<Entity>(id);
 
             Assert.AreEqual(id, Serializer.ToJson(reference).AsString);

@@ -4,6 +4,7 @@ using FrameworkTests.TestingUtils;
 using NUnit.Framework;
 using Unisave.Arango.Expressions;
 using Unisave.Authentication;
+using Unisave.Entities;
 using Unisave.Facades;
 using Unisave.Modules.Matchmaking;
 using Unisave.Modules.Matchmaking.Exceptions;
@@ -410,7 +411,9 @@ namespace FrameworkTests.Modules.Matchmaking.Basic
                     .AddSeconds(-1)
             );
             AQL.Query()
-                .Replace(() => document).In("entities_BmMatchEntity")
+                .Replace(() => document).In(
+                    EntityUtils.CollectionPrefix + "BmMatchEntity"
+                )
                 .Execute();
             oldMatch.Refresh();
             

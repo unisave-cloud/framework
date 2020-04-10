@@ -100,12 +100,14 @@ namespace FrameworkTests.Entities
             });
             
             Assert.Throws<ArgumentException>(() => {
-                new EntityReference<StubPlayerEntity>("entities_Nope/asd");
+                new EntityReference<StubPlayerEntity>(
+                    EntityUtils.CollectionPrefix + "Nope/asd"
+                );
             });
             
             Assert.DoesNotThrow(() => {
                 new EntityReference<StubPlayerEntity>(
-                    "entities_StubPlayerEntity/asd"
+                    EntityUtils.CollectionPrefix + "StubPlayerEntity/asd"
                 );
             });
         }

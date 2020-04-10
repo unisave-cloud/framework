@@ -14,7 +14,7 @@ namespace Unisave.Entities
         /// <summary>
         /// Prefix for entity collection names
         /// </summary>
-        public const string CollectionPrefix = "entities_";
+        public const string CollectionPrefix = "e_";
 
         /// <summary>
         /// Builds collection name from entity string type

@@ -24,12 +24,12 @@ namespace FrameworkTests.Entities
             manager = new EntityManager(arango);
             
             players = arango.CreateCollection(
-                "entities_PlayerEntity",
+                EntityUtils.CollectionPrefix + "PlayerEntity",
                 CollectionType.Document
             );
             
             motorbikes = arango.CreateCollection(
-                "entities_MotorbikeEntity",
+                EntityUtils.CollectionPrefix + "MotorbikeEntity",
                 CollectionType.Document
             );
 
@@ -161,18 +161,22 @@ namespace FrameworkTests.Entities
         [Test]
         public void InsertingIntoNonExistingCollectionCreatesOne()
         {
-            Assert.IsFalse(arango.Collections.ContainsKey("entities_NewEntity"));
+            Assert.IsFalse(arango.Collections.ContainsKey(
+                EntityUtils.CollectionPrefix + "NewEntity")
+            );
             
             manager.Insert(new JsonObject()
                 .Add("$type", "NewEntity")
                 .Add("Name", "George")
             );
             
-            Assert.IsTrue(arango.Collections.ContainsKey("entities_NewEntity"));
+            Assert.IsTrue(arango.Collections.ContainsKey(
+                EntityUtils.CollectionPrefix + "NewEntity")
+            );
 
             Assert.IsTrue(
                 arango
-                    .Collections["entities_NewEntity"]
+                    .Collections[EntityUtils.CollectionPrefix + "NewEntity"]
                     .Any(d => d["Name"] == "George")
             );
         }
@@ -190,7 +194,7 @@ namespace FrameworkTests.Entities
                 .Add("Name", "Johnny")
                 .Add("Foo", "bar")
                 .Add("_key", "john")
-                .Add("_id", "entities_PlayerEntity/john")
+                .Add("_id", EntityUtils.CollectionPrefix + "PlayerEntity/john")
                 .Add("_rev", "123456789")
                 // rev does not match, but we're not careful
             );
