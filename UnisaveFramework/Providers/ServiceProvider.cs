@@ -15,5 +15,13 @@ namespace Unisave.Providers
         /// Register services into the container
         /// </summary>
         public abstract void Register();
+
+        /// <summary>
+        /// Called during application teardown
+        /// </summary>
+        public virtual void TearDown()
+        {
+            // nothing, override this
+        }
     }
 }

@@ -66,6 +66,8 @@ namespace Unisave.Runtime
                         // then directly call proper kernel (method handler).
 
                         var env = Env.Parse(executionParameters.EnvSource);
+
+                        JsonValue methodResult;
                         
                         using (var app = Bootstrap.Boot(
                             gameAssemblyTypes,
@@ -75,19 +77,18 @@ namespace Unisave.Runtime
                         {
                             Facade.SetApplication(app);
                             
-                            JsonValue methodResult = ExecuteProperMethod(
+                            methodResult = ExecuteProperMethod(
                                 executionParameters,
                                 app
                             );
                             
                             Facade.SetApplication(null);
-                            
-                            return new JsonObject()
-                                .Add("result", "ok")
-                                .Add("returned", methodResult)
-                                .Add("special", specialValues.ToJsonObject());
                         }
                         
+                        return new JsonObject()
+                            .Add("result", "ok")
+                            .Add("returned", methodResult)
+                            .Add("special", specialValues.ToJsonObject());
                     }
                 );
 

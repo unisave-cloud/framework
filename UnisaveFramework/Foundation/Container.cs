@@ -198,7 +198,7 @@ namespace Unisave.Foundation
         /// <summary>
         /// Disposes all disposable services and clears the service container
         /// </summary>
-        public void Dispose()
+        public virtual void Dispose()
         {
             simpleBinds.Clear();
             singletonBinds.Clear();

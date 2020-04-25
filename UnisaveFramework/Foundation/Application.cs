@@ -14,23 +14,47 @@ namespace Unisave.Foundation
         /// </summary>
         public Type[] GameAssemblyTypes { get; }
 
+        /// <summary>
+        /// Loaded service providers
+        /// </summary>
+        private ServiceProvider[] providers;
+
         public Application(Type[] gameAssemblyTypes)
         {
             GameAssemblyTypes = gameAssemblyTypes;
         }
 
-        // TODO: replace this with something more configurable later
         public void RegisterServiceProviders()
         {
-            ServiceProvider[] providers = {
-                new SessionServiceProvider(this),
-                new EntityServiceProvider(this),
-                new ArangoServiceProvider(this),
-                new AuthServiceProvider(this), 
-            };
+            LoadServiceProviders();
             
             foreach (var p in providers)
                 p.Register();
+        }
+
+        // TODO: replace this with something more configurable later
+        private void LoadServiceProviders()
+        {
+            providers = new ServiceProvider[] {
+                new LogServiceProvider(this),
+                new SessionServiceProvider(this),
+                new EntityServiceProvider(this),
+                new ArangoServiceProvider(this),
+                new AuthServiceProvider(this)
+            };
+        }
+
+        public override void Dispose()
+        {
+            if (providers != null)
+            {
+                for (int i = providers.Length - 1; i >= 0; i--)
+                    providers[i].TearDown();
+
+                providers = null;
+            }
+            
+            base.Dispose();
         }
     }
 }
