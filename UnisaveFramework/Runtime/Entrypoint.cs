@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using LightJson;
 using Unisave.Serialization;
 using Unisave.Exceptions;
@@ -45,6 +46,8 @@ namespace Unisave.Runtime
             
             someExecutionIsRunning = true;
 
+            var executionStopwatch = Stopwatch.StartNew();
+
             try
             {
                 PrintGreeting();
@@ -87,6 +90,10 @@ namespace Unisave.Runtime
                         
                     }
                 );
+
+                executionStopwatch.Stop();
+                result["special"].AsJsonObject["executionDuration"]
+                    = executionStopwatch.ElapsedMilliseconds / 1000.0;
 
                 return result.ToString();
             }
