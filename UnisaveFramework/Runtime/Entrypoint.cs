@@ -1,145 +1,184 @@
 ﻿using System;
+using System.Diagnostics;
 using LightJson;
-using LightJson.Serialization;
 using Unisave.Serialization;
 using Unisave.Exceptions;
-using Unisave.Database;
-using Unisave.Services;
+using Unisave.Facades;
+using Unisave.Foundation;
+using Unisave.Runtime.Kernels;
+using Unisave.Runtime.Methods;
 
 namespace Unisave.Runtime
 {
     /// <summary>
-    /// Handles server-side code bootstrapping
+    /// Here is where all execution begins
     /// </summary>
     public static class Entrypoint
     {
         /// <summary>
-        /// Executes given server-side script based on the provided execution parameters
-        /// Accepts execution parameters and returns execution result
-        /// For more info see the internal documentation
+        /// Should uncaught exceptions, raised during the execution,
+        /// be serialized and returned as a response, or should they
+        /// be left to propagate upwards?
         /// </summary>
-        public static string Start(string executionParametersAsJson, Type[] gameAssemblyTypes)
+        internal static bool SerializeExceptions { get; set; } = true;
+
+        /// <summary>
+        /// Used to detect recursion in framework executions
+        /// </summary>
+        private static bool someExecutionIsRunning;
+        
+        /// <summary>
+        /// Main entrypoint to the framework execution
+        /// Given executionParameters it starts some action which results.
+        /// in a returned value or an exception.
+        /// 
+        /// Input and output are serialized as JSON strings.
+        /// </summary>
+        public static string Start(
+            string executionParametersAsJson,
+            Type[] gameAssemblyTypes
+        )
+        {
+            if (someExecutionIsRunning)
+                throw new InvalidOperationException(
+                    "You cannot start the framework from within the framework."
+                );
+            
+            someExecutionIsRunning = true;
+
+            var executionStopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                PrintGreeting();
+
+                var executionParameters = ExecutionParameters
+                    .Parse(executionParametersAsJson);
+
+                var specialValues = new SpecialValues();
+
+                JsonObject result = HandleExceptionSerialization(
+                    specialValues,
+                    () => {
+                        
+                        // NOTE: this place is where a test/emulation
+                        // is started. Simply boot the application and
+                        // then directly call proper kernel (method handler).
+
+                        var env = Env.Parse(executionParameters.EnvSource);
+
+                        JsonValue methodResult;
+                        
+                        using (var app = Bootstrap.Boot(
+                            gameAssemblyTypes,
+                            env,
+                            specialValues
+                        ))
+                        {
+                            Facade.SetApplication(app);
+                            
+                            methodResult = ExecuteProperMethod(
+                                executionParameters,
+                                app
+                            );
+                            
+                            Facade.SetApplication(null);
+                        }
+                        
+                        return new JsonObject()
+                            .Add("result", "ok")
+                            .Add("returned", methodResult)
+                            .Add("special", specialValues.ToJsonObject());
+                    }
+                );
+
+                executionStopwatch.Stop();
+                result["special"].AsJsonObject["executionDuration"]
+                    = executionStopwatch.ElapsedMilliseconds / 1000.0;
+
+                return result.ToString();
+            }
+            finally
+            {
+                someExecutionIsRunning = false;
+            }
+        }
+
+        /// <summary>
+        /// Prints framework greeting to the commandline
+        /// </summary>
+        private static void PrintGreeting()
         {
             Console.WriteLine(
                 "Starting Unisave framework " + FrameworkMeta.Version
             );
+        }
 
-            JsonObject executionParameters = JsonReader.Parse(executionParametersAsJson);
-
-            // extract arguments
-            string executionMethod = executionParameters[nameof(executionMethod)];
-            JsonValue methodParameters = executionParameters[nameof(methodParameters)];
-
-            JsonValue methodResponse;
-
+        /// <summary>
+        /// Handles serialization of exceptions that
+        /// might be thrown by the provided lambda
+        /// </summary>
+        private static JsonObject HandleExceptionSerialization(
+            SpecialValues specialValues,
+            Func<JsonObject> action
+        )
+        {
             try
             {
-                // prepare the runtime environment
-                BootUpServices();
-
-                // do the business
-                methodResponse = ExecuteProperMethod(executionMethod, methodParameters, gameAssemblyTypes);
-
-                // tear down the runtime environment
-                TearDownServices();
+                return action.Invoke();
             }
             catch (GameScriptException e)
             {
-                // game code threw en exception
-                // propagate the exception to the client
+                // TODO: remove these funky GameScriptExceptions
+                // (to preserve stacktrace, see OnFacet testing helper)
+                
+                if (!SerializeExceptions)
+                    throw;
+                
                 return new JsonObject()
                     .Add("result", "exception")
-                    .Add("exceptionAsString", e.InnerException?.ToString())
                     .Add("exception", Serializer.ToJson(e.InnerException))
-                    .ToString();
-            }
-            catch (InvalidMethodParametersException e)
-            {
-                // method invocation failed even before the target code was executed
-                return new JsonObject()
-                    .Add("result", "invalid-method-parameters")
-                    .Add("message", e.Message + (e.InnerException == null ? "" : "\n" + e.InnerException.ToString()))
-                    .ToString();
+                    .Add("special", specialValues.ToJsonObject());
             }
             catch (Exception e)
             {
-                // unhandled exception coming from inside the bootstrapping logic
-                // this is bad
+                if (!SerializeExceptions)
+                    throw;
+                
                 return new JsonObject()
-                    .Add("result", "error")
-                    .Add("errorMessage", "Unhandled exception caught inside Entrypoint.Start:\n" + e.ToString())
-                    .ToString();
+                    .Add("result", "exception")
+                    .Add("exception", Serializer.ToJson(e))
+                    .Add("special", specialValues.ToJsonObject());
             }
-
-            // successful execution
-            return new JsonObject()
-                .Add("result", "ok")
-                .Add("methodResponse", methodResponse)
-                .ToString();
         }
-
-        // prevents teardown of testing-injected services
-        private static bool servicesHaveBeenAlreadyPrepared;
-
-        /// <summary>
-        /// Initializes services, like database connection
-        /// </summary>
-        private static void BootUpServices()
-        {
-            // if we already have a container, it has probably been
-            // given to us by some testing setup method <s>or it's perfectly
-            // setup by some previous script executions.</s>
-            //
-            // so won't create any services, since they should already be there
-            if (ServiceContainer.Default != null)
-            {
-                servicesHaveBeenAlreadyPrepared = true;
-                return;
-            }
-            else
-            {
-                servicesHaveBeenAlreadyPrepared = false;
-            }
-
-            // create container and fill it with services
-            var container = ServiceContainer.Default = new ServiceContainer();
-            
-            // database
-            container.Register<IDatabase>(new Services.SandboxDatabaseApi());
-        }
-
-        /// <summary>
-        /// Destroys all services and the container, before exiting
-        /// </summary>
-        private static void TearDownServices()
-        {
-            if (servicesHaveBeenAlreadyPrepared)
-                return;
-            
-            ServiceContainer.Default?.Dispose();
-            ServiceContainer.Default = null;
-        }
-
+        
         /// <summary>
         /// Select proper execution method and handle it
         /// </summary>
         private static JsonValue ExecuteProperMethod(
-            string executionMethod, JsonValue methodParameters, Type[] gameAssemblyTypes
+            ExecutionParameters executionParameters,
+            Application app
         )
         {
-            switch (executionMethod)
+            switch (executionParameters.Method)
             {
-                case "facet":
-                    return FacetCall.Start(methodParameters, gameAssemblyTypes);
-
-                case "migration":
-                    return MigrationCall.Start(methodParameters, gameAssemblyTypes);
-
-                case "player-registration-hook":
-                    return PlayerRegistrationHookCall.Start(methodParameters, gameAssemblyTypes);
+                case "entrypoint-test":
+                    return EntrypointTest.Start(
+                        executionParameters.MethodParameters,
+                        app.Resolve<SpecialValues>()
+                    );
+                
+                case "facet-call":
+                    var kernel = app.Resolve<FacetCallKernel>();
+                    var parameters = FacetCallKernel.MethodParameters
+                        .Parse(executionParameters.MethodParameters);
+                    return kernel.Handle(parameters);
 
                 default:
-                    throw new UnisaveException($"UnisaveFramework: Unknown execution method: {executionMethod}");
+                    throw new UnisaveException(
+                        "UnisaveFramework: Unknown execution method: "
+                        + executionParameters.Method
+                    );
             }
         }
     }

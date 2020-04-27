@@ -29,58 +29,138 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="UnityEngine">
-      <HintPath>..\Unity\UnityEngine.dll</HintPath>
-    </Reference>
+    <Reference Include="System.Net.Http" />
     <Reference Include="RSG.Promise">
       <HintPath>..\packages\RSG.Promise.3.0.1\lib\net35\RSG.Promise.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Arango\ArangoConnection.cs" />
+    <Compile Include="Arango\ArangoException.cs" />
+    <Compile Include="Arango\ArangoUtils.cs" />
+    <Compile Include="Arango\CollectionType.cs" />
+    <Compile Include="Arango\DocumentId.cs" />
+    <Compile Include="Arango\Emulation\Collection.cs" />
+    <Compile Include="Arango\Emulation\ArangoInMemory.cs" />
+    <Compile Include="Arango\Execution\AqlFunctionRepository.cs" />
+    <Compile Include="Arango\Execution\ExecutionFrame.cs" />
+    <Compile Include="Arango\Execution\IExecutionDataSource.cs" />
+    <Compile Include="Arango\Execution\QueryExecutionException.cs" />
+    <Compile Include="Arango\Execution\QueryExecutor.cs" />
+    <Compile Include="Arango\Expressions\AF.cs" />
+    <Compile Include="Arango\Expressions\AqlBinaryOperator.cs" />
+    <Compile Include="Arango\Expressions\AqlConstantExpression.cs" />
+    <Compile Include="Arango\Expressions\AqlExpression.cs" />
+    <Compile Include="Arango\Expressions\AqlExpressionType.cs" />
+    <Compile Include="Arango\Expressions\AqlFunctionExpression.cs" />
+    <Compile Include="Arango\Expressions\AqlJsonArrayExpression.cs" />
+    <Compile Include="Arango\Expressions\AqlJsonObjectExpression.cs" />
+    <Compile Include="Arango\Expressions\AqlMemberAccessExpression.cs" />
+    <Compile Include="Arango\Expressions\AqlParameterExpression.cs" />
+    <Compile Include="Arango\Expressions\AqlParsingException.cs" />
+    <Compile Include="Arango\Expressions\AqlUnaryOperator.cs" />
+    <Compile Include="Arango\Expressions\ArangoFunctionAttribute.cs" />
+    <Compile Include="Arango\Expressions\ExpressionConverter.cs" />
+    <Compile Include="Arango\Expressions\ExpressionDemungifier.cs" />
+    <Compile Include="Arango\Expressions\LinqToAqlExpressionParser.cs" />
+    <Compile Include="Arango\Query\AqlFilterOperation.cs" />
+    <Compile Include="Arango\Query\AqlForOperation.cs" />
+    <Compile Include="Arango\Query\AqlForOperationBuilder.cs" />
+    <Compile Include="Arango\Query\AqlInsertOperation.cs" />
+    <Compile Include="Arango\Query\AqlInsertOperationBuilder.cs" />
+    <Compile Include="Arango\Query\AqlOperation.cs" />
+    <Compile Include="Arango\Query\AqlOperationType.cs" />
+    <Compile Include="Arango\Query\AqlQuery.cs" />
+    <Compile Include="Arango\Query\AqlRemoveOperation.cs" />
+    <Compile Include="Arango\Query\AqlRemoveOperationBuilder.cs" />
+    <Compile Include="Arango\Query\AqlReplaceOperation.cs" />
+    <Compile Include="Arango\Query\AqlReplaceOperationBuilder.cs" />
+    <Compile Include="Arango\Query\AqlReturnOperation.cs" />
+    <Compile Include="Arango\Query\InvalidQueryException.cs" />
+    <Compile Include="Authentication\AuthException.cs" />
+    <Compile Include="Authentication\AuthenticationManager.cs" />
+    <Compile Include="Authentication\Middleware\Authenticate.cs" />
+    <Compile Include="Authentication\Middleware\AuthenticateSession.cs" />
+    <Compile Include="Contracts\IArango.cs" />
+    <Compile Include="Contracts\ILog.cs" />
+    <Compile Include="Contracts\ISession.cs" />
+    <Compile Include="Entities\AttributeMapping.cs" />
+    <Compile Include="Entities\Entity.cs" />
+    <Compile Include="Entities\EntityCrawler.cs" />
+    <Compile Include="Entities\EntityManager.cs" />
+    <Compile Include="Entities\EntityPersistenceException.cs" />
+    <Compile Include="Entities\EntityReference.cs" />
+    <Compile Include="Entities\EntityRevConflictException.cs" />
+    <Compile Include="Entities\EntitySearchException.cs" />
+    <Compile Include="Entities\EntityUtils.cs" />
+    <Compile Include="Entities\Query\EntityQuery.cs" />
+    <Compile Include="Exceptions\BindingResolutionException.cs" />
+    <Compile Include="Exceptions\ConfigurationException.cs" />
+    <Compile Include="Facades\AQL.cs" />
+    <Compile Include="Facades\Auth.cs" />
+    <Compile Include="Facades\Facade.cs" />
+    <Compile Include="Facades\Log.cs" />
+    <Compile Include="Facades\Session.cs" />
+    <Compile Include="Facets\Facet.cs" />
+    <Compile Include="Facets\FacetMiddleware.cs" />
+    <Compile Include="Facets\FacetRequest.cs" />
+    <Compile Include="Facets\FacetResponse.cs" />
+    <Compile Include="Foundation\Application.cs" />
+    <Compile Include="Foundation\Bootstrap.cs" />
+    <Compile Include="Foundation\Container.cs" />
+    <Compile Include="Foundation\Env.cs" />
+    <Compile Include="Logging\LogLevel.cs" />
+    <Compile Include="Logging\InMemoryLog.cs" />
+    <Compile Include="Modules\Matchmaking\BasicMatchEntity.cs" />
     <Compile Include="Modules\Matchmaking\BasicMatchmakerEntity.cs" />
     <Compile Include="Modules\Matchmaking\BasicMatchmakerFacet.cs" />
     <Compile Include="Modules\Matchmaking\BasicMatchmakerTicket.cs" />
     <Compile Include="Modules\Matchmaking\Exceptions\UnknownPlayerPollingException.cs" />
-    <Compile Include="Database\EntityOwnerIds.cs" />
-    <Compile Include="Database\EntityOwners.cs" />
-    <Compile Include="Database\JsonPath.cs" />
-    <Compile Include="Database\Query\BasicWhereClause.cs" />
-    <Compile Include="Database\Query\EntityQuery.cs" />
-    <Compile Include="Database\Query\QueryBuilder.cs" />
-    <Compile Include="Database\Query\WhereClause.cs" />
     <Compile Include="Exceptions\DatabaseDeadlockException.cs" />
     <Compile Include="Facades\DB.cs" />
     <Compile Include="FrameworkMeta.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Providers\ArangoServiceProvider.cs" />
+    <Compile Include="Providers\AuthServiceProvider.cs" />
+    <Compile Include="Providers\EntityServiceProvider.cs" />
+    <Compile Include="Providers\LogServiceProvider.cs" />
+    <Compile Include="Providers\ServiceProvider.cs" />
+    <Compile Include="Providers\SessionServiceProvider.cs" />
     <Compile Include="Runtime\ApiChannel.cs" />
+    <Compile Include="Runtime\ExecutionParameters.cs" />
+    <Compile Include="Runtime\Kernels\FacetCallKernel.cs" />
+    <Compile Include="Runtime\Methods\EntrypointTest.cs" />
     <Compile Include="Runtime\SandboxApi.cs" />
-    <Compile Include="Services\SandboxDatabaseApi.cs" />
-    <Compile Include="Services\ServiceContainer.cs" />
-    <Compile Include="UnisavePlayer.cs" />
-    <Compile Include="Facet.cs" />
+    <Compile Include="Runtime\SpecialValues.cs" />
+    <Compile Include="Sessions\InMemorySessionStorage.cs" />
+    <Compile Include="Sessions\ISessionStorage.cs" />
+    <Compile Include="Sessions\Middleware\StartSession.cs" />
+    <Compile Include="Sessions\SandboxApiSessionStorage.cs" />
+    <Compile Include="Sessions\SessionOverStorage.cs" />
+    <Compile Include="Testing\BasicBackendTestCase.CallsFacets.cs">
+      <DependentUpon>BasicBackendTestCase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Testing\BasicBackendTestCase.cs" />
+    <Compile Include="Testing\BasicBackendTestCase.InteractsWithAuthentication.cs">
+      <DependentUpon>BasicBackendTestCase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Testing\BasicBackendTestCase.MakesAssertions.cs">
+      <DependentUpon>BasicBackendTestCase.cs</DependentUpon>
+    </Compile>
     <Compile Include="Exceptions\UnisaveException.cs" />
     <Compile Include="Exceptions\InstantiationException.cs" />
     <Compile Include="Exceptions\FacetSearchException.cs" />
     <Compile Include="Exceptions\MethodSearchException.cs" />
-    <Compile Include="Database\IDatabase.cs" />
-    <Compile Include="Database\RawEntity.cs" />
-    <Compile Include="Facades\GetEntity.cs" />
+    <Compile Include="Utils\ExecutionHelper.cs" />
+    <Compile Include="Utils\Hash.cs" />
     <Compile Include="Utils\Str.cs" />
     <Compile Include="Serialization\SerializationParams.cs" />
     <Compile Include="Exceptions\NetworkingException.cs" />
     <Compile Include="Exceptions\ConnectionEndedException.cs" />
-    <Compile Include="Entity.cs" />
-    <Compile Include="Database\EntityCrawler.cs" />
     <Compile Include="CustomAttributes.cs" />
     <Compile Include="Runtime\Entrypoint.cs" />
-    <Compile Include="Runtime\FacetCall.cs" />
-    <Compile Include="Runtime\MigrationCall.cs" />
-    <Compile Include="Migration.cs" />
     <Compile Include="Exceptions\GameScriptException.cs" />
     <Compile Include="Exceptions\InvalidMethodParametersException.cs" />
-    <Compile Include="Runtime\PlayerRegistrationHookCall.cs" />
-    <Compile Include="PlayerRegistrationHook.cs" />
-    <Compile Include="Runtime\ExecutionHelper.cs" />
     <Compile Include="Exceptions\ExecutionSerializationException.cs" />
     <Compile Include="Serialization\Serializer.cs" />
     <Compile Include="Serialization\ITypeSerializer.cs" />
@@ -102,12 +182,15 @@
       <Project>{3BC85E8B-8A37-4015-B4A8-2D973F8622F1}</Project>
       <Name>LightJson</Name>
     </ProjectReference>
+    <ProjectReference Include="..\UnityEngine\UnityEngine.csproj">
+      <Project>{013b37ef-0121-48d1-83ab-4d8a9322871d}</Project>
+      <Name>UnityEngine</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Serialization\" />
     <Folder Include="Runtime\" />
     <Folder Include="Exceptions\" />
-    <Folder Include="Database\" />
     <Folder Include="Facades\" />
     <Folder Include="Utils\" />
     <Folder Include="Exceptions\ServerConnection\" />

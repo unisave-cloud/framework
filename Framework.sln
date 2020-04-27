@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightJson", "LightJson\Sour
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrameworkTests", "FrameworkTests\FrameworkTests.csproj", "{FF423938-96D1-49A6-8558-5FAFB75D384B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FakeUnity", "FakeUnity\FakeUnity.csproj", "{013B37EF-0121-48D1-83AB-4D8A9322871D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityEngine", "UnityEngine\UnityEngine.csproj", "{013B37EF-0121-48D1-83AB-4D8A9322871D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

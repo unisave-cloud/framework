@@ -1,0 +1,250 @@
+using System;
+using System.Linq;
+using LightJson;
+using LightJson.Serialization;
+using Unisave.Arango;
+using Unisave.Arango.Expressions;
+using Unisave.Arango.Query;
+using Unisave.Contracts;
+using Unisave.Serialization;
+
+namespace Unisave.Entities
+{
+    /// <summary>
+    /// Provides access to entities on the JsonObject level
+    /// (the first abstraction layer, mapping the concept
+    /// of entities onto ArangoDB documents and collections)
+    /// </summary>
+    public class EntityManager
+    {
+        /// <summary>
+        /// The underlying arango database
+        /// </summary>
+        private readonly IArango arango;
+        
+        public EntityManager(IArango arango)
+        {
+            this.arango = arango;
+        }
+
+        /// <summary>
+        /// Find entity by its ID
+        /// </summary>
+        public virtual JsonObject Find(string entityId)
+        {
+            try
+            {
+                var id = DocumentId.Parse(entityId);
+                id.ThrowIfHasNull();
+
+                var entity = arango.ExecuteAqlQuery(new AqlQuery()
+                    .Return(() => AF.Document(id.Collection, id.Key))
+                ).First().AsJsonObject;
+
+                if (entity == null)
+                    return null;
+
+                entity["$type"] = EntityUtils.TypeFromCollection(id.Collection);
+
+                return entity;
+            }
+            catch (ArangoException e) when (e.ErrorNumber == 1203)
+            {
+                // collection or view not found
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Find entity by type and key
+        /// </summary>
+        public virtual JsonObject Find(string entityType, string entityKey)
+            => Find(EntityUtils.EntityIdFromParts(entityType, entityKey));
+        
+        /// <summary>
+        /// Insert a new entity into the database and return the modified entity
+        /// </summary>
+        public virtual JsonObject Insert(JsonObject entity)
+        {
+            string type = entity["$type"].AsString;
+            
+            if (string.IsNullOrEmpty(type))
+                throw new ArgumentException("Provided entity has no '$type'");
+            
+            if (!string.IsNullOrEmpty(entity["_key"]))
+                throw new ArgumentException(
+                    "Provided entity has already been inserted"
+                );
+            
+            try
+            {
+                return AttemptInsert(type, entity);
+            }
+            catch (ArangoException e) when (e.ErrorNumber == 1203)
+            {
+                // collection not found -> create it
+                arango.CreateCollection(
+                    EntityUtils.CollectionFromType(type),
+                    CollectionType.Document
+                );
+                
+                return AttemptInsert(type, entity);
+            }
+        }
+
+        /// <summary>
+        /// Attempt to insert an entity, leaving any exceptions go
+        /// </summary>
+        private JsonObject AttemptInsert(string type, JsonObject entity)
+        {
+            JsonObject document = JsonReader.Parse(entity.ToString());
+            
+            // make sure _key and _rev are not even present
+            // (they will be set automatically to null, but arango
+            // requires them to not be present at all - null is not enough)
+            document.Remove("_key");
+            document.Remove("_rev");
+            
+            // don't store entity type
+            document.Remove("$type");
+            
+            // set timestamps
+            // (serializer instead of direct setting, because the serializer
+            // does not store "Z" (timezone), so deserialization does not
+            // correct for timezones and loads it as it is)
+            DateTime now = DateTime.UtcNow;
+            document["CreatedAt"] = Serializer.ToJson(now);
+            document["UpdatedAt"] = Serializer.ToJson(now);
+            
+            var newEntity = arango.ExecuteAqlQuery(new AqlQuery()
+                .Insert(document).Into(EntityUtils.CollectionFromType(type))
+                .Return("NEW")
+            ).First().AsJsonObject;
+
+            // add entity type to the object
+            newEntity["$type"] = type;
+
+            return newEntity;
+        }
+
+        /// <summary>
+        /// Updates the entity in the database and returns the updated entity
+        /// Careful insert checks revisions to detect write-write conflicts
+        /// </summary>
+        public virtual JsonObject Update(
+            JsonObject entity,
+            bool carefully = false
+        )
+        {
+            string type = entity["$type"].AsString;
+            
+            if (string.IsNullOrEmpty(type))
+                throw new ArgumentException("Provided entity has no '$type'");
+
+            string key = entity["_key"].AsString;
+            
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentException(
+                    "Provided entity has not been inserted yet"
+                );
+            
+            try
+            {
+                JsonObject oldDocument = Find(type, key);
+                
+                if (oldDocument == null)
+                    throw new ArangoException(404, 1202, "document not found");
+                
+                JsonObject newDocument = JsonReader.Parse(entity.ToString());
+                
+                // don't store entity type
+                newDocument.Remove("$type");
+            
+                // set timestamps
+                // (serializer instead of direct setting, because the serializer
+                // does not store "Z" (timezone), so deserialization does not
+                // correct for timezones and loads it as it is)
+                newDocument["CreatedAt"] = oldDocument["CreatedAt"];
+                newDocument["UpdatedAt"] = Serializer.ToJson(DateTime.UtcNow);
+                
+                var newEntity = arango.ExecuteAqlQuery(new AqlQuery()
+                    .Replace(() => newDocument)
+                    .CheckRevs(carefully)
+                    .In(EntityUtils.CollectionFromType(type))
+                    .Return("NEW")
+                ).First().AsJsonObject;
+                
+                // add entity type to the object
+                newEntity["$type"] = type;
+
+                return newEntity;
+            }
+            catch (ArangoException e)
+            {
+                if (e.ErrorNumber == 1203) // collection not found
+                    throw new EntityPersistenceException(
+                        "Entity has not yet been inserted, or already deleted"
+                    );
+                
+                if (e.ErrorNumber == 1202) // document not found
+                    throw new EntityPersistenceException(
+                        "Entity has not yet been inserted, or already deleted"
+                    );
+                
+                if (e.ErrorNumber == 1200) // conflict
+                    throw new EntityRevConflictException(
+                        "Entity has been modified since the last refresh"
+                    );
+
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Deletes an entity
+        /// Careful deletes check revisions
+        /// </summary>
+        public virtual void Delete(JsonObject entity, bool carefully = false)
+        {
+            string type = entity["$type"].AsString;
+            
+            if (string.IsNullOrEmpty(type))
+                throw new ArgumentException("Provided entity has no '$type'");
+
+            string key = entity["_key"].AsString;
+            
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentException(
+                    "Provided entity has not been inserted yet"
+                );
+            
+            try
+            {
+                arango.ExecuteAqlQuery(new AqlQuery()
+                    .Remove(() => entity)
+                    .CheckRevs(carefully)
+                    .In(EntityUtils.CollectionFromType(type))
+                );
+            }
+            catch (ArangoException e)
+            {
+                if (e.ErrorNumber == 1203) // collection not found
+                    throw new EntityPersistenceException(
+                        "Entity has not yet been inserted, or already deleted"
+                    );
+                
+                if (e.ErrorNumber == 1202) // document not found
+                    throw new EntityPersistenceException(
+                        "Entity has not yet been inserted, or already deleted"
+                    );
+                
+                if (e.ErrorNumber == 1200) // conflict
+                    throw new EntityRevConflictException(
+                        "Entity has been modified since the last refresh"
+                    );
+                
+                throw;
+            }
+        }
+    }
+}

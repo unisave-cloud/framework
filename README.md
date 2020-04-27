@@ -1,13 +1,27 @@
 Unisave Framework
 =================
 
-Unisave Framework = All the classes, that user-defined server-side code can talk to (server API).
+Framework serves multiple purposes:
 
-However this does not mean it's not present on the client. It is, because it needs to simulated during development.
+- library: contains code required on both the server and the client
+    - serializer, facet, entity, exceptions, facades
+- framework: contains code the user-defined server code talks to
+    - database, logging, session
+- runtime: contains code to bootstrap execution and communicate with the sandbox
+    - entrypoint, sandbox api, service container
 
-And since it's present on the client side, it's used for more than just server simulation.
 
-But the primary purpouse is still - the stuff server-side code talks to.
+## Execution JSON API Reference
 
-The framework does not talk to the database directly, it has at it's disposal a set of interfaces to do that.
-    (otherwise it couldn't be simulated on the client)
+- [Execution JSON API](docs/api-general.md)
+- [`facet-call` method](docs/api-facet-call.md)
+
+
+## Sandbox API Reference
+
+- [`session` channel](docs/channel-session.md)
+
+
+## Documentation
+
+- [Application bootstrapping](docs/application-bootstrapping.md)

@@ -2,22 +2,14 @@
 
 namespace Unisave.Exceptions
 {
+    [Serializable]
     public class FacetSearchException : System.Exception
     {
-        /// <summary>
-        /// Possible ways the facet type finding may fail
-        /// </summary>
-        public enum ProblemType
-        {
-            FacetNameAmbiguous,
-            FacetNotFound
-        }
-
-        public ProblemType Problem { get; private set; }
-
-        public FacetSearchException(string message, ProblemType problem) : base(message)
-        {
-            this.Problem = problem;
-        }
+        public FacetSearchException() { }
+        public FacetSearchException(string message) : base(message) { }
+        public FacetSearchException(string message, System.Exception inner) : base(message, inner) { }
+        protected FacetSearchException(
+            System.Runtime.Serialization.SerializationInfo info,
+            System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
     }
 }
