@@ -21,6 +21,6 @@ namespace Unisave.Serialization
         /// <summary>
         /// Convert JSON into new instance of a given type
         /// </summary>
-        object FromJson(JsonValue json, Type type);
+        object FromJson(JsonValue json, Type outputType);
     }
 }

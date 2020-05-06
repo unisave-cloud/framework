@@ -132,6 +132,8 @@
     <Compile Include="Runtime\Methods\EntrypointTest.cs" />
     <Compile Include="Runtime\SandboxApi.cs" />
     <Compile Include="Runtime\SpecialValues.cs" />
+    <Compile Include="Serialization\Exceptions\SerializedException.cs" />
+    <Compile Include="Serialization\Exceptions\BackendException.cs" />
     <Compile Include="Sessions\InMemorySessionStorage.cs" />
     <Compile Include="Sessions\ISessionStorage.cs" />
     <Compile Include="Sessions\Middleware\StartSession.cs" />
