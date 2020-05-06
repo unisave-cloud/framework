@@ -18,6 +18,11 @@ namespace Unisave.Facades
             );
 
         private static Application app;
+
+        /// <summary>
+        /// True if an application instance is set and can be used
+        /// </summary>
+        public static bool HasApp => app != null;
         
         /// <summary>
         /// Sets the application instance to be used by facades

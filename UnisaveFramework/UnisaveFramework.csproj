@@ -113,6 +113,7 @@
     <Compile Include="Foundation\Bootstrap.cs" />
     <Compile Include="Foundation\Container.cs" />
     <Compile Include="Foundation\Env.cs" />
+    <Compile Include="Logging\ClientSideLog.cs" />
     <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="Logging\InMemoryLog.cs" />
     <Compile Include="Modules\Matchmaking\BasicMatchEntity.cs" />

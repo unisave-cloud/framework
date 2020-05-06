@@ -1,3 +1,4 @@
+using System;
 using Unisave.Contracts;
 using Unisave.Logging;
 
@@ -10,6 +11,9 @@ namespace Unisave.Facades
     {
         private static ILog GetLog()
         {
+            if (!Facade.HasApp)
+                return new ClientSideLog();
+            
             return Facade.App.Resolve<ILog>();
         }
         

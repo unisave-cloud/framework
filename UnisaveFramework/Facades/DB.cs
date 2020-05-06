@@ -14,11 +14,15 @@ namespace Unisave.Facades
     {
         private static IArango GetArango()
         {
+            AQL.GuardClientSide();
+            
             return Facade.App.Resolve<IArango>();
         }
 
         private static EntityManager GetEntityManager()
         {
+            AQL.GuardClientSide();
+            
             return Facade.App.Resolve<EntityManager>();
         }
         

@@ -1,3 +1,4 @@
+using System;
 using Unisave.Authentication;
 using Unisave.Entities;
 
@@ -10,6 +11,11 @@ namespace Unisave.Facades
     {
         private static AuthenticationManager GetManager()
         {
+            if (!Facade.HasApp)
+                throw new InvalidOperationException(
+                    "You cannot access authentication logic from the client side."
+                );
+            
             return Facade.App.Resolve<AuthenticationManager>();
         }
         

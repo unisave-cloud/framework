@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using LightJson;
 using Unisave.Arango.Query;
@@ -11,8 +12,24 @@ namespace Unisave.Facades
     // ReSharper disable once InconsistentNaming
     public static class AQL
     {
+        /// <summary>
+        /// Throws exception on client side with meaningful message
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        internal static void GuardClientSide()
+        {
+            if (!Facade.HasApp)
+                throw new InvalidOperationException(
+                    "You cannot access database from the client side. Make " +
+                    "sure that the code shared between client and server " +
+                    "does not access the database."
+                );
+        }
+        
         private static IArango GetArango()
         {
+            GuardClientSide();
+            
             return Facade.App.Resolve<IArango>();
         }
         

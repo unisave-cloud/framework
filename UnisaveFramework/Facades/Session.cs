@@ -1,3 +1,4 @@
+using System;
 using LightJson;
 using Unisave.Contracts;
 
@@ -10,6 +11,11 @@ namespace Unisave.Facades
     {
         private static ISession GetSession()
         {
+            if (!Facade.HasApp)
+                throw new InvalidOperationException(
+                    "You cannot access session data from the client side."
+                );
+            
             return Facade.App.Resolve<ISession>();
         }
         
