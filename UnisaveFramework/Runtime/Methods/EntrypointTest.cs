@@ -37,9 +37,6 @@ namespace Unisave.Runtime.Methods
                     specialValues.Add("foo", "bar");
                     throw new UnisaveException();
                 
-                case "throw-invalid-method-parameters-ex":
-                    throw new InvalidMethodParametersException();
-                
                 default:
                     throw new InvalidOperationException();
             }

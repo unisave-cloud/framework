@@ -43,35 +43,81 @@ namespace Unisave.Serialization
                 // it will be here as well.
                 StreamingContextStates.CrossAppDomain
             );
-            var info = new SerializationInfo(
-                exception.GetType(),
-                new FormatterConverter()
-            );
-            exception.GetObjectData(info, context);
-            
+            var converter = new FormatterConverter();
+            var info = new SerializationInfo(exception.GetType(), converter);
+
+            try
+            {
+                exception.GetObjectData(info, context);
+            }
+            catch
+            {
+                // it doesn't want to be serialized,
+                // so serialize at lest what can be pulled out manually
+                // (we want to get at least some information to the client)
+                return new JsonObject()
+                    .Add("ClassName", exception.GetType().FullName)
+                    .Add("HResult", exception.HResult)
+                    .Add("Message", exception.Message)
+                    .Add("StackTraceString", exception.StackTrace);
+            }
+
             // SerializationInfo to JSON
             var json = new JsonObject();
             foreach (SerializationEntry entry in info)
-                AddSerializationEntryToJsonObject(entry, json);
+                AddSerializationEntryToJsonObject(entry, json, converter);
             return json;
         }
 
-        private void AddSerializationEntryToJsonObject(SerializationEntry entry, JsonObject json)
+        private void AddSerializationEntryToJsonObject(
+            SerializationEntry entry,
+            JsonObject json,
+            FormatterConverter converter
+        )
         {
             if (entry.ObjectType == typeof(string))
-                json[entry.Name] = (string) entry.Value;
-            else if (entry.ObjectType == typeof(int))
-                json[entry.Name] = (int) entry.Value;
-            else if (entry.ObjectType == typeof(bool))
-                json[entry.Name] = (bool) entry.Value;
-            else
             {
-                json["typeof:" + entry.Name] = entry.ObjectType.FullName;
+                if (entry.Value == null)
+                {
+                    json[entry.Name] = JsonValue.Null;
+                    return;
+                }
                 
-                // NOTE: maybe serialize as entry.ObjectType,
-                // not as entry.Value.GetType(), not sure though...
-                json[entry.Name] = Serializer.ToJson(entry.Value);
+                if (entry.ObjectType != entry.Value.GetType())
+                    json[entry.Name] = (string) converter
+                        .Convert(entry.Value, typeof(string));
+                else
+                    json[entry.Name] = (string) entry.Value;
+
+                return;
             }
+            
+            if (entry.ObjectType == typeof(int))
+            {
+                if (entry.ObjectType != entry.Value.GetType())
+                    json[entry.Name] = (int) (converter
+                        .Convert(entry.Value, typeof(int)) ?? 0);
+                else
+                    json[entry.Name] = (int) entry.Value;
+
+                return;
+            }
+            
+            if (entry.ObjectType == typeof(bool))
+            {
+                if (entry.ObjectType != entry.Value.GetType())
+                    json[entry.Name] = (bool) (converter
+                        .Convert(entry.Value, typeof(bool)) ?? false);
+                else
+                    json[entry.Name] = (bool) entry.Value;
+
+                return;
+            }
+            
+            // NOTE: maybe serialize as entry.ObjectType,
+            // not as entry.Value.GetType(), not sure though...
+            json[entry.Name] = Serializer.ToJson(entry.Value);
+            json["typeof:" + entry.Name] = entry.ObjectType.FullName;
         }
 
         public object FromJson(JsonValue json, Type outputType)

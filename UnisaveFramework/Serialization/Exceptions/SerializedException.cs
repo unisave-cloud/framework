@@ -19,6 +19,11 @@ namespace Unisave.Serialization.Exceptions
         /// The serialized JSON value representing the exception
         /// </summary>
         public JsonValue SerializedValue { private set; get; }
+
+        public SerializedException() : base(BuildMessage(JsonValue.Null))
+        {
+            SerializedValue = JsonValue.Null;
+        }
         
         public SerializedException(JsonValue json) : base(BuildMessage(json))
         {
@@ -84,9 +89,15 @@ namespace Unisave.Serialization.Exceptions
 
         private static void ExtractData(JsonValue json, StringBuilder sb)
         {
-            if (!json.IsJsonObject)
+            if (json.IsString)
             {
                 sb.AppendLine("  Nothing, exception is binary, base64 encoded.");
+                return;
+            }
+            
+            if (!json.IsJsonObject)
+            {
+                sb.AppendLine("  Nothing, exception is strange.");
                 return;
             }
 

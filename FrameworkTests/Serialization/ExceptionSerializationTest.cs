@@ -1,7 +1,9 @@
 using System;
+using System.Reflection;
 using System.Runtime.Serialization;
 using LightJson;
 using NUnit.Framework;
+using Unisave.Exceptions;
 using Unisave.Serialization;
 using Unisave.Serialization.Exceptions;
 
@@ -10,9 +12,6 @@ namespace FrameworkTests.Serialization
     [TestFixture]
     public class ExceptionSerializationTest
     {
-        // TODO: check reconstruction of: UnisaveException, BackendExecutionTimeoutException
-        // TODO: remove unused exceptions from Unisave.Exceptions namespace
-        
         [Serializable]
         private class StubException : Exception
         {
@@ -275,10 +274,95 @@ namespace FrameworkTests.Serialization
             );
         }
         
+        [Test]
+        public void MostOfKnownExceptionsCanBeSerializedAndDeserialized()
+        {
+            int successful = 0;
+            int total = 0;
+            int ok = 0;
+            
+            foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (Type type in a.GetTypes())
+            {
+                if (!typeof(Exception).IsAssignableFrom(type))
+                    continue;
+
+                var defaultConstructor = type.GetConstructor(
+                    (BindingFlags)(-1),
+                    null,
+                    new Type[] {},
+                    null
+                );
+                
+                // log those that cannot be created
+                if (defaultConstructor == null)
+                {
+                    Console.WriteLine("X> " + type);
+                    continue;
+                }
+                
+                object instance;
+                try
+                {
+                    instance = (Exception) defaultConstructor.Invoke(new object[] { });
+                }
+                catch
+                {
+                    Console.WriteLine("XC> " + type);
+                    continue;
+                }
+                
+                // count only those that can be created
+                total += 1;
+
+                // test serialization
+                var original = MakeItThrown((Exception)instance);
+                var json = Serializer.ToJson(original);
+                
+                var deserialized = Serializer.FromJson<Exception>(json);
+
+                if (deserialized is SerializedException)
+                {
+                    Console.WriteLine("XS> " + type);
+                    continue;
+                }
+                
+                Assert.AreEqual(original.GetType(), deserialized.GetType());
+
+                ok += 1;
+
+                if (original.Message != deserialized.Message)
+                {
+                    Console.WriteLine("message> " + type);
+                    continue;
+                }
+                
+                if (original.StackTrace != deserialized.StackTrace)
+                {
+                    Console.WriteLine("trace> " + type);
+                    continue;
+                }
+                
+                if (original.ToString() != deserialized.ToString())
+                {
+                    Console.WriteLine("ToString> " + type);
+                    continue;
+                }
+                
+                successful += 1;
+            }
+            
+            Console.WriteLine("Successful: " + successful);
+            Console.WriteLine("Ok: " + ok);
+            Console.WriteLine("Total: " + total);
+            
+            Assert.IsTrue((ok / (float)total) > 0.6);
+        }
+        
         #endregion
         
         #region "Reading outside-of-c# generated exceptions"
-
+        
         [Test]
         public void ExceptionCanBeCreatedOutsideOfCSharp()
         {
@@ -310,6 +394,74 @@ namespace FrameworkTests.Serialization
                 "System.TimeoutException",
                 deserialized.ToString()
             );
+        }
+
+        [Test]
+        public void UnisaveExceptionCanBeCreatedOutsideOfCsharp()
+        {
+            var json = new JsonObject()
+                .Add("ClassName", "Unisave.Exceptions.UnisaveException")
+                .Add("Message", "foo")
+                .Add("StackTraceString", "bar");
+            
+            var deserialized = Serializer.FromJson<Exception>(json);
+            
+            Assert.AreEqual(typeof(UnisaveException), deserialized.GetType());
+            var exception = (UnisaveException) deserialized;
+            
+            Assert.AreEqual("foo", exception.Message);
+            Assert.AreEqual("bar", exception.StackTrace);
+        }
+        
+        [Test]
+        public void BackendExecutionTimeoutExceptionCanBeCreatedOutsideOfCsharp()
+        {
+            var json = new JsonObject()
+                .Add("ClassName", "Unisave.Exceptions.BackendExecutionTimeoutException")
+                .Add("Message", "foo")
+                .Add("StackTraceString", "bar");
+            
+            var deserialized = Serializer.FromJson<Exception>(json);
+            
+            Assert.AreEqual(typeof(BackendExecutionTimeoutException), deserialized.GetType());
+            var exception = (BackendExecutionTimeoutException) deserialized;
+            
+            Assert.AreEqual("foo", exception.Message);
+            Assert.AreEqual("bar", exception.StackTrace);
+        }
+        
+        [Test]
+        public void StackOverflowExceptionCanBeCreatedOutsideOfCsharp()
+        {
+            var json = new JsonObject()
+                .Add("ClassName", "System.StackOverflowException")
+                .Add("Message", "foo")
+                .Add("StackTraceString", "bar");
+            
+            var deserialized = Serializer.FromJson<Exception>(json);
+            
+            Assert.AreEqual(typeof(StackOverflowException), deserialized.GetType());
+            var exception = (StackOverflowException) deserialized;
+            
+            Assert.AreEqual("foo", exception.Message);
+            Assert.AreEqual("bar", exception.StackTrace);
+        }
+        
+        [Test]
+        public void OutOfMemoryExceptionCanBeCreatedOutsideOfCsharp()
+        {
+            var json = new JsonObject()
+                .Add("ClassName", "System.OutOfMemoryException")
+                .Add("Message", "foo")
+                .Add("StackTraceString", "bar");
+            
+            var deserialized = Serializer.FromJson<Exception>(json);
+            
+            Assert.AreEqual(typeof(OutOfMemoryException), deserialized.GetType());
+            var exception = (OutOfMemoryException) deserialized;
+            
+            Assert.AreEqual("foo", exception.Message);
+            Assert.AreEqual("bar", exception.StackTrace);
         }
         
         #endregion

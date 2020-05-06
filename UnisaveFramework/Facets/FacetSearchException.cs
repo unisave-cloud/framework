@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Unisave.Exceptions
+namespace Unisave.Facets
 {
     [Serializable]
     public class FacetSearchException : System.Exception

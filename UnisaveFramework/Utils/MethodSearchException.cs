@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Unisave.Exceptions
+namespace Unisave.Utils
 {
     [Serializable]
     public class MethodSearchException : System.Exception

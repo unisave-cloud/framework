@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Unisave.Exceptions
+namespace Unisave.Foundation
 {
     [Serializable]
     public class BindingResolutionException : Exception

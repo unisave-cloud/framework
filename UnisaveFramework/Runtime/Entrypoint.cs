@@ -127,19 +127,6 @@ namespace Unisave.Runtime
             {
                 return action.Invoke();
             }
-            catch (GameScriptException e)
-            {
-                // TODO: remove these funky GameScriptExceptions
-                // (to preserve stacktrace, see OnFacet testing helper)
-                
-                if (!SerializeExceptions)
-                    throw;
-                
-                return new JsonObject()
-                    .Add("result", "exception")
-                    .Add("exception", Serializer.ToJson(e.InnerException))
-                    .Add("special", specialValues.ToJsonObject());
-            }
             catch (Exception e)
             {
                 if (!SerializeExceptions)

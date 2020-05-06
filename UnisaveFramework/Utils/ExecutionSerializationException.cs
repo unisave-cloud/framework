@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Unisave.Exceptions
+﻿namespace Unisave.Utils
 {
     [System.Serializable]
     public class ExecutionSerializationException : System.Exception

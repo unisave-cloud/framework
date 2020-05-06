@@ -12,6 +12,8 @@ namespace Unisave.Utils
 {
     /// <summary>
     /// Extracts commonly used procedures when executing game scripts
+    ///
+    /// TODO: Get rid of this utility. This logic should be facet-only.
     /// </summary>
     public static class ExecutionHelper
     {

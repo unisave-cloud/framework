@@ -2,6 +2,8 @@
 using FrameworkTests.Facets.Stubs;
 using FrameworkTests.TestingUtils;
 using Unisave.Exceptions;
+using Unisave.Facets;
+using Unisave.Utils;
 
 namespace FrameworkTests.Facets
 {

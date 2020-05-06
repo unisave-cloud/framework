@@ -146,22 +146,5 @@ namespace FrameworkTests
                 .AssertExceptionIs<UnisaveException>()
                 .AssertHasSpecial("foo", @"""bar""");
         }
-        
-        [Test]
-        public void ItThrowsInvalidMethodParametersException()
-        {
-            ExecuteFramework.Begin()
-                .SerializeExceptions()
-                .Execute(@"
-                    {
-                        ""method"": ""entrypoint-test"",
-                        ""methodParameters"": {
-                            ""perform"": ""throw-invalid-method-parameters-ex""
-                        }
-                    }
-                ")
-                .AssertExceptionThrown()
-                .AssertExceptionIs<InvalidMethodParametersException>();
-        }
     }
 }

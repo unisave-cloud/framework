@@ -94,8 +94,10 @@
     <Compile Include="Entities\EntitySearchException.cs" />
     <Compile Include="Entities\EntityUtils.cs" />
     <Compile Include="Entities\Query\EntityQuery.cs" />
-    <Compile Include="Exceptions\BindingResolutionException.cs" />
+    <Compile Include="Exceptions\BackendException.cs" />
+    <Compile Include="Exceptions\BackendExecutionTimeoutException.cs" />
     <Compile Include="Exceptions\ConfigurationException.cs" />
+    <Compile Include="Exceptions\UnisaveConnectionException.cs" />
     <Compile Include="Facades\AQL.cs" />
     <Compile Include="Facades\Auth.cs" />
     <Compile Include="Facades\Facade.cs" />
@@ -105,7 +107,9 @@
     <Compile Include="Facets\FacetMiddleware.cs" />
     <Compile Include="Facets\FacetRequest.cs" />
     <Compile Include="Facets\FacetResponse.cs" />
+    <Compile Include="Facets\FacetSearchException.cs" />
     <Compile Include="Foundation\Application.cs" />
+    <Compile Include="Foundation\BindingResolutionException.cs" />
     <Compile Include="Foundation\Bootstrap.cs" />
     <Compile Include="Foundation\Container.cs" />
     <Compile Include="Foundation\Env.cs" />
@@ -116,7 +120,6 @@
     <Compile Include="Modules\Matchmaking\BasicMatchmakerFacet.cs" />
     <Compile Include="Modules\Matchmaking\BasicMatchmakerTicket.cs" />
     <Compile Include="Modules\Matchmaking\Exceptions\UnknownPlayerPollingException.cs" />
-    <Compile Include="Exceptions\DatabaseDeadlockException.cs" />
     <Compile Include="Facades\DB.cs" />
     <Compile Include="FrameworkMeta.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -133,7 +136,6 @@
     <Compile Include="Runtime\SandboxApi.cs" />
     <Compile Include="Runtime\SpecialValues.cs" />
     <Compile Include="Serialization\Exceptions\SerializedException.cs" />
-    <Compile Include="Serialization\Exceptions\BackendException.cs" />
     <Compile Include="Sessions\InMemorySessionStorage.cs" />
     <Compile Include="Sessions\ISessionStorage.cs" />
     <Compile Include="Sessions\Middleware\StartSession.cs" />
@@ -150,34 +152,20 @@
       <DependentUpon>BasicBackendTestCase.cs</DependentUpon>
     </Compile>
     <Compile Include="Exceptions\UnisaveException.cs" />
-    <Compile Include="Exceptions\InstantiationException.cs" />
-    <Compile Include="Exceptions\FacetSearchException.cs" />
-    <Compile Include="Exceptions\MethodSearchException.cs" />
     <Compile Include="Utils\ExecutionHelper.cs" />
+    <Compile Include="Utils\ExecutionSerializationException.cs" />
     <Compile Include="Utils\Hash.cs" />
+    <Compile Include="Utils\InstantiationException.cs" />
+    <Compile Include="Utils\MethodSearchException.cs" />
     <Compile Include="Utils\Str.cs" />
     <Compile Include="Serialization\SerializationParams.cs" />
-    <Compile Include="Exceptions\NetworkingException.cs" />
-    <Compile Include="Exceptions\ConnectionEndedException.cs" />
     <Compile Include="CustomAttributes.cs" />
     <Compile Include="Runtime\Entrypoint.cs" />
-    <Compile Include="Exceptions\GameScriptException.cs" />
-    <Compile Include="Exceptions\InvalidMethodParametersException.cs" />
-    <Compile Include="Exceptions\ExecutionSerializationException.cs" />
     <Compile Include="Serialization\Serializer.cs" />
     <Compile Include="Serialization\ITypeSerializer.cs" />
     <Compile Include="Serialization\DefaultTypeSerializers.cs" />
     <Compile Include="Serialization\LambdaTypeSerializer.cs" />
     <Compile Include="Serialization\ExceptionSerializer.cs" />
-    <Compile Include="Exceptions\ServerConnection\ServerConnectionException.cs" />
-    <Compile Include="Exceptions\ServerConnection\ServerUnderMaintenanceException.cs" />
-    <Compile Include="Exceptions\ServerConnection\InvalidGameTokenException.cs" />
-    <Compile Include="Exceptions\ServerConnection\InvalidAccessTokenException.cs" />
-    <Compile Include="Exceptions\PlayerRegistration\PlayerRegistrationException.cs" />
-    <Compile Include="Exceptions\ExceptionWithPlayerMessage.cs" />
-    <Compile Include="Exceptions\PlayerRegistration\EmailAlreadyRegisteredException.cs" />
-    <Compile Include="Exceptions\PlayerRegistration\InvalidEmailException.cs" />
-    <Compile Include="Exceptions\PlayerRegistration\InvalidPasswordException.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LightJson\Sources\LightJson\LightJson.csproj">
@@ -195,8 +183,6 @@
     <Folder Include="Exceptions\" />
     <Folder Include="Facades\" />
     <Folder Include="Utils\" />
-    <Folder Include="Exceptions\ServerConnection\" />
-    <Folder Include="Exceptions\PlayerRegistration\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
