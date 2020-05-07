@@ -32,8 +32,11 @@ namespace Unisave.Sessions
         
         public ArangoSessionStorage(IArango arango, ILog log)
         {
-            this.arango = arango;
-            this.log = log;
+            this.arango = arango
+                ?? throw new ArgumentNullException(nameof(arango));
+            
+            this.log = log
+                ?? throw new ArgumentNullException(nameof(log));
         }
         
         public JsonObject Load(string sessionId)

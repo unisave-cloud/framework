@@ -5,6 +5,7 @@ using NUnit.Framework;
 using Unisave.Arango;
 using Unisave.Arango.Emulation;
 using Unisave.Entities;
+using Unisave.Logging;
 using Unisave.Serialization;
 
 namespace FrameworkTests.Entities
@@ -13,6 +14,7 @@ namespace FrameworkTests.Entities
     public class EntityManagerTest
     {
         private ArangoInMemory arango;
+        private InMemoryLog log;
         private EntityManager manager;
 
         private Collection players;
@@ -22,7 +24,8 @@ namespace FrameworkTests.Entities
         public void SetUp()
         {
             arango = new ArangoInMemory();
-            manager = new EntityManager(arango);
+            log = new InMemoryLog();
+            manager = new EntityManager(arango, log);
             
             players = arango.CreateCollection(
                 EntityUtils.CollectionPrefix + "PlayerEntity",

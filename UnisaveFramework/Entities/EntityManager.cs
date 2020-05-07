@@ -6,6 +6,7 @@ using Unisave.Arango;
 using Unisave.Arango.Expressions;
 using Unisave.Arango.Query;
 using Unisave.Contracts;
+using Unisave.Facades;
 using Unisave.Serialization;
 
 namespace Unisave.Entities
@@ -21,10 +22,19 @@ namespace Unisave.Entities
         /// The underlying arango database
         /// </summary>
         private readonly IArango arango;
+
+        /// <summary>
+        /// Some logger instance
+        /// </summary>
+        private readonly ILog log;
         
-        public EntityManager(IArango arango)
+        public EntityManager(IArango arango, ILog log)
         {
-            this.arango = arango;
+            this.arango = arango
+                ?? throw new ArgumentNullException(nameof(arango));
+            
+            this.log = log
+                ?? throw new ArgumentNullException(nameof(log));
         }
 
         /// <summary>
@@ -147,56 +157,76 @@ namespace Unisave.Entities
                 throw new ArgumentException(
                     "Provided entity has not been inserted yet"
                 );
-            
+
             try
             {
                 JsonObject oldDocument = Find(type, key);
-                
+
                 if (oldDocument == null)
                     throw new ArangoException(404, 1202, "document not found");
-                
+
                 JsonObject newDocument = JsonReader.Parse(entity.ToString());
-                
+
                 // don't store entity type
                 newDocument.Remove("$type");
-            
+
                 // set timestamps
                 // (serializer instead of direct setting, because the serializer
                 // does not store "Z" (timezone), so deserialization does not
                 // correct for timezones and loads it as it is)
                 newDocument["CreatedAt"] = oldDocument["CreatedAt"];
                 newDocument["UpdatedAt"] = Serializer.ToJson(DateTime.UtcNow);
-                
+
                 var newEntity = arango.ExecuteAqlQuery(new AqlQuery()
                     .Replace(() => newDocument)
                     .CheckRevs(carefully)
                     .In(EntityUtils.CollectionFromType(type))
                     .Return("NEW")
                 ).First().AsJsonObject;
-                
+
                 // add entity type to the object
                 newEntity["$type"] = type;
 
                 return newEntity;
             }
-            catch (ArangoException e)
+            catch (ArangoException e) when (e.ErrorNumber == 1200)
             {
-                if (e.ErrorNumber == 1203) // collection not found
-                    throw new EntityPersistenceException(
-                        "Entity has not yet been inserted, or already deleted"
-                    );
-                
-                if (e.ErrorNumber == 1202) // document not found
-                    throw new EntityPersistenceException(
-                        "Entity has not yet been inserted, or already deleted"
-                    );
-                
-                if (e.ErrorNumber == 1200) // conflict
-                    throw new EntityRevConflictException(
-                        "Entity has been modified since the last refresh"
-                    );
+                // write-write conflict
+                // (can occur even without revision checking)
 
-                throw;
+                // We are not careful, so we don't care.
+                // We just log a warning that this happened
+                // so that it will be noticed.
+                if (!carefully)
+                {
+                    log.Warning(
+                        "Entity wasn't saved due to a write-write conflict " +
+                        "(other process was saving the same entity at the " +
+                        "same time).\nCheck out documentation for the method " +
+                        "entity.SaveCarefully() to learn more.",
+                        e
+                    );
+                    return entity;
+                }
+                
+                // if we are careful, we throw an exception
+                throw new EntityRevConflictException(
+                    "Entity has been modified since the last refresh"
+                );
+            }
+            catch (ArangoException e) when (e.ErrorNumber == 1202)
+            {
+                // document not found
+                throw new EntityPersistenceException(
+                    "Entity has not yet been inserted, or already deleted"
+                );
+            }
+            catch (ArangoException e) when (e.ErrorNumber == 1203)
+            {
+                // collection not found
+                throw new EntityPersistenceException(
+                    "Entity has not yet been inserted, or already deleted"
+                );
             }
         }
 

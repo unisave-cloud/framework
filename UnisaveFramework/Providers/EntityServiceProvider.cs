@@ -11,7 +11,10 @@ namespace Unisave.Providers
         public override void Register()
         {
             App.Singleton<EntityManager>(
-                app => new EntityManager(app.Resolve<IArango>())
+                app => new EntityManager(
+                    app.Resolve<IArango>(),
+                    app.Resolve<ILog>()
+                )
             );
         }
     }
