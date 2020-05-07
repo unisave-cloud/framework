@@ -3,6 +3,7 @@ using LightJson;
 using NUnit.Framework;
 using Unisave;
 using Unisave.Entities;
+using Unisave.Serialization;
 
 namespace FrameworkTests.Entities
 {
@@ -33,8 +34,14 @@ namespace FrameworkTests.Entities
             Assert.IsTrue(attr["_id"].IsNull);
             Assert.AreEqual("John", attr["Name"].AsString);
             Assert.AreEqual(100, attr["Coins"].AsInteger);
-            Assert.AreEqual(default(DateTime), attr["CreatedAt"].AsDateTime);
-            Assert.AreEqual(default(DateTime), attr["UpdatedAt"].AsDateTime);
+            Assert.AreEqual(
+                default(DateTime),
+                Serializer.FromJson<DateTime>(attr["CreatedAt"])
+            );
+            Assert.AreEqual(
+                default(DateTime),
+                Serializer.FromJson<DateTime>(attr["UpdatedAt"])
+            );
             Assert.AreEqual(8, attr.Count);
         }
 

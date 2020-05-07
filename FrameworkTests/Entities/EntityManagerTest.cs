@@ -5,6 +5,7 @@ using NUnit.Framework;
 using Unisave.Arango;
 using Unisave.Arango.Emulation;
 using Unisave.Entities;
+using Unisave.Serialization;
 
 namespace FrameworkTests.Entities
 {
@@ -119,19 +120,25 @@ namespace FrameworkTests.Entities
             Assert.IsTrue(insertedEntity.ContainsKey("CreatedAt"));
             Assert.IsTrue(insertedEntity.ContainsKey("UpdatedAt"));
 
-            Assert.AreNotEqual(default(DateTime), insertedEntity["CreatedAt"]);
-            Assert.AreNotEqual(default(DateTime), insertedEntity["UpdatedAt"]);
+            Assert.AreNotEqual(
+                default(DateTime),
+                Serializer.FromJson<DateTime>(insertedEntity["CreatedAt"])
+            );
+            Assert.AreNotEqual(
+                default(DateTime),
+                Serializer.FromJson<DateTime>(insertedEntity["UpdatedAt"])
+            );
             
             Assert.IsTrue(Math.Abs(
                 (
-                    DateTime.UtcNow - (insertedEntity["CreatedAt"].AsDateTime
-                                     ?? default(DateTime))
+                    DateTime.UtcNow -
+                    Serializer.FromJson<DateTime>(insertedEntity["CreatedAt"])
                 ).Seconds
             ) < 1);
             Assert.IsTrue(Math.Abs(
                 (
-                  DateTime.UtcNow - (insertedEntity["UpdatedAt"].AsDateTime
-                                     ?? default(DateTime))
+                  DateTime.UtcNow -
+                  Serializer.FromJson<DateTime>(insertedEntity["UpdatedAt"])
                 ).Seconds
             ) < 1);
         }
@@ -249,13 +256,19 @@ namespace FrameworkTests.Entities
             
             john = manager.Find("PlayerEntity", "john");
             
-            Assert.AreEqual(createdAt, john["CreatedAt"].AsDateTime);
-            Assert.AreNotEqual(updatedAt, john["UpdatedAt"].AsDateTime);
+            Assert.AreEqual(
+                createdAt,
+                Serializer.FromJson<DateTime>(john["CreatedAt"])
+            );
+            Assert.AreNotEqual(
+                updatedAt,
+                Serializer.FromJson<DateTime>(john["UpdatedAt"])
+            );
 
             Assert.IsTrue(Math.Abs(
                 (
-                    DateTime.UtcNow
-                    - (john["UpdatedAt"].AsDateTime ?? default(DateTime))
+                    DateTime.UtcNow -
+                    Serializer.FromJson<DateTime>(john["UpdatedAt"])
                  ).Seconds
             ) < 1);
         }
@@ -430,11 +443,12 @@ namespace FrameworkTests.Entities
         public void ItStoresTimestampsProperly()
         {
             // around the time of entity insertion
-            DateTime now = DateTime.Parse("2020-02-16T14:18:00");
+            DateTime now = Serializer.FromJson<DateTime>(
+                "2020-02-16T14:18:00.000Z"
+            );
 
             JsonObject john = manager.Find("PlayerEntity", "john");
-            DateTime created = john["CreatedAt"].AsDateTime
-                               ?? default(DateTime);
+            DateTime created = Serializer.FromJson<DateTime>(john["CreatedAt"]);
             
             Assert.IsTrue(Math.Abs((now - created).Seconds) < 1);
         }

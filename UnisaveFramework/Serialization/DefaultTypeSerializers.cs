@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using LightJson;
 using Unisave.Entities;
 using UnityEngine;
@@ -22,6 +23,17 @@ namespace Unisave.Serialization
                         .ToString(SerializationParams.DateTimeFormat);
                 })
                 .FromJson((json, type) => {
+                    bool done = DateTime.TryParseExact(
+                        json.AsString,
+                        SerializationParams.DateTimeFormat,
+                        null,
+                        DateTimeStyles.None,
+                        out DateTime parsed
+                    );
+
+                    if (done)
+                        return parsed;
+
                     return DateTime.Parse(json.AsString);
                 })
             );

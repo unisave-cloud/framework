@@ -101,7 +101,7 @@ namespace Unisave.Sessions
 
             // datetime as produced by the arango DATE_ISO8601(...) function
             string expiresAtString = expiresAt.ToString(
-                "yyyy-MM-dd\\TH:mm:ss.fff\\Z"
+                "yyyy-MM-dd\\THH:mm:ss.fff\\Z"
             );
             
             JsonObject document = new JsonObject()

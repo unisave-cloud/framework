@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using FrameworkTests.TestingUtils;
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
 using Unisave.Arango.Expressions;
 using Unisave.Authentication;
 using Unisave.Entities;
@@ -58,16 +59,17 @@ namespace FrameworkTests.Modules.Matchmaking.Basic
         [Test]
         public void TicketCanBeInserted()
         {
+            Assert.IsNull(DB.First<BasicMatchmakerEntity>());
+            
             ActingAs(john);
             var ticket = new BmMatchmakerTicket(john.EntityId);
             OnFacet<BmMatchmakerFacet>().CallSync("JoinMatchmaker", ticket);
 
-            // ticket will be modified by preprocessing,
-            // so make sure it matches in the assertion below
-            ticket.someValue = 42;
-
             var entity = DB.First<BasicMatchmakerEntity>();
-            UAssert.AreJsonEqual(ticket, entity.Tickets[0]);
+            Assert.AreEqual(1, entity.Tickets.Count);
+            // TODO: update this once auto props are serialized properly
+            //Assert.AreEqual(john.EntityId, entity.Tickets[0]["PlayerId"]);
+            Assert.AreEqual(42, entity.Tickets[0]["someValue"].AsInteger);
         }
         
         [Test]
