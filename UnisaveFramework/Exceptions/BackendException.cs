@@ -29,7 +29,7 @@ namespace Unisave.Exceptions
             original
         ) { }
 
-        protected BackendException(
+        private BackendException(
             SerializationInfo info,
             StreamingContext context) : base(info, context)
         { }

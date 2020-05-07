@@ -106,6 +106,16 @@ namespace Unisave.Arango.Emulation
 
         void IArango.DeleteCollection(string collectionName)
             => DeleteCollection(collectionName);
+
+        void IArango.CreateIndex(
+            string collectionName,
+            string indexType,
+            string[] fields,
+            JsonObject otherProperties
+        )
+        {
+            // do nothing, in-memory arango does not support indices
+        }
         
         #endregion
 

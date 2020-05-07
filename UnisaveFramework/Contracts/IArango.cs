@@ -24,5 +24,23 @@ namespace Unisave.Contracts
         /// Delete an existing collection
         /// </summary>
         void DeleteCollection(string collectionName);
+
+        /// <summary>
+        /// Creates an index on a collection
+        /// </summary>
+        /// <param name="collectionName">Collection name</param>
+        /// <param name="indexType">Index type</param>
+        /// <param name="fields">Field names to put the index on</param>
+        /// <param name="otherProperties">
+        /// Other properties depending on the index type.
+        /// Will be added to the HTTP request at the root level,
+        /// but "type" and "fields" will be overriden by the previous arguments.
+        /// </param>
+        void CreateIndex(
+            string collectionName,
+            string indexType,
+            string[] fields,
+            JsonObject otherProperties = null
+        );
     }
 }

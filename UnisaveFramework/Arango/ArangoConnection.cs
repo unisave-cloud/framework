@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -199,6 +200,34 @@ namespace Unisave.Arango
         public void DeleteCollection(string collectionName)
         {
             Delete("/_api/collection/" + Uri.EscapeUriString(collectionName));
+        }
+
+        public void CreateIndex(
+            string collectionName,
+            string indexType,
+            string[] fields,
+            JsonObject otherProperties = null
+        )
+        {
+            JsonObject payload = new JsonObject();
+
+            foreach (var pair in otherProperties ?? new JsonObject())
+                payload.Add(pair.Key, pair.Value);
+
+            payload.Add("type", indexType);
+            payload.Add(
+                "fields",
+                new JsonArray(
+                    fields
+                        .Select(s => new JsonValue(s))
+                        .ToArray()
+                )
+            );
+            
+            Post(
+                "/_api/index?collection=" + WebUtility.UrlEncode(collectionName),
+                payload
+            );
         }
     }
 }

@@ -34,7 +34,7 @@ namespace Unisave.Exceptions
         {
         }
 
-        protected BackendExecutionTimeoutException(
+        private BackendExecutionTimeoutException(
             SerializationInfo info,
             StreamingContext context) : base(info, context)
         {

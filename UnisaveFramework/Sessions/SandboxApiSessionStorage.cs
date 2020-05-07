@@ -1,10 +1,11 @@
+using System;
 using LightJson;
 using Unisave.Runtime;
 
 namespace Unisave.Sessions
 {
-    // TODO: replace this with session over IArango
-    
+    // TODO: remove this when you know session over arango works
+    [Obsolete]
     public class SandboxApiSessionStorage : ISessionStorage
     {
         private readonly ApiChannel channel;

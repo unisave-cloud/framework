@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using LightJson;
 using NUnit.Framework;
+using Unisave.Arango;
 using Unisave.Exceptions;
 using Unisave.Serialization;
 using Unisave.Serialization.Exceptions;
@@ -357,6 +358,50 @@ namespace FrameworkTests.Serialization
             Console.WriteLine("Total: " + total);
             
             Assert.IsTrue((ok / (float)total) > 0.6);
+        }
+        
+        #endregion
+        
+        #region "Testing specific exception for passing through the system"
+
+        private void PassThrough<T>(
+            T exception,
+            out T original,
+            out T deserialized
+        ) where T : Exception
+        {
+            original = (T) MakeItThrown(exception);
+            
+            deserialized = (T) Serializer.FromJson<Exception>(
+                Serializer.ToJson(original)
+            );
+        }
+        
+        [Test]
+        public void NullReferenceExceptionCanPassThrough()
+        {
+            PassThrough(
+                new NullReferenceException("Lorem ipsum"),
+                out NullReferenceException original,
+                out NullReferenceException deserialized
+            );
+            
+            Assert.AreEqual(original.ToString(), deserialized.ToString());
+        }
+        
+        [Test]
+        public void ArangoExceptionCanPassThrough()
+        {
+            PassThrough(
+                new ArangoException(422, 1200, "Lorem ipsum dolor"),
+                out ArangoException original,
+                out ArangoException deserialized
+            );
+            
+            Assert.AreEqual(original.ToString(), deserialized.ToString());
+            Assert.AreEqual(original.ErrorMessage, deserialized.ErrorMessage);
+            Assert.AreEqual(original.ErrorNumber, deserialized.ErrorNumber);
+            Assert.AreEqual(original.HttpStatus, deserialized.HttpStatus);
         }
         
         #endregion

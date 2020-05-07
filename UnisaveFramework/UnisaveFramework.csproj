@@ -63,6 +63,7 @@
     <Compile Include="Arango\Expressions\ExpressionConverter.cs" />
     <Compile Include="Arango\Expressions\ExpressionDemungifier.cs" />
     <Compile Include="Arango\Expressions\LinqToAqlExpressionParser.cs" />
+    <Compile Include="Arango\IndexType.cs" />
     <Compile Include="Arango\Query\AqlFilterOperation.cs" />
     <Compile Include="Arango\Query\AqlForOperation.cs" />
     <Compile Include="Arango\Query\AqlForOperationBuilder.cs" />
@@ -137,6 +138,7 @@
     <Compile Include="Runtime\SandboxApi.cs" />
     <Compile Include="Runtime\SpecialValues.cs" />
     <Compile Include="Serialization\Exceptions\SerializedException.cs" />
+    <Compile Include="Sessions\ArangoSessionStorage.cs" />
     <Compile Include="Sessions\InMemorySessionStorage.cs" />
     <Compile Include="Sessions\ISessionStorage.cs" />
     <Compile Include="Sessions\Middleware\StartSession.cs" />

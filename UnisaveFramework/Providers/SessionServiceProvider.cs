@@ -14,11 +14,20 @@ namespace Unisave.Providers
             App.Singleton<ISession>(app => {
                 var env = app.Resolve<Env>();
                 
-                string driver = env.GetString("SESSION_DRIVER", "sandbox");
+                string driver = env.GetString("SESSION_DRIVER", "arango");
                 int lifetime = env.GetInt("SESSION_LIFETIME", 3600); // 1h
 
                 switch (driver)
                 {
+                    case "arango":
+                        return new SessionOverStorage(
+                            new ArangoSessionStorage(
+                                app.Resolve<IArango>(),
+                                app.Resolve<ILog>()
+                            ),
+                            lifetime
+                        );
+                    
                     case "sandbox":
                         return new SessionOverStorage(
                             new SandboxApiSessionStorage(),
