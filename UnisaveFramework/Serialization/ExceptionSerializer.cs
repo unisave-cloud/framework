@@ -198,6 +198,13 @@ namespace Unisave.Serialization
                 );
             
             Type type = null;
+            
+            // first, try to use the default method
+            // (for example because the following code
+            // does not handle generics and arrays)
+            type = Type.GetType(name);
+            if (type != null)
+                return type;
 
             foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
             {
@@ -224,18 +231,13 @@ namespace Unisave.Serialization
         
         private SerializationInfo GetDefaultSerializationInfo(Type type)
         {
-            var defaultConstructor = type.GetConstructor(
-                (BindingFlags)(-1),
-                null,
-                new Type[] {},
-                null
-            );
-            
+            var defaultConstructor = type.GetConstructor(new Type[] { });
+
+            // no default constructor -> return empty info, since we don't
+            // know anything and we have to hope that all the needed data
+            // will be present in the JSON
             if (defaultConstructor == null)
-                throw new SerializationException(
-                    $"Exception {type} cannot be deserialized, " +
-                    $"because it has no default constructor."
-                );
+                return new SerializationInfo(type, new FormatterConverter());
 
             Exception instance;
             try
@@ -263,7 +265,10 @@ namespace Unisave.Serialization
                 defaultInfo.ObjectType,
                 new FormatterConverter()
             );
-
+            
+            // go through the keys in default info and copy or replace
+            // them with the values in the serialized JSON
+            HashSet<string> writtenKeys = new HashSet<string>();
             foreach (SerializationEntry entry in defaultInfo)
             {
                 if (json.ContainsKey(entry.Name))
@@ -275,6 +280,26 @@ namespace Unisave.Serialization
                     );
                 else
                     info.AddValue(entry.Name, entry.Value, entry.ObjectType);
+
+                writtenKeys.Add(entry.Name);
+            }
+            
+            // add all the remaining data in the JSON that hasn't been used up
+            // (this might happen when the default info is empty)
+            foreach (var pair in json)
+            {
+                if (pair.Key.StartsWith("typeof:"))
+                    continue;
+                
+                if (writtenKeys.Contains(pair.Key))
+                    continue;
+                
+                AddJsonValueToSerializationInfo(
+                    info,
+                    pair.Key,
+                    json[pair.Key],
+                    json["typeof:" + pair.Key].AsString
+                );
             }
 
             return info;

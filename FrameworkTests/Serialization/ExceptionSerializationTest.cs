@@ -276,6 +276,7 @@ namespace FrameworkTests.Serialization
         }
         
         [Test]
+        [Ignore("Test is used to debug the serializer")]
         public void MostOfKnownExceptionsCanBeSerializedAndDeserialized()
         {
             int successful = 0;
@@ -288,12 +289,7 @@ namespace FrameworkTests.Serialization
                 if (!typeof(Exception).IsAssignableFrom(type))
                     continue;
 
-                var defaultConstructor = type.GetConstructor(
-                    (BindingFlags)(-1),
-                    null,
-                    new Type[] {},
-                    null
-                );
+                var defaultConstructor = type.GetConstructor(new Type[] { });
                 
                 // log those that cannot be created
                 if (defaultConstructor == null)
@@ -378,6 +374,18 @@ namespace FrameworkTests.Serialization
         }
         
         [Test]
+        public void PlainExceptionCanPassThrough()
+        {
+            PassThrough(
+                new Exception("Lorem ipsum"),
+                out Exception original,
+                out Exception deserialized
+            );
+            
+            Assert.AreEqual(original.ToString(), deserialized.ToString());
+        }
+        
+        [Test]
         public void NullReferenceExceptionCanPassThrough()
         {
             PassThrough(
@@ -386,6 +394,48 @@ namespace FrameworkTests.Serialization
                 out NullReferenceException deserialized
             );
             
+            Assert.AreEqual(original.ToString(), deserialized.ToString());
+        }
+        
+        [Test]
+        public void InvalidOperationExceptionCanPassThrough()
+        {
+            PassThrough(
+                new InvalidOperationException("Lorem ipsum"),
+                out InvalidOperationException original,
+                out InvalidOperationException deserialized
+            );
+            
+            Assert.AreEqual(original.ToString(), deserialized.ToString());
+        }
+        
+        [Test]
+        public void AggregateExceptionCanPassThrough()
+        {
+            PassThrough(
+                new AggregateException(
+                    "Lorem ipsum",
+                    MakeItThrown(new InvalidOperationException("foo bar")),
+                    MakeItThrown(new NullReferenceException("baz"))
+                ),
+                out AggregateException original,
+                out AggregateException deserialized
+            );
+
+            Assert.AreEqual(original.ToString(), deserialized.ToString());
+        }
+        
+        [Test]
+        public void TargetInvocationExceptionCanPassThrough()
+        {
+            PassThrough(
+                new TargetInvocationException(
+                    MakeItThrown(new NullReferenceException())
+                ),
+                out TargetInvocationException original,
+                out TargetInvocationException deserialized
+            );
+
             Assert.AreEqual(original.ToString(), deserialized.ToString());
         }
         
