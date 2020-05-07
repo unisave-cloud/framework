@@ -6,6 +6,7 @@ using Unisave;
 using Unisave.Contracts;
 using Unisave.Facades;
 using Unisave.Foundation;
+using Unisave.Serialization;
 using Unisave.Sessions;
 
 namespace FrameworkTests.Sessions
@@ -177,5 +178,117 @@ namespace FrameworkTests.Sessions
             
             storageMock.VerifyAll();
         }
+        
+        #region "WasModifiedSinceLoad flag"
+
+        [Test]
+        public void PutSetsWasModified()
+        {
+            Assert.IsFalse(session.WasModifiedSinceLoad);
+            Session.Put("foo", "bar");
+            Assert.IsTrue(session.WasModifiedSinceLoad);
+            Session.Put("baz", 42);
+            Assert.IsTrue(session.WasModifiedSinceLoad);
+        }
+        
+        [Test]
+        public void GetDoesntChangeWasModified()
+        {
+            Assert.IsFalse(session.WasModifiedSinceLoad);
+            Session.Get<string>("foo");
+            Assert.IsFalse(session.WasModifiedSinceLoad);
+            
+            Session.Put("foo", "bar");
+            Assert.IsTrue(session.WasModifiedSinceLoad);
+            Session.Get<string>("foo");
+            Assert.IsTrue(session.WasModifiedSinceLoad);
+        }
+        
+        [Test]
+        public void ExistsDoesntChangeWasModified()
+        {
+            Assert.IsFalse(session.WasModifiedSinceLoad);
+            Session.Exists("foo");
+            Assert.IsFalse(session.WasModifiedSinceLoad);
+            
+            Session.Put("foo", "bar");
+            Assert.IsTrue(session.WasModifiedSinceLoad);
+            Session.Exists("foo");
+            Assert.IsTrue(session.WasModifiedSinceLoad);
+        }
+        
+        [Test]
+        public void AllDoesntChangeWasModified()
+        {
+            Assert.IsFalse(session.WasModifiedSinceLoad);
+            Session.All();
+            Assert.IsFalse(session.WasModifiedSinceLoad);
+            
+            Session.Put("foo", "bar");
+            Assert.IsTrue(session.WasModifiedSinceLoad);
+            Session.All();
+            Assert.IsTrue(session.WasModifiedSinceLoad);
+        }
+        
+        [Test]
+        public void ForgetSetsWasModified()
+        {
+            Assert.IsFalse(session.WasModifiedSinceLoad);
+            Session.Forget("foo"); // event if it wasn't present to begin with
+            Assert.IsTrue(session.WasModifiedSinceLoad);
+            Session.Forget("foo");
+            Assert.IsTrue(session.WasModifiedSinceLoad);
+        }
+        
+        [Test]
+        public void ClearSetsWasModified()
+        {
+            Assert.IsFalse(session.WasModifiedSinceLoad);
+            Session.Clear();
+            Assert.IsTrue(session.WasModifiedSinceLoad);
+            Session.Clear();
+            Assert.IsTrue(session.WasModifiedSinceLoad);
+        }
+
+        [Test]
+        public void LoadingResetsWasModified()
+        {
+            Session.Put("foo", "bar");
+            Assert.IsTrue(session.WasModifiedSinceLoad);
+            
+            session.LoadSession("123456789");
+            Assert.IsFalse(session.WasModifiedSinceLoad);
+        }
+        
+        [Test]
+        public void StoringResetsWasModified()
+        {
+            Session.Put("foo", "bar");
+            Assert.IsTrue(session.WasModifiedSinceLoad);
+            
+            session.StoreSession("123456789");
+            Assert.IsFalse(session.WasModifiedSinceLoad);
+        }
+        
+        [Test]
+        public void StoringIsIgnoredIfWasNotModified()
+        {
+            Assert.IsFalse(session.WasModifiedSinceLoad);
+            
+            session.StoreSession("123456789");
+            
+            Assert.IsFalse(session.WasModifiedSinceLoad);
+            
+            storageMock.Verify(
+                s => s.Store(
+                    It.IsAny<string>(),
+                    It.IsAny<JsonObject>(),
+                    It.IsAny<int>()
+                ),
+                Times.Never()
+            );
+        }
+        
+        #endregion
     }
 }
