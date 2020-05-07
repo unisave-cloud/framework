@@ -30,9 +30,11 @@ namespace Unisave.Entities
 
         /// <summary>
         /// Key that uniquely identifies the entity within its type
+        /// (Internal so that people don't confuse it with EntityId)
+        /// (still can be publicly accessed via entity["_key"])
         /// </summary>
         [DontSerialize]
-        public string EntityKey
+        internal string EntityKey
         {
             get => documentId?.Key;
 
@@ -48,9 +50,10 @@ namespace Unisave.Entities
         /// <summary>
         /// Revision value for this entity
         /// Used by the database to detect changes
+        /// (still can be publicly accessed via entity["_rev"])
         /// </summary>
         [DontSerialize]
-        public string EntityRevision { get; set; }
+        internal string EntityRevision { get; set; }
 
         /// <summary>
         /// When has been the entity created
@@ -111,7 +114,7 @@ namespace Unisave.Entities
         /// <summary>
         /// Sets values according to the provided attribute set
         /// </summary>
-        public void SetAttributes(JsonObject newAttributes)
+        internal void SetAttributes(JsonObject newAttributes)
         {
             if (newAttributes == null)
                 throw new ArgumentNullException();
@@ -123,7 +126,7 @@ namespace Unisave.Entities
         /// <summary>
         /// Returns values of entity attributes
         /// </summary>
-        public JsonObject GetAttributes()
+        internal JsonObject GetAttributes()
         {
             var attributes = new JsonObject();
 
@@ -153,7 +156,7 @@ namespace Unisave.Entities
         /// by having the type provided.
         /// The provided type will be checked to be correct.
         /// </summary>
-        public static Entity FromJson(JsonObject json, Type entityType)
+        internal static Entity FromJson(JsonObject json, Type entityType)
         {
             if (json == null)
                 return null;
@@ -175,7 +178,7 @@ namespace Unisave.Entities
         /// Creates entity from its JSON representation
         /// by searching for the proper entity C# type
         /// </summary>
-        public static Entity FromJson(
+        internal static Entity FromJson(
             JsonObject json,
             IEnumerable<Type> typesToSearch
         )
@@ -199,7 +202,7 @@ namespace Unisave.Entities
         /// <summary>
         /// Serialize the entity into json
         /// </summary>
-        public JsonObject ToJson()
+        internal JsonObject ToJson()
         {
             return GetAttributes();
         }
