@@ -93,27 +93,21 @@ namespace Unisave.Arango.Expressions
             
             switch (ExpressionType)
             {
-                case AqlExpressionType.Add:
-                    if (l.IsString)
-                        return l.AsString + r;
-                    if (r.IsString)
-                        return l + r.AsString;
-                    return l.AsNumber + r.AsNumber;
-                
-                case AqlExpressionType.Subtract: return l - r;
-                case AqlExpressionType.Multiply: return l * r;
-                // NOTE: double conversion really IS IMPORTANT
-                case AqlExpressionType.Divide: return (double)l / (double)r;
-                case AqlExpressionType.Modulo: return l % r;
+                case AqlExpressionType.Add: return AqlArithmetic.Add(l, r);
+                case AqlExpressionType.Subtract: return AqlArithmetic.Subtract(l, r);
+                case AqlExpressionType.Multiply: return AqlArithmetic.Multiply(l, r);
+                case AqlExpressionType.Divide: return AqlArithmetic.Divide(l, r);
+                case AqlExpressionType.Modulo: return AqlArithmetic.Modulo(l, r);
 
-                case AqlExpressionType.Equal: return l == r;
-                case AqlExpressionType.NotEqual: return l != r;
-                case AqlExpressionType.GreaterThan: return l > r;
-                case AqlExpressionType.GreaterThanOrEqual: return l >= r;
-                case AqlExpressionType.LessThan: return l < r;
-                case AqlExpressionType.LessThanOrEqual: return l <= r;
-                case AqlExpressionType.And: return l && r;
-                case AqlExpressionType.Or: return l || r;
+                case AqlExpressionType.Equal: return AqlArithmetic.Equal(l, r);
+                case AqlExpressionType.NotEqual: return AqlArithmetic.NotEqual(l, r);
+                case AqlExpressionType.GreaterThan: return AqlArithmetic.GreaterThan(l, r);
+                case AqlExpressionType.GreaterThanOrEqual: return AqlArithmetic.GreaterThenOrEqual(l, r);
+                case AqlExpressionType.LessThan: return AqlArithmetic.LessThan(l, r);
+                case AqlExpressionType.LessThanOrEqual: return AqlArithmetic.LessThanOrEqual(l, r);
+                
+                case AqlExpressionType.And: return AqlArithmetic.And(l, r);
+                case AqlExpressionType.Or: return AqlArithmetic.Or(l, r);
             }
             
             throw new QueryExecutionException(

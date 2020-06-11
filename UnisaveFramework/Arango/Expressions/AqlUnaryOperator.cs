@@ -58,9 +58,9 @@ namespace Unisave.Arango.Expressions
             
             switch (ExpressionType)
             {
-                case AqlExpressionType.UnaryPlus: return +o;
-                case AqlExpressionType.UnaryMinus: return -o;
-                case AqlExpressionType.Not: return !o;
+                case AqlExpressionType.UnaryPlus: return AqlArithmetic.Plus(o);
+                case AqlExpressionType.UnaryMinus: return AqlArithmetic.Minus(o);
+                case AqlExpressionType.Not: return AqlArithmetic.Not(o);
             }
             
             throw new QueryExecutionException(

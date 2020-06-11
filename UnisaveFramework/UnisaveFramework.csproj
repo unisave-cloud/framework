@@ -48,6 +48,7 @@
     <Compile Include="Arango\Execution\QueryExecutionException.cs" />
     <Compile Include="Arango\Execution\QueryExecutor.cs" />
     <Compile Include="Arango\Expressions\AF.cs" />
+    <Compile Include="Arango\Expressions\AqlArithmetic.cs" />
     <Compile Include="Arango\Expressions\AqlBinaryOperator.cs" />
     <Compile Include="Arango\Expressions\AqlConstantExpression.cs" />
     <Compile Include="Arango\Expressions\AqlExpression.cs" />

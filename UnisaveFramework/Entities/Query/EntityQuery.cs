@@ -65,7 +65,7 @@ namespace Unisave.Entities.Query
         }
 
         /// <summary>
-        /// Get all entities matching the query as an enumerable
+        /// Get all entities matching the query as a list
         /// </summary>
         public List<TEntity> Get()
         {
