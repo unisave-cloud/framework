@@ -11,18 +11,23 @@ namespace FrameworkTests.Serialization
         private class StubEntity : Entity
         {
             public string Foo { get; set; } = "bar";
+
+            public string bar = "baz";
         }
         
         [Test]
         public void ItSerializesEntities()
         {
             var entity = new StubEntity();
+            entity.Foo = "Foo value";
+            entity.bar = "bar value";
             
             var serialized = Serializer.ToJson(entity).ToString();
             var deserialized = Serializer.FromJsonString<StubEntity>(serialized);
 
             UAssert.AreJsonEqual(entity, deserialized);
             Assert.AreEqual(entity.Foo, deserialized.Foo);
+            Assert.AreEqual(entity.bar, deserialized.bar);
         }
         
         [Test]

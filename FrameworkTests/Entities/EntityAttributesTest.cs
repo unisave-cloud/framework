@@ -25,6 +25,7 @@ namespace FrameworkTests.Entities
             var player = new PlayerEntity();
             player.Name = "John";
             player.Coins = 100;
+            player.foo = 88;
 
             var attr = player.GetAttributes();
             
@@ -34,6 +35,7 @@ namespace FrameworkTests.Entities
             Assert.IsTrue(attr["_id"].IsNull);
             Assert.AreEqual("John", attr["Name"].AsString);
             Assert.AreEqual(100, attr["Coins"].AsInteger);
+            Assert.AreEqual(88, attr["foo"].AsInteger);
             Assert.AreEqual(
                 default(DateTime),
                 Serializer.FromJson<DateTime>(attr["CreatedAt"])
@@ -42,7 +44,7 @@ namespace FrameworkTests.Entities
                 default(DateTime),
                 Serializer.FromJson<DateTime>(attr["UpdatedAt"])
             );
-            Assert.AreEqual(8, attr.Count);
+            Assert.AreEqual(9, attr.Count);
         }
 
         [Test]
@@ -53,6 +55,7 @@ namespace FrameworkTests.Entities
             player.SetAttributes(new JsonObject()
                 .Add("Name", "Peter")
                 .Add("Coins", 50)
+                .Add("foo", 88)
                 .Add("_id")
                 .Add("_key")
                 .Add("_rev")
@@ -61,6 +64,7 @@ namespace FrameworkTests.Entities
             
             Assert.AreEqual("Peter", player.Name);
             Assert.AreEqual(50, player.Coins);
+            Assert.AreEqual(88, player.foo);
             Assert.IsNull(player.EntityId);
             Assert.IsNull(player.EntityKey);
             Assert.IsNull(player.EntityRevision);

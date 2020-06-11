@@ -17,7 +17,7 @@ namespace Unisave.Entities
         /// <summary>
         /// Builds attribute mapping for a specific entity type
         /// </summary>
-        public static void BuildMappingFor(Type entityType)
+        private static void BuildMappingFor(Type entityType)
         {
             if (!typeof(Entity).IsAssignableFrom(entityType))
                 throw new ArgumentException(
@@ -27,31 +27,39 @@ namespace Unisave.Entities
             
             AttributeMapping mapping = new AttributeMapping(entityType);
             
-            // === go over properties ===
+            // === go over fields and properties ===
             
-            var properties = entityType.GetProperties(
+            var members = entityType.GetMembers(
                 BindingFlags.Public | BindingFlags.Instance
             );
             
-            foreach (PropertyInfo pi in properties)
+            foreach (MemberInfo mi in members)
             {
-                // skip those not having both getter and setter
-                if (!pi.CanRead || !pi.CanWrite)
+                // iterate only over fields and properties
+                FieldInfo fi = mi as FieldInfo;
+                PropertyInfo pi = mi as PropertyInfo;
+                if (fi == null && pi == null)
                     continue;
                 
-                // skip those that shouldn't be serialized
-                if (pi.GetCustomAttribute<DontSerializeAttribute>() != null)
+                // skip members that shouldn't be serialized
+                if (mi.GetCustomAttribute<DontSerializeAttribute>() != null)
                     continue;
                 
-                if (typeof(Entity).IsAssignableFrom(pi.PropertyType))
+                // skip properties without both a getter and a setter
+                if (pi != null)
+                    if (!pi.CanRead || !pi.CanWrite)
+                        continue;
+                
+                // entities cannot be inside entities
+                if (typeof(Entity).IsAssignableFrom(fi?.FieldType ?? pi.PropertyType))
                     throw new UnisaveException(
                         "Entities cannot contain other entities inside, "
                         + "the logic is not yet implemented inside Unisave. "
                         + "Use a string containing the target entity id instead. "
                         + "I'm planning to add support for this in the future however."
                     );
-                
-                mapping.Add(pi);
+
+                mapping.Add(mi);
             }
             
             // === store the mapping ===
