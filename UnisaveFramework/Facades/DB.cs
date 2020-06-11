@@ -47,6 +47,29 @@ namespace Unisave.Facades
         {
             return TakeAll<TEntity>().First();
         }
+
+        /// <summary>
+        /// Take the first entity of a given type or create and save
+        /// a new one if no such exists.
+        /// </summary>
+        /// <param name="creator">
+        /// Gets called during entity creation before the entity is saved.
+        /// </param>
+        public static TEntity FirstOrCreate<TEntity>(Action<TEntity> creator)
+            where TEntity : Entity, new()
+        {
+            return TakeAll<TEntity>().FirstOrCreate(creator);
+        }
+        
+        /// <summary>
+        /// Take the first entity of a given type or create and save
+        /// a new one if no such exists.
+        /// </summary>
+        public static TEntity FirstOrCreate<TEntity>()
+            where TEntity : Entity, new()
+        {
+            return TakeAll<TEntity>().FirstOrCreate();
+        }
         
         // TODO FirstOrFail variant
         

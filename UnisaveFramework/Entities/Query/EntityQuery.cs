@@ -9,7 +9,7 @@ using Unisave.Contracts;
 
 namespace Unisave.Entities.Query
 {
-    public class EntityQuery<TEntity> where TEntity : Entity
+    public class EntityQuery<TEntity> where TEntity : Entity, new()
     {
         /// <summary>
         /// Underlying AQL query
@@ -38,9 +38,10 @@ namespace Unisave.Entities.Query
             return query;
         }
         
+        // TODO: remove this graph nonsense
         public static EntityQuery<T> TakeNeighbours<T, TRelation>(
             IArango arango, Entity entity
-        ) where T : Entity where TRelation : Entity
+        ) where T : Entity, new() where TRelation : Entity, new()
         {
             var query = new EntityQuery<T>(arango);
             
@@ -118,5 +119,31 @@ namespace Unisave.Entities.Query
 
             return entities[0];
         }
+
+        /// <summary>
+        /// Get the first entity in the query or create a new one if none found
+        /// </summary>
+        /// <param name="creator">Action that gets called during creation</param>
+        public TEntity FirstOrCreate(Action<TEntity> creator)
+        {
+            if (creator == null)
+                throw new ArgumentNullException(nameof(creator));
+
+            TEntity entity = First();
+
+            if (entity == null)
+            {
+                entity = new TEntity();
+                creator.Invoke(entity);
+                entity.Save();
+            }
+
+            return entity;
+        }
+
+        /// <summary>
+        /// Get the first entity in the query or create a new one if none found
+        /// </summary>
+        public TEntity FirstOrCreate() => FirstOrCreate(e => { });
     }
 }

@@ -35,5 +35,39 @@ namespace FrameworkTests.Entities
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual("HasPremium", results[0].name);
         }
+
+        [Test]
+        public void FirstOrCreateWorks()
+        {
+            var player = DB.TakeAll<PlayerEntity>()
+                .Filter(p => p.name == "Bob")
+                .First();
+            
+            Assert.IsNull(player);
+
+            bool creatorCalled = false;
+            player = DB.TakeAll<PlayerEntity>()
+                .Filter(p => p.name == "Bob")
+                .FirstOrCreate(p => {
+                    p.name = "Bob";
+                    creatorCalled = true;
+                });
+            
+            Assert.IsNotNull(player);
+            Assert.AreEqual("Bob", player.name);
+            Assert.IsTrue(creatorCalled);
+            
+            creatorCalled = false;
+            player = DB.TakeAll<PlayerEntity>()
+                .Filter(p => p.name == "Bob")
+                .FirstOrCreate(p => {
+                    p.name = "Bob";
+                    creatorCalled = true;
+                });
+            
+            Assert.IsNotNull(player);
+            Assert.AreEqual("Bob", player.name);
+            Assert.IsFalse(creatorCalled);
+        }
     }
 }
