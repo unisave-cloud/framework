@@ -29,7 +29,7 @@ namespace FrameworkTests.Entities
             }.Save();
 
             var results = DB.TakeAll<PlayerEntity>()
-                .Filter(entity => entity.premiumUntil > DateTime.UtcNow)
+                .Filter(p => p.premiumUntil > DateTime.UtcNow)
                 .Get();
             
             Assert.AreEqual(1, results.Count);

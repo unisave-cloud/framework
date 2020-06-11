@@ -58,9 +58,15 @@ namespace Unisave.Entities.Query
         /// </summary>
         public EntityQuery<TEntity> Filter(Expression<Func<TEntity, bool>> e)
         {
-            // TODO: add parameter substitution
-            // (turn parameter to "entity")
+            var substitutor = new ExpressionParameterSubstitutor(
+                e.Parameters[0].Name,
+                "entity"
+            );
+
+            e = substitutor.VisitAndConvert(e, nameof(Filter));
+            
             Query.AddFilterOperation(e.Body);
+            
             return this;
         }
 
