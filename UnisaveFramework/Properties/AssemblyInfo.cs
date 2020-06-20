@@ -6,11 +6,11 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Jiří Mayer")]
 [assembly: AssemblyProduct("Unisave")]
-[assembly: AssemblyCopyright("Copyright © 2019")]
+[assembly: AssemblyCopyright("Copyright © 2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
 [assembly: InternalsVisibleTo("FrameworkTests")]
 
 [assembly: AssemblyVersion("0.8.0.0")]
-[assembly: AssemblyInformationalVersion("0.8.0-dev")]
+[assembly: AssemblyInformationalVersion("0.8.0")]
