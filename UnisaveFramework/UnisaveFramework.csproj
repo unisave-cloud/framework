@@ -104,6 +104,7 @@
     <Compile Include="Facades\AQL.cs" />
     <Compile Include="Facades\Auth.cs" />
     <Compile Include="Facades\Facade.cs" />
+    <Compile Include="Facades\Http.cs" />
     <Compile Include="Facades\Log.cs" />
     <Compile Include="Facades\Session.cs" />
     <Compile Include="Facets\Facet.cs" />
@@ -116,6 +117,10 @@
     <Compile Include="Foundation\Bootstrap.cs" />
     <Compile Include="Foundation\Container.cs" />
     <Compile Include="Foundation\Env.cs" />
+    <Compile Include="Http\Client\Factory.cs" />
+    <Compile Include="Http\Client\PendingRequest.cs" />
+    <Compile Include="Http\Client\Request.cs" />
+    <Compile Include="Http\Client\Response.cs" />
     <Compile Include="Logging\ClientSideLog.cs" />
     <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="Logging\InMemoryLog.cs" />

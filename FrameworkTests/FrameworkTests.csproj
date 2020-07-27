@@ -72,6 +72,7 @@
     <Compile Include="Facets\Stubs\FacetWithMiddleware.cs" />
     <Compile Include="Facets\Stubs\SomeFacet.cs" />
     <Compile Include="Facets\Stubs\WrongFacet.cs" />
+    <Compile Include="Http\Client\PendingRequestTest.cs" />
     <Compile Include="Modules\Matchmaking\Basic\BasicMatchmakerTest.cs" />
     <Compile Include="Modules\Matchmaking\Basic\BmMatchEntity.cs" />
     <Compile Include="Modules\Matchmaking\Basic\BmMatchmakerFacet.cs" />
