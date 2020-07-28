@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 
 namespace Unisave.Utils
 {
@@ -29,6 +30,29 @@ namespace Unisave.Utils
                 buffer[i] = chars[givenRandom.Next(chars.Length)];
 
             return new String(buffer);
+        }
+
+        /// <summary>
+        /// Determine if a given string matches a given pattern.
+        /// The only allowed wildcards in the pattern are asterisks '*'.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="pattern"></param>
+        /// <returns></returns>
+        public static bool Is(string input, string pattern)
+        {
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
+            
+            if (pattern == null)
+                throw new ArgumentNullException(nameof(pattern));
+            
+            if (pattern == input)
+                return true;
+
+            var regexPattern = Regex.Escape(pattern).Replace("\\*", ".*");
+
+            return Regex.IsMatch(input, "^" + regexPattern + "$");
         }
     }
 }
