@@ -8,6 +8,15 @@ namespace Unisave.Http.Client
     {
         protected bool failWhenEmpty = true;
 
+        /// <summary>
+        /// Returns the next response in the sequence
+        /// </summary>
+        /// <returns></returns>
+        public Response Next()
+        {
+            return null;
+        }
+
         public ResponseSequence Push(
             JsonObject json,
             int status = 200,

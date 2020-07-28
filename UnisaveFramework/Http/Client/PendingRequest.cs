@@ -18,12 +18,34 @@ namespace Unisave.Http.Client
         // TODO: timeout, http basic auth, retries ... see the laravel docs
         // TODO: XML requests and responses
         
-        private readonly HttpClient client;
-
+        /// <summary>
+        /// Header to add to the request
+        /// </summary>
         private Dictionary<string, string> headers;
 
+        /// <summary>
+        /// Content (payload) of the request, as it currently built up
+        /// </summary>
         private HttpContent content;
+        
+        /// <summary>
+        /// The underlying HttpClient instance that does the actual sending
+        /// </summary>
+        private readonly HttpClient client;
 
+        /// <summary>
+        /// Interceptor, that may fake responses
+        /// </summary>
+        private readonly Func<Request, Response> interceptor;
+
+        public PendingRequest(
+            HttpClient client,
+            Func<Request, Response> interceptor
+        ) : this(client)
+        {
+            this.interceptor = interceptor;
+        }
+        
         public PendingRequest(HttpClient client)
         {
             this.client = client;
@@ -343,19 +365,25 @@ namespace Unisave.Http.Client
             Dictionary<string, string> query = null
         )
         {
-            var request = new HttpRequestMessage {
+            // prepare .NET request
+            var dotNetRequest = new HttpRequestMessage {
                 Method = method,
                 RequestUri = BuildUrl(url, query),
                 Content = content
             };
-
-            AddRequestHeaders(request);
-
-            var task = client.SendAsync(request);
+            AddRequestHeaders(dotNetRequest);
             
-            var dotNetResponse = task.GetAwaiter().GetResult();
+            // prepare request
+            var request = new Request(dotNetRequest);
 
-            return new Response(dotNetResponse);
+            // perform interception
+            var fakeResponse = interceptor?.Invoke(request);
+            
+            if (fakeResponse != null)
+                return fakeResponse;
+
+            // send the request
+            return PerformSending(request);
         }
 
         private Uri BuildUrl(string url, Dictionary<string, string> query)
@@ -393,6 +421,20 @@ namespace Unisave.Http.Client
                     );
                 }
             }
+        }
+
+        /// <summary>
+        /// Performs the actual sending operation and returns the response
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        private Response PerformSending(Request request)
+        {
+            var task = client.SendAsync(request.Original);
+            
+            var dotNetResponse = task.GetAwaiter().GetResult();
+
+            return new Response(dotNetResponse);
         }
         
         #endregion

@@ -41,7 +41,7 @@ namespace Unisave.Http.Client
         /// <summary>
         /// Status code 3xx
         /// </summary>
-        public bool IsRedirect => Status >= 400 && Status < 500;
+        public bool IsRedirect => Status >= 300 && Status < 400;
         
         /// <summary>
         /// Status code 4xx

@@ -35,8 +35,10 @@ namespace FrameworkTests.Http.Client
                 })
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK))
                 .Verifiable();
-            
-            factory = new Factory(handler.Object);
+
+            factory = new Factory(
+                new HttpClient(handler.Object)
+            );
 
             request = null; // reset request capture
         }
