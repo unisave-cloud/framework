@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using LightJson;
 using LightJson.Serialization;
 
@@ -49,6 +50,92 @@ namespace Unisave.Http.Client
         {
             Original = original;
         }
+        
+        #region "Stub response construction"
+
+        /// <summary>
+        /// Creates a stub JSON response, used for testing
+        /// </summary>
+        /// <param name="json">Response JSON body</param>
+        /// <param name="status">HTTP status code</param>
+        /// <param name="headers">Additional response headers</param>
+        /// <returns></returns>
+        public static Response Create(
+            JsonObject json,
+            int status = 200,
+            Dictionary<string, string> headers = null
+        )
+        {
+            return Create(
+                json.ToString(),
+                "application/json",
+                status,
+                headers
+            );
+        }
+
+        /// <summary>
+        /// Creates a stub string response, used for testing
+        /// </summary>
+        /// <param name="body">Response body</param>
+        /// <param name="contentType">Text MIME type</param>
+        /// <param name="status">HTTP response status code</param>
+        /// <param name="headers">Additional response headers</param>
+        /// <returns></returns>
+        public static Response Create(
+            string body,
+            string contentType = "text/plain",
+            int status = 200,
+            Dictionary<string, string> headers = null
+        )
+        {
+            return Create(
+                new StringContent(body, Encoding.UTF8, contentType),
+                status,
+                headers
+            );
+        }
+
+        /// <summary>
+        /// Creates a stub response, used for testing
+        /// </summary>
+        /// <param name="body">Response body</param>
+        /// <param name="status">HTTP status code</param>
+        /// <param name="headers">Response headers</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException">Invalid headers</exception>
+        public static Response Create(
+            HttpContent body = null,
+            int status = 200,
+            Dictionary<string, string> headers = null
+        )
+        {
+            var response = new HttpResponseMessage {
+                Content = body,
+                StatusCode = (HttpStatusCode) status,
+            };
+
+            if (headers != null)
+            {
+                foreach (var pair in headers)
+                {
+                    if (!response.Headers
+                        .TryAddWithoutValidation(pair.Key, pair.Value))
+                    {
+                        throw new ArgumentException(
+                            $"The header {pair.Key} cannot be specified via " +
+                            $"the method {nameof(Create)}. The header " +
+                            $"probably refers to the content and will " +
+                            $"be determined automatically."
+                        );
+                    }
+                }
+            }
+                
+            return new Response(response);
+        }
+        
+        #endregion
 
         /// <summary>
         /// Returns the response body as string
