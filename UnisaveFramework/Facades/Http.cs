@@ -22,7 +22,7 @@ namespace Unisave.Facades
     /// </summary>
     public static class Http
     {
-        // TODO: Factory + PendingRequest API here
+        // TODO: Factory + PendingRequest API here + Response & ResponseSequence factories
         
         #region "Regular usage"
         #endregion

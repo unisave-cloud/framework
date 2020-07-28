@@ -36,11 +36,11 @@ namespace Unisave.Http.Client
         /// <summary>
         /// Interceptor, that may fake responses
         /// </summary>
-        private readonly Func<Request, Response> interceptor;
+        private Func<Request, Func<Response>, Response> interceptor;
 
         public PendingRequest(
             HttpClient client,
-            Func<Request, Response> interceptor
+            Func<Request, Func<Response>, Response> interceptor
         ) : this(client)
         {
             this.interceptor = interceptor;
@@ -377,13 +377,14 @@ namespace Unisave.Http.Client
             var request = new Request(dotNetRequest);
 
             // perform interception
-            var fakeResponse = interceptor?.Invoke(request);
+            if (interceptor == null)
+                interceptor = (r, n) => n.Invoke();
             
-            if (fakeResponse != null)
-                return fakeResponse;
-
-            // send the request
-            return PerformSending(request);
+            return interceptor.Invoke(request, () => {
+                
+                // perform sending
+                return PerformSending(request);
+            });
         }
 
         private Uri BuildUrl(string url, Dictionary<string, string> query)

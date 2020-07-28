@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
+using Unisave.Exceptions;
 using Unisave.Utils;
 
 namespace Unisave.Http.Client
@@ -40,6 +40,11 @@ namespace Unisave.Http.Client
         public bool IsRecording { get; private set; } = false;
         
         /// <summary>
+        /// List of recorded request-response pairs
+        /// </summary>
+        private readonly List<Record> recorded = new List<Record>();
+        
+        /// <summary>
         /// The HttpClient instance that should be used for requests
         /// </summary>
         private readonly HttpClient client;
@@ -54,18 +59,38 @@ namespace Unisave.Http.Client
         /// (this function is injected into each PendingRequest instance)
         /// </summary>
         /// <param name="request"></param>
+        /// <param name="next">Rest of the request processing</param>
         /// <returns></returns>
-        private Response RequestInterceptor(Request request)
+        private Response RequestInterceptor(
+            Request request,
+            Func<Response> next
+        )
         {
+            Response response = null;
+            
+            // stubbing
             foreach (var callback in stubCallbacks)
             {
-                var response = callback?.Invoke(request);
+                response = callback?.Invoke(request);
 
                 if (response != null)
-                    return response; // fake response
+                    break;
             }
 
-            return null; // no faking occurs
+            try
+            {
+                // invocation
+                if (response == null)
+                    response = next?.Invoke();
+            }
+            finally
+            {
+                // recording
+                if (IsRecording)
+                    recorded.Add(new Record(request, response));
+            }
+            
+            return response;
         }
         
         #region "Faking methods"
@@ -171,48 +196,94 @@ namespace Unisave.Http.Client
         
         #region "Recording"
 
+        /// <summary>
+        /// Returns all recorded request-response pairs
+        /// </summary>
         public List<Record> Recorded()
-        {
-            return null;
-        }
+            => Recorded((request, response) => true);
         
+        /// <summary>
+        /// Returns all recorded request-response pairs
+        /// that fulfill the condition
+        /// </summary>
+        public List<Record> Recorded(Func<Request, bool> condition)
+            => Recorded(
+                (request, response) => condition?.Invoke(request)
+                    ?? throw new ArgumentNullException(nameof(condition))
+                );
+        
+        /// <summary>
+        /// Returns all recorded request-response pairs
+        /// that fulfill the condition
+        /// </summary>
         public List<Record> Recorded(Func<Request, Response, bool> condition)
         {
-            return null;
-        }
-        
-        public List<Record> Recorded(Func<Request, bool> condition)
-        {
-            return null;
+            if (condition == null)
+                throw new ArgumentNullException(nameof(condition));
+            
+            return recorded
+                .Where(record => condition.Invoke(
+                    record.Request,
+                    record.Response
+                ))
+                .ToList();
         }
         
         #endregion
         
         #region "Assertions"
 
+        public void AssertSent(Func<Request, bool> condition)
+            => AssertSent(
+                (request, response) => condition?.Invoke(request)
+                ?? throw new ArgumentNullException(nameof(condition))
+            );
+        
         public void AssertSent(Func<Request, Response, bool> condition)
         {
+            if (condition == null)
+                throw new ArgumentNullException(nameof(condition));
             
-        }
-        
-        public void AssertSent(Func<Request, bool> condition)
-        {
+            var matching = Recorded(condition);
             
-        }
-        
-        public void AssertNotSent(Func<Request, Response, bool> condition)
-        {
-            
+            if (matching.Count == 0)
+                throw new UnisaveAssertionException(
+                    "There were no requests, matching the specified condition."
+                );
         }
         
         public void AssertNotSent(Func<Request, bool> condition)
+            => AssertNotSent(
+                (request, response) => condition?.Invoke(request)
+                ?? throw new ArgumentNullException(nameof(condition))
+            );
+        
+        public void AssertNotSent(Func<Request, Response, bool> condition)
         {
+            if (condition == null)
+                throw new ArgumentNullException(nameof(condition));
             
+            var matching = Recorded(condition);
+            
+            if (matching.Count > 0)
+                throw new UnisaveAssertionException(
+                    "There were requests, matching the specified condition:\n" +
+                    string.Join("\n", matching.Select(
+                        r => r.Request.Original.Method + " " + r.Request.Url
+                    ))
+                );
         }
 
         public void AssertNothingSent()
         {
-            
+            if (recorded.Count > 0)
+                throw new UnisaveAssertionException(
+                    "No requests should have been sent but there were " +
+                    "following requests:\n" +
+                    string.Join("\n", recorded.Select(
+                        r => r.Request.Original.Method + " " + r.Request.Url
+                    ))
+                );
         }
         
         #endregion

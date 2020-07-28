@@ -227,7 +227,7 @@ namespace FrameworkTests.Http.Client
             Assert.AreEqual("foobar!", records[0].Request.Header("X-My-Header"));
             
             Assert.AreEqual("https://bitbucket.com/", records[1].Request.Url);
-            Assert.AreEqual("bar", records[1].Request["foo"]);
+            Assert.AreEqual("bar", records[1].Request["foo"].AsString);
             
             // assertions
 
