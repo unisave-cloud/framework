@@ -11,6 +11,8 @@ namespace Unisave.Http.Client
 {
     public class Response
     {
+        // TODO: indexer access to JSON content -> cache parsed content
+        
         /// <summary>
         /// The original response message from the .NET framework
         /// </summary>
@@ -32,6 +34,11 @@ namespace Unisave.Http.Client
         public bool IsSuccessful => Status >= 200 && Status < 300;
 
         /// <summary>
+        /// Status code >= 400
+        /// </summary>
+        public bool Failed => Status >= 400;
+
+        /// <summary>
         /// Status code 3xx
         /// </summary>
         public bool IsRedirect => Status >= 400 && Status < 500;
@@ -45,6 +52,8 @@ namespace Unisave.Http.Client
         /// Status code 5xx
         /// </summary>
         public bool IsServerError => Status >= 500;
+        
+        public JsonValue this[string key] => JsonValue.Null;
         
         public Response(HttpResponseMessage original)
         {
@@ -138,19 +147,17 @@ namespace Unisave.Http.Client
         #endregion
 
         /// <summary>
-        /// Returns the response body as string
-        /// (but the response has to be in a text format)
+        /// Returns the response body as string.
+        /// If the response is not a string or there is no response,
+        /// null is returned.
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="InvalidOperationException"></exception>
         public string Body()
         {
             var content = Original.Content as StringContent;
 
             if (content == null)
-                throw new InvalidOperationException(
-                    "The response does not contain text"
-                );
+                return null;
             
             return content.ReadAsStringAsync()
                 .GetAwaiter()
@@ -158,19 +165,24 @@ namespace Unisave.Http.Client
         }
 
         /// <summary>
-        /// Returns the response body as a parsed JSON object
+        /// Returns the response body as a parsed JSON object,
+        /// or null if the response does not exist.
         /// </summary>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="JsonParseException"></exception>
         public JsonObject Json()
         {
             var content = Original.Content as StringContent;
 
-            if (content == null ||
-                content.Headers.ContentType.MediaType != "application/json")
+            if (content == null)
+                return null;
+            
+            if (content.Headers.ContentType.MediaType != "application/json")
             {
                 throw new InvalidOperationException(
-                    "The response does not contain JSON body"
+                    "The response is not application/json but: " +
+                    content.Headers.ContentType.MediaType 
                 );
             }
 
@@ -189,16 +201,19 @@ namespace Unisave.Http.Client
         }
 
         /// <summary>
-        /// Throws an exception if the response is 400 or above
+        /// Throws an exception if the response is 400 or above.
+        /// This method is chainable.
         /// </summary>
         /// <exception cref="HttpRequestException"></exception>
-        public void Throw()
+        public Response Throw()
         {
             if (IsClientError || IsServerError)
                 throw new HttpRequestException(
                     "The HTTP response has erroneous status code: " +
                     (int)Original.StatusCode
                 );
+
+            return this;
         }
 
         /// <summary>

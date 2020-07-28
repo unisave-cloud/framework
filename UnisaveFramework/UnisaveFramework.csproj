@@ -97,6 +97,7 @@
     <Compile Include="Entities\EntitySearchException.cs" />
     <Compile Include="Entities\EntityUtils.cs" />
     <Compile Include="Entities\Query\EntityQuery.cs" />
+    <Compile Include="Exceptions\UnisaveAssertionException.cs" />
     <Compile Include="Exceptions\BackendException.cs" />
     <Compile Include="Exceptions\BackendExecutionTimeoutException.cs" />
     <Compile Include="Exceptions\ConfigurationException.cs" />
@@ -121,6 +122,7 @@
     <Compile Include="Http\Client\PendingRequest.cs" />
     <Compile Include="Http\Client\Request.cs" />
     <Compile Include="Http\Client\Response.cs" />
+    <Compile Include="Http\Client\ResponseSequence.cs" />
     <Compile Include="Logging\ClientSideLog.cs" />
     <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="Logging\InMemoryLog.cs" />
