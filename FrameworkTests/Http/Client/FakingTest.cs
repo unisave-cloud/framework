@@ -112,7 +112,7 @@ namespace FrameworkTests.Http.Client
                 "{'foo':'bar'}".Replace("'", "\""),
                 response.Json().ToString()
             );
-            Assert.AreEqual("bar", response["foo"]);
+            Assert.AreEqual("bar", response["foo"].AsString);
             
             // The request wasn't actually sent anywhere
             Assert.IsNull(request);
@@ -144,7 +144,7 @@ namespace FrameworkTests.Http.Client
             Assert.IsFalse(response.IsOk);
             Assert.IsFalse(response.IsRedirect);
             
-            Assert.AreEqual("payload!", response["response-foo"]);
+            Assert.AreEqual("payload!", response["response-foo"].AsString);
             
             // The request wasn't actually sent anywhere
             Assert.IsNull(request);

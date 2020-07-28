@@ -53,7 +53,15 @@ namespace Unisave.Http.Client
         /// </summary>
         public bool IsServerError => Status >= 500;
         
-        public JsonValue this[string key] => JsonValue.Null;
+        // caching JSON body for fast indexer access
+        private JsonObject jsonCache;
+        private bool jsonCacheUsed = false;
+        
+        /// <summary>
+        /// Access the body as a JSON object
+        /// </summary>
+        /// <param name="key"></param>
+        public JsonValue this[string key] => Json()[key];
         
         public Response(HttpResponseMessage original)
         {
@@ -173,6 +181,9 @@ namespace Unisave.Http.Client
         /// <exception cref="JsonParseException"></exception>
         public JsonObject Json()
         {
+            if (jsonCacheUsed)
+                return jsonCache;
+            
             var content = Original.Content as StringContent;
 
             if (content == null)
@@ -197,7 +208,9 @@ namespace Unisave.Http.Client
                     "The response body is not a JSON object"
                 );
 
-            return json.AsJsonObject;
+            jsonCache = json.AsJsonObject;
+            jsonCacheUsed = true;
+            return jsonCache;
         }
 
         /// <summary>
