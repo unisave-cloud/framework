@@ -9,8 +9,6 @@ namespace Unisave.Http.Client
 {
     public class Request
     {
-        // TODO: indexer access to JSON payload
-        
         /// <summary>
         /// The original request message from the .NET framework
         /// </summary>

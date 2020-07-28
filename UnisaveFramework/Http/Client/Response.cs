@@ -11,8 +11,6 @@ namespace Unisave.Http.Client
 {
     public class Response
     {
-        // TODO: indexer access to JSON content -> cache parsed content
-        
         /// <summary>
         /// The original response message from the .NET framework
         /// </summary>
