@@ -40,7 +40,8 @@ namespace Unisave.Foundation
                 new SessionServiceProvider(this),
                 new EntityServiceProvider(this),
                 new ArangoServiceProvider(this),
-                new AuthServiceProvider(this)
+                new AuthServiceProvider(this),
+                new HttpClientServiceProvider(this) 
             };
         }
 

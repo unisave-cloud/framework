@@ -137,6 +137,7 @@
     <Compile Include="Providers\ArangoServiceProvider.cs" />
     <Compile Include="Providers\AuthServiceProvider.cs" />
     <Compile Include="Providers\EntityServiceProvider.cs" />
+    <Compile Include="Providers\HttpClientServiceProvider.cs" />
     <Compile Include="Providers\LogServiceProvider.cs" />
     <Compile Include="Providers\ServiceProvider.cs" />
     <Compile Include="Providers\SessionServiceProvider.cs" />
