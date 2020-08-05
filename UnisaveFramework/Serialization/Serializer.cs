@@ -104,13 +104,19 @@ namespace Unisave.Serialization
 
             // primitives
             if (type == typeof(long))
-                return (int)subject;
+                return ((long)subject).ToString();
+            else if (type == typeof(ulong))
+                return ((ulong)subject).ToString();
             else if (type == typeof(int))
                 return (int)subject;
+            else if (type == typeof(uint))
+                return ((uint)subject).ToString();
             else if (type == typeof(short))
-                return (int)subject;
+                return (short)subject;
+            else if (type == typeof(ushort))
+                return (ushort)subject;
             else if (type == typeof(byte))
-                return (int)subject;
+                return (byte)subject;
             else if (type == typeof(bool))
                 return (bool)subject;
             else if (type == typeof(double))
@@ -168,11 +174,17 @@ namespace Unisave.Serialization
         {
             // primitives
             if (type == typeof(long))
-                return (long)json.AsInteger;
+                return long.Parse(json.AsString);
+            else if (type == typeof(ulong))
+                return ulong.Parse(json.AsString);
             else if (type == typeof(int))
                 return json.AsInteger;
+            else if (type == typeof(uint))
+                return uint.Parse(json.AsString);
             else if (type == typeof(short))
                 return (short)json.AsInteger;
+            else if (type == typeof(ushort))
+                return (ushort)json.AsInteger;
             else if (type == typeof(byte))
                 return (byte)json.AsInteger;
             else if (type == typeof(bool))
