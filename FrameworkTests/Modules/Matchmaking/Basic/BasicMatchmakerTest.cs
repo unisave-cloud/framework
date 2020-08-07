@@ -13,6 +13,12 @@ using Unisave.Serialization;
 
 namespace FrameworkTests.Modules.Matchmaking.Basic
 {
+    /*
+     * THE WHOLE MATCHMAKER NEEDS TO BE REDONE IN WEBSOCKETS
+     * AND THIS TESTING STUFF SHOULD BE MOVED TO THE UNISAVE FIXTURE
+     */
+    
+    /*
     [TestFixture]
     public class BasicMatchmakerTest : BackendTestCase
     {
@@ -438,4 +444,6 @@ namespace FrameworkTests.Modules.Matchmaking.Basic
             );
         }
     }
+    
+    */
 }

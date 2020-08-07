@@ -10,6 +10,7 @@ namespace Unisave.Arango.Emulation
     /// <summary>
     /// Simulates ArangoDB database in memory
     /// </summary>
+    [Obsolete("In-memory database stuff will be removed")]
     public class ArangoInMemory : IExecutionDataSource, IArango
     {
         /// <summary>

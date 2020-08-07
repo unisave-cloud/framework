@@ -154,16 +154,6 @@
     <Compile Include="Sessions\Middleware\StartSession.cs" />
     <Compile Include="Sessions\SandboxApiSessionStorage.cs" />
     <Compile Include="Sessions\SessionOverStorage.cs" />
-    <Compile Include="Testing\BasicBackendTestCase.CallsFacets.cs">
-      <DependentUpon>BasicBackendTestCase.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Testing\BasicBackendTestCase.cs" />
-    <Compile Include="Testing\BasicBackendTestCase.InteractsWithAuthentication.cs">
-      <DependentUpon>BasicBackendTestCase.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Testing\BasicBackendTestCase.MakesAssertions.cs">
-      <DependentUpon>BasicBackendTestCase.cs</DependentUpon>
-    </Compile>
     <Compile Include="Exceptions\UnisaveException.cs" />
     <Compile Include="Utils\ExecutionHelper.cs" />
     <Compile Include="Utils\ExecutionSerializationException.cs" />
