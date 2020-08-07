@@ -9,7 +9,7 @@ namespace FrameworkTests
         [Test]
         public void ItRemembersValues()
         {
-            var env = new Env();
+            var env = new EnvStore();
 
             Assert.IsNull(env["FOO"]);
             
@@ -29,7 +29,7 @@ namespace FrameworkTests
                 HASH = # asd
             ";
 
-            var env = Env.Parse(source);
+            var env = EnvStore.Parse(source);
             
             Assert.AreEqual("bar", env["FOO"]);
             Assert.AreEqual("42", env["BAZ"]);
@@ -42,7 +42,7 @@ namespace FrameworkTests
         public void ItParsesNull()
         {
             Assert.DoesNotThrow(() => {
-                Env.Parse(null);
+                EnvStore.Parse(null);
             });
         }
 
@@ -55,7 +55,7 @@ namespace FrameworkTests
                 FOO=asd
             ";
 
-            var env = Env.Parse(source);
+            var env = EnvStore.Parse(source);
             
             Assert.AreEqual(42, env.GetInt("BAZ"));
             Assert.AreEqual(59, env.GetInt("BAR"));

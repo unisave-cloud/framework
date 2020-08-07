@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
@@ -6,7 +7,7 @@ namespace Unisave.Foundation
     /// <summary>
     /// Holds environment configuration for the framework execution
     /// </summary>
-    public class Env
+    public class EnvStore
     {
         /// <summary>
         /// Contains the environment values
@@ -20,7 +21,7 @@ namespace Unisave.Foundation
         public string this[string key]
         {
             get => GetString(key);
-            set => values[key] = value;
+            set => Set(key, value);
         }
 
         /// <summary>
@@ -41,6 +42,14 @@ namespace Unisave.Foundation
 
             return values[key];
         }
+        
+        /// <summary>
+        /// Sets a string value
+        /// </summary>
+        public void Set(string key, string value)
+        {
+            values[key] = value;
+        }
 
         /// <summary>
         /// Gets value, converted to integer with default specified
@@ -52,6 +61,8 @@ namespace Unisave.Foundation
             if (s == null)
                 return defaultValue;
 
+            s = s.Trim();
+
             if (int.TryParse(s, out int i))
                 return i;
 
@@ -62,18 +73,18 @@ namespace Unisave.Foundation
         /// Override current settings with settings from a given env
         /// (existing keys get replaced, new keys get created)
         /// </summary>
-        public void OverrideWith(Env overrideEnv)
+        public void OverrideWith(EnvStore overrideEnvStore)
         {
-            foreach (var pair in overrideEnv.values)
+            foreach (var pair in overrideEnvStore.values)
                 values[pair.Key] = pair.Value;
         }
 
         /// <summary>
         /// Parse out env config from a string
         /// </summary>
-        public static Env Parse(string source)
+        public static EnvStore Parse(string source)
         {
-            var env = new Env();
+            var env = new EnvStore();
 
             if (source == null)
                 return env;

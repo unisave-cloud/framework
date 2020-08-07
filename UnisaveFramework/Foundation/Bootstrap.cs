@@ -10,7 +10,7 @@ namespace Unisave.Foundation
         /// </summary>
         public static Application Boot(
             Type[] gameAssemblyTypes,
-            Env env,
+            EnvStore envStore,
             SpecialValues specialValues
         )
         {
@@ -21,7 +21,7 @@ namespace Unisave.Foundation
             app.DontDisposeInstance(app);
             
             // basic services, used even inside service providers
-            app.Instance<Env>(env);
+            app.Instance<EnvStore>(envStore);
             app.Instance<SpecialValues>(specialValues);
             
             app.RegisterServiceProviders();

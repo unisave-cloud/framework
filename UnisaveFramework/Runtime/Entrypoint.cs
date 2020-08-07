@@ -65,7 +65,7 @@ namespace Unisave.Runtime
                         // is started. Simply boot the application and
                         // then directly call proper kernel (method handler).
 
-                        var env = Env.Parse(executionParameters.EnvSource);
+                        var env = EnvStore.Parse(executionParameters.EnvSource);
 
                         JsonValue methodResult;
                         

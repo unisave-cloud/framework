@@ -12,7 +12,7 @@ namespace Unisave.Providers
         public override void Register()
         {
             App.Singleton<ISession>(app => {
-                var env = app.Resolve<Env>();
+                var env = app.Resolve<EnvStore>();
                 
                 string driver = env.GetString("SESSION_DRIVER", "arango");
                 int lifetime = env.GetInt("SESSION_LIFETIME", 3600); // 1h
