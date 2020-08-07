@@ -54,5 +54,53 @@ namespace Unisave.Utils
 
             return Regex.IsMatch(input, "^" + regexPattern + "$");
         }
+
+        /// <summary>
+        /// Finish a string with a single instance of a given value
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="tail"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static string Finish(string input, string tail)
+        {
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
+            
+            if (tail == null)
+                throw new ArgumentNullException(nameof(tail));
+            
+            var escapedTail = Regex.Escape(tail);
+
+            return Regex.Replace(
+                input: input,
+                pattern: "(?:" + escapedTail + ")+$",
+                replacement: ""
+            ) + tail;
+        }
+
+        /// <summary>
+        /// Start a string with a single instance of a given value
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="head"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static string Start(string input, string head)
+        {
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
+            
+            if (head == null)
+                throw new ArgumentNullException(nameof(head));
+            
+            var escapedTail = Regex.Escape(head);
+
+            return head + Regex.Replace(
+                input: input,
+                pattern: "^(?:" + escapedTail + ")+",
+                replacement: ""
+            );
+        }
     }
 }
