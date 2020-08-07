@@ -219,6 +219,11 @@ namespace FrameworkTests.Http.Client
                     ["foo"] = "bar"
                 });
             
+            factory.PendingRequest()
+                .Post("http://form.com/", new Dictionary<string, string> {
+                    ["foo"] = "bar"
+                });
+            
             // recording
 
             List<Factory.Record> records = factory.Recorded();
@@ -244,6 +249,11 @@ namespace FrameworkTests.Http.Client
             factory.AssertNotSent(request =>
                 request.Url == "https://bitbucket.com/" &&
                 request["foo"] == "baz"
+            );
+            
+            factory.AssertSent((request, response) =>
+                request.Url == "http://form.com/" &&
+                request["foo"] == "bar"
             );
 
             Assert.Throws<UnisaveAssertionException>(() => {

@@ -9,12 +9,15 @@ using LightJson.Serialization;
 
 namespace Unisave.Http.Client
 {
-    public class Response
+    public class Response : HttpContentHolder
     {
         /// <summary>
         /// The original response message from the .NET framework
         /// </summary>
         public HttpResponseMessage Original { get; }
+        
+        // implements the SPI
+        protected override HttpContent Content => Original.Content;
 
         /// <summary>
         /// Status code as integer
@@ -50,17 +53,7 @@ namespace Unisave.Http.Client
         /// Status code 5xx
         /// </summary>
         public bool IsServerError => Status >= 500;
-        
-        // caching JSON body for fast indexer access
-        private JsonObject jsonCache;
-        private bool jsonCacheUsed = false;
-        
-        /// <summary>
-        /// Access the body as a JSON object
-        /// </summary>
-        /// <param name="key"></param>
-        public JsonValue this[string key] => Json()[key];
-        
+
         public Response(HttpResponseMessage original)
         {
             Original = original;
@@ -151,65 +144,6 @@ namespace Unisave.Http.Client
         }
         
         #endregion
-
-        /// <summary>
-        /// Returns the response body as string.
-        /// If the response is not a string or there is no response,
-        /// null is returned.
-        /// </summary>
-        /// <returns></returns>
-        public string Body()
-        {
-            var content = Original.Content as StringContent;
-
-            if (content == null)
-                return null;
-            
-            return content.ReadAsStringAsync()
-                .GetAwaiter()
-                .GetResult();
-        }
-
-        /// <summary>
-        /// Returns the response body as a parsed JSON object,
-        /// or null if the response does not exist.
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="InvalidOperationException"></exception>
-        /// <exception cref="JsonParseException"></exception>
-        public JsonObject Json()
-        {
-            if (jsonCacheUsed)
-                return jsonCache;
-            
-            var content = Original.Content as StringContent;
-
-            if (content == null)
-                return null;
-            
-            if (content.Headers.ContentType.MediaType != "application/json")
-            {
-                throw new InvalidOperationException(
-                    "The response is not application/json but: " +
-                    content.Headers.ContentType.MediaType 
-                );
-            }
-
-            string jsonString = content.ReadAsStringAsync()
-                .GetAwaiter()
-                .GetResult();
-
-            JsonValue json = JsonReader.Parse(jsonString);
-            
-            if (!json.IsJsonObject)
-                throw new InvalidOperationException(
-                    "The response body is not a JSON object"
-                );
-
-            jsonCache = json.AsJsonObject;
-            jsonCacheUsed = true;
-            return jsonCache;
-        }
 
         /// <summary>
         /// Throws an exception if the response is 400 or above.

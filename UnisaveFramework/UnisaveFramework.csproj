@@ -119,6 +119,7 @@
     <Compile Include="Foundation\Bootstrap.cs" />
     <Compile Include="Foundation\Container.cs" />
     <Compile Include="Foundation\EnvStore.cs" />
+    <Compile Include="Http\Client\HttpContentHolder.cs" />
     <Compile Include="Http\Client\Factory.cs" />
     <Compile Include="Http\Client\PendingRequest.cs" />
     <Compile Include="Http\Client\Request.cs" />
