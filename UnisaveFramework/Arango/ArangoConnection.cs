@@ -164,9 +164,26 @@ namespace Unisave.Arango
             string aql = query.ToAql();
             
             // create cursor
-            JsonObject response = Post("/_api/cursor", new JsonObject()
-                .Add("query", aql)
-            );
+            JsonObject response;
+            try
+            {
+                response = Post("/_api/cursor", new JsonObject()
+                    .Add("query", aql)
+                );
+            }
+            catch (HttpRequestException e) when (((
+                e.InnerException as WebException)
+                ?.Response as HttpWebResponse)
+                ?.StatusCode == HttpStatusCode.NotFound
+            )
+            {
+                // SOMETIMES! (non-deterministically) HttpClient throws
+                // an exception on 404, even though it shouldn't.
+                // Don't ask me why, just deal with it...
+                throw new ArangoException(
+                    404, 1203, "View or collection not found."
+                );
+            }
 
             // may be null if the response is short
             string cursorId = response["id"].AsString;
