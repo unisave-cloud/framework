@@ -68,6 +68,43 @@ namespace Unisave.Foundation
 
             return defaultValue;
         }
+        
+        /// <summary>
+        /// Sets an integer value
+        /// </summary>
+        public void Set(string key, int value)
+        {
+            values[key] = value.ToString();
+        }
+        
+        /// <summary>
+        /// Gets value, converted to bool with default specified
+        /// </summary>
+        public bool GetBool(string key, bool defaultValue = false)
+        {
+            string s = GetString(key);
+
+            if (s == null)
+                return defaultValue;
+
+            s = s.Trim().ToLowerInvariant();
+
+            if (s == "true")
+                return true;
+
+            if (s == "1")
+                return true;
+
+            return false;
+        }
+        
+        /// <summary>
+        /// Sets a boolean value
+        /// </summary>
+        public void Set(string key, bool value)
+        {
+            values[key] = value.ToString().ToLowerInvariant();
+        }
 
         /// <summary>
         /// Override current settings with settings from a given env

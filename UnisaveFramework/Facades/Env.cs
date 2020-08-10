@@ -41,5 +41,23 @@ namespace Unisave.Facades
         /// </summary>
         public static int GetInt(string key, int defaultValue = 0)
             => GetStore().GetInt(key, defaultValue);
+        
+        /// <summary>
+        /// Sets an integer value
+        /// </summary>
+        public static void Set(string key, int value)
+            => GetStore().Set(key, value);
+        
+        /// <summary>
+        /// Gets value, converted to bool with default specified
+        /// </summary>
+        public static bool GetBool(string key, bool defaultValue = false)
+            => GetStore().GetBool(key, defaultValue);
+        
+        /// <summary>
+        /// Sets a boolean value
+        /// </summary>
+        public static void Set(string key, bool value)
+            => GetStore().Set(key, value);
     }
 }
