@@ -67,6 +67,35 @@ namespace FrameworkTests.Serialization
             Assert.AreEqual(5, loaded.Second);
             Assert.AreEqual(6, loaded.Millisecond); // even ms
         }
+
+        [Test]
+        public void ItDeserializesNullAsDefaultValue()
+        {
+            DateTime loaded = Serializer.FromJson<DateTime>(JsonValue.Null);
+            Assert.AreEqual(
+                default(DateTime),
+                loaded
+            );
+        }
+
+        [Test]
+        public void ItDeserializesNullableToNull()
+        {
+            DateTime? loaded = Serializer.FromJson<DateTime?>(JsonValue.Null);
+            Assert.IsNull(loaded);
+        }
+        
+        [Test]
+        [Ignore("Nullable types are not yet implemented in serializer")]
+        public void ItDeserializesNullableDateTime()
+        {
+            var subject = DateTime.Now;
+            var subjectJson = Serializer.ToJson(subject);
+            
+            DateTime? loaded = Serializer.FromJson<DateTime?>(subjectJson);
+            
+            Assert.AreEqual(subject, loaded);
+        }
         
         #region "Legacy datetime"
         

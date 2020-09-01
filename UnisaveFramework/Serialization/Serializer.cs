@@ -9,6 +9,12 @@ using LightJson.Serialization;
 
 namespace Unisave.Serialization
 {
+    // TODO: serialize nullable types
+    // TODO: serialize HashSet, Stack, Queue
+    // TODO: add SerializationContext parameter (for transfer, storage, debug)
+    // TODO: solve complex object serialization
+    // TODO: redo serialization documentation
+    
     /// <summary>
     /// Handles unisave json serialization
     /// </summary>
