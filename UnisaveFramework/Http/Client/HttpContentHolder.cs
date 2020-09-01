@@ -28,14 +28,14 @@ namespace Unisave.Http.Client
         /// Is the body a JSON body?
         /// </summary>
         public bool HasJsonBody => HasBody
-            && Content is StringContent
             && Content.Headers.ContentType.MediaType == "application/json";
         
         /// <summary>
         /// Is the body a form body?
         /// </summary>
         public bool HasFormBody => HasBody
-            && Content is FormUrlEncodedContent;
+            && Content.Headers.ContentType.MediaType
+                == "application/x-www-form-urlencoded";
         
         // caching body for fast indexer access
         private JsonObject jsonCache;
@@ -66,18 +66,24 @@ namespace Unisave.Http.Client
 
         /// <summary>
         /// Returns the request body as string.
-        /// If the request is not a string or there is no request body,
-        /// null is returned.
+        /// If there is no request body, null is returned.
         /// </summary>
         /// <returns></returns>
         public string Body()
         {
-            var content = Content as StringContent;
+            return Content?.ReadAsStringAsync()
+                .GetAwaiter()
+                .GetResult();
+        }
 
-            if (content == null)
-                return null;
-            
-            return content.ReadAsStringAsync()
+        /// <summary>
+        /// Returns the request body as a byte array.
+        /// If there is no request body, null is returned.
+        /// </summary>
+        /// <returns></returns>
+        public byte[] Bytes()
+        {
+            return Content?.ReadAsByteArrayAsync()
                 .GetAwaiter()
                 .GetResult();
         }
@@ -94,22 +100,18 @@ namespace Unisave.Http.Client
             if (jsonCacheUsed)
                 return jsonCache;
             
-            var content = Content as StringContent;
-
-            if (content == null)
+            if (Content == null)
                 return null;
             
-            if (content.Headers.ContentType.MediaType != "application/json")
+            if (Content.Headers.ContentType.MediaType != "application/json")
             {
                 throw new InvalidOperationException(
                     "The response is not application/json but: " +
-                    content.Headers.ContentType.MediaType 
+                    Content.Headers.ContentType.MediaType 
                 );
             }
 
-            string jsonString = content.ReadAsStringAsync()
-                .GetAwaiter()
-                .GetResult();
+            string jsonString = Body();
 
             JsonValue json = JsonReader.Parse(jsonString);
             
@@ -134,14 +136,20 @@ namespace Unisave.Http.Client
             if (formCacheUsed)
                 return formCache;
             
-            var content = Content as FormUrlEncodedContent;
-
-            if (content == null)
+            if (Content == null)
                 return null;
+            
+            if (Content.Headers.ContentType.MediaType !=
+                "application/x-www-form-urlencoded")
+            {
+                throw new InvalidOperationException(
+                    "The response is not " +
+                    "application/x-www-form-urlencoded but: " +
+                    Content.Headers.ContentType.MediaType 
+                );
+            }
 
-            string formString = content.ReadAsStringAsync()
-                .GetAwaiter()
-                .GetResult();
+            string formString = Body();
 
             var form = formString.Split('&')
                 .Select(p => p.Split('='))
