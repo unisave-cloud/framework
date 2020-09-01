@@ -84,6 +84,7 @@
     <Compile Include="Stubs\SomeEntity.cs" />
     <Compile Include="TestingUtils\ExecuteFramework.cs" />
     <Compile Include="TestingUtils\UAssert.cs" />
+    <Compile Include="Utils\HashTest.cs" />
     <Compile Include="Utils\StrTest.cs" />
   </ItemGroup>
   <ItemGroup>

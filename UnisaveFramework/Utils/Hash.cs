@@ -44,19 +44,41 @@ namespace Unisave.Utils
 
         public static bool Check(string value, string hashedValue)
         {
-            byte[] hashBytes = Convert.FromBase64String(hashedValue);
+            // decompose hashed value
             
-            byte[] salt = new byte[SaltSize];
-            Array.Copy(hashBytes, 0, salt, 0, SaltSize);
+            byte[] hashedValueBytes = Convert.FromBase64String(hashedValue);
             
-            var pbkdf2 = new Rfc2898DeriveBytes(value, salt, Iterations);
-            byte[] hash = pbkdf2.GetBytes(HashSize);
+            byte[] hashedValueSalt = new byte[SaltSize];
+            Array.Copy(hashedValueBytes, 0, hashedValueSalt, 0, SaltSize);
             
-            for (int i = 0; i < HashSize; i++)
-                if (hashBytes[i + SaltSize] != hash[i])
-                    return false;
+            byte[] hashedValueHash = new byte[HashSize];
+            Array.Copy(hashedValueBytes, SaltSize, hashedValueHash, 0, HashSize);
             
-            return true;
+            // hash given value
+            
+            var pbkdf2 = new Rfc2898DeriveBytes(value, hashedValueSalt, Iterations);
+            byte[] givenValueHash = pbkdf2.GetBytes(HashSize);
+
+            // compare the hashed given value to the given hash
+            
+            return SlowEquals(hashedValueHash, givenValueHash);
+        }
+
+        /// <summary>
+        /// Length-constant time byte array comparison
+        /// https://crackstation.net/hashing-security.htm
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        internal static bool SlowEquals(byte[] a, byte[] b)
+        {
+            int diff = a.Length ^ b.Length;
+
+            for (int i = 0; i < a.Length && i < b.Length; i++)
+                diff |= a[i] ^ b[i];
+            
+            return diff == 0;
         }
     }
 }
