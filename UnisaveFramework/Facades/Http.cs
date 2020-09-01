@@ -104,6 +104,27 @@ namespace Unisave.Facades
             string fileName = null,
             Dictionary<string, string> contentHeaders = null
         ) => Request().Attach(name, part, fileName, contentHeaders);
+
+        /// <summary>
+        /// Adds authentication data to the request
+        /// (basic authentication from RFC 7617)
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public static PendingRequest WithBasicAuth(
+            string username,
+            string password
+        ) => Request().WithBasicAuth(username, password);
+
+        /// <summary>
+        /// Adds authentication data to the request
+        /// (bearer authentication of OAuth 2.0 from RFC 6750)
+        /// </summary>
+        /// <param name="bearerToken"></param>
+        /// <returns></returns>
+        public static PendingRequest WithToken(string bearerToken)
+            => Request().WithToken(bearerToken);
         
         #endregion
         
