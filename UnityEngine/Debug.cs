@@ -13,20 +13,26 @@ namespace UnityEngine
         
         internal static Adapter UnisaveAdapter { get; set; }
         
-        public static void Log(string message)
-            => UnisaveAdapter?.info?.Invoke(message, null);
+        /*
+         * NOTE: Context variants are not present because the context object
+         * is a UnityEngine.Object, not System.Object which is not available
+         * on the server.
+         */
+        
+        public static void Log(object message)
+            => UnisaveAdapter?.info?.Invoke(message?.ToString(), null);
 
         public static void LogFormat(string format, params object[] args) 
             => Log(string.Format(format, args));
 
-        public static void LogWarning(string message)
-            => UnisaveAdapter?.warning?.Invoke(message, null);
+        public static void LogWarning(object message)
+            => UnisaveAdapter?.warning?.Invoke(message?.ToString(), null);
         
         public static void LogWarningFormat(string format, params object[] args)
             => LogWarning(string.Format(format, args));
 
-        public static void LogError(string message)
-            => UnisaveAdapter?.error?.Invoke(message, null);
+        public static void LogError(object message)
+            => UnisaveAdapter?.error?.Invoke(message?.ToString(), null);
 
         public static void LogErrorFormat(string format, params object[] args) 
             => LogError(string.Format(format, args));
