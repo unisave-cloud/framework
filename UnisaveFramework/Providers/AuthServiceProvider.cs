@@ -1,4 +1,6 @@
 using Unisave.Authentication;
+using Unisave.Contracts;
+using Unisave.Entities;
 using Unisave.Foundation;
 
 namespace Unisave.Providers
@@ -10,7 +12,10 @@ namespace Unisave.Providers
         public override void Register()
         {
             App.Singleton<AuthenticationManager>(
-                app => new AuthenticationManager()
+                app => new AuthenticationManager(
+                    app.Resolve<ISession>(),
+                    app.Resolve<EntityManager>()
+                )
             );
         }
     }

@@ -44,10 +44,6 @@ namespace Unisave.Runtime.Kernels
                     1,
                     typeof(StartSession),
                     sessionId
-                ),
-                new MiddlewareAttribute(
-                    2,
-                    typeof(AuthenticateSession)
                 )
             };
 

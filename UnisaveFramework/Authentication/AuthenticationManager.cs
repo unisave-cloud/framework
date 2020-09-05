@@ -1,4 +1,6 @@
 using System;
+using System.ComponentModel;
+using Unisave.Contracts;
 using Unisave.Entities;
 
 namespace Unisave.Authentication
@@ -10,7 +12,37 @@ namespace Unisave.Authentication
     /// </summary>
     public class AuthenticationManager
     {
+        public const string SessionKey = "authenticatedPlayerId";
+        
+        /// <summary>
+        /// The currently authenticated player, null is ok
+        /// When not initialized, this field has no meaning
+        /// </summary>
         private Entity authenticatedPlayer;
+        
+        /// <summary>
+        /// Whether is this instance initialized or not
+        /// </summary>
+        private bool initialized = false;
+
+        /// <summary>
+        /// Reference to a session store
+        /// </summary>
+        private readonly ISession session;
+
+        /// <summary>
+        /// Reference to an entity manager
+        /// </summary>
+        private readonly EntityManager entityManager;
+
+        public AuthenticationManager(
+            ISession session,
+            EntityManager entityManager
+        )
+        {
+            this.session = session;
+            this.entityManager = entityManager;
+        }
         
         /// <summary>
         /// Set the player that is currently authenticated
@@ -19,7 +51,9 @@ namespace Unisave.Authentication
         {
             // NOTE: null is ok, acts like logout
             
+            session.Set(SessionKey, player?.EntityId);
             authenticatedPlayer = player;
+            initialized = true;
         }
 
         /// <summary>
@@ -28,6 +62,9 @@ namespace Unisave.Authentication
         /// </summary>
         public T GetPlayer<T>() where T : Entity
         {
+            if (!initialized)
+                Initialize<T>();
+            
             if (authenticatedPlayer == null)
                 return null;
             
@@ -38,6 +75,30 @@ namespace Unisave.Authentication
                 );
 
             return (T) authenticatedPlayer;
+        }
+
+        /// <summary>
+        /// Initializes the manager by pulling the authenticated player
+        /// from session and database
+        /// </summary>
+        /// <typeparam name="T">Type of the requested entity</typeparam>
+        private void Initialize<T>() where T : Entity
+        {
+            string id = session.Get<string>(SessionKey);
+            
+            if (id == null)
+            {
+                authenticatedPlayer = null;
+            }
+            else
+            {
+                authenticatedPlayer = Entity.FromJson(
+                    entityManager.Find(id),
+                    typeof(T)
+                );
+            }
+            
+            initialized = true;
         }
 
         /// <summary>
