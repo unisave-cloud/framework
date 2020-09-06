@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Unisave.Exceptions;
+using Unisave.Runtime.Kernels;
 using Unisave.Utils;
 
 namespace Unisave.Facets
@@ -29,12 +30,25 @@ namespace Unisave.Facets
         /// <returns>Requested facet type</returns>
         public static Type FindFacetTypeByName(string facetName, IEnumerable<Type> types)
         {
+            // === try to find by exact FullName ===
+            
             List<Type> facetCandidates = types
+                .Where(t => t.FullName == facetName)
+                .Where(t => typeof(Facet).IsAssignableFrom(t))
+                .Where(t => t != typeof(Facet)) // except for the abstract class itself
+                .ToList();
+            
+            if (facetCandidates.Count > 0)
+                return facetCandidates[0];
+            
+            // === try to find just by Name ===
+            
+            facetCandidates = types
                 .Where(t => t.Name == facetName)
                 .Where(t => typeof(Facet).IsAssignableFrom(t))
                 .Where(t => t != typeof(Facet)) // except for the abstract class itself
                 .ToList();
-
+            
             if (facetCandidates.Count > 1)
                 throw new FacetSearchException(
                     $"Facet name '{facetName}' is ambiguous. "
@@ -48,6 +62,16 @@ namespace Unisave.Facets
                 );
 
             return facetCandidates[0];
+        }
+
+        private static Type FindFacetByFullName(string facetName, IEnumerable<Type> types)
+        {
+            // ReSharper disable once ReplaceWithSingleCallToFirstOrDefault
+            return types
+                .Where(t => t.FullName == facetName)
+                .Where(t => typeof(Facet).IsAssignableFrom(t))
+                .Where(t => t != typeof(Facet)) // except for the abstract class itself
+                .FirstOrDefault();
         }
     }
 }
