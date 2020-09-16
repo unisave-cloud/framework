@@ -84,7 +84,7 @@ namespace Unisave.Authentication
         /// <typeparam name="T">Type of the requested entity</typeparam>
         private void Initialize<T>() where T : Entity
         {
-            string id = session.Get<string>(SessionKey);
+            string id = Id();
             
             if (id == null)
             {
@@ -114,11 +114,11 @@ namespace Unisave.Authentication
         /// <summary>
         /// Returns true if someone is authenticated
         /// </summary>
-        public bool Check() => authenticatedPlayer != null;
+        public bool Check() => Id() != null;
 
         /// <summary>
         /// Get the ID of the authenticated player or null
         /// </summary>
-        public string Id() => authenticatedPlayer?.EntityId;
+        public string Id() => session.Get<string>(SessionKey);
     }
 }

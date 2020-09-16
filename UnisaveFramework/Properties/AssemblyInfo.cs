@@ -12,5 +12,5 @@ using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("FrameworkTests")]
 
-[assembly: AssemblyVersion("0.9.1.0")]
-[assembly: AssemblyInformationalVersion("0.9.1")]
+[assembly: AssemblyVersion("0.9.2.0")]
+[assembly: AssemblyInformationalVersion("0.9.2-dev")]

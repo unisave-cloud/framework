@@ -5,7 +5,7 @@ using Unisave.Foundation;
 namespace Unisave.Authentication.Middleware
 {
     /// <summary>
-    /// Rejects unauthenticated requests by throwing AuthenticationException
+    /// Rejects unauthenticated requests by throwing AuthException
     /// </summary>
     public class Authenticate : FacetMiddleware
     {
