@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using LightJson;
+using Unisave.Arango;
 using Unisave.Contracts;
 using Unisave.Entities;
 using Unisave.Entities.Query;
@@ -24,6 +27,11 @@ namespace Unisave.Facades
             AQL.GuardClientSide();
             
             return Facade.App.Resolve<EntityManager>();
+        }
+
+        public static IAqlQuery Query(string aql)
+        {
+            return new RawAqlQuery(GetArango(), aql);
         }
         
         /// <summary>

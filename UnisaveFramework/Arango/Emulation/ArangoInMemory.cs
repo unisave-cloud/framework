@@ -88,6 +88,13 @@ namespace Unisave.Arango.Emulation
             return Executor.Execute(query);
         }
 
+        public List<JsonValue> ExecuteRawAqlQuery(string aql, JsonObject bindParams)
+        {
+            throw new NotImplementedException(
+                "The in-memory database should be removed anyways"
+            );
+        }
+
         /// <summary>
         /// Delete entire database content (delete all collections)
         /// </summary>

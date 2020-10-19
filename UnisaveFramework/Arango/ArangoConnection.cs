@@ -159,9 +159,12 @@ namespace Unisave.Arango
 
         public List<JsonValue> ExecuteAqlQuery(AqlQuery query)
         {
+            return ExecuteRawAqlQuery(query.ToAql(), new JsonObject());
+        }
+
+        public List<JsonValue> ExecuteRawAqlQuery(string aql, JsonObject bindParams)
+        {
             var results = new List<JsonValue>();
-            
-            string aql = query.ToAql();
             
             // create cursor
             JsonObject response;
@@ -169,6 +172,7 @@ namespace Unisave.Arango
             {
                 response = Post("/_api/cursor", new JsonObject()
                     .Add("query", aql)
+                    .Add("bindVars", bindParams)
                 );
             }
             catch (HttpRequestException e) when (((

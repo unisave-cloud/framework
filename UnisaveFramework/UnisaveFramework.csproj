@@ -80,9 +80,11 @@
     <Compile Include="Arango\Query\AqlReturnOperation.cs" />
     <Compile Include="Arango\Query\ExpressionParameterSubstitutor.cs" />
     <Compile Include="Arango\Query\InvalidQueryException.cs" />
+    <Compile Include="Arango\RawAqlQuery.cs" />
     <Compile Include="Authentication\AuthException.cs" />
     <Compile Include="Authentication\AuthenticationManager.cs" />
     <Compile Include="Authentication\Middleware\Authenticate.cs" />
+    <Compile Include="Contracts\IAqlQuery.cs" />
     <Compile Include="Contracts\IArango.cs" />
     <Compile Include="Contracts\ILog.cs" />
     <Compile Include="Contracts\ISession.cs" />

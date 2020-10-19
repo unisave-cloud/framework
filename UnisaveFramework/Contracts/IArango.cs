@@ -16,6 +16,14 @@ namespace Unisave.Contracts
         List<JsonValue> ExecuteAqlQuery(AqlQuery query);
 
         /// <summary>
+        /// Run a raw AQL query on the database
+        /// </summary>
+        /// <param name="aql">The query AQL code</param>
+        /// <param name="bindParams">Bind params for the query</param>
+        /// <returns>List of returned results</returns>
+        List<JsonValue> ExecuteRawAqlQuery(string aql, JsonObject bindParams);
+
+        /// <summary>
         /// Create a new collection
         /// </summary>
         void CreateCollection(string collectionName, CollectionType type);
