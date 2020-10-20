@@ -10,10 +10,19 @@
 VERSION=$(grep -oP "AssemblyInformationalVersion\(\"\K[^\"]+" UnisaveFramework/Properties/AssemblyInfo.cs)
 
 # services
+echo "Copying to services..."
 mkdir -p ~/ImportantCode/Unisave/Services/unisave-framework/$VERSION
 cp -R UnisaveFramework/bin/Debug/* ~/ImportantCode/Unisave/Services/unisave-framework/$VERSION
 echo $VERSION > ~/ImportantCode/Unisave/Services/unisave-framework/latest.txt
 
 # unity asset
+echo "Copying to the asset..."
 cp -R UnisaveFramework/bin/Debug/UnisaveFramework.dll ~/ImportantCode/Unisave/Asset/Assets/Unisave/Libraries/UnisaveFramework
 cp -R UnisaveFramework/bin/Debug/UnisaveFramework.pdb ~/ImportantCode/Unisave/Asset/Assets/Unisave/Libraries/UnisaveFramework
+
+# restart sandboxes, to pull the new .dll file
+echo "Restarting the script runner..."
+docker restart script_runner > /dev/null
+
+# done
+echo "Done."
