@@ -27,11 +27,6 @@ namespace Unisave.Sessions
         protected JsonObject data = new JsonObject();
         
         /// <summary>
-        /// True if the data has been modified since the last LoadSession call
-        /// </summary>
-        public bool WasModifiedSinceLoad { get; private set; }
-        
-        /// <summary>
         /// Creates new instance of a session that uses
         /// some ISessionStorage implementation as it's backend
         /// </summary>
@@ -50,8 +45,6 @@ namespace Unisave.Sessions
 
         public void LoadSession(string sessionId)
         {
-            WasModifiedSinceLoad = false;
-            
             if (Storage == null)
             {
                 data = new JsonObject();
@@ -63,10 +56,7 @@ namespace Unisave.Sessions
 
         public void StoreSession(string sessionId)
         {
-            if (WasModifiedSinceLoad)
-                Storage?.Store(sessionId, data, SessionLifetime);
-            
-            WasModifiedSinceLoad = false;
+            Storage?.Store(sessionId, data, SessionLifetime);
         }
 
         public T Get<T>(string key, T defaultValue = default(T))
@@ -103,8 +93,6 @@ namespace Unisave.Sessions
         public void Set(string key, object value)
         {
             data[key] = Serializer.ToJson(value);
-            
-            WasModifiedSinceLoad = true;
         }
 
         public void Put(string key, object value)
@@ -115,15 +103,11 @@ namespace Unisave.Sessions
         public void Forget(string key)
         {
             data.Remove(key);
-            
-            WasModifiedSinceLoad = true;
         }
 
         public void Clear()
         {
             data = new JsonObject();
-            
-            WasModifiedSinceLoad = true;
         }
     }
 }

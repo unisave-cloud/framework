@@ -24,9 +24,9 @@ namespace Unisave.Sessions.Middleware
                 );
             
             string sessionId = parameters[0];
-            ISession session = App.Resolve<ISession>();
             
-            session.LoadSession(sessionId);
+            ISession sessionOnStartup = App.Resolve<ISession>();
+            sessionOnStartup.LoadSession(sessionId);
             
             try
             {
@@ -34,7 +34,10 @@ namespace Unisave.Sessions.Middleware
             }
             finally
             {
-                session.StoreSession(sessionId);
+                // someone might have tampered with the session service
+                // (which happens in full stack tests when clearing the database)
+                ISession sessionOnTeardown = App.Resolve<ISession>();
+                sessionOnTeardown.StoreSession(sessionId);
             }
         }
     }
