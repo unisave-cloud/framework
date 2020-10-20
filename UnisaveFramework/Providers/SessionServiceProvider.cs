@@ -28,12 +28,6 @@ namespace Unisave.Providers
                             lifetime
                         );
                     
-                    case "sandbox":
-                        return new SessionOverStorage(
-                            new SandboxApiSessionStorage(),
-                            lifetime
-                        );
-                    
                     case "memory":
                         return new SessionOverStorage(
                             new InMemorySessionStorage(),
