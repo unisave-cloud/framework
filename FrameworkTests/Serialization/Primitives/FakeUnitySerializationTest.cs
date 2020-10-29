@@ -2,7 +2,7 @@ using NUnit.Framework;
 using Unisave.Serialization;
 using UnityEngine;
 
-namespace FrameworkTests.Serialization
+namespace FrameworkTests.Serialization.Primitives
 {
     [TestFixture]
     public class FakeUnitySerializationTest

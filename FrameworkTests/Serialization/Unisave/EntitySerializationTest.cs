@@ -3,7 +3,7 @@ using NUnit.Framework;
 using Unisave.Entities;
 using Unisave.Serialization;
 
-namespace FrameworkTests.Serialization
+namespace FrameworkTests.Serialization.Unisave
 {
     [TestFixture]
     public class EntitySerializationTest

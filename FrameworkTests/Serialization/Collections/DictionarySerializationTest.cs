@@ -2,33 +2,11 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using Unisave.Serialization;
 
-namespace FrameworkTests.Serialization
+namespace FrameworkTests.Serialization.Collections
 {
     [TestFixture]
-    public class CollectionSerializationTest
+    public class DictionarySerializationTest
     {
-        [Test]
-        public void ItSerializesArraysAndLists()
-        {
-            Assert.AreEqual(
-                "[1,2,3]",
-                Serializer.ToJson(new int[] {1, 2, 3}).ToString()
-            );
-            Assert.AreEqual(
-                "[1,2,3]",
-                Serializer.ToJson(new List<int>(new int[] {1, 2, 3})).ToString()
-            );
-
-            Assert.AreEqual(
-                new int[] {1, 2, 3},
-                Serializer.FromJsonString<int[]>("[1,2,3]")
-            );
-            Assert.AreEqual(
-                new int[] { 1, 2, 3 },
-                Serializer.FromJsonString<List<int>>("[1,2,3]").ToArray()
-            );
-        }
-
         [Test]
         public void ItSerializesDictionaries()
         {

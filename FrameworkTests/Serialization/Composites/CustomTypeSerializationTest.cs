@@ -2,7 +2,7 @@ using System;
 using NUnit.Framework;
 using Unisave.Serialization;
 
-namespace FrameworkTests.Serialization
+namespace FrameworkTests.Serialization.Composites
 {
     [TestFixture]
     public class CustomTypeSerializationTest

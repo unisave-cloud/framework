@@ -2,7 +2,7 @@ using LightJson;
 using NUnit.Framework;
 using Unisave.Serialization;
 
-namespace FrameworkTests.Serialization
+namespace FrameworkTests.Serialization.Polymorphism
 {
     /*
      * The polymorphism is tested on the concept of
@@ -34,7 +34,7 @@ namespace FrameworkTests.Serialization
         {
             Assert.AreEqual(
                 "{'$type':'FrameworkTests.Serialization.DoNothingMove'," +
-                "'player':'John'}".Replace('"', '\''),
+                "'player':'John'}".Replace('\'', '"'),
                 Serializer.ToJsonString(new DoNothingMove {
                     player = "John"
                 })
@@ -42,7 +42,7 @@ namespace FrameworkTests.Serialization
             
             Assert.AreEqual(
                 "{'$type':'FrameworkTests.Serialization.PlayCardMove'," +
-                "'player':'Peter','cardIndex':2}".Replace('"', '\''),
+                "'player':'Peter','cardIndex':2}".Replace('\'', '"'),
                 Serializer.ToJsonString(new PlayCardMove {
                     player = "Peter",
                     cardIndex = 2

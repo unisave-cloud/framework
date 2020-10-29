@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using LightJson;
 using NUnit.Framework;
 using Unisave.Serialization;
 
-namespace FrameworkTests.Serialization
+namespace FrameworkTests.Serialization.Primitives
 {
     [TestFixture]
     public class PrimitiveSerializationTest
