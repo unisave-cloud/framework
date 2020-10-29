@@ -75,7 +75,9 @@
     <Compile Include="Serialization\Collections\ArraySerializationTest.cs" />
     <Compile Include="Serialization\Collections\DictionarySerializationTest.cs" />
     <Compile Include="Serialization\Collections\ListSerializationTest.cs" />
-    <Compile Include="Serialization\Composites\CustomTypeSerializationTest.cs" />
+    <Compile Include="Serialization\Composites\SerializableTypeSerializationTest.cs" />
+    <Compile Include="Serialization\Composites\SimpleDataContainerSerializationTest.cs" />
+    <Compile Include="Serialization\Composites\UnknownTypeSerializationTest.cs" />
     <Compile Include="Serialization\Exceptions\ExceptionSerializationTest.cs" />
     <Compile Include="Serialization\Polymorphism\PolymorphicSerializationTest.cs" />
     <Compile Include="Serialization\Primitives\DateTimeSerializationTest.cs" />
