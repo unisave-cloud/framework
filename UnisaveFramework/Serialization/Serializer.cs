@@ -99,6 +99,12 @@ namespace Unisave.Serialization
         }
 
         /// <summary>
+        /// Serializes given object into JSON string
+        /// </summary>
+        public static string ToJsonString(object subject)
+            => ToJson(subject).ToString();
+
+        /// <summary>
         /// Serializes given object into JSON
         /// </summary>
         public static JsonValue ToJson(object subject)

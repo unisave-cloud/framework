@@ -79,6 +79,7 @@
     <Compile Include="Serialization\EnumSerializationTest.cs" />
     <Compile Include="Serialization\ExceptionSerializationTest.cs" />
     <Compile Include="Serialization\FakeUnitySerializationTest.cs" />
+    <Compile Include="Serialization\PolymorphicSerializationTest.cs" />
     <Compile Include="Serialization\PrimitiveSerializationTest.cs" />
     <Compile Include="Sessions\SessionOverStorageTest.cs" />
     <Compile Include="Stubs\SomeEntity.cs" />
