@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.Serialization;
 using LightJson;
@@ -18,9 +19,11 @@ namespace Unisave.Serialization.Composites
             SerializationContext context
         )
         {
+            Type type = subject.GetType();
+            
             JsonObject json = new JsonObject();
 
-            foreach ((FieldInfo fi, string name) in EnumerateFields(typeScope))
+            foreach ((FieldInfo fi, string name) in EnumerateFields(type))
             {
                 json.Add(
                     name,
@@ -33,17 +36,18 @@ namespace Unisave.Serialization.Composites
 
         public static object FromJson(
             JsonValue json,
-            Type typeScope,
+            Type deserializationType,
             DeserializationContext context
         )
         {
             JsonObject jsonObject = json.AsJsonObject;
+            
             if (jsonObject == null)
                 return null;
 
-            object instance = FormatterServices.GetUninitializedObject(typeScope);
+            object instance = FormatterServices.GetUninitializedObject(deserializationType);
 
-            foreach ((FieldInfo fi, string name) in EnumerateFields(typeScope))
+            foreach ((FieldInfo fi, string name) in EnumerateFields(deserializationType))
             {
                 fi.SetValue(
                     instance,

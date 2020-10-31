@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using LightJson;
@@ -149,16 +150,42 @@ namespace Unisave.Serialization
 
             // === Parse and validate arguments ===
             
-            Type type = subject.GetType();
-
             if (typeScope == null)
-                typeScope = type;
+                typeScope = subject.GetType();
             
             if (context == null)
                 context = SerializationContext.DefaultContext();
             
             // === Serialize ===
 
+            JsonValue json = Serialize(subject, typeScope, context);
+            
+            // === Add the "$type" attribute ===
+            
+            if (json.IsJsonObject)
+            {
+                if (json.AsJsonObject.ContainsKey("$type"))
+                    throw new UnisaveSerializationException(
+                        "You shouldn't produce the '$type' attribute when " +
+                        "serializing your data. The attribute is reserved by " +
+                        "Unisave."
+                    );
+                
+                if (ShouldStoreType(subject, typeScope, context))
+                    json["$type"] = subject.GetType().FullName;
+            }
+
+            return json;
+        }
+
+        private static JsonValue Serialize(
+            object subject,
+            Type typeScope,
+            SerializationContext context
+        )
+        {
+            Type type = subject.GetType();
+            
             // primitives
             if (type == typeof(long))
                 return ((long)subject).ToString();
@@ -202,7 +229,7 @@ namespace Unisave.Serialization
                 if (type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
                     return DictionaryToJson(subject, typeScope, context);
             }
-
+            
             // exact type serializers
             if (exactTypeSerializers.TryGetValue(type, out ITypeSerializer serializer))
                 return serializer.ToJson(subject, typeScope, context);
@@ -211,6 +238,12 @@ namespace Unisave.Serialization
             foreach (var pair in assignableTypeSerializers)
                 if (pair.Key.IsAssignableFrom(type))
                     return pair.Value.ToJson(subject, typeScope, context);
+            
+            // serializable
+            if (type.GetCustomAttribute<SerializableAttribute>(inherit: false) != null)
+                throw new NotImplementedException(
+                    "Serializable attribute marked types are not supported yet."
+                );
             
             // validate type scope
             if (!typeScope.IsAssignableFrom(type))
@@ -242,6 +275,10 @@ namespace Unisave.Serialization
             if (context == null)
                 context = DeserializationContext.DefaultContext();
             
+            // === Determine deserialization type (the "$type" argument) ===
+            
+            Type deserializationType = GetDeserializationType(json, typeScope);
+
             // === Deserialize ===
             
             // primitives
@@ -287,18 +324,28 @@ namespace Unisave.Serialization
                 if (typeScope.GetGenericTypeDefinition() == typeof(Dictionary<,>))
                     return DictionaryFromJson(json, typeScope, context);
             }
-
+            
             // exact type serializers
             if (exactTypeSerializers.TryGetValue(typeScope, out ITypeSerializer serializer))
-                return serializer.FromJson(json, typeScope, context);
+                return serializer.FromJson(json, deserializationType, context);
 
             // assignable type serializers
             foreach (var pair in assignableTypeSerializers)
                 if (pair.Key.IsAssignableFrom(typeScope))
-                    return pair.Value.FromJson(json, typeScope, context);
+                    return pair.Value.FromJson(json, deserializationType, context);
+            
+            // serializable
+            if (deserializationType.GetCustomAttribute<SerializableAttribute>(inherit: false) != null)
+                throw new NotImplementedException(
+                    "Serializable attribute marked types are not supported yet."
+                );
 
             // other
-            return UnknownTypeSerializer.FromJson(json, typeScope, context);
+            return UnknownTypeSerializer.FromJson(
+                json,
+                deserializationType,
+                context
+            );
         }
         
         #endregion
@@ -530,5 +577,73 @@ namespace Unisave.Serialization
         }
         
         #endregion
+        
+        private static bool ShouldStoreType(
+            object subject,
+            Type typeScope,
+            SerializationContext context
+        )
+        {
+            switch (context.typeSerialization)
+            {
+                case TypeSerialization.Always:
+                    return true;
+                
+                case TypeSerialization.Never:
+                    return false;
+                
+                case TypeSerialization.DuringPolymorphism:
+                    return ! typeScope.IsEquivalentTo(subject.GetType())
+                           && typeScope.IsInstanceOfType(subject);
+            }
+            
+            throw new InvalidEnumArgumentException();
+        }
+        
+        private static Type GetDeserializationType(
+            JsonValue json,
+            Type typeScope
+        )
+        {
+            if (!json.IsJsonObject)
+                return typeScope;
+
+            JsonObject jsonObject = json.AsJsonObject;
+            
+            if (!jsonObject.ContainsKey("$type"))
+                return typeScope;
+
+            // slight optimization
+            if (jsonObject["$type"].AsString == typeScope.FullName)
+                return typeScope;
+            
+            Type type = FindType(jsonObject["$type"].AsString);
+            
+            if (type == null)
+                throw new UnisaveSerializationException(
+                    $"Type {jsonObject["$type"].AsString} couldn't be " +
+                    $"deserialized, because it doesn't exist in the assembly."
+                );
+            
+            if (!typeScope.IsAssignableFrom(type))
+                throw new UnisaveSerializationException(
+                    $"Type {jsonObject["$type"].AsString} couldn't be " +
+                    $"deserialized as {typeScope} because it isn't assignable."
+                );
+
+            return type;
+        }
+
+        private static Type FindType(string fullName)
+        {
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (Type type in assembly.GetTypes())
+            {
+                if (type.FullName == fullName)
+                    return type;
+            }
+
+            return null;
+        }
     }
 }

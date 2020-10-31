@@ -26,14 +26,14 @@ namespace FrameworkTests.Serialization.Composites
                 new JsonObject {
                     ["foo"] = "foo"
                 }.ToString(),
-                Serializer.ToJsonString<MyClass>(new MyClass())
+                Serializer.ToJsonString<MyClass>(new MyClass(), context)
             );
             
             Assert.AreEqual(
                 new JsonObject {
                     ["foo"] = "foo"
                 }.ToString(),
-                Serializer.ToJsonString<object>(new MyClass())
+                Serializer.ToJsonString<object>(new MyClass(), context)
             );
         }
         
@@ -47,15 +47,15 @@ namespace FrameworkTests.Serialization.Composites
                 new JsonObject {
                     ["foo"] = "foo"
                 }.ToString(),
-                Serializer.ToJsonString<MyClass>(new MyClass())
+                Serializer.ToJsonString<MyClass>(new MyClass(), context)
             );
             
             Assert.AreEqual(
                 new JsonObject {
-                    ["$type"] = typeof(MyClass).FullName,
-                    ["foo"] = "foo"
+                    ["foo"] = "foo",
+                    ["$type"] = typeof(MyClass).FullName
                 }.ToString(),
-                Serializer.ToJsonString<object>(new MyClass())
+                Serializer.ToJsonString<object>(new MyClass(), context)
             );
         }
         
@@ -67,18 +67,18 @@ namespace FrameworkTests.Serialization.Composites
             
             Assert.AreEqual(
                 new JsonObject {
-                    ["$type"] = typeof(MyClass).FullName,
-                    ["foo"] = "foo"
+                    ["foo"] = "foo",
+                    ["$type"] = typeof(MyClass).FullName
                 }.ToString(),
-                Serializer.ToJsonString<MyClass>(new MyClass())
+                Serializer.ToJsonString<MyClass>(new MyClass(), context)
             );
             
             Assert.AreEqual(
                 new JsonObject {
-                    ["$type"] = typeof(MyClass).FullName,
-                    ["foo"] = "foo"
+                    ["foo"] = "foo",
+                    ["$type"] = typeof(MyClass).FullName
                 }.ToString(),
-                Serializer.ToJsonString<object>(new MyClass())
+                Serializer.ToJsonString<object>(new MyClass(), context)
             );
         }
         
@@ -103,8 +103,8 @@ namespace FrameworkTests.Serialization.Composites
         {
             MyClass value = Serializer.FromJson<MyClass>(
                 new JsonObject {
-                    ["$type"] = typeof(MyClass).FullName,
-                    ["foo"] = "foo"
+                    ["foo"] = "foo",
+                    ["$type"] = typeof(MyClass).FullName
                 }
             );
             Assert.IsInstanceOf<MyClass>(value);
@@ -116,8 +116,8 @@ namespace FrameworkTests.Serialization.Composites
         {
             object value = Serializer.FromJson<object>(
                 new JsonObject {
-                    ["$type"] = typeof(MyClass).FullName,
-                    ["foo"] = "foo"
+                    ["foo"] = "foo",
+                    ["$type"] = typeof(MyClass).FullName
                 }
             );
             Assert.IsInstanceOf<MyClass>(value);
@@ -130,8 +130,8 @@ namespace FrameworkTests.Serialization.Composites
             Assert.Throws<UnisaveSerializationException>(() => {
                 Serializer.FromJson<Vector3>(
                     new JsonObject {
-                        ["$type"] = typeof(MyClass).FullName,
-                        ["foo"] = "foo"
+                        ["foo"] = "foo",
+                        ["$type"] = typeof(MyClass).FullName
                     }
                 );
             });
@@ -143,8 +143,8 @@ namespace FrameworkTests.Serialization.Composites
             Assert.Throws<UnisaveSerializationException>(() => {
                 Serializer.FromJson<MyClass>(
                     new JsonObject {
-                        ["$type"] = "Non-Existing-Type-Name",
-                        ["foo"] = "foo"
+                        ["foo"] = "foo",
+                        ["$type"] = "Non-Existing-Type-Name"
                     }
                 );
             });

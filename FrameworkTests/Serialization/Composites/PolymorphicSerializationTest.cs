@@ -40,8 +40,8 @@ namespace FrameworkTests.Serialization.Composites
         {
             Assert.AreEqual(
                 new JsonObject {
-                    ["$type"] = typeof(DoNothingMove).FullName,
-                    ["player"] = "John"
+                    ["player"] = "John",
+                    ["$type"] = typeof(DoNothingMove).FullName
                 }.ToString(),
                 Serializer.ToJson<PlayerMove>(new DoNothingMove {
                     player = "John"
@@ -50,9 +50,9 @@ namespace FrameworkTests.Serialization.Composites
             
             Assert.AreEqual(
                 new JsonObject {
-                    ["$type"] = typeof(PlayCardMove).FullName,
+                    ["cardIndex"] = 2,
                     ["player"] = "Peter",
-                    ["cardIndex"] = 2
+                    ["$type"] = typeof(PlayCardMove).FullName
                 }.ToString(),
                 Serializer.ToJson<PlayerMove>(new PlayCardMove {
                     player = "Peter",
@@ -136,8 +136,8 @@ namespace FrameworkTests.Serialization.Composites
             // DoNothingMove
             {
                 var json = new JsonObject {
-                    ["$type"] = typeof(DoNothingMove).FullName,
-                    ["player"] = "John"
+                    ["player"] = "John",
+                    ["$type"] = typeof(DoNothingMove).FullName
                 };
                 var value = Serializer.FromJson<object>(json);
                 Assert.IsInstanceOf<DoNothingMove>(value);
@@ -147,9 +147,9 @@ namespace FrameworkTests.Serialization.Composites
             // PlayCardMove
             {
                 var json = new JsonObject {
-                    ["$type"] = typeof(PlayCardMove).FullName,
                     ["player"] = "Peter",
-                    ["cardIndex"] = 2
+                    ["cardIndex"] = 2,
+                    ["$type"] = typeof(PlayCardMove).FullName
                 };
                 var value = Serializer.FromJson<object>(json);
                 Assert.IsInstanceOf<PlayCardMove>(value);
@@ -173,13 +173,13 @@ namespace FrameworkTests.Serialization.Composites
             
             var json = new JsonArray {
                 new JsonObject {
-                    ["$type"] = typeof(DoNothingMove).FullName,
-                    ["player"] = "John"
+                    ["player"] = "John",
+                    ["$type"] = typeof(DoNothingMove).FullName
                 },
                 new JsonObject {
-                    ["$type"] = typeof(PlayCardMove).FullName,
+                    ["cardIndex"] = 2,
                     ["player"] = "Peter",
-                    ["cardIndex"] = 2
+                    ["$type"] = typeof(PlayCardMove).FullName
                 }
             };
             
@@ -194,13 +194,13 @@ namespace FrameworkTests.Serialization.Composites
         {
             var json = new JsonArray {
                 new JsonObject {
-                    ["$type"] = typeof(DoNothingMove).FullName,
-                    ["player"] = "John"
+                    ["player"] = "John",
+                    ["$type"] = typeof(DoNothingMove).FullName
                 },
                 new JsonObject {
-                    ["$type"] = typeof(PlayCardMove).FullName,
                     ["player"] = "Peter",
-                    ["cardIndex"] = 2
+                    ["cardIndex"] = 2,
+                    ["$type"] = typeof(PlayCardMove).FullName
                 }
             };
 
@@ -220,11 +220,11 @@ namespace FrameworkTests.Serialization.Composites
             Assert.AreEqual(
                 new JsonObject {
                     ["move"] = new JsonObject {
-                        ["$type"] = typeof(DoNothingMove).FullName,
-                        ["player"] = "John"
+                        ["player"] = "John",
+                        ["$type"] = typeof(DoNothingMove).FullName
                     }
                 }.ToString(),
-                Serializer.ToJson<PlayerMove>(new MyContainer {
+                Serializer.ToJson(new MyContainer {
                     move = new DoNothingMove {
                         player = "John"
                     }
@@ -237,8 +237,8 @@ namespace FrameworkTests.Serialization.Composites
         {
             var json = new JsonObject {
                 ["move"] = new JsonObject {
-                    ["$type"] = typeof(DoNothingMove).FullName,
-                    ["player"] = "John"
+                    ["player"] = "John",
+                    ["$type"] = typeof(DoNothingMove).FullName
                 }
             };
 
