@@ -148,7 +148,12 @@
     <Compile Include="Runtime\Kernels\FacetCallKernel.cs" />
     <Compile Include="Runtime\Methods\EntrypointTest.cs" />
     <Compile Include="Runtime\SpecialValues.cs" />
+    <Compile Include="Serialization\Context\DeserializationContext.cs" />
+    <Compile Include="Serialization\Context\SerializationContext.cs" />
+    <Compile Include="Serialization\Context\SerializationReason.cs" />
+    <Compile Include="Serialization\Context\TypeSerialization.cs" />
     <Compile Include="Serialization\Exceptions\SerializedException.cs" />
+    <Compile Include="Serialization\UnisaveSerializationException.cs" />
     <Compile Include="Sessions\ArangoSessionStorage.cs" />
     <Compile Include="Sessions\InMemorySessionStorage.cs" />
     <Compile Include="Sessions\ISessionStorage.cs" />

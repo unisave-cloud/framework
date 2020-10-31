@@ -176,14 +176,14 @@ namespace Unisave.Serialization
         private Type FindExceptionType(string name)
         {
             if (name == null)
-                throw new SerializationException(
+                throw new UnisaveSerializationException(
                     "Exception of type null makes no sense."
                 );
 
             Type type = FindType(name);
             
             if (!typeof(Exception).IsAssignableFrom(type))
-                throw new SerializationException(
+                throw new UnisaveSerializationException(
                     $"Type {name} is not an exception."
                 );
 
@@ -193,7 +193,7 @@ namespace Unisave.Serialization
         private Type FindType(string name)
         {
             if (name == null)
-                throw new SerializationException(
+                throw new UnisaveSerializationException(
                     "Type name null makes no sense."
                 );
             
@@ -222,7 +222,7 @@ namespace Unisave.Serialization
             }
             
             if (type == null)
-                throw new SerializationException(
+                throw new UnisaveSerializationException(
                     $"Type {name} wasn't found."
                 );
 
@@ -330,7 +330,7 @@ namespace Unisave.Serialization
             else if (json.IsBoolean)
                 info.AddValue(key, json.AsBoolean);
             else
-                throw new SerializationException(
+                throw new UnisaveSerializationException(
                     $"Cannot deserialize key '{key}' when type not " +
                     $"serialized and cannot be inferred: {json.ToString()}"
                 );
@@ -353,7 +353,7 @@ namespace Unisave.Serialization
             );
             
             if (serializationConstructor == null)
-                throw new SerializationException(
+                throw new UnisaveSerializationException(
                     $"Exception {type} cannot be deserialized, " +
                     "because it has no serialization constructor."
                 );

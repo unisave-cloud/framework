@@ -6,19 +6,21 @@ using System.Linq;
 using System.Runtime.Serialization;
 using LightJson;
 using LightJson.Serialization;
+using Unisave.Serialization.Context;
 
 namespace Unisave.Serialization
 {
     // TODO: serialize nullable types
     // TODO: serialize HashSet, Stack, Queue
-    // TODO: add SerializationContext parameter (for transfer, storage, debug)
-    // TODO: redo serialization documentation
+    // TODO: attribute and class renaming (FormerlySerializedAs)
     
     /// <summary>
-    /// Handles unisave json serialization
+    /// Handles Unisave JSON serialization
     /// </summary>
     public static class Serializer
     {
+        #region "Custom serializers"
+        
         /// <summary>
         /// When the dictionary key type matches exactly the requested type,
         /// the assigned serializer will be used for serialization.
@@ -82,6 +84,8 @@ namespace Unisave.Serialization
 
             return false;
         }
+        
+        #endregion
 
         /// <summary>
         /// Logs a warning message
@@ -102,6 +106,22 @@ namespace Unisave.Serialization
         /// </summary>
         public static string ToJsonString(object subject)
             => ToJson(subject).ToString();
+
+        public static JsonValue ToJson<T>(
+            object subject,
+            SerializationContext context = null
+        ) => ToJson(subject, typeof(T), context);
+        
+        public static JsonValue ToJson(
+            object subject,
+            Type typeContext,
+            SerializationContext context = null
+        )
+        {
+            // TODO: check typeContext is assignable, else argument exception
+            
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Serializes given object into JSON

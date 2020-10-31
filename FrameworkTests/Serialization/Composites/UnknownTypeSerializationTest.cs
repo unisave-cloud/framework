@@ -18,6 +18,10 @@ namespace FrameworkTests.Serialization.Composites
          * backing fields. Also auto-generated backing fields should have
          * the same name as the corresponding property.
          *
+         * Edge-cases:
+         * - additional fields are ignored (e.g. removed fields)
+         * - missing fields will be left at the default value (e.g. added fields)
+         *
          * Added complexity:
          * - introduce inheritance
          */
@@ -115,6 +119,58 @@ namespace FrameworkTests.Serialization.Composites
             Assert.AreEqual("bar", value.PublicGetSetProperty);
             Assert.AreEqual("bar", value.SomeProperty);
             Assert.AreEqual("baz", value.addedField);
+            Assert.AreEqual("asd", value.AddedGetSetProperty);
+        }
+        
+        [Test]
+        public void AdditionalFieldsWillBeIgnoredDuringDeserialization()
+        {
+            var json = new JsonObject {
+                ["privateField"] = "a",
+                ["PublicGetPrivateSetProperty"] = "b",
+                ["publicField"] = "foo",
+                ["PublicGetSetProperty"] = "bar",
+                ["addedField"] = "baz",
+                ["AddedGetSetProperty"] = "asd",
+                
+                ["AdditionalField"] = "lorem ipsum"
+            };
+
+            var value = Serializer.FromJson<DerivedClassType>(json);
+            
+            Assert.IsInstanceOf<DerivedClassType>(value);
+            Assert.AreEqual("a", value.PrivateField);
+            Assert.AreEqual("b", value.PublicGetPrivateSetProperty);
+            Assert.AreEqual("foo", value.publicField);
+            Assert.AreEqual("bar", value.PublicGetSetProperty);
+            Assert.AreEqual("bar", value.SomeProperty);
+            Assert.AreEqual("baz", value.addedField);
+            Assert.AreEqual("asd", value.AddedGetSetProperty);
+        }
+
+        [Test]
+        public void MissingFieldsWillBeLeftAtDefaultDuringDeserialization()
+        {
+            var json = new JsonObject {
+                ["privateField"] = "a",
+                ["PublicGetPrivateSetProperty"] = "b",
+                //["publicField"] = "foo", // missing
+                ["PublicGetSetProperty"] = "bar",
+                //["addedField"] = "baz", // missing
+                ["AddedGetSetProperty"] = "asd"
+            };
+
+            var value = Serializer.FromJson<DerivedClassType>(json);
+            
+            Assert.IsInstanceOf<DerivedClassType>(value);
+            
+            Assert.IsNull(value.publicField); // missing
+            Assert.IsNull(value.addedField); // missing
+            
+            Assert.AreEqual("a", value.PrivateField);
+            Assert.AreEqual("b", value.PublicGetPrivateSetProperty);
+            Assert.AreEqual("bar", value.PublicGetSetProperty);
+            Assert.AreEqual("bar", value.SomeProperty);
             Assert.AreEqual("asd", value.AddedGetSetProperty);
         }
     }
