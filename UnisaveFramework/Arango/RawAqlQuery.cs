@@ -32,7 +32,7 @@ namespace Unisave.Arango
         public List<TResult> GetAs<TResult>()
         {
             return Get()
-                .Select(Serializer.FromJson<TResult>)
+                .Select(d => Serializer.FromJson<TResult>(d))
                 .ToList();
         }
 

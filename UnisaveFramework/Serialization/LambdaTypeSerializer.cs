@@ -1,5 +1,6 @@
 ﻿using System;
 using LightJson;
+using Unisave.Serialization.Context;
 
 namespace Unisave.Serialization
 {
@@ -32,7 +33,11 @@ namespace Unisave.Serialization
         }
 
         /// <inheritdoc/>
-        public JsonValue ToJson(object subject)
+        public JsonValue ToJson(
+            object subject,
+            Type typeScope,
+            SerializationContext context
+        )
         {
             if (toJson == null)
                 throw new InvalidOperationException("Corresponding lambda has not been defined yet.");
@@ -41,12 +46,16 @@ namespace Unisave.Serialization
         }
 
         /// <inheritdoc/>
-        public object FromJson(JsonValue json, Type outputType)
+        public object FromJson(
+            JsonValue json,
+            Type typeScope,
+            DeserializationContext context
+        )
         {
             if (fromJson == null)
                 throw new InvalidOperationException("Corresponding lambda has not been defined yet.");
 
-            return fromJson(json, outputType);
+            return fromJson(json, typeScope);
         }
     }
 }

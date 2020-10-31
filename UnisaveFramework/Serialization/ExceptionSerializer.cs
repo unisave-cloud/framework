@@ -9,6 +9,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using LightJson;
 using Unisave.Exceptions;
+using Unisave.Serialization.Context;
 using Unisave.Serialization.Exceptions;
 
 namespace Unisave.Serialization
@@ -29,7 +30,11 @@ namespace Unisave.Serialization
     /// </summary>
     public class ExceptionSerializer : ITypeSerializer
     {
-        public JsonValue ToJson(object subject)
+        public JsonValue ToJson(
+            object subject,
+            Type typeScope,
+            SerializationContext context
+        )
         {
             if (!(subject is Exception exception))
                 throw new ArgumentException(
@@ -37,7 +42,7 @@ namespace Unisave.Serialization
                 );
             
             // instance to SerializationInfo
-            var context = new StreamingContext(
+            var streamingContext = new StreamingContext(
                 // could be anything, but should be the same as below in
                 // deserialization. And since there has to be CrossAppDomain,
                 // it will be here as well.
@@ -48,7 +53,7 @@ namespace Unisave.Serialization
 
             try
             {
-                exception.GetObjectData(info, context);
+                exception.GetObjectData(info, streamingContext);
             }
             catch
             {
@@ -120,13 +125,17 @@ namespace Unisave.Serialization
             json["typeof:" + entry.Name] = entry.ObjectType.FullName;
         }
 
-        public object FromJson(JsonValue json, Type outputType)
+        public object FromJson(
+            JsonValue json,
+            Type typeScope,
+            DeserializationContext context
+        )
         {
             // NOTE: deserialization shouldn't fail no matter what the JSON is.
             // Instead a SerializedException instance should be returned.
             // The only exception is improper usage of this method.
             
-            if (!typeof(Exception).IsAssignableFrom(outputType))
+            if (!typeof(Exception).IsAssignableFrom(typeScope))
                 throw new ArgumentException(
                     "Provided type is not an exception."
                 );

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using LightJson;
 using LightJson.Serialization;
+using Unisave.Facades;
 using Unisave.Serialization.Context;
 
 namespace Unisave.Serialization
@@ -86,52 +87,74 @@ namespace Unisave.Serialization
         }
         
         #endregion
-
-        /// <summary>
-        /// Logs a warning message
-        /// </summary>
-        private static void Warning(string message)
-        {
-            message = "Unisave serializer: " + message;
-
-            #if UNITY_EDITOR
-                UnityEngine.Debug.LogWarning(message);
-            #else
-                Console.WriteLine(message);
-            #endif
-        }
-
-        /// <summary>
-        /// Serializes given object into JSON string
-        /// </summary>
-        public static string ToJsonString(object subject)
-            => ToJson(subject).ToString();
-
-        public static JsonValue ToJson<T>(
+        
+        #region "High-level API"
+        
+        public static string ToJsonString(
             object subject,
             SerializationContext context = null
-        ) => ToJson(subject, typeof(T), context);
+        ) => ToJson(subject, null, context).ToString();
         
+        public static string ToJsonString<TTypeScope>(
+            object subject,
+            SerializationContext context = null
+        ) => ToJson(subject, typeof(TTypeScope), context).ToString();
+        
+        public static JsonValue ToJson<TTypeScope>(
+            object subject,
+            SerializationContext context = null
+        ) => ToJson(subject, typeof(TTypeScope), context);
+        
+        public static TTypeScope FromJsonString<TTypeScope>(
+            string jsonString,
+            DeserializationContext context = null
+        )
+        {
+            JsonValue json = JsonReader.Parse(jsonString);
+            
+            return (TTypeScope) (
+                FromJson(json, typeof(TTypeScope), context)
+                    ?? default(TTypeScope)
+            );
+        }
+
+        public static TTypeScope FromJson<TTypeScope>(
+            JsonValue json,
+            DeserializationContext context = null
+        )
+        {
+            return (TTypeScope)(
+                FromJson(json, typeof(TTypeScope), context)
+                    ?? default(TTypeScope)
+            );
+        }
+        
+        #endregion
+        
+        #region "Low-level API"
+
         public static JsonValue ToJson(
             object subject,
-            Type typeContext,
+            Type typeScope = null,
             SerializationContext context = null
         )
         {
-            // TODO: check typeContext is assignable, else argument exception
+            // === Handle null ===
             
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Serializes given object into JSON
-        /// </summary>
-        public static JsonValue ToJson(object subject)
-        {
             if (subject == null)
                 return JsonValue.Null;
 
+            // === Parse and validate arguments ===
+            
             Type type = subject.GetType();
+
+            if (typeScope == null)
+                typeScope = type;
+            
+            if (context == null)
+                context = SerializationContext.DefaultContext();
+            
+            // === Serialize ===
 
             // primitives
             if (type == typeof(long))
@@ -159,112 +182,127 @@ namespace Unisave.Serialization
 
             // enums
             if (type.IsEnum)
-                return EnumToJson(subject, type);
+                return EnumToJson(subject);
 
             // arrays
             if (type.IsArray)
-                return ArrayToJson(subject, type);
-
+                return ArrayToJson(subject, typeScope, context);
+            
             // lists and dictionaries
             if (type.IsGenericType)
             {
                 // lists
                 if (type.GetGenericTypeDefinition() == typeof(List<>))
-                    return ListToJson(subject);
+                    return ListToJson(subject, typeScope, context);
 
                 // dictionaries
                 if (type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
-                    return DictionaryToJson(subject, type);
+                    return DictionaryToJson(subject, typeScope, context);
             }
 
             // exact type serializers
             if (exactTypeSerializers.TryGetValue(type, out ITypeSerializer serializer))
-                return serializer.ToJson(subject);
+                return serializer.ToJson(subject, typeScope, context);
 
             // assignable type serializers
             foreach (var pair in assignableTypeSerializers)
                 if (pair.Key.IsAssignableFrom(type))
-                    return pair.Value.ToJson(subject);
+                    return pair.Value.ToJson(subject, typeScope, context);
+            
+            // validate type scope
+            if (!typeScope.IsAssignableFrom(type))
+                throw new ArgumentException(
+                    $"Given subject is of type {type} that is not assignable " +
+                    $"to the given type scope {typeScope}"
+                );
 
             // other
-            return UnknownTypeToJson(subject, type);
+            return UnknownTypeToJson(subject, typeScope, context);
         }
 
-        // alias
-        public static T FromJsonString<T>(string jsonString)
-            => (T)(FromJson(JsonReader.Parse(jsonString), typeof(T)) ?? default(T));
-
-        // alias
-        public static T FromJson<T>(JsonValue json)
-            => (T)(FromJson(json, typeof(T)) ?? default(T));
-
-        /// <summary>
-        /// Deserializes an object from JSON
-        /// </summary>
-        public static object FromJson(JsonValue json, Type type)
+        public static object FromJson(
+            JsonValue json,
+            Type typeScope,
+            DeserializationContext context = null
+        )
         {
-            // primitives
-            if (type == typeof(long))
-                return long.Parse(json.AsString);
-            else if (type == typeof(ulong))
-                return ulong.Parse(json.AsString);
-            else if (type == typeof(int))
-                return json.AsInteger;
-            else if (type == typeof(uint))
-                return uint.Parse(json.AsString);
-            else if (type == typeof(short))
-                return (short)json.AsInteger;
-            else if (type == typeof(ushort))
-                return (ushort)json.AsInteger;
-            else if (type == typeof(byte))
-                return (byte)json.AsInteger;
-            else if (type == typeof(bool))
-                return json.AsBoolean;
-            else if (type == typeof(double))
-                return json.AsNumber;
-            else if (type == typeof(float))
-                return (float)json.AsNumber;
-            else if (type == typeof(string))
-                return json.AsString;
-
-            // not a primitive, may be null
+            // === Handle null ===
+            
             if (json.IsNull)
                 return null;
+            
+            // === Parse and validate arguments ===
+            
+            if (typeScope == null)
+                throw new ArgumentNullException(nameof(typeScope));
+            
+            if (context == null)
+                context = DeserializationContext.DefaultContext();
+            
+            // === Deserialize ===
+            
+            // primitives
+            if (typeScope == typeof(long))
+                return long.Parse(json.AsString);
+            else if (typeScope == typeof(ulong))
+                return ulong.Parse(json.AsString);
+            else if (typeScope == typeof(int))
+                return json.AsInteger;
+            else if (typeScope == typeof(uint))
+                return uint.Parse(json.AsString);
+            else if (typeScope == typeof(short))
+                return (short)json.AsInteger;
+            else if (typeScope == typeof(ushort))
+                return (ushort)json.AsInteger;
+            else if (typeScope == typeof(byte))
+                return (byte)json.AsInteger;
+            else if (typeScope == typeof(bool))
+                return json.AsBoolean;
+            else if (typeScope == typeof(double))
+                return json.AsNumber;
+            else if (typeScope == typeof(float))
+                return (float)json.AsNumber;
+            else if (typeScope == typeof(string))
+                return json.AsString;
 
             // enums
-            if (type.IsEnum)
-                return EnumFromJson(json, type);
+            if (typeScope.IsEnum)
+                return EnumFromJson(json, typeScope);
 
             // arrays
-            if (type.IsArray)
-                return ArrayFromJson(json, type);
+            if (typeScope.IsArray)
+                return ArrayFromJson(json, typeScope, context);
 
             // lists and dictionaries
-            if (type.IsGenericType)
+            if (typeScope.IsGenericType)
             {
                 // lists
-                if (type.GetGenericTypeDefinition() == typeof(List<>))
-                    return ListFromJson(json, type);
+                if (typeScope.GetGenericTypeDefinition() == typeof(List<>))
+                    return ListFromJson(json, typeScope, context);
 
                 // dictionaries
-                if (type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
-                    return DictionaryFromJson(json, type);
+                if (typeScope.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+                    return DictionaryFromJson(json, typeScope, context);
             }
 
             // exact type serializers
-            if (exactTypeSerializers.TryGetValue(type, out ITypeSerializer serializer))
-                return serializer.FromJson(json, type);
+            if (exactTypeSerializers.TryGetValue(typeScope, out ITypeSerializer serializer))
+                return serializer.FromJson(json, typeScope, context);
 
             // assignable type serializers
             foreach (var pair in assignableTypeSerializers)
-                if (pair.Key.IsAssignableFrom(type))
-                    return pair.Value.FromJson(json, type);
+                if (pair.Key.IsAssignableFrom(typeScope))
+                    return pair.Value.FromJson(json, typeScope, context);
 
             // other
-            return UnknownTypeFromJson(json, type);
+            return UnknownTypeFromJson(json, typeScope, context);
         }
+        
+        #endregion
+        
+        #region "Implementation"
 
-        private static JsonValue EnumToJson(object subject, Type type)
+        private static JsonValue EnumToJson(object subject)
         {
             // NOTE: Enums used to be serialized as strings "Name=42",
             // but that caused problems in linq expression trees
@@ -276,15 +314,15 @@ namespace Unisave.Serialization
             // return subject.ToString() + "=" + ((int)subject).ToString();
         }
 
-        private static object EnumFromJson(JsonValue json, Type type)
+        private static object EnumFromJson(JsonValue json, Type typeScope)
         {
             if (json.IsInteger)
                 return json.AsInteger;
 
-            return LegacyEnumFromJson(json, type);
+            return LegacyEnumFromJson(json, typeScope);
         }
 
-        private static object LegacyEnumFromJson(JsonValue json, Type type)
+        private static object LegacyEnumFromJson(JsonValue json, Type typeScope)
         {
             // NOTE: String part is for "What the f**k does value 5 mean?"
             //       Integer part is used for the actual deserialization
@@ -293,8 +331,10 @@ namespace Unisave.Serialization
 
             if (value == null)
             {
-                Warning($"Loading enum {type} failed because the provided " +
-                        $"value was invalid: {json.ToString()}");
+                Log.Warning(
+                    $"Loading enum {typeScope} failed because the provided " +
+                    $"value was invalid: {json.ToString()}"
+                );
                 return 0;
             }
 
@@ -302,151 +342,195 @@ namespace Unisave.Serialization
 
             if (parts.Length != 2)
             {
-                Warning($"Loading enum {type} failed because the provided " +
-                        $"value was invalid: {json.ToString()}");
+                Log.Warning(
+                    $"Loading enum {typeScope} failed because the provided " +
+                    $"value was invalid: {json.ToString()}"
+                );
                 return 0;
             }
 
             if (!int.TryParse(parts[1], out int intValue))
             {
-                Warning($"Loading enum {type} failed because the provided " +
-                        $"value was invalid: {json.ToString()}");
+                Log.Warning(
+                    $"Loading enum {typeScope} failed because the provided " +
+                    $"value was invalid: {json.ToString()}"
+                );
                 return 0;
             }
 
             return intValue;
         }
 
-        private static JsonValue ArrayToJson(object subject, Type type)
+        private static JsonValue ArrayToJson(
+            object subject,
+            Type typeScope,
+            SerializationContext context
+        )
         {
             JsonArray jsonArray = new JsonArray();
             Array array = (Array)subject;
 
             foreach (object item in array)
-                jsonArray.Add(ToJson(item));
+                jsonArray.Add(ToJson(item, typeScope, context));
 
             return jsonArray;
         }
 
-        private static object ArrayFromJson(JsonValue json, Type type)
+        private static object ArrayFromJson(
+            JsonValue json,
+            Type typeScope,
+            DeserializationContext context
+        )
         {
             JsonArray jsonArray = json.AsJsonArray;
             if (jsonArray == null)
                 return null;
 
-            Type elementType = type.GetElementType();
+            Type elementType = typeScope.GetElementType();
             Array array = Array.CreateInstance(elementType, jsonArray.Count);
 
             for (int i = 0; i < jsonArray.Count; i++)
-                array.SetValue(FromJson(jsonArray[i], elementType), i);
+                array.SetValue(FromJson(jsonArray[i], elementType, context), i);
 
             return array;
         }
 
-        private static JsonValue ListToJson(object subject)
+        private static JsonValue ListToJson(
+            object subject,
+            Type typeScope,
+            SerializationContext context
+        )
         {
             JsonArray jsonArray = new JsonArray();
             IList list = (IList)subject;
 
             foreach (object item in list)
-                jsonArray.Add(ToJson(item));
+                jsonArray.Add(ToJson(item, typeScope, context));
 
             return jsonArray;
         }
 
-        private static object ListFromJson(JsonValue json, Type type)
+        private static object ListFromJson(
+            JsonValue json,
+            Type typeScope,
+            DeserializationContext context
+        )
         {
-            Type itemType = type.GetGenericArguments()[0];
+            Type itemType = typeScope.GetGenericArguments()[0];
 
-            object list = type.GetConstructor(new Type[] {}).Invoke(new object[] {});
+            object list = typeScope.GetConstructor(new Type[] {}).Invoke(new object[] {});
 
             JsonArray jsonArray = json.AsJsonArray;
             if (jsonArray == null)
                 return null;
 
             foreach (JsonValue item in jsonArray)
-                type.GetMethod("Add").Invoke(list, new object[] {
-                    FromJson(item, itemType)
+                typeScope.GetMethod("Add").Invoke(list, new object[] {
+                    FromJson(item, itemType, context)
                 });
 
             return list;
         }
 
-        private static JsonValue DictionaryToJson(object subject, Type type)
+        private static JsonValue DictionaryToJson(
+            object subject,
+            Type typeScope,
+            SerializationContext context
+        )
         {
-            Type keyType = type.GetGenericArguments()[0];
+            Type[] typeArguments = typeScope.GetGenericArguments();
+            Type keyType = typeArguments[0];
+            Type valueType = typeArguments[1];
 
             if (keyType != typeof(string))
-                return NonStringDictionaryToJson(subject, type);
+                return NonStringDictionaryToJson(subject, typeScope, context);
 
             JsonObject jsonObject = new JsonObject();
             IDictionary dictionary = (IDictionary)subject;
 
             foreach (DictionaryEntry entry in dictionary)
-                jsonObject.Add((string)entry.Key, ToJson(entry.Value));
+                jsonObject.Add((string)entry.Key, ToJson(entry.Value, valueType, context));
 
             return jsonObject;
         }
 
-        private static JsonValue NonStringDictionaryToJson(object subject, Type type)
+        private static JsonValue NonStringDictionaryToJson(
+            object subject,
+            Type typeScope,
+            SerializationContext context
+        )
         {
+            Type itemType = typeScope.GetGenericArguments()[1];
+            
             JsonArray pairs = new JsonArray();
 
             foreach (DictionaryEntry entry in (IDictionary)subject)
             {
                 pairs.Add(new JsonArray(
-                    Serializer.ToJson(entry.Key),
-                    Serializer.ToJson(entry.Value)
+                    Serializer.ToJson(entry.Key, itemType, context),
+                    Serializer.ToJson(entry.Value, itemType, context)
                 ));
             }
 
             return pairs;
         }
 
-        private static object DictionaryFromJson(JsonValue json, Type type)
+        private static object DictionaryFromJson(
+            JsonValue json,
+            Type typeScope,
+            DeserializationContext context
+        )
         {
-            Type[] typeArguments = type.GetGenericArguments();
+            Type[] typeArguments = typeScope.GetGenericArguments();
             Type keyType = typeArguments[0];
             Type valueType = typeArguments[1];
             
             if (keyType != typeof(string))
-                return NonStringDictionaryFromJson(json, type);
+                return NonStringDictionaryFromJson(json, typeScope, context);
 
-            object dictionary = type.GetConstructor(new Type[] {}).Invoke(new object[] {});
+            object dictionary = typeScope.GetConstructor(new Type[] {}).Invoke(new object[] {});
 
             JsonObject jsonObject = json.AsJsonObject;
             if (jsonObject == null)
                 return null;
 
             foreach (KeyValuePair<string, JsonValue> item in jsonObject)
-                type.GetMethod("Add").Invoke(dictionary, new object[] {
+                typeScope.GetMethod("Add").Invoke(dictionary, new object[] {
                     item.Key,
-                    FromJson(item.Value, valueType)
+                    FromJson(item.Value, valueType, context)
                 });
 
             return dictionary;
         }
 
-        private static object NonStringDictionaryFromJson(JsonValue json, Type type)
+        private static object NonStringDictionaryFromJson(
+            JsonValue json,
+            Type typeScope,
+            DeserializationContext context
+        )
         {
-            Type[] typeArguments = type.GetGenericArguments();
+            Type[] typeArguments = typeScope.GetGenericArguments();
             Type keyType = typeArguments[0];
             Type valueType = typeArguments[1];
 
-            object dictionary = type.GetConstructor(new Type[] {}).Invoke(new object[] {});
+            object dictionary = typeScope.GetConstructor(new Type[] {}).Invoke(new object[] {});
 
             foreach (JsonValue pair in json.AsJsonArray)
             {
-                type.GetMethod("Add").Invoke(dictionary, new object[] {
-                    FromJson(pair.AsJsonArray[0], keyType),
-                    FromJson(pair.AsJsonArray[1], valueType)
+                typeScope.GetMethod("Add").Invoke(dictionary, new object[] {
+                    FromJson(pair.AsJsonArray[0], keyType, context),
+                    FromJson(pair.AsJsonArray[1], valueType, context)
                 });
             }
 
             return dictionary;
         }
 
-        private static JsonValue UnknownTypeToJson(object subject, Type type)
+        private static JsonValue UnknownTypeToJson(
+            object subject,
+            Type typeScope,
+            SerializationContext context
+        )
         {
             JsonObject jsonObject = new JsonObject();
 
@@ -457,7 +541,7 @@ namespace Unisave.Serialization
                                  | BindingFlags.NonPublic;
             
             List<FieldInfo> fis = new List<FieldInfo>();
-            Type t = type;
+            Type t = typeScope;
             while (t != null && t != typeof(object))
             {
                 fis.AddRange(t.GetFields(flags));
@@ -469,20 +553,27 @@ namespace Unisave.Serialization
             {
                 if (!fi.IsStatic)
                 {
-                    jsonObject.Add(fi.Name, ToJson(fi.GetValue(subject)));
+                    jsonObject.Add(
+                        fi.Name,
+                        ToJson(fi.GetValue(subject), fi.FieldType, context)
+                    );
                 }
             }
 
             return jsonObject;
         }
 
-        private static object UnknownTypeFromJson(JsonValue json, Type type)
+        private static object UnknownTypeFromJson(
+            JsonValue json,
+            Type typeScope,
+            DeserializationContext context
+        )
         {
             JsonObject jsonObject = json.AsJsonObject;
             if (jsonObject == null)
                 return null;
 
-            object instance = FormatterServices.GetUninitializedObject(type);
+            object instance = FormatterServices.GetUninitializedObject(typeScope);
 
             // set all fields
             BindingFlags flags = BindingFlags.Instance
@@ -491,7 +582,7 @@ namespace Unisave.Serialization
                                  | BindingFlags.NonPublic;
             
             List<FieldInfo> fis = new List<FieldInfo>();
-            Type t = type;
+            Type t = typeScope;
             while (t != null && t != typeof(object))
             {
                 fis.AddRange(t.GetFields(flags));
@@ -504,11 +595,16 @@ namespace Unisave.Serialization
             {
                 if (!fi.IsStatic)
                 {
-                    fi.SetValue(instance, FromJson(jsonObject[fi.Name], fi.FieldType));
+                    fi.SetValue(
+                        instance,
+                        FromJson(jsonObject[fi.Name], fi.FieldType, context)
+                    );
                 }
             }
 
             return instance;
         }
+        
+        #endregion
     }
 }

@@ -26,14 +26,14 @@ namespace FrameworkTests.Serialization.Composites
                 new JsonObject {
                     ["foo"] = "foo"
                 }.ToString(),
-                Serializer.ToJson<MyClass>(new MyClass()).ToString()
+                Serializer.ToJsonString<MyClass>(new MyClass())
             );
             
             Assert.AreEqual(
                 new JsonObject {
                     ["foo"] = "foo"
                 }.ToString(),
-                Serializer.ToJson<object>(new MyClass()).ToString()
+                Serializer.ToJsonString<object>(new MyClass())
             );
         }
         
@@ -47,7 +47,7 @@ namespace FrameworkTests.Serialization.Composites
                 new JsonObject {
                     ["foo"] = "foo"
                 }.ToString(),
-                Serializer.ToJson<MyClass>(new MyClass()).ToString()
+                Serializer.ToJsonString<MyClass>(new MyClass())
             );
             
             Assert.AreEqual(
@@ -55,7 +55,7 @@ namespace FrameworkTests.Serialization.Composites
                     ["$type"] = typeof(MyClass).FullName,
                     ["foo"] = "foo"
                 }.ToString(),
-                Serializer.ToJson<object>(new MyClass()).ToString()
+                Serializer.ToJsonString<object>(new MyClass())
             );
         }
         
@@ -70,7 +70,7 @@ namespace FrameworkTests.Serialization.Composites
                     ["$type"] = typeof(MyClass).FullName,
                     ["foo"] = "foo"
                 }.ToString(),
-                Serializer.ToJson<MyClass>(new MyClass()).ToString()
+                Serializer.ToJsonString<MyClass>(new MyClass())
             );
             
             Assert.AreEqual(
@@ -78,7 +78,7 @@ namespace FrameworkTests.Serialization.Composites
                     ["$type"] = typeof(MyClass).FullName,
                     ["foo"] = "foo"
                 }.ToString(),
-                Serializer.ToJson<object>(new MyClass()).ToString()
+                Serializer.ToJsonString<object>(new MyClass())
             );
         }
         
