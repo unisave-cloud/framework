@@ -7,6 +7,7 @@ using System.Runtime.Serialization;
 using LightJson;
 using LightJson.Serialization;
 using Unisave.Facades;
+using Unisave.Serialization.Composites;
 using Unisave.Serialization.Context;
 
 namespace Unisave.Serialization
@@ -14,6 +15,8 @@ namespace Unisave.Serialization
     // TODO: serialize nullable types
     // TODO: serialize HashSet, Stack, Queue
     // TODO: attribute and class renaming (FormerlySerializedAs)
+    
+    // TODO: use proper context in facet serialization and entity serialization
     
     /// <summary>
     /// Handles Unisave JSON serialization
@@ -217,7 +220,7 @@ namespace Unisave.Serialization
                 );
 
             // other
-            return UnknownTypeToJson(subject, typeScope, context);
+            return UnknownTypeSerializer.ToJson(subject, typeScope, context);
         }
 
         public static object FromJson(
@@ -295,7 +298,7 @@ namespace Unisave.Serialization
                     return pair.Value.FromJson(json, typeScope, context);
 
             // other
-            return UnknownTypeFromJson(json, typeScope, context);
+            return UnknownTypeSerializer.FromJson(json, typeScope, context);
         }
         
         #endregion
@@ -524,85 +527,6 @@ namespace Unisave.Serialization
             }
 
             return dictionary;
-        }
-
-        private static JsonValue UnknownTypeToJson(
-            object subject,
-            Type typeScope,
-            SerializationContext context
-        )
-        {
-            JsonObject jsonObject = new JsonObject();
-
-            // get all fields
-            BindingFlags flags = BindingFlags.Instance
-                                 | BindingFlags.DeclaredOnly
-                                 | BindingFlags.Public
-                                 | BindingFlags.NonPublic;
-            
-            List<FieldInfo> fis = new List<FieldInfo>();
-            Type t = typeScope;
-            while (t != null && t != typeof(object))
-            {
-                fis.AddRange(t.GetFields(flags));
-                
-                t = t.BaseType;
-            }
-
-            foreach (FieldInfo fi in fis)
-            {
-                if (!fi.IsStatic)
-                {
-                    jsonObject.Add(
-                        fi.Name,
-                        ToJson(fi.GetValue(subject), fi.FieldType, context)
-                    );
-                }
-            }
-
-            return jsonObject;
-        }
-
-        private static object UnknownTypeFromJson(
-            JsonValue json,
-            Type typeScope,
-            DeserializationContext context
-        )
-        {
-            JsonObject jsonObject = json.AsJsonObject;
-            if (jsonObject == null)
-                return null;
-
-            object instance = FormatterServices.GetUninitializedObject(typeScope);
-
-            // set all fields
-            BindingFlags flags = BindingFlags.Instance
-                                 | BindingFlags.DeclaredOnly
-                                 | BindingFlags.Public
-                                 | BindingFlags.NonPublic;
-            
-            List<FieldInfo> fis = new List<FieldInfo>();
-            Type t = typeScope;
-            while (t != null && t != typeof(object))
-            {
-                fis.AddRange(t.GetFields(flags));
-                
-                t = t.BaseType;
-            }
-            
-            // set public non-static fields
-            foreach (FieldInfo fi in fis)
-            {
-                if (!fi.IsStatic)
-                {
-                    fi.SetValue(
-                        instance,
-                        FromJson(jsonObject[fi.Name], fi.FieldType, context)
-                    );
-                }
-            }
-
-            return instance;
         }
         
         #endregion

@@ -86,10 +86,10 @@ namespace FrameworkTests.Serialization.Composites
             var expectedJson = new JsonObject {
                 ["addedField"] = "baz",
                 ["AddedGetSetProperty"] = "asd",
-                ["privateField"] = "a",
-                ["PublicGetPrivateSetProperty"] = "b",
                 ["publicField"] = "foo",
-                ["PublicGetSetProperty"] = "bar"
+                ["privateField"] = "a",
+                ["PublicGetSetProperty"] = "bar",
+                ["PublicGetPrivateSetProperty"] = "b"
             };
             
             Assert.AreEqual(
