@@ -8,11 +8,13 @@ using Unisave.Exceptions;
 using Unisave.Serialization;
 using Unisave.Serialization.Exceptions;
 
-namespace FrameworkTests.Serialization
+namespace FrameworkTests.Serialization.Exceptions
 {
     [TestFixture]
     public class ExceptionSerializationTest
     {
+        // TODO: refactor by splitting it up into multiple test files
+        
         [Serializable]
         private class StubException : Exception
         {
@@ -257,7 +259,7 @@ namespace FrameworkTests.Serialization
             var json = new JsonObject()
                 .Add(
                     "ClassName",
-                    "FrameworkTests.Serialization.ExceptionSerializationTest"
+                    typeof(ExceptionSerializationTest).FullName
                 )
                 .Add("Message", "Lorem ipsum");
             
@@ -269,7 +271,7 @@ namespace FrameworkTests.Serialization
                 ((SerializedException)deserialized).SerializedValue.ToString()
             );
             StringAssert.Contains(
-                "Type FrameworkTests.Serialization.ExceptionSerializationTest " +
+                $"Type {typeof(ExceptionSerializationTest).FullName} " +
                 "is not an exception",
                 deserialized.InnerException?.ToString()
             );

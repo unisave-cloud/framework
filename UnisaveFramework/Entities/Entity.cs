@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using LightJson;
 using Unisave.Arango;
 using Unisave.Facades;
@@ -20,7 +18,24 @@ namespace Unisave.Entities
         public string EntityId
         {
             get => documentId?.Id;
-            set => documentId = DocumentId.Parse(value);
+            
+            set
+            {
+                var newDocumentId = DocumentId.Parse(value);
+
+                if (newDocumentId.Collection == null)
+                    newDocumentId.Collection = EntityUtils.CollectionFromType(this.GetType());
+
+                if (newDocumentId.Collection != EntityUtils.CollectionFromType(this.GetType()))
+                {
+                    throw new InvalidOperationException(
+                        "Cannot set entity ID to the given value, " +
+                        "since the entity type in the ID does not match."
+                    );
+                }
+
+                documentId = newDocumentId;
+            }
         }
 
         /// <summary>
@@ -42,6 +57,11 @@ namespace Unisave.Entities
             {
                 if (documentId == null)
                     documentId = DocumentId.Null;
+
+                if (documentId.Collection == null)
+                    documentId.Collection = EntityUtils.CollectionFromType(
+                        this.GetType()
+                    );
 
                 documentId.Key = value;
             }
@@ -87,9 +107,6 @@ namespace Unisave.Entities
         {
             get
             {
-                if (attributeName == "$type")
-                    return EntityUtils.GetEntityStringType(GetType());
-                
                 if (attributeName == "_id") return EntityId;
                 if (attributeName == "_key") return EntityKey;
                 if (attributeName == "_rev") return EntityRevision;
@@ -131,7 +148,6 @@ namespace Unisave.Entities
             var attributes = new JsonObject();
 
             string[] defaultNames = {
-                "$type",
                 "_key",
                 "_id",
                 "_rev"
@@ -145,66 +161,6 @@ namespace Unisave.Entities
                 attributes[name] = this[name];
 
             return attributes;
-        }
-        
-        #endregion
-        
-        #region "Serialization"
-
-        /// <summary>
-        /// Creates entity from its JSON representation
-        /// by having the type provided.
-        /// The provided type will be checked to be correct.
-        /// </summary>
-        internal static Entity FromJson(JsonObject json, Type entityType)
-        {
-            if (json == null)
-                return null;
-
-            // verify $type to match Type
-            string type = json["$type"].AsString;
-            if (type != EntityUtils.GetEntityStringType(entityType))
-                throw new ArgumentException(
-                    $"Provided JSON entity representation has type '{type}', "
-                    + $"but {entityType} was requested in the argument."
-                );
-            
-            Entity entity = EntityUtils.CreateInstance(entityType);
-            entity.SetAttributes(json);
-            return entity;
-        }
-
-        /// <summary>
-        /// Creates entity from its JSON representation
-        /// by searching for the proper entity C# type
-        /// </summary>
-        internal static Entity FromJson(
-            JsonObject json,
-            IEnumerable<Type> typesToSearch
-        )
-        {
-            if (json == null)
-                return null;
-            
-            string type = json["$type"].AsString;
-            
-            if (type == null)
-                throw new ArgumentException(
-                    "Given JSON entity representation does not contain $type"
-                );
-            
-            return FromJson(
-                json,
-                EntityUtils.GetEntityClassType(type, typesToSearch)
-            );
-        }
-
-        /// <summary>
-        /// Serialize the entity into json
-        /// </summary>
-        internal JsonObject ToJson()
-        {
-            return GetAttributes();
         }
         
         #endregion
@@ -246,9 +202,8 @@ namespace Unisave.Entities
         protected virtual void Insert()
         {
             var manager = GetEntityManager();
-            var attributes = GetAttributes();
-            var newAttributes = manager.Insert(attributes);
-            SetAttributes(newAttributes);
+            
+            manager.Insert(this);
         }
 
         /// <summary>
@@ -258,9 +213,8 @@ namespace Unisave.Entities
         protected virtual void Update(bool carefully)
         {
             var manager = GetEntityManager();
-            var attributes = GetAttributes();
-            var newAttributes = manager.Update(attributes, carefully);
-            SetAttributes(newAttributes);
+            
+            manager.Update(this);
         }
         
         /// <summary>
@@ -273,7 +227,11 @@ namespace Unisave.Entities
                 return;
 
             var manager = GetEntityManager();
-            var newAttributes = manager.Find(EntityId);
+            
+            var newAttributes = manager
+                .Find(EntityId, this.GetType())
+                .GetAttributes();
+            
             SetAttributes(newAttributes);
         }
         
@@ -287,8 +245,8 @@ namespace Unisave.Entities
                 return;
 
             var manager = GetEntityManager();
-            var attributes = GetAttributes();
-            manager.Delete(attributes, carefully);
+            
+            manager.Delete(this, carefully);
             
             // clear metadata
             EntityId = null;

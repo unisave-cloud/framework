@@ -40,10 +40,7 @@ namespace Unisave.Facades
         public static TEntity Find<TEntity>(string entityId)
             where TEntity : Entity
         {
-            return (TEntity) Entity.FromJson(
-                GetEntityManager().Find(entityId),
-                typeof(TEntity)
-            );
+            return GetEntityManager().Find<TEntity>(entityId);
         }
 
         /// <summary>

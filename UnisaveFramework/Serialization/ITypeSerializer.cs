@@ -1,5 +1,6 @@
 ﻿using System;
 using LightJson;
+using Unisave.Serialization.Context;
 
 namespace Unisave.Serialization
 {
@@ -13,14 +14,21 @@ namespace Unisave.Serialization
     public interface ITypeSerializer
     {
         /// <summary>
-        /// Convert given instance to JSON
-        /// Proper type of the instance is verified outside this method however
+        /// Serialize a value
         /// </summary>
-        JsonValue ToJson(object subject);
+        JsonValue ToJson(
+            object subject,
+            Type typeScope,
+            SerializationContext context
+        );
 
         /// <summary>
-        /// Convert JSON into new instance of a given type
+        /// Deserialize a value
         /// </summary>
-        object FromJson(JsonValue json, Type outputType);
+        object FromJson(
+            JsonValue json,
+            Type typeScope,
+            DeserializationContext context
+        );
     }
 }

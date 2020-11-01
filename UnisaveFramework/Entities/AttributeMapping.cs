@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using LightJson;
 using Unisave.Serialization;
+using Unisave.Serialization.Context;
 
 namespace Unisave.Entities
 {
@@ -64,14 +65,22 @@ namespace Unisave.Entities
                 case PropertyInfo pi:
                     pi.SetValue(
                         entity,
-                        Serializer.FromJson(value, pi.PropertyType)
+                        Serializer.FromJson(
+                            value,
+                            pi.PropertyType,
+                            DeserializationContext.EntitySavingContext()
+                        )
                     );
                     break;
                 
                 case FieldInfo fi:
                     fi.SetValue(
                         entity,
-                        Serializer.FromJson(value, fi.FieldType)
+                        Serializer.FromJson(
+                            value,
+                            fi.FieldType,
+                            DeserializationContext.EntitySavingContext()
+                        )
                     );
                     break;
             }
@@ -97,7 +106,11 @@ namespace Unisave.Entities
                     break;
             }
             
-            return Serializer.ToJson(value);
+            return Serializer.ToJson(
+                value,
+                null,
+                SerializationContext.EntitySavingContext()
+            );
         }
     }
 }

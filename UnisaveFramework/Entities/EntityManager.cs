@@ -8,13 +8,12 @@ using Unisave.Arango.Query;
 using Unisave.Contracts;
 using Unisave.Facades;
 using Unisave.Serialization;
+using Unisave.Serialization.Context;
 
 namespace Unisave.Entities
 {
     /// <summary>
-    /// Provides access to entities on the JsonObject level
-    /// (the first abstraction layer, mapping the concept
-    /// of entities onto ArangoDB documents and collections)
+    /// Connects entities to the database
     /// </summary>
     public class EntityManager
     {
@@ -37,26 +36,50 @@ namespace Unisave.Entities
                 ?? throw new ArgumentNullException(nameof(log));
         }
 
+        public virtual TEntity Find<TEntity>(string entityId)
+            where TEntity : Entity
+        {
+            return (TEntity) Find(entityId, typeof(TEntity));
+        }
+
         /// <summary>
         /// Find entity by its ID
         /// </summary>
-        public virtual JsonObject Find(string entityId)
+        public virtual Entity Find(string entityId, Type entityType)
+        {
+            if (!typeof(Entity).IsAssignableFrom(entityType))
+                throw new ArgumentException(
+                    $"Given type {entityType} is not an entity"
+                );
+            
+            var id = DocumentId.Parse(entityId);
+            if (id.Collection != EntityUtils.CollectionFromType(entityType))
+                throw new ArgumentException(
+                    "Given entity ID does not belong to the given entity type."
+                );
+
+            JsonObject document = FindDocument(entityId);
+
+            return (Entity) Serializer.FromJson(
+                document,
+                entityType,
+                DeserializationContext.EntitySavingContext()
+            );
+        }
+
+        /// <summary>
+        /// Find the document of an entity by entity id
+        /// </summary>
+        private JsonObject FindDocument(string entityId)
         {
             try
             {
                 var id = DocumentId.Parse(entityId);
                 id.ThrowIfHasNull();
 
-                var entity = arango.ExecuteAqlQuery(new AqlQuery()
+                return arango.ExecuteAqlQuery(new AqlQuery()
                     .Return(() => AF.Document(id.Collection, id.Key))
                 ).First().AsJsonObject;
-
-                if (entity == null)
-                    return null;
-
-                entity["$type"] = EntityUtils.TypeFromCollection(id.Collection);
-
-                return entity;
             }
             catch (ArangoException e) when (e.ErrorNumber == 1203)
             {
@@ -64,31 +87,22 @@ namespace Unisave.Entities
                 return null;
             }
         }
-
-        /// <summary>
-        /// Find entity by type and key
-        /// </summary>
-        public virtual JsonObject Find(string entityType, string entityKey)
-            => Find(EntityUtils.EntityIdFromParts(entityType, entityKey));
         
         /// <summary>
         /// Insert a new entity into the database and return the modified entity
         /// </summary>
-        public virtual JsonObject Insert(JsonObject entity)
+        public virtual void Insert(Entity entity)
         {
-            string type = entity["$type"].AsString;
+            string type = EntityUtils.GetEntityStringType(entity.GetType());
             
-            if (string.IsNullOrEmpty(type))
-                throw new ArgumentException("Provided entity has no '$type'");
-            
-            if (!string.IsNullOrEmpty(entity["_key"]))
+            if (!string.IsNullOrEmpty(entity.EntityKey))
                 throw new ArgumentException(
                     "Provided entity has already been inserted"
                 );
             
             try
             {
-                return AttemptInsert(type, entity);
+                AttemptInsert(type, entity);
             }
             catch (ArangoException e) when (e.ErrorNumber == 1203)
             {
@@ -98,25 +112,22 @@ namespace Unisave.Entities
                     CollectionType.Document
                 );
                 
-                return AttemptInsert(type, entity);
+                AttemptInsert(type, entity);
             }
         }
 
         /// <summary>
         /// Attempt to insert an entity, leaving any exceptions go
         /// </summary>
-        private JsonObject AttemptInsert(string type, JsonObject entity)
+        private void AttemptInsert(string type, Entity entity)
         {
-            JsonObject document = JsonReader.Parse(entity.ToString());
+            JsonObject document = SerializeEntity(entity);
             
             // make sure _key and _rev are not even present
             // (they will be set automatically to null, but arango
             // requires them to not be present at all - null is not enough)
             document.Remove("_key");
             document.Remove("_rev");
-            
-            // don't store entity type
-            document.Remove("$type");
             
             // set timestamps
             // (serializer instead of direct setting, because the serializer
@@ -126,49 +137,39 @@ namespace Unisave.Entities
             document["CreatedAt"] = Serializer.ToJson(now);
             document["UpdatedAt"] = Serializer.ToJson(now);
             
-            var newEntity = arango.ExecuteAqlQuery(new AqlQuery()
+            var newAttributes = arango.ExecuteAqlQuery(new AqlQuery()
                 .Insert(document).Into(EntityUtils.CollectionFromType(type))
                 .Return("NEW")
             ).First().AsJsonObject;
 
-            // add entity type to the object
-            newEntity["$type"] = type;
-
-            return newEntity;
+            // update entity attributes
+            entity.SetAttributes(newAttributes);
         }
 
         /// <summary>
         /// Updates the entity in the database and returns the updated entity
         /// Careful insert checks revisions to detect write-write conflicts
         /// </summary>
-        public virtual JsonObject Update(
-            JsonObject entity,
+        public virtual void Update(
+            Entity entity,
             bool carefully = false
         )
         {
-            string type = entity["$type"].AsString;
-            
-            if (string.IsNullOrEmpty(type))
-                throw new ArgumentException("Provided entity has no '$type'");
+            string type = EntityUtils.GetEntityStringType(entity.GetType());
 
-            string key = entity["_key"].AsString;
-            
-            if (string.IsNullOrEmpty(key))
+            if (string.IsNullOrEmpty(entity.EntityKey))
                 throw new ArgumentException(
                     "Provided entity has not been inserted yet"
                 );
 
             try
             {
-                JsonObject oldDocument = Find(type, key);
+                JsonObject oldDocument = FindDocument(entity.EntityId);
 
                 if (oldDocument == null)
                     throw new ArangoException(404, 1202, "document not found");
 
-                JsonObject newDocument = JsonReader.Parse(entity.ToString());
-
-                // don't store entity type
-                newDocument.Remove("$type");
+                JsonObject newDocument = SerializeEntity(entity);
 
                 // set timestamps
                 // (serializer instead of direct setting, because the serializer
@@ -177,17 +178,14 @@ namespace Unisave.Entities
                 newDocument["CreatedAt"] = oldDocument["CreatedAt"];
                 newDocument["UpdatedAt"] = Serializer.ToJson(DateTime.UtcNow);
 
-                var newEntity = arango.ExecuteAqlQuery(new AqlQuery()
+                var newAttributes = arango.ExecuteAqlQuery(new AqlQuery()
                     .Replace(() => newDocument)
                     .CheckRevs(carefully)
                     .In(EntityUtils.CollectionFromType(type))
                     .Return("NEW")
                 ).First().AsJsonObject;
 
-                // add entity type to the object
-                newEntity["$type"] = type;
-
-                return newEntity;
+                entity.SetAttributes(newAttributes);
             }
             catch (ArangoException e) when (e.ErrorNumber == 1200)
             {
@@ -206,7 +204,6 @@ namespace Unisave.Entities
                         "entity.SaveCarefully() to learn more.",
                         e
                     );
-                    return entity;
                 }
                 
                 // if we are careful, we throw an exception
@@ -234,24 +231,21 @@ namespace Unisave.Entities
         /// Deletes an entity
         /// Careful deletes check revisions
         /// </summary>
-        public virtual void Delete(JsonObject entity, bool carefully = false)
+        public virtual void Delete(Entity entity, bool carefully = false)
         {
-            string type = entity["$type"].AsString;
+            string type = EntityUtils.GetEntityStringType(entity.GetType());
             
-            if (string.IsNullOrEmpty(type))
-                throw new ArgumentException("Provided entity has no '$type'");
-
-            string key = entity["_key"].AsString;
-            
-            if (string.IsNullOrEmpty(key))
+            if (string.IsNullOrEmpty(entity.EntityKey))
                 throw new ArgumentException(
                     "Provided entity has not been inserted yet"
                 );
             
             try
             {
+                JsonObject document = SerializeEntity(entity);
+                
                 arango.ExecuteAqlQuery(new AqlQuery()
-                    .Remove(() => entity)
+                    .Remove(() => document)
                     .CheckRevs(carefully)
                     .In(EntityUtils.CollectionFromType(type))
                 );
@@ -275,6 +269,15 @@ namespace Unisave.Entities
                 
                 throw;
             }
+        }
+
+        private JsonObject SerializeEntity(Entity entity)
+        {
+            return Serializer.ToJson(
+                entity,
+                null,
+                SerializationContext.EntitySavingContext()
+            );
         }
     }
 }
