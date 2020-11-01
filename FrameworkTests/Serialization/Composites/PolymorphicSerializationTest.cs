@@ -185,7 +185,7 @@ namespace FrameworkTests.Serialization.Composites
             
             Assert.AreEqual(
                 json.ToString(),
-                Serializer.ToJson<PlayerMove>(list).ToString()
+                Serializer.ToJson<List<PlayerMove>>(list).ToString()
             );
         }
 

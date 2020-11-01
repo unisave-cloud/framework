@@ -96,10 +96,6 @@ namespace Unisave.Entities.Query
 
         private TEntity TurnDocumentToEntity(JsonObject document)
         {
-            document["$type"] = EntityUtils.GetEntityStringType(
-                typeof(TEntity)
-            );
-
             return Serializer.FromJson<TEntity>(
                 document,
                 DeserializationContext.EntitySavingContext()

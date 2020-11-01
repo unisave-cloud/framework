@@ -451,11 +451,13 @@ namespace Unisave.Serialization
             SerializationContext context
         )
         {
+            Type itemType = typeScope.GetGenericArguments()[0];
+            
             JsonArray jsonArray = new JsonArray();
             IList list = (IList)subject;
 
             foreach (object item in list)
-                jsonArray.Add(ToJson(item, typeScope, context));
+                jsonArray.Add(ToJson(item, itemType, context));
 
             return jsonArray;
         }
