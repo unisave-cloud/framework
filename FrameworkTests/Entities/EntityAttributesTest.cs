@@ -29,7 +29,6 @@ namespace FrameworkTests.Entities
 
             var attr = player.GetAttributes();
             
-            Assert.AreEqual("PlayerEntity", attr["$type"].AsString);
             Assert.IsTrue(attr["_key"].IsNull);
             Assert.IsTrue(attr["_rev"].IsNull);
             Assert.IsTrue(attr["_id"].IsNull);
@@ -44,7 +43,7 @@ namespace FrameworkTests.Entities
                 default(DateTime),
                 Serializer.FromJson<DateTime>(attr["UpdatedAt"])
             );
-            Assert.AreEqual(9, attr.Count);
+            Assert.AreEqual(8, attr.Count);
         }
 
         [Test]
@@ -59,7 +58,6 @@ namespace FrameworkTests.Entities
                 .Add("_id")
                 .Add("_key")
                 .Add("_rev")
-                .Add("$type", "PlayerEntity")
             );
             
             Assert.AreEqual("Peter", player.Name);
@@ -69,8 +67,8 @@ namespace FrameworkTests.Entities
             Assert.IsNull(player.EntityKey);
             Assert.IsNull(player.EntityRevision);
 
-            player["_id"] = "entities_PlayerEntity/peter";
-            Assert.AreEqual("entities_PlayerEntity/peter", player.EntityId);
+            player["_id"] = "e_PlayerEntity/peter";
+            Assert.AreEqual("e_PlayerEntity/peter", player.EntityId);
             Assert.AreEqual("peter", player.EntityKey);
             Assert.IsNull(player.EntityRevision);
 

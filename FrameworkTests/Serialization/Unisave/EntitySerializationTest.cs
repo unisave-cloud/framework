@@ -1,4 +1,6 @@
+using System;
 using FrameworkTests.TestingUtils;
+using LightJson;
 using NUnit.Framework;
 using Unisave.Entities;
 using Unisave.Serialization;
@@ -23,6 +25,20 @@ namespace FrameworkTests.Serialization.Unisave
             entity.bar = "bar value";
             
             var serialized = Serializer.ToJson(entity).ToString();
+            
+            Assert.AreEqual(
+                new JsonObject {
+                    ["_key"] = JsonValue.Null,
+                    ["_id"] = JsonValue.Null,
+                    ["_rev"] = JsonValue.Null,
+                    ["Foo"] = "Foo value",
+                    ["CreatedAt"] = Serializer.ToJson(default(DateTime)).AsString,
+                    ["UpdatedAt"] = Serializer.ToJson(default(DateTime)).AsString,
+                    ["bar"] = "bar value",
+                }.ToString(),
+                serialized
+            );
+            
             var deserialized = Serializer.FromJsonString<StubEntity>(serialized);
 
             UAssert.AreJsonEqual(entity, deserialized);

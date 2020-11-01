@@ -45,10 +45,12 @@ namespace Unisave.Serialization
 
             Serializer.SetAssignableTypeSerializer(typeof(Entity), new LambdaTypeSerializer()
                 .ToJson((subject) => {
-                    return ((Entity)subject).ToJson();
+                    return ((Entity) subject).GetAttributes();
                 })
                 .FromJson((json, type) => {
-                    return Entity.FromJson(json, type);
+                    Entity entity = EntityUtils.CreateInstance(type);
+                    entity.SetAttributes(json);
+                    return entity;
                 })
             );
         }

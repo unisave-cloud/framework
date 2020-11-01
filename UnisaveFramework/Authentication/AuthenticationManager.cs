@@ -92,10 +92,7 @@ namespace Unisave.Authentication
             }
             else
             {
-                authenticatedPlayer = Entity.FromJson(
-                    entityManager.Find(id),
-                    typeof(T)
-                );
+                authenticatedPlayer = entityManager.Find<T>(id);
             }
             
             initialized = true;

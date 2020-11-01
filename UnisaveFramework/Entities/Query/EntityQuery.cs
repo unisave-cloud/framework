@@ -6,6 +6,8 @@ using LightJson;
 using Unisave.Arango;
 using Unisave.Arango.Query;
 using Unisave.Contracts;
+using Unisave.Serialization;
+using Unisave.Serialization.Context;
 
 namespace Unisave.Entities.Query
 {
@@ -97,10 +99,10 @@ namespace Unisave.Entities.Query
             document["$type"] = EntityUtils.GetEntityStringType(
                 typeof(TEntity)
             );
-            
-            return (TEntity) Entity.FromJson(
+
+            return Serializer.FromJson<TEntity>(
                 document,
-                typeof(TEntity)
+                DeserializationContext.EntitySavingContext()
             );
         }
 
