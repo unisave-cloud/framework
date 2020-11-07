@@ -15,9 +15,10 @@ using Unisave.Serialization.Primitives;
 
 namespace Unisave.Serialization
 {
-    // TODO: serialize nullable types
     // TODO: serialize HashSet, Stack, Queue
     // TODO: attribute and class renaming (FormerlySerializedAs)
+    // TODO: handle Serializable types
+    // TODO: handle NaN and Infinity for floats and doubles
     
     /// <summary>
     /// Handles Unisave JSON serialization
@@ -205,13 +206,19 @@ namespace Unisave.Serialization
             // lists and dictionaries
             if (type.IsGenericType)
             {
+                Type genericType = type.GetGenericTypeDefinition();
+                
                 // lists
-                if (type.GetGenericTypeDefinition() == typeof(List<>))
+                if (genericType == typeof(List<>))
                     return ListSerializer.ToJson(subject, typeScope, context);
 
                 // dictionaries
-                if (type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+                if (genericType == typeof(Dictionary<,>))
                     return DictionarySerializer.ToJson(subject, typeScope, context);
+
+                // nullables
+                if (genericType == typeof(Nullable<>))
+                    return NullableSerializer.ToJson(subject, typeScope, context);
             }
             
             // exact type serializers
@@ -284,13 +291,19 @@ namespace Unisave.Serialization
             // lists and dictionaries
             if (typeScope.IsGenericType)
             {
+                var genericType = typeScope.GetGenericTypeDefinition();
+                
                 // lists
-                if (typeScope.GetGenericTypeDefinition() == typeof(List<>))
+                if (genericType == typeof(List<>))
                     return ListSerializer.FromJson(json, typeScope, context);
 
                 // dictionaries
-                if (typeScope.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+                if (genericType == typeof(Dictionary<,>))
                     return DictionarySerializer.FromJson(json, typeScope, context);
+                
+                // nullables
+                if (genericType == typeof(Nullable<>))
+                    return NullableSerializer.FromJson(json, typeScope, context);
             }
             
             // exact type serializers

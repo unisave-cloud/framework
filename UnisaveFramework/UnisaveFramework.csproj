@@ -161,6 +161,7 @@
     <Compile Include="Serialization\Exceptions\SerializedException.cs" />
     <Compile Include="Serialization\Primitives\DotNetPrimitivesSerializer.cs" />
     <Compile Include="Serialization\Primitives\EnumSerializer.cs" />
+    <Compile Include="Serialization\Primitives\NullableSerializer.cs" />
     <Compile Include="Serialization\UnisaveSerializationException.cs" />
     <Compile Include="Sessions\ArangoSessionStorage.cs" />
     <Compile Include="Sessions\InMemorySessionStorage.cs" />
