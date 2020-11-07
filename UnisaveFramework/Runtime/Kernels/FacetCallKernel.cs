@@ -1,11 +1,9 @@
+using System;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using LightJson;
-using Unisave.Authentication;
-using Unisave.Authentication.Middleware;
 using Unisave.Facets;
 using Unisave.Foundation;
-using Unisave.Sessions;
 using Unisave.Sessions.Middleware;
 using Unisave.Utils;
 
@@ -52,11 +50,14 @@ namespace Unisave.Runtime.Kernels
                 globalMiddleware,
                 request,
                 rq => {
-                    object returnedValue = ExecutionHelper.InvokeMethodInfo(
-                        rq.Method,
-                        rq.Facet,
-                        rq.Arguments
-                    );
+                    object returnedValue = null;
+                    
+                    UnwrapTargetInvocationException(() => {
+                        returnedValue = rq.Method.Invoke(
+                            rq.Facet,
+                            rq.Arguments
+                        );
+                    });
 
                     return FacetResponse.CreateFrom(
                         returnedValue,
@@ -66,6 +67,26 @@ namespace Unisave.Runtime.Kernels
             );
 
             return response.ReturnedJson;
+        }
+        
+        /// <summary>
+        /// Invokes method via method info with transparent
+        /// exception propagation
+        /// </summary>
+        private static void UnwrapTargetInvocationException(Action action)
+        {
+            try
+            {
+                action?.Invoke();
+            }
+            catch (TargetInvocationException e)
+            {
+                if (e.InnerException == null)
+                    throw;
+                    
+                ExceptionDispatchInfo.Capture(e.InnerException).Throw();
+                throw;
+            }
         }
 
         /// <summary>

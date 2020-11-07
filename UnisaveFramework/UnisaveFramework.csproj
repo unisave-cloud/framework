@@ -115,6 +115,8 @@
     <Compile Include="Facets\FacetRequest.cs" />
     <Compile Include="Facets\FacetResponse.cs" />
     <Compile Include="Facets\FacetSearchException.cs" />
+    <Compile Include="Facets\InstantiationException.cs" />
+    <Compile Include="Facets\MethodSearchException.cs" />
     <Compile Include="Foundation\Application.cs" />
     <Compile Include="Foundation\BindingResolutionException.cs" />
     <Compile Include="Foundation\Bootstrap.cs" />
@@ -161,11 +163,7 @@
     <Compile Include="Sessions\Middleware\StartSession.cs" />
     <Compile Include="Sessions\SessionOverStorage.cs" />
     <Compile Include="Exceptions\UnisaveException.cs" />
-    <Compile Include="Utils\ExecutionHelper.cs" />
-    <Compile Include="Utils\ExecutionSerializationException.cs" />
     <Compile Include="Utils\Hash.cs" />
-    <Compile Include="Utils\InstantiationException.cs" />
-    <Compile Include="Utils\MethodSearchException.cs" />
     <Compile Include="Utils\Str.cs" />
     <Compile Include="Serialization\SerializationParams.cs" />
     <Compile Include="CustomAttributes.cs" />

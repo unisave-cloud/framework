@@ -5,6 +5,7 @@ using LightJson;
 using LightJson.Serialization;
 using NUnit.Framework;
 using Unisave;
+using Unisave.Facets;
 using Unisave.Foundation;
 using Unisave.Runtime;
 using Unisave.Serialization;
@@ -93,8 +94,13 @@ namespace FrameworkTests.TestingUtils
                 .Add("methodParameters", new JsonObject()
                     .Add("facetName", typeof(TFacet).Name)
                     .Add("methodName", methodName)
-                    .Add("arguments",
-                        ExecutionHelper.SerializeArguments(arguments))
+                    .Add(
+                        "arguments",
+                        Facet.SerializeArguments(
+                            Facet.FindMethodByName(typeof(TFacet), methodName),
+                            arguments
+                        )
+                    )
                 )
                 .ToString()
             );

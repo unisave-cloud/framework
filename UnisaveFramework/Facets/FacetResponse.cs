@@ -1,5 +1,7 @@
 using System.Reflection;
 using LightJson;
+using Unisave.Serialization;
+using Unisave.Serialization.Context;
 using Unisave.Utils;
 
 namespace Unisave.Facets
@@ -23,13 +25,13 @@ namespace Unisave.Facets
             MethodInfo methodInfo
         )
         {
-            var response = new FacetResponse();
-
-            response.Returned = returned;
-            response.ReturnedJson = ExecutionHelper
-                .SerializeReturnValue(methodInfo, returned);
-
-            return response;
+            return new FacetResponse {
+                Returned = returned,
+                ReturnedJson = Facet.SerializeReturnedValue(
+                    methodInfo,
+                    returned
+                )
+            };
         }
     }
 }

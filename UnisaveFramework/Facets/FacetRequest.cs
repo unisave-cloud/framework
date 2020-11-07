@@ -28,23 +28,22 @@ namespace Unisave.Facets
             IEnumerable<Type> typesToSearch
         )
         {
-            var request = new FacetRequest();
+            var request = new FacetRequest {
+                FacetName = facetName,
+                MethodName = methodName,
+                JsonArguments = jsonArguments,
+                FacetType = Facet.FindFacetTypeByName(
+                    facetName,
+                    typesToSearch
+                )
+            };
 
-            request.FacetName = facetName;
-            request.MethodName = methodName;
-            request.JsonArguments = jsonArguments;
-            
-            request.FacetType = Facet.FindFacetTypeByName(
-                facetName,
-                typesToSearch
-            );
-
-            request.Method = ExecutionHelper.FindMethodByName(
+            request.Method = Facet.FindMethodByName(
                 request.FacetType,
                 methodName
             );
 
-            request.Arguments = ExecutionHelper.DeserializeArguments(
+            request.Arguments = Facet.DeserializeArguments(
                 request.Method,
                 jsonArguments
             );

@@ -17,8 +17,6 @@ namespace Unisave.Serialization
     // TODO: serialize HashSet, Stack, Queue
     // TODO: attribute and class renaming (FormerlySerializedAs)
     
-    // TODO: use proper context in facet serialization and entity serialization
-    
     /// <summary>
     /// Handles Unisave JSON serialization
     /// </summary>

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unisave.Exceptions;
-using Unisave.Runtime.Kernels;
+using System.Reflection;
+using LightJson;
+using Unisave.Serialization;
+using Unisave.Serialization.Context;
 using Unisave.Utils;
 
 namespace Unisave.Facets
@@ -10,25 +12,16 @@ namespace Unisave.Facets
     public abstract class Facet
     {
         /// <summary>
-        /// Creates facet instance of given type
-        /// </summary>
-        public static Facet CreateInstance(Type facetType)
-        {
-            Facet facet = ExecutionHelper.Instantiate<Facet>(facetType);
-            
-            // Here I can assign additional values if needed in the future
-            
-            return facet;
-        }
-
-        /// <summary>
         /// Tries to find given facet name inside a collection of types
         /// Throws FacetSearchException on failure
         /// </summary>
         /// <param name="facetName">Name of the facet to find</param>
         /// <param name="types">Domain to search through</param>
         /// <returns>Requested facet type</returns>
-        public static Type FindFacetTypeByName(string facetName, IEnumerable<Type> types)
+        public static Type FindFacetTypeByName(
+            string facetName,
+            IEnumerable<Type> types
+        )
         {
             // === try to find by exact FullName ===
             
@@ -63,15 +56,160 @@ namespace Unisave.Facets
 
             return facetCandidates[0];
         }
-
-        private static Type FindFacetByFullName(string facetName, IEnumerable<Type> types)
+        
+        /// <summary>
+        /// Creates facet instance of given type
+        /// </summary>
+        public static Facet CreateInstance(Type facetType)
         {
-            // ReSharper disable once ReplaceWithSingleCallToFirstOrDefault
-            return types
-                .Where(t => t.FullName == facetName)
-                .Where(t => typeof(Facet).IsAssignableFrom(t))
-                .Where(t => t != typeof(Facet)) // except for the abstract class itself
-                .FirstOrDefault();
+            // check proper parent
+            if (!typeof(Facet).IsAssignableFrom(facetType))
+                throw new InstantiationException(
+                    $"Provided type {facetType} does not inherit from "
+                    + $"the {typeof(Facet)} class."
+                );
+
+            // get parameterless constructor
+            ConstructorInfo ci = facetType.GetConstructor(new Type[] { });
+
+            if (ci == null)
+                throw new InstantiationException(
+                    $"Provided type {facetType} lacks "
+                    + "parameterless constructor."
+                );
+
+            // create instance
+            return (Facet)ci.Invoke(new object[] { });
+        }
+        
+        /// <summary>
+        /// Finds a specific method by it's name.
+        /// Throws MethodSearchException in case of ambiguity or other problems.
+        /// </summary>
+        public static MethodInfo FindMethodByName(Type type, string name)
+        {
+            // non-public as well to print an error
+            BindingFlags flags = BindingFlags.Instance
+                                 | BindingFlags.Public
+                                 | BindingFlags.NonPublic;
+            
+            List<MethodInfo> methods = type.GetMethods(flags)
+                .Where(m => m.Name == name)
+                .ToList();
+
+            if (methods.Count > 1)
+                throw new MethodSearchException(
+                    $"Class '{type}' has multiple methods called '{name}'. "
+                    + "Note that Unisave does not support method overloading"
+                    + " for facets. Also make sure you aren't using default "
+                    + "values for some arguments."
+                );
+
+            if (methods.Count == 0)
+                throw new MethodSearchException(
+                    $"Class '{type}' doesn't have public method "
+                    + "called '{name}'."
+                );
+
+            MethodInfo methodInfo = methods[0];
+
+            if (!methodInfo.IsPublic)
+                throw new MethodSearchException(
+                    $"Method '{type}.{name}' has to be public in "
+                    + "order to be called remotely."
+                );
+
+            return methodInfo;
+        }
+        
+        /// <summary>
+        /// Serializes arguments for a facet method call
+        /// NOTE: used by the client code
+        /// </summary>
+        public static JsonArray SerializeArguments(
+            MethodInfo methodInfo,
+            object[] arguments
+        )
+        {
+            ParameterInfo[] parameters = methodInfo.GetParameters();
+
+            if (parameters.Length != arguments.Length)
+                throw new ArgumentException(
+                    $"Given arguments array has different length than the " +
+                    $"number of parameters the method accepts."
+                );
+            
+            var jsonArgs = new JsonArray();
+
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                jsonArgs.Add(
+                    Serializer.ToJson(
+                        arguments[i],
+                        parameters[i].ParameterType,
+                        SerializationContext.FacetCallingContext()
+                    )
+                );
+            }
+            
+            return jsonArgs;
+        }
+        
+        /// <summary>
+        /// Deserializes arguments for a method
+        /// Skipped arguments will have null value and you can assign them later
+        /// Throws ExecutionSerializationException
+        /// </summary>
+        /// <param name="jsonArguments"></param>
+        /// <param name="skip">How many first arguments to skip</param>
+        /// <param name="methodInfo"></param>
+        public static object[] DeserializeArguments(
+            MethodInfo methodInfo,
+            JsonArray jsonArguments,
+            int skip = 0
+        )
+        {
+            ParameterInfo[] parameters = methodInfo.GetParameters();
+
+            if (parameters.Length != jsonArguments.Count)
+                throw new UnisaveSerializationException(
+                    $"Method '{methodInfo.DeclaringType?.Name}.{methodInfo.Name}'"
+                    + " accepts different number of arguments than provided. "
+                    + "Make sure you don't use the params keyword or "
+                    + "default argument values, "
+                    + "since it is not supported by Unisave."
+                );
+
+            object[] deserializedArguments = new object[parameters.Length];
+
+            for (int i = skip; i < parameters.Length; i++)
+            {
+                deserializedArguments[i] = Serializer.FromJson(
+                    jsonArguments[i],
+                    parameters[i].ParameterType,
+                    DeserializationContext.FacetCallingContext()
+                );
+            }
+
+            return deserializedArguments;
+        }
+
+        /// <summary>
+        /// Serializes the value returned from a facet
+        /// </summary>
+        /// <param name="methodInfo">Facet method</param>
+        /// <param name="value">Returned value</param>
+        /// <returns></returns>
+        public static JsonValue SerializeReturnedValue(
+            MethodInfo methodInfo,
+            object value
+        )
+        {
+            return Serializer.ToJson(
+                value,
+                methodInfo.ReturnType,
+                SerializationContext.FacetCallingContext()
+            );
         }
     }
 }
