@@ -182,6 +182,12 @@ namespace Unisave.Entities
         /// <param name="carefully">Whether to check document revisions</param>
         public virtual void Save(bool carefully = false)
         {
+            if (!Facade.HasApp)
+                throw new InvalidOperationException(
+                    "You cannot save an entity from the client. " +
+                    "Only the server has access to the database."
+                );
+        
             if (EntityId == null)
                 Insert();
             else
@@ -225,6 +231,12 @@ namespace Unisave.Entities
             // nothing to refresh, it's not even saved yet
             if (EntityId == null)
                 return;
+            
+            if (!Facade.HasApp)
+                throw new InvalidOperationException(
+                    "You cannot refresh an entity from the client. " +
+                    "Only the server has access to the database."
+                );
 
             var manager = GetEntityManager();
             
@@ -243,6 +255,12 @@ namespace Unisave.Entities
             // nothing to delete, it's not even saved yet
             if (EntityId == null)
                 return;
+            
+            if (!Facade.HasApp)
+                throw new InvalidOperationException(
+                    "You cannot delete an entity from the client. " +
+                    "Only the server has access to the database."
+                );
 
             var manager = GetEntityManager();
             
