@@ -123,6 +123,33 @@ namespace FrameworkTests.Serialization.Primitives
                 Serializer.FromJsonString<string>("\"lorem\\nipsum\"")
             );
         }
+        
+        [Test]
+        public void ItSerializesChars()
+        {
+            Assert.AreEqual(
+                "\"f\"",
+                Serializer.ToJson('f').ToString()
+            );
+            Assert.AreEqual(
+                "\"l\"",
+                Serializer.ToJson('l').ToString()
+            );
+
+            Assert.AreEqual(
+                'f',
+                Serializer.FromJsonString<char>("\"f\"")
+            );
+            Assert.AreEqual(
+                'l',
+                Serializer.FromJsonString<char>("\"lorem\"")
+            );
+            
+            Assert.AreEqual(
+                '\0',
+                Serializer.FromJsonString<char>("\"\"")
+            );
+        }
 
         [Test]
         public void ItSerializesJson()
