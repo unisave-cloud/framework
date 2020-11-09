@@ -84,6 +84,10 @@
     <Compile Include="Authentication\AuthException.cs" />
     <Compile Include="Authentication\AuthenticationManager.cs" />
     <Compile Include="Authentication\Middleware\Authenticate.cs" />
+    <Compile Include="Broadcasting\BroadcastingChannel.cs" />
+    <Compile Include="Broadcasting\BroadcastingMessage.cs" />
+    <Compile Include="Broadcasting\IBroadcaster.cs" />
+    <Compile Include="Broadcasting\UnisaveBroadcaster.cs" />
     <Compile Include="Contracts\IAqlQuery.cs" />
     <Compile Include="Contracts\IArango.cs" />
     <Compile Include="Contracts\ILog.cs" />
@@ -105,6 +109,7 @@
     <Compile Include="Exceptions\UnisaveConnectionException.cs" />
     <Compile Include="Facades\AQL.cs" />
     <Compile Include="Facades\Auth.cs" />
+    <Compile Include="Facades\Broadcast.cs" />
     <Compile Include="Facades\Env.cs" />
     <Compile Include="Facades\Facade.cs" />
     <Compile Include="Facades\Http.cs" />
@@ -141,6 +146,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\ArangoServiceProvider.cs" />
     <Compile Include="Providers\AuthServiceProvider.cs" />
+    <Compile Include="Providers\BroadcastingServiceProvider.cs" />
     <Compile Include="Providers\EntityServiceProvider.cs" />
     <Compile Include="Providers\HttpClientServiceProvider.cs" />
     <Compile Include="Providers\LogServiceProvider.cs" />
