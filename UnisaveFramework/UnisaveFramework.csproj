@@ -86,7 +86,9 @@
     <Compile Include="Authentication\Middleware\Authenticate.cs" />
     <Compile Include="Broadcasting\BroadcastingChannel.cs" />
     <Compile Include="Broadcasting\BroadcastingMessage.cs" />
+    <Compile Include="Broadcasting\ChannelSubscription.cs" />
     <Compile Include="Broadcasting\IBroadcaster.cs" />
+    <Compile Include="Broadcasting\SpecificChannel.cs" />
     <Compile Include="Broadcasting\UnisaveBroadcaster.cs" />
     <Compile Include="Contracts\IAqlQuery.cs" />
     <Compile Include="Contracts\IArango.cs" />

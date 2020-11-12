@@ -19,18 +19,17 @@ namespace Unisave.Facades
         }
         
         /// <summary>
-        /// Access broadcasting on a specific channel
+        /// Access broadcasting on a channel
         /// </summary>
-        /// <param name="parameters">Parameters of the channel</param>
         /// <typeparam name="TChannel">Channel type</typeparam>
-        /// <returns>A handle on which you can call .Send()</returns>
-        public static ChannelHandle<TChannel> Channel<TChannel>(
-            params string[] parameters
-        ) where TChannel : BroadcastingChannel, new()
+        /// <returns>Instance of the given channel type</returns>
+        public static TChannel Channel<TChannel>()
+            where TChannel : BroadcastingChannel, new()
         {
-            BroadcastingChannel.ValidateParameters<TChannel>(parameters);
+            return new TChannel();
             
-            return new ChannelHandle<TChannel>(parameters);
+            //BroadcastingChannel.ValidateParameters<TChannel>(parameters);
+            //return new ChannelHandle<TChannel>(parameters);
         }
 
         /// <summary>
