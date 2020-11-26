@@ -1,3 +1,9 @@
+using System;
+using LightJson;
+using Unisave.Facades;
+using Unisave.Serialization;
+using Unisave.Serialization.Context;
+
 namespace Unisave.Broadcasting
 {
     /// <summary>
@@ -32,17 +38,42 @@ namespace Unisave.Broadcasting
         
         public ChannelSubscription CreateSubscription()
         {
-            // TODO: create the subscription on the server-side
-            // ergo -> adjust the message flow in the rabbit
-            
             // TODO: get the session id
+            string sessionId = "TODO-SESSION-ID";
+        
+            string url = new Uri(
+                new Uri(Env.GetString("BROADCASTING_SERVER_URL")),
+                "subscribe"
+            ).ToString();
+
+            Facades.Http.Post(url, new JsonObject {
+                ["environmentId"] = Env.GetString("UNISAVE_ENVIRONMENT_ID"),
+                ["broadcastingKey"] = Env.GetString("BROADCASTING_KEY"),
+                ["channel"] = ChannelName,
+                ["sessionId"] = sessionId
+            });
             
-            return new ChannelSubscription(ChannelName, "TODO-SESSION-ID");
+            return new ChannelSubscription(ChannelName, sessionId);
         }
 
         public void Send(BroadcastingMessage message)
         {
-            // send a message through the channel
+            string url = new Uri(
+                new Uri(Env.GetString("BROADCASTING_SERVER_URL")),
+                "subscribe"
+            ).ToString();
+
+            JsonValue serializedMessage = Serializer.ToJson<BroadcastingMessage>(
+                message,
+                SerializationContext.BroadcastingContext()
+            );
+
+            Facades.Http.Post(url, new JsonObject {
+                ["environmentId"] = Env.GetString("UNISAVE_ENVIRONMENT_ID"),
+                ["broadcastingKey"] = Env.GetString("BROADCASTING_KEY"),
+                ["channel"] = ChannelName,
+                ["message"] = serializedMessage
+            });
         }
     }
 }
