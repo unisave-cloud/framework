@@ -3,14 +3,17 @@ namespace Unisave.Broadcasting
     public interface IBroadcaster
     {
         /// <summary>
-        /// Broadcasts a message into a channel
+        /// Creates a new subscription of this session to a channel
         /// </summary>
-        /// <param name="parameters">Channel parameters</param>
-        /// <param name="message">The message</param>
-        /// <typeparam name="TChannel">Channel type</typeparam>
-        void BroadcastMessage<TChannel>(
-            string[] parameters,
-            BroadcastingMessage message
-        ) where TChannel : BroadcastingChannel, new();
+        /// <param name="channel"></param>
+        /// <returns></returns>
+        ChannelSubscription CreateSubscription(SpecificChannel channel);
+
+        /// <summary>
+        /// Sends a message into a channel
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <param name="message"></param>
+        void Send(SpecificChannel channel, BroadcastingMessage message);
     }
 }

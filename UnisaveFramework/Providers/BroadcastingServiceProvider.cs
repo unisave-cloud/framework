@@ -1,5 +1,8 @@
 using Unisave.Broadcasting;
+using Unisave.Facades;
 using Unisave.Foundation;
+using Unisave.Http.Client;
+using Unisave.Sessions;
 
 namespace Unisave.Providers
 {
@@ -9,11 +12,13 @@ namespace Unisave.Providers
 
         public override void Register()
         {
-            // TODO: pull data from environment variables
-            
-            App.Singleton<IBroadcaster>(
-                app => new UnisaveBroadcaster()
-            );
+            App.Singleton<IBroadcaster>(app => new UnisaveBroadcaster(
+                app.Resolve<ServerSessionIdRepository>(),
+                app.Resolve<Factory>(),
+                Env.GetString("BROADCASTING_SERVER_URL"),
+                Env.GetString("BROADCASTING_KEY"),
+                Env.GetString("UNISAVE_ENVIRONMENT_ID")
+            ));
         }
     }
 }

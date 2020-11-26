@@ -1,8 +1,4 @@
-using System;
-using LightJson;
 using Unisave.Facades;
-using Unisave.Serialization;
-using Unisave.Serialization.Context;
 
 namespace Unisave.Broadcasting
 {
@@ -36,44 +32,25 @@ namespace Unisave.Broadcasting
             return new SpecificChannel(name);
         }
         
+        /// <summary>
+        /// Subscribes the current session to this channel
+        /// </summary>
+        /// <returns>
+        /// The subscription object that should be sent
+        /// to the client and listened on
+        /// </returns>
         public ChannelSubscription CreateSubscription()
         {
-            // TODO: get the session id
-            string sessionId = "TODO-SESSION-ID";
-        
-            string url = new Uri(
-                new Uri(Env.GetString("BROADCASTING_SERVER_URL")),
-                "subscribe"
-            ).ToString();
-
-            Facades.Http.Post(url, new JsonObject {
-                ["environmentId"] = Env.GetString("UNISAVE_ENVIRONMENT_ID"),
-                ["broadcastingKey"] = Env.GetString("BROADCASTING_KEY"),
-                ["channel"] = ChannelName,
-                ["sessionId"] = sessionId
-            });
-            
-            return new ChannelSubscription(ChannelName, sessionId);
+            return Broadcast.GetBroadcaster().CreateSubscription(this);
         }
 
+        /// <summary>
+        /// Sends a message into this channel
+        /// </summary>
+        /// <param name="message"></param>
         public void Send(BroadcastingMessage message)
         {
-            string url = new Uri(
-                new Uri(Env.GetString("BROADCASTING_SERVER_URL")),
-                "send"
-            ).ToString();
-
-            JsonValue serializedMessage = Serializer.ToJson<BroadcastingMessage>(
-                message,
-                SerializationContext.BroadcastingContext()
-            );
-
-            Facades.Http.Post(url, new JsonObject {
-                ["environmentId"] = Env.GetString("UNISAVE_ENVIRONMENT_ID"),
-                ["broadcastingKey"] = Env.GetString("BROADCASTING_KEY"),
-                ["channel"] = ChannelName,
-                ["message"] = serializedMessage
-            });
+            Broadcast.GetBroadcaster().Send(this, message);
         }
     }
 }

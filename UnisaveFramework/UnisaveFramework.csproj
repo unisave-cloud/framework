@@ -129,7 +129,6 @@
     <Compile Include="Foundation\Bootstrap.cs" />
     <Compile Include="Foundation\Container.cs" />
     <Compile Include="Foundation\EnvStore.cs" />
-    <Compile Include="Foundation\SessionIdRepository.cs" />
     <Compile Include="Http\Client\HttpContentHolder.cs" />
     <Compile Include="Http\Client\Factory.cs" />
     <Compile Include="Http\Client\PendingRequest.cs" />
@@ -176,6 +175,7 @@
     <Compile Include="Sessions\InMemorySessionStorage.cs" />
     <Compile Include="Sessions\ISessionStorage.cs" />
     <Compile Include="Sessions\Middleware\StartSession.cs" />
+    <Compile Include="Sessions\ServerSessionIdRepository.cs" />
     <Compile Include="Sessions\SessionOverStorage.cs" />
     <Compile Include="Exceptions\UnisaveException.cs" />
     <Compile Include="Utils\Hash.cs" />

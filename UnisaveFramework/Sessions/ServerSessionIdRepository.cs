@@ -1,12 +1,12 @@
 using System;
 using System.Security.Cryptography;
 
-namespace Unisave.Foundation
+namespace Unisave.Sessions
 {
     /// <summary>
-    /// Stores the session id
+    /// Stores the session id on the server-side
     /// </summary>
-    public class SessionIdRepository
+    public class ServerSessionIdRepository
     {
         /// <summary>
         /// The session ID

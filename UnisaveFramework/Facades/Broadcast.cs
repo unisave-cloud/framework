@@ -8,6 +8,17 @@ namespace Unisave.Facades
     /// </summary>
     public static class Broadcast
     {
+        internal static IBroadcaster GetBroadcaster()
+        {
+            if (!Facade.HasApp)
+                throw new InvalidOperationException(
+                    "You cannot broadcasts from the client side, " +
+                    "only listen to subscriptions."
+                );
+            
+            return Facade.App.Resolve<IBroadcaster>();
+        }
+        
         /// <summary>
         /// Access broadcasting on a channel
         /// </summary>

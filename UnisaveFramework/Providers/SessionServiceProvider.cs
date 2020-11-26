@@ -11,7 +11,7 @@ namespace Unisave.Providers
         
         public override void Register()
         {
-            App.Singleton<SessionIdRepository>(_ => new SessionIdRepository());
+            App.Singleton<ServerSessionIdRepository>(_ => new ServerSessionIdRepository());
             
             App.Singleton<ISession>(app => {
                 var env = app.Resolve<EnvStore>();
