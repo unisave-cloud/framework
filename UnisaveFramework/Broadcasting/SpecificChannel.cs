@@ -60,7 +60,7 @@ namespace Unisave.Broadcasting
         {
             string url = new Uri(
                 new Uri(Env.GetString("BROADCASTING_SERVER_URL")),
-                "subscribe"
+                "send"
             ).ToString();
 
             JsonValue serializedMessage = Serializer.ToJson<BroadcastingMessage>(
