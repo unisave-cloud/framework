@@ -45,15 +45,26 @@ namespace Unisave.Broadcasting
         {
             string sessionId = sessionIdRepository.SessionId;
             string url = new Uri(serverUri, "subscribe").ToString();
+
+            var subscription = new ChannelSubscription(
+                channel.ChannelName,
+                sessionId
+            );
+
+            var serializedSubscription = Serializer.ToJson<ChannelSubscription>(
+                subscription,
+                SerializationContext.BroadcastingContext()
+            );
             
             http.PendingRequest().Post(url, new JsonObject {
                 ["environmentId"] = environmentId,
                 ["broadcastingKey"] = broadcastingKey,
                 ["channel"] = channel.ChannelName,
-                ["sessionId"] = sessionId
+                ["sessionId"] = sessionId,
+                ["subscription"] = serializedSubscription
             });
             
-            return new ChannelSubscription(channel.ChannelName, sessionId);
+            return subscription;
         }
         
         /// <summary>
