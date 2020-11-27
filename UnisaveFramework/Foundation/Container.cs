@@ -202,6 +202,8 @@ namespace Unisave.Foundation
         {
             simpleBinds.Clear();
             singletonBinds.Clear();
+
+            // TODO: dispose in the reversed order compared to registration
             
             foreach (var pair in instanceBinds)
                 TryDisposeInstance(pair.Value);
