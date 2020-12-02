@@ -6,7 +6,7 @@ using System.Net.Http;
 using LightJson;
 using LightJson.Serialization;
 
-namespace Unisave.Http.Client
+namespace Unisave.HttpClient
 {
     /// <summary>
     /// Base class for Request and Response and it provides

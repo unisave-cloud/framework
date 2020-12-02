@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using NUnit.Framework;
-using Unisave.Http.Client;
+using Unisave.HttpClient;
 
-namespace FrameworkTests.Http.Client
+namespace FrameworkTests.HttpClient
 {
     [TestFixture]
     public class AuthorizationTest
@@ -14,7 +14,7 @@ namespace FrameworkTests.Http.Client
         public void SetUp()
         {
             factory = new Factory(
-                new HttpClient()
+                new System.Net.Http.HttpClient()
             );
         }
         

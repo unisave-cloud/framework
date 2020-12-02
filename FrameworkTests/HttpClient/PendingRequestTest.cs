@@ -9,14 +9,14 @@ using LightJson;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
-using Unisave.Http.Client;
+using Unisave.HttpClient;
 
-namespace FrameworkTests.Http.Client
+namespace FrameworkTests.HttpClient
 {
     [TestFixture]
     public class PendingRequestTest
     {
-        private HttpClient client;
+        private System.Net.Http.HttpClient client;
         private Mock<HttpMessageHandler> handler;
         private PendingRequest pr;
         private HttpRequestMessage request;
@@ -37,7 +37,7 @@ namespace FrameworkTests.Http.Client
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK))
                 .Verifiable();
 
-            client = new HttpClient(handler.Object);
+            client = new System.Net.Http.HttpClient(handler.Object);
             
             pr = new PendingRequest(client);
         }

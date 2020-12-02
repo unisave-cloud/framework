@@ -8,7 +8,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using LightJson;
 
-namespace Unisave.Http.Client
+namespace Unisave.HttpClient
 {
     /// <summary>
     /// Fluently builds an HTTP request description and then provides
@@ -41,7 +41,7 @@ namespace Unisave.Http.Client
         /// <summary>
         /// The underlying HttpClient instance that does the actual sending
         /// </summary>
-        private readonly HttpClient client;
+        private readonly System.Net.Http.HttpClient client;
 
         /// <summary>
         /// Interceptor, that may fake responses
@@ -49,14 +49,14 @@ namespace Unisave.Http.Client
         private Func<Request, Func<Response>, Response> interceptor;
 
         public PendingRequest(
-            HttpClient client,
+            System.Net.Http.HttpClient client,
             Func<Request, Func<Response>, Response> interceptor
         ) : this(client)
         {
             this.interceptor = interceptor;
         }
         
-        public PendingRequest(HttpClient client)
+        public PendingRequest(System.Net.Http.HttpClient client)
         {
             this.client = client;
         }

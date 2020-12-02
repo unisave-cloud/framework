@@ -5,7 +5,7 @@ using System.Net.Http;
 using Unisave.Exceptions;
 using Unisave.Utils;
 
-namespace Unisave.Http.Client
+namespace Unisave.HttpClient
 {
     public class Factory
     {
@@ -47,9 +47,9 @@ namespace Unisave.Http.Client
         /// <summary>
         /// The HttpClient instance that should be used for requests
         /// </summary>
-        private readonly HttpClient client;
+        private readonly System.Net.Http.HttpClient client;
 
-        public Factory(HttpClient client)
+        public Factory(System.Net.Http.HttpClient client)
         {
             this.client = client;
         }

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using LightJson;
-using Unisave.Http.Client;
+using Unisave.HttpClient;
 
 namespace Unisave.Facades
 {
@@ -400,7 +400,7 @@ namespace Unisave.Facades
             int status = 200,
             Dictionary<string, string> headers = null
         )
-            => Unisave.Http.Client.Response.Create(
+            => HttpClient.Response.Create(
                 json, status, headers
             );
 
@@ -418,7 +418,7 @@ namespace Unisave.Facades
             int status = 200,
             Dictionary<string, string> headers = null
         )
-            => Unisave.Http.Client.Response.Create(
+            => HttpClient.Response.Create(
                 body, contentType, status, headers
             );
 
@@ -435,7 +435,7 @@ namespace Unisave.Facades
             int status = 200,
             Dictionary<string, string> headers = null
         )
-            => Unisave.Http.Client.Response.Create(
+            => HttpClient.Response.Create(
                 body, status, headers
             );
 

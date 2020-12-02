@@ -1,7 +1,7 @@
 using Unisave.Broadcasting;
 using Unisave.Facades;
 using Unisave.Foundation;
-using Unisave.Http.Client;
+using Unisave.HttpClient;
 using Unisave.Sessions;
 
 namespace Unisave.Providers

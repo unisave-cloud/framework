@@ -1,6 +1,6 @@
 using System;
 using LightJson;
-using Unisave.Http.Client;
+using Unisave.HttpClient;
 using Unisave.Serialization;
 using Unisave.Serialization.Context;
 using Unisave.Sessions;

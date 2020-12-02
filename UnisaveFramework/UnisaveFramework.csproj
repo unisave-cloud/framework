@@ -90,6 +90,12 @@
     <Compile Include="Broadcasting\IBroadcaster.cs" />
     <Compile Include="Broadcasting\SpecificChannel.cs" />
     <Compile Include="Broadcasting\UnisaveBroadcaster.cs" />
+    <Compile Include="HttpClient\Factory.cs" />
+    <Compile Include="HttpClient\HttpContentHolder.cs" />
+    <Compile Include="HttpClient\PendingRequest.cs" />
+    <Compile Include="HttpClient\Request.cs" />
+    <Compile Include="HttpClient\Response.cs" />
+    <Compile Include="HttpClient\ResponseSequence.cs" />
     <Compile Include="Contracts\IAqlQuery.cs" />
     <Compile Include="Contracts\IArango.cs" />
     <Compile Include="Contracts\ILog.cs" />
@@ -129,12 +135,6 @@
     <Compile Include="Foundation\Bootstrap.cs" />
     <Compile Include="Foundation\Container.cs" />
     <Compile Include="Foundation\EnvStore.cs" />
-    <Compile Include="Http\Client\HttpContentHolder.cs" />
-    <Compile Include="Http\Client\Factory.cs" />
-    <Compile Include="Http\Client\PendingRequest.cs" />
-    <Compile Include="Http\Client\Request.cs" />
-    <Compile Include="Http\Client\Response.cs" />
-    <Compile Include="Http\Client\ResponseSequence.cs" />
     <Compile Include="Logging\ClientSideLog.cs" />
     <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="Logging\InMemoryLog.cs" />
@@ -200,6 +200,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="HttpEndpoints" />
     <Folder Include="Serialization\" />
     <Folder Include="Runtime\" />
     <Folder Include="Exceptions\" />

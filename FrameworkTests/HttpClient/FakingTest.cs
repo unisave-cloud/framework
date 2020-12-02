@@ -9,9 +9,9 @@ using Moq;
 using Moq.Protected;
 using NUnit.Framework;
 using Unisave.Exceptions;
-using Unisave.Http.Client;
+using Unisave.HttpClient;
 
-namespace FrameworkTests.Http.Client
+namespace FrameworkTests.HttpClient
 {
     [TestFixture]
     public class FakingTest
@@ -37,7 +37,7 @@ namespace FrameworkTests.Http.Client
                 .Verifiable();
 
             factory = new Factory(
-                new HttpClient(handler.Object)
+                new System.Net.Http.HttpClient(handler.Object)
             );
 
             request = null; // reset request capture

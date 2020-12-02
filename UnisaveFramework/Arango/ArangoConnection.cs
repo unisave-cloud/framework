@@ -17,7 +17,7 @@ namespace Unisave.Arango
     /// </summary>
     public class ArangoConnection : IArango, IDisposable
     {
-        public HttpClient Client { get; }
+        public System.Net.Http.HttpClient Client { get; }
         public string BaseUrl { get; }
         public string Database { get; }
         public string Username { get; }
@@ -30,7 +30,7 @@ namespace Unisave.Arango
             string password
         )
         {
-            Client = new HttpClient();
+            Client = new System.Net.Http.HttpClient();
             BaseUrl = baseUrl;
             Database = database;
             Username = username;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using LightJson;
 
-namespace Unisave.Http.Client
+namespace Unisave.HttpClient
 {
     public class ResponseSequence
     {

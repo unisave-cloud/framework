@@ -7,7 +7,7 @@ using System.Text;
 using LightJson;
 using LightJson.Serialization;
 
-namespace Unisave.Http.Client
+namespace Unisave.HttpClient
 {
     public class Response : HttpContentHolder
     {
