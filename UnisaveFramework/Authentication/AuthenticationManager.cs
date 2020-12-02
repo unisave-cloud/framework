@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using Unisave.Arango;
 using Unisave.Contracts;
 using Unisave.Entities;
 
@@ -64,15 +65,17 @@ namespace Unisave.Authentication
         {
             if (!initialized)
                 Initialize<T>();
+
+            // couldn't be initialized with this type T
+            if (!initialized)
+                return null;
             
             if (authenticatedPlayer == null)
                 return null;
-            
+
+            // the authenticated player is not of type T
             if (authenticatedPlayer.GetType() != typeof(T))
-                throw new ArgumentException(
-                    "Authenticated player is of type " +
-                    $"{authenticatedPlayer.GetType()}, not {typeof(T)}"
-                );
+                return null;
 
             return (T) authenticatedPlayer;
         }
@@ -80,6 +83,7 @@ namespace Unisave.Authentication
         /// <summary>
         /// Initializes the manager by pulling the authenticated player
         /// from session and database
+        /// (may not perform initialization if the type does not match the id)
         /// </summary>
         /// <typeparam name="T">Type of the requested entity</typeparam>
         private void Initialize<T>() where T : Entity
@@ -88,14 +92,22 @@ namespace Unisave.Authentication
             
             if (id == null)
             {
+                // there's no authenticated player
                 authenticatedPlayer = null;
+                initialized = true;
             }
             else
             {
+                // if the id belongs to a different type,
+                // do not initialize
+                var docId = DocumentId.Parse(id);
+                if (docId.Collection != EntityUtils.CollectionFromType(typeof(T)))
+                    return;
+                
+                // here we have the authenticated player
                 authenticatedPlayer = entityManager.Find<T>(id);
+                initialized = true;
             }
-            
-            initialized = true;
         }
 
         /// <summary>
