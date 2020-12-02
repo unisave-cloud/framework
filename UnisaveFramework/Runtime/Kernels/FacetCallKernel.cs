@@ -1,9 +1,11 @@
 using System;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
+using System.Security.Cryptography;
 using LightJson;
 using Unisave.Facets;
 using Unisave.Foundation;
+using Unisave.Sessions;
 using Unisave.Sessions.Middleware;
 using Unisave.Utils;
 
@@ -16,11 +18,13 @@ namespace Unisave.Runtime.Kernels
     {
         private readonly Application app;
         private readonly SpecialValues specialValues;
+        private readonly ServerSessionIdRepository sessionIdRepository;
         
         public FacetCallKernel(Application app, SpecialValues specialValues)
         {
             this.app = app;
             this.specialValues = specialValues;
+            sessionIdRepository = app.Resolve<ServerSessionIdRepository>();
         }
         
         /// <summary>
@@ -96,21 +100,14 @@ namespace Unisave.Runtime.Kernels
         private string ProcessSessionId(MethodParameters methodParameters)
         {
             string sessionId = methodParameters.SessionId
-                ?? GenerateSessionId();
-            
-            specialValues.Add("sessionId", sessionId);
+                ?? ServerSessionIdRepository.GenerateSessionId();
 
+            sessionIdRepository.SessionId = sessionId;
+            specialValues.Add("sessionId", sessionId);
+            
             return sessionId;
         }
         
-        /// <summary>
-        /// Generates new random session id
-        /// </summary>
-        public static string GenerateSessionId()
-        {
-            return Str.Random(16);
-        }
-
         /// <summary>
         /// Method parameters for session call
         /// </summary>

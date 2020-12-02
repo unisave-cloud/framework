@@ -39,5 +39,15 @@ namespace Unisave.Serialization.Context
                 reason = SerializationReason.Storage
             };
         }
+        
+        /// <summary>
+        /// Build the de-serialization context used for message broadcasting
+        /// </summary>
+        public static DeserializationContext BroadcastingContext()
+        {
+            return new DeserializationContext {
+                reason = SerializationReason.Transmission
+            };
+        }
     }
 }
