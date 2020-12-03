@@ -57,6 +57,7 @@
     <Compile Include="Arango\QueryExecutionTest.cs" />
     <Compile Include="Arango\QueryToAqlTest.cs" />
     <Compile Include="Arango\QueryVerificationTest.cs" />
+    <Compile Include="Entities\EntityReferenceTest.cs" />
     <Compile Include="HttpClient\AuthorizationTest.cs" />
     <Compile Include="HttpClient\FakingTest.cs" />
     <Compile Include="HttpClient\PendingRequestTest.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="Serialization\Primitives\FakeUnitySerializationTest.cs" />
     <Compile Include="Serialization\Primitives\NullableSerializationTest.cs" />
     <Compile Include="Serialization\Primitives\PrimitiveSerializationTest.cs" />
+    <Compile Include="Serialization\Unisave\EntityReferenceSerializationTest.cs" />
     <Compile Include="Serialization\Unisave\EntitySerializationTest.cs" />
     <Compile Include="Sessions\SessionOverStorageTest.cs" />
     <Compile Include="Stubs\SomeEntity.cs" />
