@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using LightJson;
 using LightJson.Serialization;
@@ -269,6 +270,10 @@ namespace Unisave.Serialization
             // === Determine deserialization type (the "$type" argument) ===
             
             Type deserializationType = GetDeserializationType(json, typeScope);
+            
+            // === Call static constructor of the deserialized type ===
+            
+            RuntimeHelpers.RunClassConstructor(deserializationType.TypeHandle);
 
             // === Deserialize ===
             

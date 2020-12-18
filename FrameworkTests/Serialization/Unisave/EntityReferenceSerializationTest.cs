@@ -29,12 +29,6 @@ namespace FrameworkTests.Serialization.Unisave
         [Test]
         public void ItDeserializesReferences()
         {
-            var deserializedNull = Serializer.FromJsonString<EntityReference<StubEntity>>(
-                "null"
-            );
-            Assert.IsNull(deserializedNull.TargetId);
-            
-            
             var deserializedRef = Serializer.FromJsonString<EntityReference<StubEntity>>(
                 "\"e_StubEntity\\/foo\""
             );
@@ -42,6 +36,11 @@ namespace FrameworkTests.Serialization.Unisave
                 "e_StubEntity/foo",
                 deserializedRef.TargetId
             );
+            
+            var deserializedNull = Serializer.FromJsonString<EntityReference<StubEntity>>(
+                "null"
+            );
+            Assert.IsNull(deserializedNull.TargetId);
         }
     }
 }

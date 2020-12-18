@@ -22,10 +22,6 @@ namespace FrameworkTests.Entities
         [SetUp]
         public void SetUp()
         {
-            // TODO: don't register the serializer in the static constructor...
-            new EntityReference<PlayerEntity>(null);
-            new EntityReference<MotorbikeEntity>(null);
-            
             nullReference = Serializer.FromJson<EntityReference<PlayerEntity>>(
                 JsonValue.Null
             );
