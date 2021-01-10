@@ -29,6 +29,24 @@ namespace FrameworkTests.Serialization.Collections
         }
 
         [Test]
+        public void ItSerializesEmptyDictionaries()
+        {
+            var subject = new Dictionary<string, int>();
+
+            Assert.AreEqual(
+                "{}",
+                Serializer.ToJson(subject).ToString()
+            );
+
+            Assert.AreEqual(
+                subject,
+                Serializer.FromJsonString<Dictionary<string, int>>(
+                    "{}"
+                )
+            );
+        }
+
+        [Test]
         public void ItSerializesNonStringDictionaries()
         {
             var subject = new Dictionary<int, string> {
@@ -45,6 +63,24 @@ namespace FrameworkTests.Serialization.Collections
                 subject,
                 Serializer.FromJsonString<Dictionary<int, string>>(
                     "[[5,\"42\"],[6,\"2\"]]"
+                )
+            );
+        }
+        
+        [Test]
+        public void ItSerializesEmptyNonStringDictionaries()
+        {
+            var subject = new Dictionary<int, string>();
+
+            Assert.AreEqual(
+                "[]",
+                Serializer.ToJson(subject).ToString()
+            );
+
+            Assert.AreEqual(
+                subject,
+                Serializer.FromJsonString<Dictionary<int, string>>(
+                    "[]"
                 )
             );
         }
