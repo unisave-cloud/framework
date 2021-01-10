@@ -45,19 +45,18 @@ namespace FrameworkTests.Serialization.Unisave
             Assert.AreEqual(entity.Foo, deserialized.Foo);
             Assert.AreEqual(entity.bar, deserialized.bar);
         }
-        
-        [Test]
-        public void ItSerializesEntityReferences()
-        {
-            string id = EntityUtils.CollectionPrefix + "Entity/foo";
-            var reference = new EntityReference<Entity>(id);
 
-            Assert.AreEqual(id, Serializer.ToJson(reference).AsString);
-            
-            Assert.AreEqual(
-                id,
-                Serializer.FromJson<EntityReference<Entity>>(id).TargetId
+        [Test]
+        public void MissingFieldOnDeserializationWillBeSetToDefault()
+        {
+            var e = Serializer.FromJsonString<StubEntity>(
+                "{'_id':'e_StubEntity/some-id'}".Replace('\'', '"')
             );
+            var def = new StubEntity();
+            
+            Assert.AreEqual("e_StubEntity/some-id", e.EntityId);
+            Assert.AreEqual(def.Foo, e.Foo);
+            Assert.AreEqual(def.bar, e.bar);
         }
     }
 }
