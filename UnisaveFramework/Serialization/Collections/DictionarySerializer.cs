@@ -66,6 +66,10 @@ namespace Unisave.Serialization.Collections
 
             object dictionary = typeScope.GetConstructor(new Type[] {}).Invoke(new object[] {});
 
+            // handle PHP mangled empty JSON objects
+            if (json.IsJsonArray && json.AsJsonArray.Count == 0)
+                json = new JsonObject();
+            
             JsonObject jsonObject = json.AsJsonObject;
             if (jsonObject == null)
                 return null;

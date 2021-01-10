@@ -47,6 +47,20 @@ namespace FrameworkTests.Serialization.Collections
         }
 
         [Test]
+        public void ItDeserializesEmptyDictionariesFromPhpMangledObjects()
+        {
+            // MOTIVATION:
+            // It could happen that JSON gets mangled up by PHP somewhere
+            // (i miss it) and it turns {} to [],
+            // but the dict should still load ok (as a failsafe).
+
+            var dict = Serializer.FromJsonString<Dictionary<string, int>>("[]");
+            
+            Assert.NotNull(dict);
+            Assert.IsEmpty(dict);
+        }
+
+        [Test]
         public void ItSerializesNonStringDictionaries()
         {
             var subject = new Dictionary<int, string> {
