@@ -53,10 +53,8 @@ namespace Unisave.Entities
                 // entities cannot be inside entities
                 if (typeof(Entity).IsAssignableFrom(fi?.FieldType ?? pi.PropertyType))
                     throw new UnisaveException(
-                        "Entities cannot contain other entities inside, "
-                        + "the logic is not yet implemented inside Unisave. "
-                        + "Use a string containing the target entity id instead. "
-                        + "I'm planning to add support for this in the future however."
+                        "Entities cannot contain other entities. "
+                        + "Use entity references instead. "
                     );
 
                 mapping.Add(mi);
