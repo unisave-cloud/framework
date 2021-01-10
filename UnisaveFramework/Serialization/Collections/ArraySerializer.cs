@@ -14,9 +14,13 @@ namespace Unisave.Serialization.Collections
         {
             JsonArray jsonArray = new JsonArray();
             Array array = (Array)subject;
+            
+            Type elementTypeScope = typeScope.GetElementType();
 
             foreach (object item in array)
-                jsonArray.Add(Serializer.ToJson(item, typeScope, context));
+                jsonArray.Add(
+                    Serializer.ToJson(item, elementTypeScope, context)
+                );
 
             return jsonArray;
         }
@@ -41,7 +45,10 @@ namespace Unisave.Serialization.Collections
             Array array = Array.CreateInstance(elementType, jsonArray.Count);
 
             for (int i = 0; i < jsonArray.Count; i++)
-                array.SetValue(Serializer.FromJson(jsonArray[i], elementType, context), i);
+                array.SetValue(
+                    Serializer.FromJson(jsonArray[i], elementType, context),
+                    i
+                );
 
             return array;
         }
