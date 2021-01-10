@@ -95,6 +95,7 @@ namespace Unisave.Entities
         
         /// <summary>
         /// Explicitly converts ID string to an entity reference
+        /// NOTE: has to be explicit, otherwise null assignments become ambiguous
         /// </summary>
         public static explicit operator EntityReference<TTarget>(
             string value
@@ -128,25 +129,12 @@ namespace Unisave.Entities
                     return targetId == null;
                 
                 case EntityReference<TTarget> that:
-                    // Two pointers to null, do they point to the same place?
-                    // Technically yes, but really they don't. They do not
-                    // point to the same actual entity - they point nowhere.
-                    //
-                    // Also due to the implicit cast, this might be true
-                    // if this condition wasn't present:
-                    //    entity.Owner = new MyEntity() // assuming Owner = null
-                    //
-                    // Use this.IsNull for null checking instead.
-                    if (that.targetId == null)
-                        return false;
                     return targetId == that.targetId;
                 
                 case string that:
                     return targetId == that;
                 
                 case TTarget that:
-                    if (that.EntityId == null)
-                        return false; // cannot point to non-existing entity
                     return targetId == that.EntityId;
             }
 
