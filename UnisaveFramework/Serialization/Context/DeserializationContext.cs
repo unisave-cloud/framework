@@ -1,3 +1,5 @@
+using System.Runtime.Serialization;
+
 namespace Unisave.Serialization.Context
 {
     /// <summary>
@@ -10,6 +12,15 @@ namespace Unisave.Serialization.Context
         /// </summary>
         public SerializationReason reason
             = SerializationReason.Storage;
+        
+        /// <summary>
+        /// Returns a .NET streaming context corresponding
+        /// to this deserialization context
+        /// </summary>
+        public StreamingContext GetStreamingContext()
+        {
+            return new StreamingContext(StreamingContextStates.All, this);
+        }
         
         /// <summary>
         /// Build the default de-serialization context

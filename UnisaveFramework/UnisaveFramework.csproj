@@ -161,6 +161,7 @@
     <Compile Include="Serialization\Collections\ArraySerializer.cs" />
     <Compile Include="Serialization\Collections\DictionarySerializer.cs" />
     <Compile Include="Serialization\Collections\ListSerializer.cs" />
+    <Compile Include="Serialization\Composites\SerializableTypeSerializer.cs" />
     <Compile Include="Serialization\Composites\UnknownTypeSerializer.cs" />
     <Compile Include="Serialization\Context\DeserializationContext.cs" />
     <Compile Include="Serialization\Context\SerializationContext.cs" />

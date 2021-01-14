@@ -1,3 +1,5 @@
+using System.Runtime.Serialization;
+
 namespace Unisave.Serialization.Context
 {
     /// <summary>
@@ -16,6 +18,15 @@ namespace Unisave.Serialization.Context
         /// </summary>
         public TypeSerialization typeSerialization
             = TypeSerialization.DuringPolymorphism;
+        
+        /// <summary>
+        /// Returns a .NET streaming context corresponding
+        /// to this serialization context
+        /// </summary>
+        public StreamingContext GetStreamingContext()
+        {
+            return new StreamingContext(StreamingContextStates.All, this);
+        }
 
         /// <summary>
         /// Build the default serialization context

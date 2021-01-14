@@ -18,7 +18,6 @@ namespace Unisave.Serialization
 {
     // TODO: serialize HashSet, Stack, Queue
     // TODO: attribute and class renaming (FormerlySerializedAs)
-    // TODO: handle Serializable types
     // TODO: handle NaN and Infinity for floats and doubles
     
     /// <summary>
@@ -232,9 +231,9 @@ namespace Unisave.Serialization
                     return pair.Value.ToJson(subject, typeScope, context);
             
             // serializable
-            if (type.GetCustomAttribute<SerializableAttribute>(inherit: false) != null)
-                throw new NotImplementedException(
-                    "Serializable attribute marked types are not supported yet."
+            if (typeof(ISerializable).IsAssignableFrom(type))
+                return SerializableTypeSerializer.ToJson(
+                    subject, typeScope, context
                 );
             
             // validate type scope
@@ -321,9 +320,9 @@ namespace Unisave.Serialization
                     return pair.Value.FromJson(json, deserializationType, context);
             
             // serializable
-            if (deserializationType.GetCustomAttribute<SerializableAttribute>(inherit: false) != null)
-                throw new NotImplementedException(
-                    "Serializable attribute marked types are not supported yet."
+            if (typeof(ISerializable).IsAssignableFrom(deserializationType))
+                return SerializableTypeSerializer.FromJson(
+                    json, deserializationType, context
                 );
 
             // other
