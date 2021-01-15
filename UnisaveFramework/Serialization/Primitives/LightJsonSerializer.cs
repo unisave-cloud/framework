@@ -1,0 +1,42 @@
+using System;
+using LightJson;
+using Unisave.Serialization.Context;
+
+namespace Unisave.Serialization.Primitives
+{
+    public class LightJsonSerializer : ITypeSerializer
+    {
+        public JsonValue ToJson(
+            object subject,
+            Type typeScope,
+            SerializationContext context
+        )
+        {
+            if (subject == null)
+                return JsonValue.Null;
+
+            switch (subject)
+            {
+                case JsonArray a: return a;
+                case JsonObject o: return o;
+            }
+            
+            return (JsonValue) subject;
+        }
+
+        public object FromJson(
+            JsonValue json,
+            Type deserializationType,
+            DeserializationContext context
+        )
+        {
+            if (json.IsJsonObject)
+                return json.AsJsonObject;
+            
+            if (json.IsJsonArray)
+                return json.AsJsonArray;
+            
+            return json;
+        }
+    }
+}

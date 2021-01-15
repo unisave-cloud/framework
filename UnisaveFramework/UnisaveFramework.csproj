@@ -168,12 +168,16 @@
     <Compile Include="Serialization\Context\SerializationContext.cs" />
     <Compile Include="Serialization\Context\SerializationReason.cs" />
     <Compile Include="Serialization\Context\TypeSerialization.cs" />
+    <Compile Include="Serialization\Exceptions\ExceptionSerializer.cs" />
     <Compile Include="Serialization\Exceptions\SerializedException.cs" />
     <Compile Include="Serialization\IUnisaveSerializable.cs" />
+    <Compile Include="Serialization\Primitives\DateTimeSerializer.cs" />
     <Compile Include="Serialization\Primitives\DotNetPrimitivesSerializer.cs" />
     <Compile Include="Serialization\Primitives\EnumSerializer.cs" />
+    <Compile Include="Serialization\Primitives\LightJsonSerializer.cs" />
     <Compile Include="Serialization\Primitives\NullableSerializer.cs" />
     <Compile Include="Serialization\UnisaveSerializationException.cs" />
+    <Compile Include="Serialization\Unisave\EntitySerializer.cs" />
     <Compile Include="Sessions\ArangoSessionStorage.cs" />
     <Compile Include="Sessions\InMemorySessionStorage.cs" />
     <Compile Include="Sessions\ISessionStorage.cs" />
@@ -188,9 +192,6 @@
     <Compile Include="Runtime\Entrypoint.cs" />
     <Compile Include="Serialization\Serializer.cs" />
     <Compile Include="Serialization\ITypeSerializer.cs" />
-    <Compile Include="Serialization\DefaultTypeSerializers.cs" />
-    <Compile Include="Serialization\LambdaTypeSerializer.cs" />
-    <Compile Include="Serialization\ExceptionSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LightJson\Sources\LightJson\LightJson.csproj">

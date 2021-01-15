@@ -1,14 +1,16 @@
 using System;
+using LightJson;
 using Unisave.Arango;
 using Unisave.Facades;
 using Unisave.Serialization;
+using Unisave.Serialization.Context;
 
 namespace Unisave.Entities
 {
     /// <summary>
     /// Reference to some other entity
     /// </summary>
-    public struct EntityReference<TTarget>
+    public struct EntityReference<TTarget> : IUnisaveSerializable
         where TTarget : Entity
     {
         /// <summary>
@@ -28,21 +30,16 @@ namespace Unisave.Entities
         /// </summary>
         public bool IsNull => targetId == null;
 
-        static EntityReference()
-        {
-            // register a serializer for this specific generic version
-            Serializer.SetExactTypeSerializer(
-                typeof(EntityReference<TTarget>),
-                new LambdaTypeSerializer()
-                .ToJson((subject) => {
-                    return ((EntityReference<TTarget>)subject).TargetId;
-                })
-                .FromJson((json, type) => {
-                    return new EntityReference<TTarget>(json.AsString);
-                })
-            );
-        }
+        #region "Serialization"
         
+        private EntityReference(JsonValue json, DeserializationContext context)
+            : this(json.AsString) { }
+
+        JsonValue IUnisaveSerializable.ToJson(SerializationContext context)
+            => TargetId;
+        
+        #endregion
+
         /// <summary>
         /// Create an entity reference already pointing somewhere
         /// </summary>

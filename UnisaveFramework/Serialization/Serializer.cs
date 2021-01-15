@@ -8,11 +8,14 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using LightJson;
 using LightJson.Serialization;
+using Unisave.Entities;
 using Unisave.Facades;
 using Unisave.Serialization.Collections;
 using Unisave.Serialization.Composites;
 using Unisave.Serialization.Context;
+using Unisave.Serialization.Exceptions;
 using Unisave.Serialization.Primitives;
+using Unisave.Serialization.Unisave;
 
 namespace Unisave.Serialization
 {
@@ -26,7 +29,7 @@ namespace Unisave.Serialization
     /// </summary>
     public static class Serializer
     {
-        #region "Custom serializers"
+        #region "ITypeSerializer logic"
         
         /// <summary>
         /// When the dictionary key type matches exactly the requested type,
@@ -44,32 +47,58 @@ namespace Unisave.Serialization
 
         static Serializer()
         {
-            DefaultTypeSerializers.RegisterAllSerializers();
+            SetSerializer<JsonValue>(new LightJsonSerializer());
+            SetSerializer<JsonArray>(new LightJsonSerializer());
+            SetSerializer<JsonObject>(new LightJsonSerializer());
+            
+            SetSerializer<DateTime>(new DateTimeSerializer());
+
+            SetPolymorphicSerializer(typeof(Exception), new ExceptionSerializer());
+            
+            SetPolymorphicSerializer(typeof(Entity), new EntitySerializer());
         }
 
         /// <summary>
         /// Override serialization of a given type
-        /// Primitives, enums, arrays, lists and such cannot be overriden
+        /// Primitives, enums, arrays and such cannot be overriden
         /// </summary>
-        public static void SetExactTypeSerializer(Type type, ITypeSerializer serializer)
+        public static void SetSerializer<T>(ITypeSerializer serializer)
+            => SetSerializer(typeof(T), serializer);
+        
+        /// <summary>
+        /// Override serialization of a given type
+        /// Primitives, enums, arrays and such cannot be overriden
+        /// </summary>
+        public static void SetSerializer(Type type, ITypeSerializer serializer)
             => exactTypeSerializers[type] = serializer;
 
         /// <summary>
-        /// Override serialization of any type, that is assignable to a provided general type
+        /// Override serialization of any type, that is assignable to the provided type
         /// This override has lower priority than exact type override
-        /// Primitives, enums, arrays, lists and such cannot be overriden
+        /// Primitives, enums, arrays and such cannot be overriden
         /// </summary>
-        public static void SetAssignableTypeSerializer(Type generalType, ITypeSerializer serializer)
+        public static void SetPolymorphicSerializer<T>(ITypeSerializer serializer)
+            => SetPolymorphicSerializer(typeof(T), serializer);
+        
+        /// <summary>
+        /// Override serialization of any type, that is assignable to the provided type
+        /// This override has lower priority than exact type override
+        /// Primitives, enums, arrays and such cannot be overriden
+        /// </summary>
+        public static void SetPolymorphicSerializer(
+            Type generalType,
+            ITypeSerializer serializer
+        )
         {
             foreach (var pair in assignableTypeSerializers)
             {
-                if (pair.Key.IsAssignableFrom(generalType) || generalType.IsAssignableFrom(pair.Key))
+                if (pair.Key.IsAssignableFrom(generalType)
+                    || generalType.IsAssignableFrom(pair.Key))
                 {
                     throw new ArgumentException(
-                        $"Cannot add assignable serializer for {generalType} because there's already a "
-                        + $"serializer for type {pair.Key} and those two types are in relationship.\n"
-                        + "Technically Unisave could just pick the least general parent and use it, "
-                        + "but it seemed like a rare situation so I haven't implemented it yet."
+                        $"Cannot add polymorphic serializer for {generalType} " +
+                        $"because there's already a polymorphic serializer for " +
+                        $"type {pair.Key} and those two types are in relationship.\n"
                     );
                 }
             }
@@ -353,6 +382,8 @@ namespace Unisave.Serialization
         
         #endregion
         
+        #region "Helpers"
+        
         private static bool ShouldStoreType(
             object subject,
             Type typeScope,
@@ -420,5 +451,7 @@ namespace Unisave.Serialization
 
             return null;
         }
+        
+        #endregion
     }
 }

@@ -86,6 +86,7 @@
     <Compile Include="Serialization\Primitives\DateTimeSerializationTest.cs" />
     <Compile Include="Serialization\Primitives\EnumSerializationTest.cs" />
     <Compile Include="Serialization\Primitives\FakeUnitySerializationTest.cs" />
+    <Compile Include="Serialization\Primitives\LightJsonSerializationTest.cs" />
     <Compile Include="Serialization\Primitives\NullableSerializationTest.cs" />
     <Compile Include="Serialization\Primitives\PrimitiveSerializationTest.cs" />
     <Compile Include="Serialization\Unisave\EntityReferenceSerializationTest.cs" />

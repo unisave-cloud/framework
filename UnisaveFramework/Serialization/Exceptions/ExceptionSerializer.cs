@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Reflection;
 using System.IO;
+using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using LightJson;
 using Unisave.Serialization.Composites;
 using Unisave.Serialization.Context;
-using Unisave.Serialization.Exceptions;
 
-namespace Unisave.Serialization
+namespace Unisave.Serialization.Exceptions
 {
     /// <summary>
     /// Serializes exceptions
