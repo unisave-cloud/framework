@@ -13,6 +13,7 @@ namespace Unisave.Serialization
         /// Format is taken from the ArangoDB DATE_ISO8601(...) function,
         /// another words it's the ISO8601 format with milliseconds and "T", "Z"
         /// </summary>
-        public const string DateTimeFormat = "yyyy-MM-dd\\THH:mm:ss.fff\\Z";
+        public const string DateTimeFormat
+            = "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'";
     }
 }
