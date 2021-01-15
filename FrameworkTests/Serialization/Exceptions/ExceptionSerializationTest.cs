@@ -55,17 +55,14 @@ namespace FrameworkTests.Serialization.Exceptions
         private const string NonExistingStubExceptionSerialized
             = "{\"ClassName\":\"FrameworkTests.Serialization.ExceptionSer" +
               "ializationTest+NonExistingStubException\",\"Message\":null" +
-              ",\"typeof:Data\":\"System.Collections.IDictionary\",\"Data" +
-              "\":null,\"typeof:InnerException\":\"System.Exception\",\"I" +
-              "nnerException\":null,\"HelpURL\":null,\"StackTraceString\"" +
-              ":\"  at FrameworkTests.Serialization.ExceptionSerializatio" +
-              "nTest.MakeItThrown (System.Exception e) [0x00002] in \\/ho" +
-              "me\\/jirka\\/ImportantCode\\/Unisave\\/Framework\\/Framewo" +
-              "rkTests\\/Serialization\\/ExceptionSerializationTest.cs:72" +
-              " \",\"RemoteStackTraceString\":null,\"RemoteStackIndex\":0" +
-              ",\"typeof:ExceptionMethod\":\"System.Object\",\"ExceptionM" +
-              "ethod\":null,\"HResult\":-2146233088,\"Source\":\"Framewor" +
-              "kTests\"}";
+              ",\"Data\":null,\"InnerException\":null,\"HelpURL\":null,\"" +
+              "StackTraceString\":\"  at FrameworkTests.Serialization.Exc" +
+              "eptionSerializationTest.MakeItThrown (System.Exception e) " +
+              "[0x00002] in \\/home\\/jirka\\/ImportantCode\\/Unisave\\/F" +
+              "ramework\\/FrameworkTests\\/Serialization\\/ExceptionSeria" +
+              "lizationTest.cs:72 \",\"RemoteStackTraceString\":null,\"Re" +
+              "moteStackIndex\":0,\"ExceptionMethod\":null,\"HResult\":-2" +
+              "146233088,\"Source\":\"FrameworkTests\"}";
         
         /// <summary>
         /// Helper that makes an exception into a thrown exception

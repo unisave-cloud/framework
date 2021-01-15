@@ -48,14 +48,14 @@ namespace Unisave.Serialization
         /// <inheritdoc/>
         public object FromJson(
             JsonValue json,
-            Type typeScope,
+            Type deserializationType,
             DeserializationContext context
         )
         {
             if (fromJson == null)
                 throw new InvalidOperationException("Corresponding lambda has not been defined yet.");
 
-            return fromJson(json, typeScope);
+            return fromJson(json, deserializationType);
         }
     }
 }

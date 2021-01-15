@@ -19,6 +19,7 @@ namespace Unisave.Serialization
     // TODO: serialize HashSet, Stack, Queue
     // TODO: attribute and class renaming (FormerlySerializedAs)
     // TODO: handle NaN and Infinity for floats and doubles
+    // TODO: handle decimal type
     
     /// <summary>
     /// Handles Unisave JSON serialization

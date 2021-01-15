@@ -1,6 +1,7 @@
 using System;
-using System.Globalization;
+using System.ComponentModel;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Runtime.Serialization;
 using LightJson;
 using Unisave.Serialization.Context;
@@ -15,6 +16,11 @@ namespace Unisave.Serialization.Composites
             SerializationContext context
         )
         {
+            if (!(subject is ISerializable))
+                throw new ArgumentException(
+                    $"Provided instance is not an {typeof(ISerializable)}."
+                );
+            
             SerializationInfo info = ExtractSerializationInfo(subject, context);
             
             JsonObject json = new JsonObject();
@@ -42,19 +48,37 @@ namespace Unisave.Serialization.Composites
                 deserializationType,
                 new JsonDeserializationConverter(context)
             );
-
+            
             foreach (var pair in jsonObject)
                 info.AddValue(pair.Key, (object) pair.Value);
 
-            var instance = Activator.CreateInstance(
-                deserializationType,
+            ConstructorInfo constructor = deserializationType.GetConstructor(
                 BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
                 null,
-                new object[] { info, context.GetStreamingContext() },
-                CultureInfo.InvariantCulture
+                new Type[] { typeof(SerializationInfo), typeof(StreamingContext) },
+                null
             );
+            
+            if (constructor == null)
+                throw new UnisaveSerializationException(
+                    $"The type {deserializationType} implements " +
+                    $"{typeof(ISerializable)} but lacks the deserialization " +
+                    $"constructor."
+                );
 
-            return instance;
+            try
+            {
+                return constructor.Invoke(
+                    new object[] {info, context.GetStreamingContext()}
+                );
+            }
+            catch (TargetInvocationException e)
+            {
+                if (e.InnerException != null)
+                    ExceptionDispatchInfo.Capture(e.InnerException).Throw();
+                
+                throw;
+            }
         }
 
         private static SerializationInfo ExtractSerializationInfo(
@@ -78,12 +102,10 @@ namespace Unisave.Serialization.Composites
         /// <summary>
         /// Converts JSON to the target type at the moment the value
         /// is requested because that's the moment we know the target type
+        /// (basically performs deserialization)
         /// </summary>
         private class JsonDeserializationConverter : IFormatterConverter
         {
-            private readonly FormatterConverter defaultConverter
-                = new FormatterConverter();
-
             private readonly DeserializationContext context;
             
             public JsonDeserializationConverter(DeserializationContext context)
@@ -92,64 +114,73 @@ namespace Unisave.Serialization.Composites
             }
 
             public object Convert(object value, Type type)
+                => Serializer.FromJson(CastValue(value), type, context);
+
+            private T Convert<T>(object value)
+                => (T) Convert(value, typeof(T));
+
+            private JsonValue CastValue(object value)
             {
                 if (value == null)
-                    throw new ArgumentNullException(nameof(value));
-
-                // deserialize the value
-                if (value is JsonValue jsonValue)
-                    return Serializer.FromJson(jsonValue, type, context);
+                    throw new InvalidOperationException(
+                        $"{typeof(JsonDeserializationConverter)} can only be " +
+                        $"used on JSON data but plain null given."
+                    );
                 
-                return defaultConverter.Convert(value, type);
+                if (!(value is JsonValue))
+                    throw new InvalidOperationException(
+                        $"{typeof(JsonDeserializationConverter)} can only be " +
+                        $"used on JSON data but {value.GetType()} given."
+                    );
+                    
+                return (JsonValue) value;
             }
 
             public object Convert(object value, TypeCode typeCode)
-                => defaultConverter.Convert(value, typeCode);
-            
-            public bool ToBoolean(object value)
-                => defaultConverter.ToBoolean(value);
-            
-            public char ToChar(object value)
-                => defaultConverter.ToChar(value);
-            
-            public sbyte ToSByte(object value)
-                => defaultConverter.ToSByte(value);
-            
-            public byte ToByte(object value)
-                => defaultConverter.ToByte(value);
-            
-            public short ToInt16(object value)
-                => defaultConverter.ToInt16(value);
-            
-            public ushort ToUInt16(object value)
-                => defaultConverter.ToUInt16(value);
-            
-            public int ToInt32(object value)
-                => defaultConverter.ToInt32(value);
-            
-            public uint ToUInt32(object value)
-                => defaultConverter.ToUInt32(value);
-            
-            public long ToInt64(object value)
-                => defaultConverter.ToInt64(value);
-            
-            public ulong ToUInt64(object value)
-                => defaultConverter.ToUInt64(value);
-            
-            public float ToSingle(object value)
-                => defaultConverter.ToSingle(value);
-            
-            public double ToDouble(object value)
-                => defaultConverter.ToDouble(value);
-            
-            public Decimal ToDecimal(object value)
-                => defaultConverter.ToDecimal(value);
-            
-            public DateTime ToDateTime(object value)
-                => defaultConverter.ToDateTime(value);
-            
-            public string ToString(object value)
-                => defaultConverter.ToString(value);
+            {
+                switch (typeCode)
+                {
+                    case TypeCode.Boolean: return Convert(value, typeof(bool));
+                    case TypeCode.Byte: return Convert(value, typeof(byte));
+                    case TypeCode.Char: return Convert(value, typeof(char));
+                    case TypeCode.Decimal: return Convert(value, typeof(decimal));
+                    case TypeCode.Double: return Convert(value, typeof(double));
+                    case TypeCode.Empty: return null;
+                    case TypeCode.Int16: return Convert(value, typeof(short));
+                    case TypeCode.Int32: return Convert(value, typeof(int));
+                    case TypeCode.Int64: return Convert(value, typeof(long));
+                    case TypeCode.Single: return Convert(value, typeof(float));
+                    case TypeCode.String: return Convert(value, typeof(string));
+                    case TypeCode.DateTime: return Convert(value, typeof(DateTime));
+                    case TypeCode.SByte: return Convert(value, typeof(sbyte));
+                    case TypeCode.UInt16: return Convert(value, typeof(ushort));
+                    case TypeCode.UInt32: return Convert(value, typeof(uint));
+                    case TypeCode.UInt64: return Convert(value, typeof(ulong));
+                    case TypeCode.DBNull: return null;
+                    
+                    // TypeCode.Object is not supported
+                }
+                
+                throw new InvalidEnumArgumentException(
+                    $"Type code {typeCode} is not supported."
+                );
+            }
+
+            public bool ToBoolean(object value) => Convert<bool>(value);
+            public char ToChar(object value) => Convert<char>(value);
+            public sbyte ToSByte(object value) => Convert<sbyte>(value);
+            public byte ToByte(object value) => Convert<byte>(value);
+            public short ToInt16(object value) => Convert<short>(value);
+            public ushort ToUInt16(object value) => Convert<ushort>(value);
+            public int ToInt32(object value) => Convert<int>(value);
+            public uint ToUInt32(object value) => Convert<uint>(value);
+            public long ToInt64(object value) => Convert<long>(value);
+            public ulong ToUInt64(object value) => Convert<ulong>(value);
+            public float ToSingle(object value) => Convert<float>(value);
+            public double ToDouble(object value) => Convert<double>(value);
+            public Decimal ToDecimal(object value) => Convert<Decimal>(value);
+            public DateTime ToDateTime(object value) => Convert<DateTime>(value);
+            public string ToString(object value) => Convert<string>(value);
         }
     }
 }

@@ -27,7 +27,7 @@ namespace Unisave.Serialization
         /// </summary>
         object FromJson(
             JsonValue json,
-            Type typeScope,
+            Type deserializationType,
             DeserializationContext context
         );
     }

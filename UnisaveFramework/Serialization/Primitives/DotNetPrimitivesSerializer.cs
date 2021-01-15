@@ -25,6 +25,8 @@ namespace Unisave.Serialization.Primitives
                 return (ushort)subject;
             if (type == typeof(byte))
                 return (byte)subject;
+            if (type == typeof(sbyte))
+                return (sbyte)subject;
             
             if (type == typeof(bool))
                 return (bool)subject;
@@ -61,6 +63,8 @@ namespace Unisave.Serialization.Primitives
                 return (ushort)json.AsInteger;
             if (typeScope == typeof(byte))
                 return (byte)json.AsInteger;
+            if (typeScope == typeof(sbyte))
+                return (sbyte)json.AsInteger;
             
             if (typeScope == typeof(bool))
                 return json.AsBoolean;

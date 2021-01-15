@@ -1,14 +1,11 @@
 ﻿using System;
-using System.CodeDom;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Linq;
 using System.IO;
 using System.Runtime.ExceptionServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using LightJson;
-using Unisave.Exceptions;
+using Unisave.Serialization.Composites;
 using Unisave.Serialization.Context;
 using Unisave.Serialization.Exceptions;
 
@@ -16,17 +13,6 @@ namespace Unisave.Serialization
 {
     /// <summary>
     /// Serializes exceptions
-    /// 
-    /// Exception serialization is special, because the type information
-    /// is stored together with the exception. This is not the case for
-    /// the rest of types. This is ok though, because the serialized
-    /// exception is only stored for a short amount of time (during
-    /// the transfer between server and client).
-    /// 
-    /// The serialization for other types has to remain type-less
-    /// because these types may be stored inside the database.
-    /// This allows for type renaming or even joining or
-    /// splitting types. Simply the type is not glued to the data.
     /// </summary>
     public class ExceptionSerializer : ITypeSerializer
     {
@@ -40,20 +26,15 @@ namespace Unisave.Serialization
                 throw new ArgumentException(
                     "Provided instance is not an exception."
                 );
-            
-            // instance to SerializationInfo
-            var streamingContext = new StreamingContext(
-                // could be anything, but should be the same as below in
-                // deserialization. And since there has to be CrossAppDomain,
-                // it will be here as well.
-                StreamingContextStates.CrossAppDomain
-            );
-            var converter = new FormatterConverter();
-            var info = new SerializationInfo(exception.GetType(), converter);
 
             try
             {
-                exception.GetObjectData(info, streamingContext);
+                // every exception should be ISerializable
+                return SerializableTypeSerializer.ToJson(
+                    subject,
+                    typeScope,
+                    context
+                );
             }
             catch
             {
@@ -66,68 +47,11 @@ namespace Unisave.Serialization
                     .Add("Message", exception.Message)
                     .Add("StackTraceString", exception.StackTrace);
             }
-
-            // SerializationInfo to JSON
-            var json = new JsonObject();
-            foreach (SerializationEntry entry in info)
-                AddSerializationEntryToJsonObject(entry, json, converter);
-            return json;
-        }
-
-        private void AddSerializationEntryToJsonObject(
-            SerializationEntry entry,
-            JsonObject json,
-            FormatterConverter converter
-        )
-        {
-            if (entry.ObjectType == typeof(string))
-            {
-                if (entry.Value == null)
-                {
-                    json[entry.Name] = JsonValue.Null;
-                    return;
-                }
-                
-                if (entry.ObjectType != entry.Value.GetType())
-                    json[entry.Name] = (string) converter
-                        .Convert(entry.Value, typeof(string));
-                else
-                    json[entry.Name] = (string) entry.Value;
-
-                return;
-            }
-            
-            if (entry.ObjectType == typeof(int))
-            {
-                if (entry.ObjectType != entry.Value.GetType())
-                    json[entry.Name] = (int) (converter
-                        .Convert(entry.Value, typeof(int)) ?? 0);
-                else
-                    json[entry.Name] = (int) entry.Value;
-
-                return;
-            }
-            
-            if (entry.ObjectType == typeof(bool))
-            {
-                if (entry.ObjectType != entry.Value.GetType())
-                    json[entry.Name] = (bool) (converter
-                        .Convert(entry.Value, typeof(bool)) ?? false);
-                else
-                    json[entry.Name] = (bool) entry.Value;
-
-                return;
-            }
-            
-            // NOTE: maybe serialize as entry.ObjectType,
-            // not as entry.Value.GetType(), not sure though...
-            json[entry.Name] = Serializer.ToJson(entry.Value);
-            json["typeof:" + entry.Name] = entry.ObjectType.FullName;
         }
 
         public object FromJson(
             JsonValue json,
-            Type typeScope,
+            Type deserializationType,
             DeserializationContext context
         )
         {
@@ -135,7 +59,7 @@ namespace Unisave.Serialization
             // Instead a SerializedException instance should be returned.
             // The only exception is improper usage of this method.
             
-            if (!typeof(Exception).IsAssignableFrom(typeScope))
+            if (!typeof(Exception).IsAssignableFrom(deserializationType))
                 throw new ArgumentException(
                     "Provided type is not an exception."
                 );
@@ -153,7 +77,7 @@ namespace Unisave.Serialization
                 // RETURN, not throw!
                 return new SerializedException(json, e);
             }
-
+            
             JsonObject obj = json.AsJsonObject;
 
             if (obj == null)
@@ -163,17 +87,11 @@ namespace Unisave.Serialization
             {
                 // deserialize the thing
                 Type actualType = FindExceptionType(obj["ClassName"].AsString);
-                var defaultInfo = GetDefaultSerializationInfo(actualType);
-                var updatedInfo = UpdateSerializationInfoWithJson(defaultInfo, obj);
-                return CreateExceptionViaSerializationConstructor(
-                    actualType,
-                    updatedInfo,
-                    new StreamingContext(
-                        // has to be EXACTLY this, because then the exception can
-                        // be rethrown without loosing the stack trace
-                        StreamingContextStates.CrossAppDomain
-                    )
-                );
+                SerializationInfo defaultInfo = GetDefaultSerializationInfo(actualType);
+                ExtendJsonWithDefaultSerializationInfo(obj, defaultInfo);
+                var e = SerializableTypeSerializer.FromJson(obj, actualType, context);
+                PreserveStackTrace((Exception) e);
+                return e;
             }
             catch (Exception e)
             {
@@ -255,8 +173,10 @@ namespace Unisave.Serialization
             }
             catch (TargetInvocationException e)
             {
-                ExceptionDispatchInfo.Capture(e).Throw();
-                throw; // should not be called
+                if (e.InnerException != null)
+                    ExceptionDispatchInfo.Capture(e.InnerException).Throw();
+                
+                throw;
             }
             
             var context = new StreamingContext(StreamingContextStates.All);
@@ -265,125 +185,36 @@ namespace Unisave.Serialization
             return info;
         }
 
-        private SerializationInfo UpdateSerializationInfoWithJson(
-            SerializationInfo defaultInfo,
-            JsonObject json
+        private void ExtendJsonWithDefaultSerializationInfo(
+            JsonObject json,
+            SerializationInfo info
         )
         {
-            var info = new SerializationInfo(
-                defaultInfo.ObjectType,
-                new FormatterConverter()
-            );
-            
-            // go through the keys in default info and copy or replace
-            // them with the values in the serialized JSON
-            HashSet<string> writtenKeys = new HashSet<string>();
-            foreach (SerializationEntry entry in defaultInfo)
+            foreach (var entry in info)
             {
                 if (json.ContainsKey(entry.Name))
-                    AddJsonValueToSerializationInfo(
-                        info,
-                        entry.Name,
-                        json[entry.Name],
-                        json["typeof:" + entry.Name].AsString
-                    );
-                else
-                    info.AddValue(entry.Name, entry.Value, entry.ObjectType);
-
-                writtenKeys.Add(entry.Name);
-            }
-            
-            // add all the remaining data in the JSON that hasn't been used up
-            // (this might happen when the default info is empty)
-            foreach (var pair in json)
-            {
-                if (pair.Key.StartsWith("typeof:"))
                     continue;
-                
-                if (writtenKeys.Contains(pair.Key))
-                    continue;
-                
-                AddJsonValueToSerializationInfo(
-                    info,
-                    pair.Key,
-                    json[pair.Key],
-                    json["typeof:" + pair.Key].AsString
+
+                json[entry.Name] = Serializer.ToJson(
+                    entry.Value,
+                    entry.ObjectType
                 );
             }
-
-            return info;
         }
-
-        private void AddJsonValueToSerializationInfo(
-            SerializationInfo info,
-            string key,
-            JsonValue json,
-            string typeString
-        )
+        
+        // magic
+        // https://stackoverflow.com/a/2085377
+        private static void PreserveStackTrace(Exception e)
         {
-            // type information is specified
-            if (typeString != null)
-            {
-                Type type = FindType(typeString);
-                info.AddValue(key, Serializer.FromJson(json, type));
-                return;
-            }
-            
-            // type information is not specified, and so should be inferred
-            if (json.IsNull)
-                info.AddValue(key, null);
-            else if (json.IsString)
-                info.AddValue(key, json.AsString);
-            else if (json.IsInteger)
-                info.AddValue(key, json.AsInteger);
-            else if (json.IsBoolean)
-                info.AddValue(key, json.AsBoolean);
-            else
-                throw new UnisaveSerializationException(
-                    $"Cannot deserialize key '{key}' when type not " +
-                    $"serialized and cannot be inferred: {json.ToString()}"
-                );
-        }
+            var ctx = new StreamingContext(StreamingContextStates.CrossAppDomain);
+            var mgr = new ObjectManager(null, ctx);
+            var si = new SerializationInfo(e.GetType(), new FormatterConverter());
 
-        private object CreateExceptionViaSerializationConstructor(
-            Type type,
-            SerializationInfo info,
-            StreamingContext context
-        )
-        {
-            var serializationConstructor = type.GetConstructor(
-                (BindingFlags)(-1),
-                null,
-                new Type[] {
-                    typeof(SerializationInfo),
-                    typeof(StreamingContext)
-                },
-                null
-            );
-            
-            if (serializationConstructor == null)
-                throw new UnisaveSerializationException(
-                    $"Exception {type} cannot be deserialized, " +
-                    "because it has no serialization constructor."
-                );
+            e.GetObjectData(si, ctx);
+            mgr.RegisterObject(e, 1, si); // prepare for SetObjectData
+            mgr.DoFixups(); // ObjectManager calls SetObjectData
 
-            Exception instance;
-            try
-            {
-                instance = (Exception) serializationConstructor.Invoke(
-                    new object[] {
-                        info,
-                        context
-                    }
-                );
-            }
-            catch (TargetInvocationException e)
-            {
-                ExceptionDispatchInfo.Capture(e).Throw();
-                throw; // should not be called
-            }
-
-            return instance;
+            // voila, e is unmodified save for _remoteStackTraceString
         }
         
         #region "Legacy serialization (binary)"

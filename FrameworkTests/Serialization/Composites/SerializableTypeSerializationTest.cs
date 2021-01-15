@@ -39,7 +39,7 @@ namespace FrameworkTests.Serialization.Composites
     }
     
     [TestFixture]
-    public class InterfaceSerializableSerializationTest
+    public class SerializableTypeSerializationTest
     {
         [Test]
         public void ItSerializesViaTheInterfaceMethod()
@@ -75,6 +75,25 @@ namespace FrameworkTests.Serialization.Composites
             Assert.AreEqual(9, data.sequence[0]);
             Assert.AreEqual(8, data.sequence[1]);
             Assert.AreEqual(7, data.sequence[2]);
+        }
+
+        [Test]
+        public void ItDoesntDeserializeWithPartialData()
+        {
+            /*
+             * NOTE:
+             * ISerializable is meant for .NET classes that want to be
+             * serialized certain way. It is not ideal for fluent Unisave
+             * data as it doesn't allow simple addition of fields
+             * and data migration on deserialization.
+             */
+            
+            var json = "{'f':42}"
+                .Replace('\'', '\"');
+
+            Assert.Throws<SerializationException>(() => {
+                Serializer.FromJsonString<MySerializableType>(json);
+            });
         }
     }
 }
