@@ -111,6 +111,11 @@ namespace Unisave.Serialization
             SerializationContext context = null
         ) => ToJson(subject, typeof(TTypeScope), context);
         
+        public static JsonValue ToJson(
+            object subject,
+            SerializationContext context
+        ) => ToJson(subject, subject?.GetType(), context);
+        
         public static TTypeScope FromJsonString<TTypeScope>(
             string jsonString,
             DeserializationContext context = null
@@ -231,6 +236,12 @@ namespace Unisave.Serialization
                 if (pair.Key.IsAssignableFrom(type))
                     return pair.Value.ToJson(subject, typeScope, context);
             
+            // unisave serializable
+            if (typeof(IUnisaveSerializable).IsAssignableFrom(type))
+                return UnisaveSerializableTypeSerializer.ToJson(
+                    subject, typeScope, context
+                );
+            
             // serializable
             if (typeof(ISerializable).IsAssignableFrom(type))
                 return SerializableTypeSerializer.ToJson(
@@ -319,6 +330,12 @@ namespace Unisave.Serialization
             foreach (var pair in assignableTypeSerializers)
                 if (pair.Key.IsAssignableFrom(typeScope))
                     return pair.Value.FromJson(json, deserializationType, context);
+            
+            // unisave serializable
+            if (typeof(IUnisaveSerializable).IsAssignableFrom(deserializationType))
+                return UnisaveSerializableTypeSerializer.FromJson(
+                    json, deserializationType, context
+                );
             
             // serializable
             if (typeof(ISerializable).IsAssignableFrom(deserializationType))

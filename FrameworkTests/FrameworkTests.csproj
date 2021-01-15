@@ -80,6 +80,7 @@
     <Compile Include="Serialization\Composites\PolymorphicSerializationTest.cs" />
     <Compile Include="Serialization\Composites\SimpleDataContainerSerializationTest.cs" />
     <Compile Include="Serialization\Composites\TypeSerializationTest.cs" />
+    <Compile Include="Serialization\Composites\UnisaveSerializableTypeSerializationTest.cs" />
     <Compile Include="Serialization\Composites\UnknownTypeSerializationTest.cs" />
     <Compile Include="Serialization\Exceptions\ExceptionSerializationTest.cs" />
     <Compile Include="Serialization\Primitives\DateTimeSerializationTest.cs" />

@@ -162,12 +162,14 @@
     <Compile Include="Serialization\Collections\DictionarySerializer.cs" />
     <Compile Include="Serialization\Collections\ListSerializer.cs" />
     <Compile Include="Serialization\Composites\SerializableTypeSerializer.cs" />
+    <Compile Include="Serialization\Composites\UnisaveSerializableTypeSerializer.cs" />
     <Compile Include="Serialization\Composites\UnknownTypeSerializer.cs" />
     <Compile Include="Serialization\Context\DeserializationContext.cs" />
     <Compile Include="Serialization\Context\SerializationContext.cs" />
     <Compile Include="Serialization\Context\SerializationReason.cs" />
     <Compile Include="Serialization\Context\TypeSerialization.cs" />
     <Compile Include="Serialization\Exceptions\SerializedException.cs" />
+    <Compile Include="Serialization\IUnisaveSerializable.cs" />
     <Compile Include="Serialization\Primitives\DotNetPrimitivesSerializer.cs" />
     <Compile Include="Serialization\Primitives\EnumSerializer.cs" />
     <Compile Include="Serialization\Primitives\NullableSerializer.cs" />

@@ -1,19 +1,22 @@
-﻿using System;
 using LightJson;
+using Unisave.Serialization.Context;
 
 namespace Unisave.Serialization
 {
-    /// <summary>
-    /// Allows a type to be serialized by the Unisave serializer
-    /// Or rather it overrides the serialization process
-    /// </summary>
     public interface IUnisaveSerializable
     {
+        /*
+         * It cannot be required by an interface
+         * but any type implementing this should
+         * also provide a constructor for deserialization:
+         * Ctor(JsonValue, DeserializationContext)
+         */
         
-
         /// <summary>
-        /// Serializes the instance to JSON
+        /// Returns the JSON representation of the object
         /// </summary>
-        JsonValue ToJson();
+        /// <param name="context">Context of the serialization</param>
+        /// <returns>JSON representation</returns>
+        JsonValue ToJson(SerializationContext context);
     }
 }
