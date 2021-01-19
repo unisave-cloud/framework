@@ -19,7 +19,6 @@ using Unisave.Serialization.Unisave;
 
 namespace Unisave.Serialization
 {
-    // TODO: serialize HashSet, Stack, Queue
     // TODO: attribute and class renaming (FormerlySerializedAs)
     // TODO: handle NaN and Infinity for floats and doubles
     // TODO: handle decimal type
@@ -55,8 +54,16 @@ namespace Unisave.Serialization
             
             SetPolymorphicSerializer(typeof(Exception), new ExceptionSerializer());
             
-            SetSerializer(typeof(List<>), new ListSerializer());
+            SetSerializer(typeof(List<>), new CollectionSerializer());
+            SetSerializer(typeof(LinkedList<>), new CollectionSerializer());
+            SetSerializer(typeof(Stack<>), new CollectionSerializer());
+            SetSerializer(typeof(Queue<>), new CollectionSerializer());
+            SetSerializer(typeof(HashSet<>), new CollectionSerializer());
+            SetSerializer(typeof(SortedSet<>), new CollectionSerializer());
+            
             SetSerializer(typeof(Dictionary<,>), new DictionarySerializer());
+            SetSerializer(typeof(SortedDictionary<,>), new DictionarySerializer());
+            SetSerializer(typeof(SortedList<,>), new DictionarySerializer());
             
             SetSerializer(typeof(Nullable<>), new NullableSerializer());
             
@@ -113,6 +120,7 @@ namespace Unisave.Serialization
 
         /// <summary>
         /// Determine, whether there is an explicit serializer for given type
+        /// (either exact, or polymorphic)
         /// </summary>
         public static bool HasSerializerFor(Type type)
         {

@@ -8,7 +8,7 @@ namespace FrameworkTests.Serialization.Collections
     public class ListSerializationTest
     {
         [Test]
-        public void ItSerializesAnArray()
+        public void ItSerializesLists()
         {
             Assert.AreEqual(
                 "[1,2,3]",
@@ -22,7 +22,7 @@ namespace FrameworkTests.Serialization.Collections
         }
 
         [Test]
-        public void ItDeserializesAnArray()
+        public void ItDeserializesLists()
         {
             Assert.AreEqual(
                 new List<int> {1, 2, 3},

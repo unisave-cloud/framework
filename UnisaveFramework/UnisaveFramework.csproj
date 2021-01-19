@@ -159,8 +159,8 @@
     <Compile Include="Runtime\Methods\EntrypointTest.cs" />
     <Compile Include="Runtime\SpecialValues.cs" />
     <Compile Include="Serialization\Collections\ArraySerializer.cs" />
+    <Compile Include="Serialization\Collections\CollectionSerializer.cs" />
     <Compile Include="Serialization\Collections\DictionarySerializer.cs" />
-    <Compile Include="Serialization\Collections\ListSerializer.cs" />
     <Compile Include="Serialization\Composites\SerializableTypeSerializer.cs" />
     <Compile Include="Serialization\Composites\UnisaveSerializableTypeSerializer.cs" />
     <Compile Include="Serialization\Composites\UnknownTypeSerializer.cs" />
