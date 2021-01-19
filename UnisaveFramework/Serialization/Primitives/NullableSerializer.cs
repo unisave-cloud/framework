@@ -5,9 +5,9 @@ using Unisave.Serialization.Context;
 
 namespace Unisave.Serialization.Primitives
 {
-    internal static class NullableSerializer
+    public class NullableSerializer : ITypeSerializer
     {
-        public static JsonValue ToJson(
+        public JsonValue ToJson(
             object subject,
             Type typeScope,
             SerializationContext context
@@ -27,7 +27,7 @@ namespace Unisave.Serialization.Primitives
             );
         }
 
-        public static object FromJson(
+        public object FromJson(
             JsonValue json,
             Type typeScope,
             DeserializationContext context = null

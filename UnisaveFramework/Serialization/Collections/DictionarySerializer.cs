@@ -6,9 +6,9 @@ using Unisave.Serialization.Context;
 
 namespace Unisave.Serialization.Collections
 {
-    internal static class DictionarySerializer
+    public class DictionarySerializer : ITypeSerializer
     {
-        public static JsonValue ToJson(
+        public JsonValue ToJson(
             object subject,
             Type typeScope,
             SerializationContext context
@@ -51,7 +51,7 @@ namespace Unisave.Serialization.Collections
             return pairs;
         }
 
-        public static object FromJson(
+        public object FromJson(
             JsonValue json,
             Type typeScope,
             DeserializationContext context

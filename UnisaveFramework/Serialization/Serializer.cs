@@ -52,8 +52,13 @@ namespace Unisave.Serialization
             SetSerializer<JsonObject>(new LightJsonSerializer());
             
             SetSerializer<DateTime>(new DateTimeSerializer());
-
+            
             SetPolymorphicSerializer(typeof(Exception), new ExceptionSerializer());
+            
+            SetSerializer(typeof(List<>), new ListSerializer());
+            SetSerializer(typeof(Dictionary<,>), new DictionarySerializer());
+            
+            SetSerializer(typeof(Nullable<>), new NullableSerializer());
             
             SetPolymorphicSerializer(typeof(Entity), new EntitySerializer());
         }
@@ -238,31 +243,18 @@ namespace Unisave.Serialization
             if (type.IsArray)
                 return ArraySerializer.ToJson(subject, typeScope, context);
             
-            // lists and dictionaries
-            if (type.IsGenericType)
-            {
-                Type genericType = type.GetGenericTypeDefinition();
-                
-                // lists
-                if (genericType == typeof(List<>))
-                    return ListSerializer.ToJson(subject, typeScope, context);
-
-                // dictionaries
-                if (genericType == typeof(Dictionary<,>))
-                    return DictionarySerializer.ToJson(subject, typeScope, context);
-
-                // nullables
-                if (genericType == typeof(Nullable<>))
-                    return NullableSerializer.ToJson(subject, typeScope, context);
-            }
+            // by what type value to search through ITypeSerializers
+            var searchType = type.IsGenericType
+                ? type.GetGenericTypeDefinition()
+                : type;
             
             // exact type serializers
-            if (exactTypeSerializers.TryGetValue(type, out ITypeSerializer serializer))
+            if (exactTypeSerializers.TryGetValue(searchType, out ITypeSerializer serializer))
                 return serializer.ToJson(subject, typeScope, context);
 
             // assignable type serializers
             foreach (var pair in assignableTypeSerializers)
-                if (pair.Key.IsAssignableFrom(type))
+                if (pair.Key.IsAssignableFrom(searchType))
                     return pair.Value.ToJson(subject, typeScope, context);
             
             // unisave serializable
@@ -333,31 +325,18 @@ namespace Unisave.Serialization
             if (typeScope.IsArray)
                 return ArraySerializer.FromJson(json, typeScope, context);
 
-            // lists and dictionaries
-            if (typeScope.IsGenericType)
-            {
-                var genericType = typeScope.GetGenericTypeDefinition();
-                
-                // lists
-                if (genericType == typeof(List<>))
-                    return ListSerializer.FromJson(json, typeScope, context);
-
-                // dictionaries
-                if (genericType == typeof(Dictionary<,>))
-                    return DictionarySerializer.FromJson(json, typeScope, context);
-                
-                // nullables
-                if (genericType == typeof(Nullable<>))
-                    return NullableSerializer.FromJson(json, typeScope, context);
-            }
+            // by what type value to search through ITypeSerializers
+            var searchType = typeScope.IsGenericType
+                ? typeScope.GetGenericTypeDefinition()
+                : typeScope;
             
             // exact type serializers
-            if (exactTypeSerializers.TryGetValue(typeScope, out ITypeSerializer serializer))
+            if (exactTypeSerializers.TryGetValue(searchType, out ITypeSerializer serializer))
                 return serializer.FromJson(json, deserializationType, context);
 
             // assignable type serializers
             foreach (var pair in assignableTypeSerializers)
-                if (pair.Key.IsAssignableFrom(typeScope))
+                if (pair.Key.IsAssignableFrom(searchType))
                     return pair.Value.FromJson(json, deserializationType, context);
             
             // unisave serializable
