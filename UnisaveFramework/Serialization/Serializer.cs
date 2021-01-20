@@ -285,7 +285,7 @@ namespace Unisave.Serialization
                 );
 
             // other
-            return UnknownTypeSerializer.ToJson(subject, typeScope, context);
+            return DefaultSerializer.ToJson(subject, typeScope, context);
         }
 
         public static object FromJson(
@@ -360,7 +360,7 @@ namespace Unisave.Serialization
                 );
 
             // other
-            return UnknownTypeSerializer.FromJson(
+            return DefaultSerializer.FromJson(
                 json,
                 deserializationType,
                 context

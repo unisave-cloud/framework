@@ -7,7 +7,7 @@ namespace Unisave
      */
 
     /// <summary>
-    /// Marks a property or field to not be serialized
+    /// Marks an auto-property or a field to not be serialized
     /// </summary>
     [AttributeUsage(
         AttributeTargets.Property | AttributeTargets.Field,
@@ -18,6 +18,24 @@ namespace Unisave
     {
         public DontSerializeAttribute()
         { }
+    }
+    
+    /// <summary>
+    /// Marks an auto-property or a field to be serialized under different name
+    /// </summary>
+    [AttributeUsage(
+        AttributeTargets.Property | AttributeTargets.Field,
+        Inherited = false,
+        AllowMultiple = false
+    )]
+    public class SerializeAsAttribute : Attribute
+    {
+        public string SerializedName { get; }
+
+        public SerializeAsAttribute(string serializedName)
+        {
+            SerializedName = serializedName;
+        }
     }
 
     /// <summary>
