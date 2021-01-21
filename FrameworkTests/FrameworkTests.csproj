@@ -86,6 +86,7 @@
     <Compile Include="Serialization\Composites\UnisaveSerializableTypeSerializationTest.cs" />
     <Compile Include="Serialization\Composites\UnknownTypeSerializationTest.cs" />
     <Compile Include="Serialization\Exceptions\ExceptionSerializationTest.cs" />
+    <Compile Include="Serialization\SerializationContextTest.cs" />
     <Compile Include="Serialization\Primitives\DateTimeSerializationTest.cs" />
     <Compile Include="Serialization\Primitives\EnumSerializationTest.cs" />
     <Compile Include="Serialization\Primitives\FakeUnitySerializationTest.cs" />

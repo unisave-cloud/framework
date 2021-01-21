@@ -98,7 +98,7 @@ namespace Unisave.Entities.Query
         {
             return Serializer.FromJson<TEntity>(
                 document,
-                DeserializationContext.EntitySavingContext()
+                DeserializationContext.ServerStorageToServer
             );
         }
 

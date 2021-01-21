@@ -51,5 +51,61 @@ namespace FrameworkTests.Serialization.Primitives
             
             Assert.AreEqual(subject.ToString(), deserialized.ToString());
         }
+
+        [Test]
+        public void ItSerializesObjectsAsJsonValue()
+        {
+            /*
+             * NOTE:
+             * it tests whether it converts types correctly
+             * (because JsonObject to JsonValue is not a cast but a conversion)
+             */
+            
+            Assert.AreEqual(
+                "{}",
+                Serializer.ToJsonString(
+                    new JsonValue(new JsonObject())
+                )
+            );
+
+            JsonValue json = Serializer.FromJsonString<JsonValue>("{}");
+            Assert.AreEqual("{}", json.ToString());
+        }
+
+        [Test]
+        public void ItSerializesNullAsJsonValue()
+        {
+            Assert.AreEqual(
+                "null",
+                Serializer.ToJsonString((object)null)
+            );
+            
+            Assert.AreEqual(
+                "null",
+                Serializer.ToJsonString<JsonValue>((object)null)
+            );
+            
+            Assert.AreEqual(
+                "null",
+                Serializer.ToJsonString(JsonValue.Null)
+            );
+            
+            Assert.AreEqual(
+                "null",
+                Serializer.ToJsonString<object>(JsonValue.Null)
+            );
+            
+            JsonValue json = Serializer.FromJsonString<JsonValue>("null");
+            Assert.IsTrue(json.IsNull);
+            
+            JsonObject jsonObj = Serializer.FromJsonString<JsonObject>("null");
+            Assert.IsNull(jsonObj);
+            
+            JsonArray jsonArr = Serializer.FromJsonString<JsonArray>("null");
+            Assert.IsNull(jsonArr);
+            
+            object something = Serializer.FromJsonString<object>("null");
+            Assert.IsNull(something);
+        }
     }
 }

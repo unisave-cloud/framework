@@ -5,13 +5,17 @@ namespace Unisave.Serialization.Context
     /// <summary>
     /// Context for de-serialization
     /// </summary>
-    public class DeserializationContext
+    public struct DeserializationContext
     {
         /// <summary>
         /// Why the serialization takes place
         /// </summary>
-        public SerializationReason reason
-            = SerializationReason.Storage;
+        public SerializationReason reason;
+        
+        /// <summary>
+        /// Does the serialized data cross a security domain boundary?
+        /// </summary>
+        public SecurityDomainCrossing securityDomainCrossing;
         
         /// <summary>
         /// Returns a .NET streaming context corresponding
@@ -22,43 +26,72 @@ namespace Unisave.Serialization.Context
             return new StreamingContext(StreamingContextStates.All, this);
         }
         
-        /// <summary>
-        /// Build the default de-serialization context
-        /// (used in most unit tests and potentially used by user code)
-        /// </summary>
-        public static DeserializationContext DefaultContext()
-        {
-            return new DeserializationContext();
-        }
+        #region "Constants ___ToServer"
         
-        /// <summary>
-        /// Build the de-serialization context used for facet calling
-        /// </summary>
-        public static DeserializationContext FacetCallingContext()
-        {
-            return new DeserializationContext {
-                reason = SerializationReason.Transmission
+        public static readonly DeserializationContext ServerToServer
+            = new DeserializationContext {
+                reason = SerializationReason.Transfer,
+                securityDomainCrossing = SecurityDomainCrossing.NoCrossing
             };
-        }
         
-        /// <summary>
-        /// Build the de-serialization context used for entity storage
-        /// </summary>
-        public static DeserializationContext EntitySavingContext()
-        {
-            return new DeserializationContext {
-                reason = SerializationReason.Storage
+        public static readonly DeserializationContext ServerStorageToServer
+            = new DeserializationContext {
+                reason = SerializationReason.Storage,
+                securityDomainCrossing = SecurityDomainCrossing.NoCrossing
             };
-        }
         
-        /// <summary>
-        /// Build the de-serialization context used for message broadcasting
-        /// </summary>
-        public static DeserializationContext BroadcastingContext()
-        {
-            return new DeserializationContext {
-                reason = SerializationReason.Transmission
+        public static readonly DeserializationContext ClientToServer
+            = new DeserializationContext {
+                reason = SerializationReason.Transfer,
+                securityDomainCrossing = SecurityDomainCrossing.EnteringServer
             };
-        }
+        
+        public static readonly DeserializationContext ThirdPartyToServer
+            = new DeserializationContext {
+                reason = SerializationReason.Transfer,
+                securityDomainCrossing = SecurityDomainCrossing.EnteringServer
+            };
+        
+        public static readonly DeserializationContext ThirdPartyStorageToServer
+            = new DeserializationContext {
+                reason = SerializationReason.Storage,
+                securityDomainCrossing = SecurityDomainCrossing.EnteringServer
+            };
+        
+        #endregion
+        
+        #region "Constants ___ToClient"
+        
+        public static readonly DeserializationContext ClientToClient
+            = new DeserializationContext {
+                reason = SerializationReason.Transfer,
+                securityDomainCrossing = SecurityDomainCrossing.NoCrossing
+            };
+        
+        public static readonly DeserializationContext ClientStorageToClient
+            = new DeserializationContext {
+                reason = SerializationReason.Storage,
+                securityDomainCrossing = SecurityDomainCrossing.NoCrossing
+            };
+        
+        public static readonly DeserializationContext ServerToClient
+            = new DeserializationContext {
+                reason = SerializationReason.Transfer,
+                securityDomainCrossing = SecurityDomainCrossing.LeavingServer
+            };
+        
+        public static readonly DeserializationContext ThirdPartyToClient
+            = new DeserializationContext {
+                reason = SerializationReason.Transfer,
+                securityDomainCrossing = SecurityDomainCrossing.NoCrossing
+            };
+        
+        public static readonly DeserializationContext ThirdPartyStorageToClient
+            = new DeserializationContext {
+                reason = SerializationReason.Storage,
+                securityDomainCrossing = SecurityDomainCrossing.NoCrossing
+            };
+        
+        #endregion
     }
 }

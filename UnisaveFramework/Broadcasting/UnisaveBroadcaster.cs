@@ -53,7 +53,7 @@ namespace Unisave.Broadcasting
 
             var serializedSubscription = Serializer.ToJson<ChannelSubscription>(
                 subscription,
-                SerializationContext.BroadcastingContext()
+                SerializationContext.ServerToClient
             );
             
             http.PendingRequest().Post(url, new JsonObject {
@@ -78,7 +78,7 @@ namespace Unisave.Broadcasting
 
             JsonValue serializedMessage = Serializer.ToJson<BroadcastingMessage>(
                 message,
-                SerializationContext.BroadcastingContext()
+                SerializationContext.ServerToClient
             );
 
             http.PendingRequest().Post(url, new JsonObject {

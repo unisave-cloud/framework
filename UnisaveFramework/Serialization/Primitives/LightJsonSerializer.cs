@@ -17,8 +17,8 @@ namespace Unisave.Serialization.Primitives
 
             switch (subject)
             {
-                case JsonArray a: return a;
-                case JsonObject o: return o;
+                case JsonArray a: return new JsonValue(a);
+                case JsonObject o: return new JsonValue(o);
             }
             
             return (JsonValue) subject;
@@ -30,10 +30,10 @@ namespace Unisave.Serialization.Primitives
             DeserializationContext context
         )
         {
-            if (json.IsJsonObject)
+            if (deserializationType == typeof(JsonObject))
                 return json.AsJsonObject;
             
-            if (json.IsJsonArray)
+            if (deserializationType == typeof(JsonArray))
                 return json.AsJsonArray;
             
             return json;

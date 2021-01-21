@@ -147,7 +147,7 @@ namespace Unisave.Facets
                     Serializer.ToJson(
                         arguments[i],
                         parameters[i].ParameterType,
-                        SerializationContext.FacetCallingContext()
+                        SerializationContext.ClientToServer
                     )
                 );
             }
@@ -187,7 +187,7 @@ namespace Unisave.Facets
                 deserializedArguments[i] = Serializer.FromJson(
                     jsonArguments[i],
                     parameters[i].ParameterType,
-                    DeserializationContext.FacetCallingContext()
+                    DeserializationContext.ClientToServer
                 );
             }
 
@@ -208,7 +208,7 @@ namespace Unisave.Facets
             return Serializer.ToJson(
                 value,
                 methodInfo.ReturnType,
-                SerializationContext.FacetCallingContext()
+                SerializationContext.ServerToClient
             );
         }
     }

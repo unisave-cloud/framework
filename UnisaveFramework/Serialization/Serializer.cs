@@ -19,7 +19,6 @@ using Unisave.Serialization.Unisave;
 
 namespace Unisave.Serialization
 {
-    // TODO: attribute and class renaming (FormerlySerializedAs)
     // TODO: handle NaN and Infinity for floats and doubles
     // TODO: handle decimal type
     
@@ -140,17 +139,17 @@ namespace Unisave.Serialization
         
         public static string ToJsonString(
             object subject,
-            SerializationContext context = null
+            SerializationContext context = default(SerializationContext)
         ) => ToJson(subject, null, context).ToString();
         
         public static string ToJsonString<TTypeScope>(
             object subject,
-            SerializationContext context = null
+            SerializationContext context = default(SerializationContext)
         ) => ToJson(subject, typeof(TTypeScope), context).ToString();
         
         public static JsonValue ToJson<TTypeScope>(
             object subject,
-            SerializationContext context = null
+            SerializationContext context = default(SerializationContext)
         ) => ToJson(subject, typeof(TTypeScope), context);
         
         public static JsonValue ToJson(
@@ -160,7 +159,7 @@ namespace Unisave.Serialization
         
         public static TTypeScope FromJsonString<TTypeScope>(
             string jsonString,
-            DeserializationContext context = null
+            DeserializationContext context = default(DeserializationContext)
         )
         {
             JsonValue json = JsonReader.Parse(jsonString);
@@ -173,7 +172,7 @@ namespace Unisave.Serialization
 
         public static TTypeScope FromJson<TTypeScope>(
             JsonValue json,
-            DeserializationContext context = null
+            DeserializationContext context = default(DeserializationContext)
         )
         {
             return (TTypeScope)(
@@ -189,7 +188,7 @@ namespace Unisave.Serialization
         public static JsonValue ToJson(
             object subject,
             Type typeScope = null,
-            SerializationContext context = null
+            SerializationContext context = default(SerializationContext)
         )
         {
             // === Handle null ===
@@ -202,8 +201,7 @@ namespace Unisave.Serialization
             if (typeScope == null)
                 typeScope = subject.GetType();
             
-            if (context == null)
-                context = SerializationContext.DefaultContext();
+            // context cannot be null, no need to check
             
             // === Serialize ===
 
@@ -291,7 +289,7 @@ namespace Unisave.Serialization
         public static object FromJson(
             JsonValue json,
             Type typeScope,
-            DeserializationContext context = null
+            DeserializationContext context = default(DeserializationContext)
         )
         {
             // === Handle null ===
@@ -304,8 +302,7 @@ namespace Unisave.Serialization
             if (typeScope == null)
                 throw new ArgumentNullException(nameof(typeScope));
             
-            if (context == null)
-                context = DeserializationContext.DefaultContext();
+            // context cannot be null, no need to check
             
             // === Determine deserialization type (the "$type" argument) ===
             

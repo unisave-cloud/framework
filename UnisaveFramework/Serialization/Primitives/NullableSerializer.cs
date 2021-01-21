@@ -30,7 +30,7 @@ namespace Unisave.Serialization.Primitives
         public object FromJson(
             JsonValue json,
             Type typeScope,
-            DeserializationContext context = null
+            DeserializationContext context
         )
         {
             // the value is not null, because nulls are caught at the beginning

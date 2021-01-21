@@ -19,7 +19,7 @@ namespace FrameworkTests.Serialization.Composites
         [Test]
         public void TestNeverSerializing()
         {
-            var context = SerializationContext.DefaultContext();
+            var context = default(SerializationContext);
             context.typeSerialization = TypeSerialization.Never;
             
             Assert.AreEqual(
@@ -40,7 +40,7 @@ namespace FrameworkTests.Serialization.Composites
         [Test]
         public void TestDuringPolymorphismSerializing()
         {
-            var context = SerializationContext.DefaultContext();
+            var context = default(SerializationContext);
             context.typeSerialization = TypeSerialization.DuringPolymorphism;
             
             Assert.AreEqual(
@@ -62,7 +62,7 @@ namespace FrameworkTests.Serialization.Composites
         [Test]
         public void TestAlwaysSerializing()
         {
-            var context = SerializationContext.DefaultContext();
+            var context = default(SerializationContext);
             context.typeSerialization = TypeSerialization.Always;
             
             Assert.AreEqual(

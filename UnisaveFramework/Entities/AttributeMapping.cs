@@ -68,7 +68,7 @@ namespace Unisave.Entities
                         Serializer.FromJson(
                             value,
                             pi.PropertyType,
-                            DeserializationContext.EntitySavingContext()
+                            DeserializationContext.ServerStorageToServer
                         )
                     );
                     break;
@@ -79,7 +79,7 @@ namespace Unisave.Entities
                         Serializer.FromJson(
                             value,
                             fi.FieldType,
-                            DeserializationContext.EntitySavingContext()
+                            DeserializationContext.ServerStorageToServer
                         )
                     );
                     break;
@@ -109,7 +109,7 @@ namespace Unisave.Entities
             return Serializer.ToJson(
                 value,
                 null,
-                SerializationContext.EntitySavingContext()
+                SerializationContext.ServerToServerStorage
             );
         }
     }

@@ -6,18 +6,16 @@ namespace Unisave.Serialization.Context
     public enum SerializationReason
     {
         /// <summary>
-        /// The data needs to be transmitted over a network,
-        /// within the Unisave world.
+        /// The data only needs to be transferred over a network
         /// (e.g. a facet call or broadcasting)
         /// (this also includes short-term storage, like cache or session)
         /// </summary>
-        Transmission = 1,
+        Transfer = 0,
         
         /// <summary>
-        /// The data needs to be stored somewhere long-term,
-        /// within the Unisave world.
+        /// The data needs to be stored somewhere long-term
         /// (e.g. in a database or a file)
         /// </summary>
-        Storage = 2,
+        Storage = 1
     }
 }

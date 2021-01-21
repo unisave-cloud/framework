@@ -63,7 +63,7 @@ namespace Unisave.Entities
             return (Entity) Serializer.FromJson(
                 document,
                 entityType,
-                DeserializationContext.EntitySavingContext()
+                DeserializationContext.ServerStorageToServer
             );
         }
 
@@ -276,7 +276,7 @@ namespace Unisave.Entities
             return Serializer.ToJson(
                 entity,
                 null,
-                SerializationContext.EntitySavingContext()
+                SerializationContext.ServerToServerStorage
             );
         }
     }

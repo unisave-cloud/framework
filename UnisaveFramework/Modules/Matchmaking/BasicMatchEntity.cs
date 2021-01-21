@@ -10,7 +10,7 @@ namespace Unisave.Modules.Matchmaking
     /// PlayerEntity participating in the matchmaking
     /// </typeparam>
     public class BasicMatchEntity<TPlayerEntity> : Entity
-        where TPlayerEntity : Entity
+        where TPlayerEntity : Entity, new()
     {
         /// <summary>
         /// Players who participate in the match

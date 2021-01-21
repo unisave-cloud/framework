@@ -165,6 +165,7 @@
     <Compile Include="Serialization\Composites\UnisaveSerializableTypeSerializer.cs" />
     <Compile Include="Serialization\Composites\DefaultSerializer.cs" />
     <Compile Include="Serialization\Context\DeserializationContext.cs" />
+    <Compile Include="Serialization\Context\SecurityDomainCrossing.cs" />
     <Compile Include="Serialization\Context\SerializationContext.cs" />
     <Compile Include="Serialization\Context\SerializationReason.cs" />
     <Compile Include="Serialization\Context\TypeSerialization.cs" />
