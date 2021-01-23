@@ -29,7 +29,7 @@ namespace FrameworkTests.Serialization.Composites
         private class CustomClassType
         {
             // should be serialized as-is
-            public string publicField;
+            public string publicField = "something-default";
             
             // should be serialized as-is
             private string privateField;
@@ -50,6 +50,10 @@ namespace FrameworkTests.Serialization.Composites
             // also shouldn't be present in the JSON
             public string PrivateField => privateField;
 
+            // default constructor has to exist in order for default values
+            // to be obtained on deserialization with those fields missing
+            public CustomClassType() { }
+            
             public CustomClassType(string a, string b)
             {
                 privateField = a;
@@ -65,6 +69,10 @@ namespace FrameworkTests.Serialization.Composites
             // has auto-generated backing field that should be serialized
             public string AddedGetSetProperty { get; set; }
 
+            // default constructor has to exist in order for default values
+            // to be obtained on deserialization with those fields missing
+            public DerivedClassType() : base() { }
+            
             public DerivedClassType(string a, string b) : base (a, b) { }
         }
         
@@ -164,7 +172,7 @@ namespace FrameworkTests.Serialization.Composites
             
             Assert.IsInstanceOf<DerivedClassType>(value);
             
-            Assert.IsNull(value.publicField); // missing
+            Assert.AreEqual("something-default", value.publicField); // missing
             Assert.IsNull(value.addedField); // missing
             
             Assert.AreEqual("a", value.PrivateField);

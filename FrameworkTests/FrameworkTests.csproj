@@ -93,6 +93,7 @@
     <Compile Include="Serialization\Primitives\LightJsonSerializationTest.cs" />
     <Compile Include="Serialization\Primitives\NullableSerializationTest.cs" />
     <Compile Include="Serialization\Primitives\PrimitiveSerializationTest.cs" />
+    <Compile Include="Serialization\Unisave\DocumentIdSerializationTest.cs" />
     <Compile Include="Serialization\Unisave\EntityReferenceSerializationTest.cs" />
     <Compile Include="Serialization\Unisave\EntitySerializationTest.cs" />
     <Compile Include="Sessions\SessionOverStorageTest.cs" />

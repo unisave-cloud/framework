@@ -1,10 +1,14 @@
+using LightJson;
+using Unisave.Serialization;
+using Unisave.Serialization.Context;
+
 namespace Unisave.Arango
 {
     /// <summary>
     /// Holds document id
     /// Both parts may be null, but if not, they are kept valid
     /// </summary>
-    public class DocumentId
+    public struct DocumentId : IUnisaveSerializable
     {
         /// <summary>
         /// Name of the collection
@@ -90,5 +94,19 @@ namespace Unisave.Arango
                 Key = id.Substring(i + 1)
             };
         }
+        
+        #region "IUnisaveSerializable"
+
+        private DocumentId(JsonValue json, DeserializationContext context)
+        {
+            this = Parse(json.AsString);
+        }
+        
+        JsonValue IUnisaveSerializable.ToJson(SerializationContext context)
+        {
+            return Id;
+        }
+        
+        #endregion
     }
 }

@@ -54,14 +54,45 @@ namespace Unisave.Serialization.Composites
             if (jsonObject == null)
                 return null;
 
-            object instance = FormatterServices.GetUninitializedObject(
-                deserializationType
-            );
+            object instance = CreateInstance(deserializationType);
 
+            PopulateInstance(instance, jsonObject, context);
+
+            return instance;
+        }
+
+        private static object CreateInstance(Type type)
+        {
+            // try to get an instance via the default constructor
+            ConstructorInfo ci = type.GetConstructor(new Type[] { });
+            
+            if (ci != null)
+                return ci.Invoke(new object[] { });
+
+            // fall back to creating an uninitialized object
+            // DOWN SIDE: missing fields won't have default values
+            return FormatterServices.GetUninitializedObject(
+                type
+            );
+        }
+
+        /// <summary>
+        /// Populate an instance with values in a given JSON object
+        /// </summary>
+        public static void PopulateInstance(
+            object instance,
+            JsonObject jsonObject,
+            DeserializationContext context
+        )
+        {
             foreach ((FieldInfo fi, string name) in EnumerateFields(
-                deserializationType, context.securityDomainCrossing
+                instance.GetType(), context.securityDomainCrossing
             ))
             {
+                // skip fields missing in JSON
+                if (!jsonObject.ContainsKey(name))
+                    continue;
+                
                 fi.SetValue(
                     instance,
                     Serializer.FromJson(
@@ -71,8 +102,6 @@ namespace Unisave.Serialization.Composites
                     )
                 );
             }
-
-            return instance;
         }
 
         private static IEnumerable<(FieldInfo, string)> EnumerateFields(

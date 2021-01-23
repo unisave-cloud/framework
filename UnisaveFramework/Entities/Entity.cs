@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Linq;
 using LightJson;
 using Unisave.Arango;
 using Unisave.Facades;
+using Unisave.Serialization.Context;
+using Unisave.Serialization.Unisave;
 
 namespace Unisave.Entities
 {
@@ -14,10 +15,9 @@ namespace Unisave.Entities
         /// <summary>
         /// ID that uniquely identifies the entity globally
         /// </summary>
-        [DontSerialize]
         public string EntityId
         {
-            get => documentId?.Id;
+            get => documentId.Id;
             
             set
             {
@@ -41,23 +41,20 @@ namespace Unisave.Entities
         /// <summary>
         /// Backing field for EntityId and EntityKey
         /// </summary>
+        [SerializeAs("_id")]
         private DocumentId documentId = DocumentId.Null;
 
         /// <summary>
         /// Key that uniquely identifies the entity within its type
         /// (Internal so that people don't confuse it with EntityId)
-        /// (still can be publicly accessed via entity["_key"])
+        /// (still can be parsed out of the ID)
         /// </summary>
-        [DontSerialize]
         internal string EntityKey
         {
-            get => documentId?.Key;
+            get => documentId.Key;
 
             set
             {
-                if (documentId == null)
-                    documentId = DocumentId.Null;
-
                 if (documentId.Collection == null)
                     documentId.Collection = EntityUtils.CollectionFromType(
                         this.GetType()
@@ -70,10 +67,9 @@ namespace Unisave.Entities
         /// <summary>
         /// Revision value for this entity
         /// Used by the database to detect changes
-        /// (still can be publicly accessed via entity["_rev"])
         /// </summary>
-        [DontSerialize]
-        internal string EntityRevision { get; set; }
+        [SerializeAs("_rev")]
+        public string EntityRevision { get; set; }
 
         /// <summary>
         /// When has been the entity created
@@ -95,75 +91,6 @@ namespace Unisave.Entities
         {
             // empty for now
         }
-        
-        #region "Attributes"
-        
-        /// <summary>
-        /// Access to the underlying arango document attributes
-        /// </summary>
-        /// <param name="attributeName">Name of the attribute to access</param>
-        [DontSerialize]
-        private JsonValue this[string attributeName]
-        {
-            get
-            {
-                if (attributeName == "_id") return EntityId;
-                if (attributeName == "_key") return EntityKey;
-                if (attributeName == "_rev") return EntityRevision;
-                
-                return EntityCrawler
-                    .GetMappingFor(GetType())
-                    .GetAttributeValue(this, attributeName);
-            }
-
-            set
-            {
-                if (attributeName == "_id") EntityId = value;
-                if (attributeName == "_key") EntityKey = value;
-                if (attributeName == "_rev") EntityRevision = value;
-
-                EntityCrawler
-                    .GetMappingFor(GetType())
-                    .SetAttributeValue(this, attributeName, value);
-            }
-        }
-        
-        /// <summary>
-        /// Sets values according to the provided attribute set
-        /// </summary>
-        internal void SetAttributes(JsonObject newAttributes)
-        {
-            if (newAttributes == null)
-                throw new ArgumentNullException();
-
-            foreach (var pair in newAttributes)
-                this[pair.Key] = pair.Value;
-        }
-
-        /// <summary>
-        /// Returns values of entity attributes
-        /// </summary>
-        internal JsonObject GetAttributes()
-        {
-            var attributes = new JsonObject();
-
-            string[] defaultNames = {
-                "_key",
-                "_id",
-                "_rev"
-            };
-            
-            var names = EntityCrawler
-                .GetMappingFor(GetType())
-                .GetAttributeNames();
-            
-            foreach (var name in defaultNames.Concat(names))
-                attributes[name] = this[name];
-
-            return attributes;
-        }
-        
-        #endregion
 
         #region "Database operations"
 
@@ -240,11 +167,13 @@ namespace Unisave.Entities
 
             var manager = GetEntityManager();
             
-            var newAttributes = manager
-                .Find(EntityId, this.GetType())
-                .GetAttributes();
+            JsonObject freshAttributes = manager.FindDocument(EntityId);
             
-            SetAttributes(newAttributes);
+            EntitySerializer.SetAttributes(
+                this,
+                freshAttributes,
+                DeserializationContext.ServerStorageToServer
+            );
         }
         
         /// <summary>

@@ -28,13 +28,13 @@ namespace FrameworkTests.Serialization.Unisave
             
             Assert.AreEqual(
                 new JsonObject {
-                    ["_key"] = JsonValue.Null,
+                    ["Foo"] = "Foo value",
+                    ["bar"] = "bar value",
                     ["_id"] = JsonValue.Null,
                     ["_rev"] = JsonValue.Null,
-                    ["Foo"] = "Foo value",
                     ["CreatedAt"] = Serializer.ToJson(default(DateTime)).AsString,
                     ["UpdatedAt"] = Serializer.ToJson(default(DateTime)).AsString,
-                    ["bar"] = "bar value",
+                    ["_key"] = JsonValue.Null,
                 }.ToString(),
                 serialized
             );

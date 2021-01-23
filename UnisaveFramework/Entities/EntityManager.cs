@@ -9,6 +9,7 @@ using Unisave.Contracts;
 using Unisave.Facades;
 using Unisave.Serialization;
 using Unisave.Serialization.Context;
+using Unisave.Serialization.Unisave;
 
 namespace Unisave.Entities
 {
@@ -70,7 +71,7 @@ namespace Unisave.Entities
         /// <summary>
         /// Find the document of an entity by entity id
         /// </summary>
-        private JsonObject FindDocument(string entityId)
+        internal JsonObject FindDocument(string entityId)
         {
             try
             {
@@ -143,7 +144,11 @@ namespace Unisave.Entities
             ).First().AsJsonObject;
 
             // update entity attributes
-            entity.SetAttributes(newAttributes);
+            EntitySerializer.SetAttributes(
+                entity,
+                newAttributes,
+                DeserializationContext.ServerStorageToServer
+            );
         }
 
         /// <summary>
@@ -185,7 +190,11 @@ namespace Unisave.Entities
                     .Return("NEW")
                 ).First().AsJsonObject;
 
-                entity.SetAttributes(newAttributes);
+                EntitySerializer.SetAttributes(
+                    entity,
+                    newAttributes,
+                    DeserializationContext.ServerStorageToServer
+                );
             }
             catch (ArangoException e) when (e.ErrorNumber == 1200)
             {
