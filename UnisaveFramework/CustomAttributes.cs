@@ -37,6 +37,20 @@ namespace Unisave
             SerializedName = serializedName;
         }
     }
+    
+    /// <summary>
+    /// Marks an auto-property or a field to not leave the server security domain
+    /// </summary>
+    [AttributeUsage(
+        AttributeTargets.Property | AttributeTargets.Field,
+        Inherited = false,
+        AllowMultiple = false
+    )]
+    public class DontLeaveServerAttribute : Attribute
+    {
+        public DontLeaveServerAttribute()
+        { }
+    }
 
     /// <summary>
     /// Specifies what middleware to apply before a method is called

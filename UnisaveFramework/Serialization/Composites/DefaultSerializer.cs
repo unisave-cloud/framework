@@ -26,7 +26,9 @@ namespace Unisave.Serialization.Composites
             
             JsonObject json = new JsonObject();
 
-            foreach ((FieldInfo fi, string name) in EnumerateFields(type))
+            foreach ((FieldInfo fi, string name) in EnumerateFields(
+                type, context.securityDomainCrossing
+            ))
             {
                 json.Add(
                     name,
@@ -56,7 +58,9 @@ namespace Unisave.Serialization.Composites
                 deserializationType
             );
 
-            foreach ((FieldInfo fi, string name) in EnumerateFields(deserializationType))
+            foreach ((FieldInfo fi, string name) in EnumerateFields(
+                deserializationType, context.securityDomainCrossing
+            ))
             {
                 fi.SetValue(
                     instance,
@@ -71,7 +75,10 @@ namespace Unisave.Serialization.Composites
             return instance;
         }
 
-        private static IEnumerable<(FieldInfo, string)> EnumerateFields(Type type)
+        private static IEnumerable<(FieldInfo, string)> EnumerateFields(
+            Type type,
+            SecurityDomainCrossing security
+        )
         {
             var flags = BindingFlags.Instance
                         | BindingFlags.DeclaredOnly
@@ -106,6 +113,12 @@ namespace Unisave.Serialization.Composites
                     // skip fields that shouldn't be serialized
                     if (attrMi.GetCustomAttribute<DontSerializeAttribute>() != null)
                         continue;
+
+                    // skip fields that shouldn't leave the server
+                    // (when we're actually leaving the server)
+                    if (security == SecurityDomainCrossing.LeavingServer
+                        && attrMi.GetCustomAttribute<DontLeaveServerAttribute>() != null)
+                        continue; 
                     
                     // handle serialization renaming
                     var serializeAsAttr = attrMi.GetCustomAttribute<SerializeAsAttribute>();

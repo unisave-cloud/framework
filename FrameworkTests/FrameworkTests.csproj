@@ -73,6 +73,7 @@
     <Compile Include="Modules\Matchmaking\Basic\BmMatchmakerTicket.cs" />
     <Compile Include="Modules\Matchmaking\Basic\BmPlayerEntity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Serialization\Attributes\DontLeaveServerAttributeTest.cs" />
     <Compile Include="Serialization\Attributes\DontSerializeAttributeTest.cs" />
     <Compile Include="Serialization\Attributes\SerializeAsAttributeTest.cs" />
     <Compile Include="Serialization\Collections\ArraySerializationTest.cs" />
