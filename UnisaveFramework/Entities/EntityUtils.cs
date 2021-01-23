@@ -42,14 +42,6 @@ namespace Unisave.Entities
             
             return collectionName.Substring(CollectionPrefix.Length);
         }
-
-        /// <summary>
-        /// Builds entity ID from entity string type and key
-        /// </summary>
-        public static string EntityIdFromParts(
-            string entityType,
-            string entityKey
-        ) => CollectionPrefix + entityType + "/" + entityKey;
         
         /// <summary>
         /// Converts MemberInfo of a given entity type to

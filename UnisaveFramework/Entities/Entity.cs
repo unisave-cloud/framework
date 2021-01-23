@@ -24,9 +24,13 @@ namespace Unisave.Entities
                 var newDocumentId = DocumentId.Parse(value);
 
                 if (newDocumentId.Collection == null)
-                    newDocumentId.Collection = EntityUtils.CollectionFromType(this.GetType());
+                    newDocumentId.Collection = EntityUtils.CollectionFromType(
+                        this.GetType()
+                    );
 
-                if (newDocumentId.Collection != EntityUtils.CollectionFromType(this.GetType()))
+                if (newDocumentId.Collection != EntityUtils.CollectionFromType(
+                    this.GetType()
+                ))
                 {
                     throw new InvalidOperationException(
                         "Cannot set entity ID to the given value, " +
