@@ -103,7 +103,7 @@ namespace Unisave.Entities
         /// </summary>
         /// <param name="attributeName">Name of the attribute to access</param>
         [DontSerialize]
-        public JsonValue this[string attributeName]
+        private JsonValue this[string attributeName]
         {
             get
             {

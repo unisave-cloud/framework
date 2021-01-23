@@ -214,13 +214,6 @@ namespace FrameworkTests.Arango
                     player => player.Name
                 ).ToAql()
             );
-            
-            Assert.AreEqual(
-                "player.Name",
-                parser.ParseEntity<PlayerEntity>(
-                    player => player["Name"]
-                ).ToAql()
-            );
         }
 
         [Test]

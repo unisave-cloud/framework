@@ -63,7 +63,6 @@
     <Compile Include="HttpClient\PendingRequestTest.cs" />
     <Compile Include="Entities\CollectionExtensions.cs" />
     <Compile Include="Entities\EntityManagerTest.cs" />
-    <Compile Include="Entities\EntityAttributesTest.cs" />
     <Compile Include="EntrypointTest.cs" />
     <Compile Include="EnvTest.cs" />
     <Compile Include="Foundation\EnvStoreTest.cs" />

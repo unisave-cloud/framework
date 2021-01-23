@@ -253,7 +253,7 @@ namespace Unisave.Arango.Expressions
             if (attribute != null)
                 return new AqlFunctionExpression(attribute, args);
             
-            // === intercept indexing on JSON objects, arrays and entities ===
+            // === intercept indexing on JSON objects and arrays ===
 
             if (possibleIndexerMethods.Contains(node.Method)
                 && args.Count == 1)
