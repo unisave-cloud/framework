@@ -82,11 +82,14 @@ namespace Unisave.Serialization.Composites
         public static void PopulateInstance(
             object instance,
             JsonObject jsonObject,
-            DeserializationContext context
+            DeserializationContext context,
+            bool onlyFillables = false
         )
         {
             foreach ((FieldInfo fi, string name) in EnumerateFields(
-                instance.GetType(), context.securityDomainCrossing
+                instance.GetType(),
+                context.securityDomainCrossing,
+                onlyFillables
             ))
             {
                 // skip fields missing in JSON
@@ -106,7 +109,8 @@ namespace Unisave.Serialization.Composites
 
         private static IEnumerable<(FieldInfo, string)> EnumerateFields(
             Type type,
-            SecurityDomainCrossing security
+            SecurityDomainCrossing security,
+            bool onlyFillables = false
         )
         {
             var flags = BindingFlags.Instance
@@ -149,6 +153,14 @@ namespace Unisave.Serialization.Composites
                         && attrMi.GetCustomAttribute<DontLeaveServerAttribute>() != null)
                         continue; 
                     
+                    // skip non-fillables when only fillables should be enumerated
+                    if (onlyFillables)
+                    {
+                        // skip those without the attribute
+                        if (attrMi.GetCustomAttribute<FillableAttribute>() == null)
+                            continue;
+                    }
+
                     // handle serialization renaming
                     var serializeAsAttr = attrMi.GetCustomAttribute<SerializeAsAttribute>();
                     if (serializeAsAttr != null)

@@ -90,6 +90,7 @@
     <Compile Include="Broadcasting\IBroadcaster.cs" />
     <Compile Include="Broadcasting\SpecificChannel.cs" />
     <Compile Include="Broadcasting\UnisaveBroadcaster.cs" />
+    <Compile Include="Entities\EntitySecurityException.cs" />
     <Compile Include="HttpClient\Factory.cs" />
     <Compile Include="HttpClient\HttpContentHolder.cs" />
     <Compile Include="HttpClient\PendingRequest.cs" />

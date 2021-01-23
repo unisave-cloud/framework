@@ -35,10 +35,12 @@ namespace Unisave.Serialization.Unisave
         /// <param name="entity"></param>
         /// <param name="newAttributes"></param>
         /// <param name="context"></param>
+        /// <param name="onlyFillables"></param>
         public static void SetAttributes(
             Entity entity,
             JsonObject newAttributes,
-            DeserializationContext context
+            DeserializationContext context,
+            bool onlyFillables = false
         )
         {
             if (entity == null)
@@ -46,12 +48,22 @@ namespace Unisave.Serialization.Unisave
             
             if (newAttributes == null)
                 throw new ArgumentNullException(nameof(newAttributes));
-            
+
             DefaultSerializer.PopulateInstance(
                 entity,
                 newAttributes, 
-                context
+                context,
+                onlyFillables
             );
+            
+            // the entity enters the server security domain
+            if (context.securityDomainCrossing == SecurityDomainCrossing.EnteringServer)
+            {
+                // it contains insecure data if the ID is not null
+                // (an entity can be created elsewhere, but not modified)
+                if (entity.EntityId != null)
+                    entity.ContainsInsecureData = true;
+            }
         }
 
         /// <summary>

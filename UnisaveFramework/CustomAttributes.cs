@@ -51,6 +51,20 @@ namespace Unisave
         public DontLeaveServerAttribute()
         { }
     }
+    
+    /// <summary>
+    /// Marks an auto-property or a field to be mass assignable for entities
+    /// </summary>
+    [AttributeUsage(
+        AttributeTargets.Property | AttributeTargets.Field,
+        Inherited = false,
+        AllowMultiple = false
+    )]
+    public class FillableAttribute : Attribute
+    {
+        public FillableAttribute()
+        { }
+    }
 
     /// <summary>
     /// Specifies what middleware to apply before a method is called

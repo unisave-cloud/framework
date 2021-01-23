@@ -88,6 +88,13 @@ namespace Unisave.Entities
         public DateTime UpdatedAt { get; set; } = default(DateTime);
         
         /// <summary>
+        /// Set to true by the serializer when received
+        /// from an untrusted security domain
+        /// </summary>
+        [DontSerialize]
+        internal bool ContainsInsecureData { get; set; }
+        
+        /// <summary>
         /// Entity constructor
         /// Has to be parameterless due to the inheritance model
         /// </summary>
@@ -95,6 +102,53 @@ namespace Unisave.Entities
         {
             // empty for now
         }
+        
+        #region "Mass assignment"
+
+        /// <summary>
+        /// Changes fillable field values to the values in the given entity
+        /// (creates copies of all the values)
+        /// </summary>
+        /// <param name="dataEntity"></param>
+        public void FillWith(Entity dataEntity)
+        {
+            FillWith(
+                EntitySerializer.GetAttributes(
+                    dataEntity,
+                    SerializationContext.ServerToServer
+                )
+            );
+        }
+        
+        /// <summary>
+        /// Changes fillable field values to the values in the given JSON object
+        /// (performs deserialization)
+        /// </summary>
+        /// <param name="json"></param>
+        public void FillWith(JsonObject json)
+        {
+            EntitySerializer.SetAttributes(
+                this,
+                json,
+                DeserializationContext.ServerToServer,
+                onlyFillables: true
+            );
+        }
+
+        private void GuardStorageOfInsecureData()
+        {
+            if (!ContainsInsecureData)
+                return;
+            
+            throw new EntitySecurityException(
+                "You cannot perform this operation on the entity as it " +
+                "poses a security risk, because the entity has been received " +
+                "from an untrusted source.\n" +
+                "For more information ask people on the Unisave discord server."
+            );
+        }
+        
+        #endregion
 
         #region "Database operations"
 
@@ -149,6 +203,8 @@ namespace Unisave.Entities
         /// <param name="carefully">Whether to check revisions</param>
         protected virtual void Update(bool carefully)
         {
+            GuardStorageOfInsecureData();
+            
             var manager = GetEntityManager();
             
             manager.Update(this);
@@ -159,6 +215,8 @@ namespace Unisave.Entities
         /// </summary>
         public virtual void Refresh()
         {
+            GuardStorageOfInsecureData();
+            
             // nothing to refresh, it's not even saved yet
             if (EntityId == null)
                 return;
@@ -168,7 +226,7 @@ namespace Unisave.Entities
                     "You cannot refresh an entity from the client. " +
                     "Only the server has access to the database."
                 );
-
+            
             var manager = GetEntityManager();
             
             JsonObject freshAttributes = manager.FindDocument(EntityId);
@@ -185,6 +243,8 @@ namespace Unisave.Entities
         /// </summary>
         public virtual void Delete(bool carefully = false)
         {
+            GuardStorageOfInsecureData();
+            
             // nothing to delete, it's not even saved yet
             if (EntityId == null)
                 return;

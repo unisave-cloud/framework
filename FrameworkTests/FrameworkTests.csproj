@@ -58,6 +58,7 @@
     <Compile Include="Arango\QueryToAqlTest.cs" />
     <Compile Include="Arango\QueryVerificationTest.cs" />
     <Compile Include="Entities\EntityReferenceTest.cs" />
+    <Compile Include="Entities\MassAssignmentTest.cs" />
     <Compile Include="HttpClient\AuthorizationTest.cs" />
     <Compile Include="HttpClient\FakingTest.cs" />
     <Compile Include="HttpClient\PendingRequestTest.cs" />
