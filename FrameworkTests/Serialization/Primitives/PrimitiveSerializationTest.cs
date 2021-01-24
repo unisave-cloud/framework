@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using LightJson;
 using NUnit.Framework;
@@ -167,6 +168,32 @@ namespace FrameworkTests.Serialization.Primitives
             Assert.AreEqual(
                 double.Epsilon.ToString(CultureInfo.InvariantCulture),
                 Serializer.ToJsonString(double.Epsilon)
+            );
+        }
+        
+        [Test]
+        public void ItSerializesDecimals()
+        {
+            Assert.AreEqual("\"42.25\"", Serializer.ToJsonString(42.25m));
+            Assert.AreEqual("\"0\"", Serializer.ToJsonString(0m));
+            Assert.AreEqual("\"-5.5\"", Serializer.ToJsonString(-5.5m));
+
+            // from number (conversions)
+            Assert.AreEqual(42.25m, Serializer.FromJsonString<decimal>("42.25"));
+            Assert.AreEqual(0.0m, Serializer.FromJsonString<decimal>("0"));
+            
+            // from string (default)
+            Assert.AreEqual(42.25m, Serializer.FromJsonString<decimal>("\"42.25\""));
+            Assert.AreEqual(0.0m, Serializer.FromJsonString<decimal>("\"0\""));
+            
+            // special values
+            Assert.AreEqual(
+                "\"" + decimal.MaxValue + "\"",
+                Serializer.ToJsonString(decimal.MaxValue)
+            );
+            Assert.AreEqual(
+                "\"" + decimal.MinValue + "\"",
+                Serializer.ToJsonString(decimal.MinValue)
             );
         }
 

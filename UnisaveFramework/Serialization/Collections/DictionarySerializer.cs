@@ -152,6 +152,9 @@ namespace Unisave.Serialization.Collections
             if (type.IsEnum)
                 return true;
 
+            if (type == typeof(decimal))
+                return true;
+
             return false;
         }
     }

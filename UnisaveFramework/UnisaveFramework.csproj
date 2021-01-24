@@ -172,6 +172,7 @@
     <Compile Include="Serialization\Exceptions\SerializedException.cs" />
     <Compile Include="Serialization\IUnisaveSerializable.cs" />
     <Compile Include="Serialization\Primitives\DateTimeSerializer.cs" />
+    <Compile Include="Serialization\Primitives\DecimalSerializer.cs" />
     <Compile Include="Serialization\Primitives\DotNetPrimitivesSerializer.cs" />
     <Compile Include="Serialization\Primitives\EnumSerializer.cs" />
     <Compile Include="Serialization\Primitives\LightJsonSerializer.cs" />
