@@ -80,6 +80,14 @@ namespace FrameworkTests.Serialization.Collections
                     "{'5':'foo','6':'bar'}".Replace('\'', '\"')
                 )
             );
+            
+            // it can also deserialize from the old representation
+            Assert.AreEqual(
+                subject,
+                Serializer.FromJsonString<Dictionary<int, string>>(
+                    "[[5,'foo'],[6,'bar']]".Replace('\'', '\"')
+                )
+            );
         }
 
         [Test]
