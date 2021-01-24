@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using LightJson;
 using NUnit.Framework;
 using Unisave.Serialization;
@@ -127,6 +128,46 @@ namespace FrameworkTests.Serialization.Primitives
             
             Assert.AreEqual(42.25f, Serializer.FromJsonString<float>("\"42.25\""));
             Assert.AreEqual(42.25, Serializer.FromJsonString<double>("\"42.25\""));
+        }
+
+        [Test]
+        public void ItSerializesSpecialFloatValues()
+        {
+            Assert.AreEqual("\"NaN\"", Serializer.ToJsonString(float.NaN));
+            Assert.AreEqual("\"NaN\"", Serializer.ToJsonString(double.NaN));
+            
+            Assert.AreEqual("\"Infinity\"", Serializer.ToJsonString(float.PositiveInfinity));
+            Assert.AreEqual("\"Infinity\"", Serializer.ToJsonString(double.PositiveInfinity));
+            
+            Assert.AreEqual("\"-Infinity\"", Serializer.ToJsonString(float.NegativeInfinity));
+            Assert.AreEqual("\"-Infinity\"", Serializer.ToJsonString(double.NegativeInfinity));
+            
+            Assert.AreEqual(
+                ((double)float.MaxValue).ToString(CultureInfo.InvariantCulture),
+                Serializer.ToJsonString(float.MaxValue)
+            );
+            Assert.AreEqual(
+                double.MaxValue.ToString(CultureInfo.InvariantCulture),
+                Serializer.ToJsonString(double.MaxValue)
+            );
+            
+            Assert.AreEqual(
+                ((double)float.MinValue).ToString(CultureInfo.InvariantCulture),
+                Serializer.ToJsonString(float.MinValue)
+            );
+            Assert.AreEqual(
+                double.MinValue.ToString(CultureInfo.InvariantCulture),
+                Serializer.ToJsonString(double.MinValue)
+            );
+            
+            Assert.AreEqual(
+                ((double)float.Epsilon).ToString(CultureInfo.InvariantCulture),
+                Serializer.ToJsonString(float.Epsilon)
+            );
+            Assert.AreEqual(
+                double.Epsilon.ToString(CultureInfo.InvariantCulture),
+                Serializer.ToJsonString(double.Epsilon)
+            );
         }
 
         [Test]

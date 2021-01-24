@@ -30,12 +30,36 @@ namespace Unisave.Serialization.Primitives
             
             if (type == typeof(bool))
                 return (bool)subject;
-            
+
             if (type == typeof(double))
-                return (double)subject;
+            {
+                if (double.IsNaN((double) subject))
+                    return "NaN";
+                
+                if (double.IsPositiveInfinity((double) subject))
+                    return "Infinity";
+                
+                if (double.IsNegativeInfinity((double) subject))
+                    return "-Infinity";
+                
+                return (double) subject;
+            }
+
+
             if (type == typeof(float))
-                return (float)subject;
-            
+            {
+                if (float.IsNaN((float) subject))
+                    return "NaN";
+                
+                if (float.IsPositiveInfinity((float) subject))
+                    return "Infinity";
+                
+                if (float.IsNegativeInfinity((float) subject))
+                    return "-Infinity";
+                
+                return (float) subject;
+            }
+
             if (type == typeof(char))
                 return ((char)subject).ToString();
             
@@ -68,11 +92,36 @@ namespace Unisave.Serialization.Primitives
             
             if (typeScope == typeof(bool))
                 return json.AsBoolean;
-            
+
             if (typeScope == typeof(double))
-                return json.AsNumber;
+            {
+                if (json.IsString)
+                {
+                    switch (json.AsString)
+                    {
+                        case "NaN": return double.NaN;
+                        case "Infinity": return double.PositiveInfinity;
+                        case "-Infinity": return double.NegativeInfinity;
+                    }
+                }
+                
+                return (double) json.AsNumber;
+            }
+
             if (typeScope == typeof(float))
-                return (float)json.AsNumber;
+            {
+                if (json.IsString)
+                {
+                    switch (json.AsString)
+                    {
+                        case "NaN": return float.NaN;
+                        case "Infinity": return float.PositiveInfinity;
+                        case "-Infinity": return float.NegativeInfinity;
+                    }
+                }
+                
+                return (float) json.AsNumber;
+            }
 
             if (typeScope == typeof(char))
             {

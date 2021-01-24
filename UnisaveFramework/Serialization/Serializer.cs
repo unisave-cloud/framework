@@ -19,7 +19,6 @@ using Unisave.Serialization.Unisave;
 
 namespace Unisave.Serialization
 {
-    // TODO: handle NaN and Infinity for floats and doubles
     // TODO: handle decimal type
     
     /// <summary>
