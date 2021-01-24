@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NUnit.Framework;
 using Unisave.Serialization;
 
@@ -37,6 +38,37 @@ namespace FrameworkTests.Serialization.Primitives
             Assert.AreEqual(MyEnum.First, Serializer.FromJsonString<MyEnum>("0"));
             Assert.AreEqual(MyEnum.Foo, Serializer.FromJsonString<MyEnum>("42"));
             Assert.AreEqual(MyEnum.Bar, Serializer.FromJsonString<MyEnum>("8"));
+        }
+
+        [Test]
+        public void ItDeserializesEnumsFromStrings()
+        {
+            // because this happens in dictionary keys
+            
+            Assert.AreEqual(MyEnum.First, Serializer.FromJsonString<MyEnum>("\"0\""));
+            Assert.AreEqual(MyEnum.Foo, Serializer.FromJsonString<MyEnum>("\"42\""));
+            Assert.AreEqual(MyEnum.Bar, Serializer.FromJsonString<MyEnum>("\"8\""));
+        }
+
+        [Test]
+        public void ItSerializesEnumKeyDictionaries()
+        {
+            var subject = new Dictionary<MyEnum, string> {
+                [MyEnum.Foo] = "foo",
+                [MyEnum.Bar] = "bar"
+            };
+
+            Assert.AreEqual(
+                "{'42':'foo','8':'bar'}".Replace('\'', '\"'),
+                Serializer.ToJson(subject).ToString()
+            );
+
+            Assert.AreEqual(
+                subject,
+                Serializer.FromJsonString<Dictionary<MyEnum, string>>(
+                    "{'42':'foo','8':'bar'}".Replace('\'', '\"')
+                )
+            );
         }
     }
 }

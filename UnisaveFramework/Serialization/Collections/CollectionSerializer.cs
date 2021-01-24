@@ -37,7 +37,8 @@ namespace Unisave.Serialization.Collections
             
             if (constructor == null)
                 throw new ArgumentException(
-                    "Given type doesn't implement default constructor."
+                    $"Given type {deserializationType} doesn't implement " +
+                    $"the default constructor."
                 );
 
             if (!json.IsJsonArray)

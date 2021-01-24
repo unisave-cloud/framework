@@ -21,6 +21,24 @@ namespace FrameworkTests.Serialization.Primitives
         }
 
         [Test]
+        public void IntegersCanBeDeserializedFromString()
+        {
+            // used in dictionary keys
+            
+            Assert.AreEqual(42, Serializer.FromJsonString<int>("\"42\""));
+            Assert.AreEqual(0, Serializer.FromJsonString<int>("\"0\""));
+            Assert.AreEqual(-5, Serializer.FromJsonString<int>("\"-5\""));
+            
+            Assert.AreEqual(42, Serializer.FromJsonString<short>("\"42\""));
+            Assert.AreEqual(0, Serializer.FromJsonString<short>("\"0\""));
+            Assert.AreEqual(-5, Serializer.FromJsonString<short>("\"-5\""));
+            
+            Assert.AreEqual(42, Serializer.FromJsonString<sbyte>("\"42\""));
+            Assert.AreEqual(0, Serializer.FromJsonString<sbyte>("\"0\""));
+            Assert.AreEqual(-5, Serializer.FromJsonString<sbyte>("\"-5\""));
+        }
+
+        [Test]
         public void ItSerializesAdvancedIntegers()
         {
             Assert.AreEqual("42", Serializer.ToJson((byte)42).ToString());
@@ -100,6 +118,15 @@ namespace FrameworkTests.Serialization.Primitives
             Assert.AreEqual(0.0, Serializer.FromJsonString<double>("0"));
             Assert.AreEqual(-5.5f, Serializer.FromJsonString<float>("-5.5"));
             Assert.AreEqual(-5.5, Serializer.FromJsonString<double>("-5.5"));
+        }
+        
+        [Test]
+        public void FloatsCanBeDeserializedFromString()
+        {
+            // used in dictionary keys
+            
+            Assert.AreEqual(42.25f, Serializer.FromJsonString<float>("\"42.25\""));
+            Assert.AreEqual(42.25, Serializer.FromJsonString<double>("\"42.25\""));
         }
 
         [Test]

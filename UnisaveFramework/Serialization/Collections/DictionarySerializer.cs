@@ -18,14 +18,19 @@ namespace Unisave.Serialization.Collections
             Type keyType = typeArguments[0];
             Type valueType = typeArguments[1];
 
-            if (keyType != typeof(string))
+            if (!IsTypeSuitableAsKey(keyType))
                 return NonStringDictionaryToJson(subject, typeScope, context);
-
+            
             JsonObject jsonObject = new JsonObject();
             IDictionary dictionary = (IDictionary)subject;
 
             foreach (DictionaryEntry entry in dictionary)
-                jsonObject.Add((string)entry.Key, Serializer.ToJson(entry.Value, valueType, context));
+            {
+                jsonObject.Add(
+                    Serializer.ToJson(entry.Key, keyType, context).AsString,
+                    Serializer.ToJson(entry.Value, valueType, context)
+                );
+            }
 
             return jsonObject;
         }
@@ -36,15 +41,17 @@ namespace Unisave.Serialization.Collections
             SerializationContext context
         )
         {
-            Type itemType = typeScope.GetGenericArguments()[1];
+            Type[] typeArguments = typeScope.GetGenericArguments();
+            Type keyType = typeArguments[0];
+            Type valueType = typeArguments[1];
             
             JsonArray pairs = new JsonArray();
 
             foreach (DictionaryEntry entry in (IDictionary)subject)
             {
                 pairs.Add(new JsonArray(
-                    Serializer.ToJson(entry.Key, itemType, context),
-                    Serializer.ToJson(entry.Value, itemType, context)
+                    Serializer.ToJson(entry.Key, keyType, context),
+                    Serializer.ToJson(entry.Value, valueType, context)
                 ));
             }
 
@@ -53,57 +60,99 @@ namespace Unisave.Serialization.Collections
 
         public object FromJson(
             JsonValue json,
-            Type typeScope,
+            Type deserializationType,
             DeserializationContext context
         )
         {
-            Type[] typeArguments = typeScope.GetGenericArguments();
-            Type keyType = typeArguments[0];
-            Type valueType = typeArguments[1];
-            
-            if (keyType != typeof(string))
-                return NonStringDictionaryFromJson(json, typeScope, context);
-
-            object dictionary = typeScope.GetConstructor(new Type[] {}).Invoke(new object[] {});
-
             // handle PHP mangled empty JSON objects
             if (json.IsJsonArray && json.AsJsonArray.Count == 0)
                 json = new JsonObject();
             
-            JsonObject jsonObject = json.AsJsonObject;
-            if (jsonObject == null)
-                return null;
+            if (json.IsJsonArray)
+                return NonStringDictionaryFromJson(json, deserializationType, context);
+            
+            if (!json.IsJsonObject) // not array, nor object
+                throw new UnisaveSerializationException(
+                    "Cannot deserialize given json as a dictionary."
+                );
+            
+            Type[] typeArguments = deserializationType.GetGenericArguments();
+            Type keyType = typeArguments[0];
+            Type valueType = typeArguments[1];
 
-            foreach (KeyValuePair<string, JsonValue> item in jsonObject)
-                typeScope.GetMethod("Add").Invoke(dictionary, new object[] {
-                    item.Key,
+            IDictionary dictionary = CreateDictionaryInstance(deserializationType);
+
+            foreach (KeyValuePair<string, JsonValue> item in json.AsJsonObject)
+            {
+                dictionary.Add(
+                    Serializer.FromJson(item.Key, keyType, context),
                     Serializer.FromJson(item.Value, valueType, context)
-                });
+                );
+            }
 
             return dictionary;
         }
 
         private static object NonStringDictionaryFromJson(
             JsonValue json,
-            Type typeScope,
+            Type deserializationType,
             DeserializationContext context
         )
         {
-            Type[] typeArguments = typeScope.GetGenericArguments();
+            Type[] typeArguments = deserializationType.GetGenericArguments();
             Type keyType = typeArguments[0];
             Type valueType = typeArguments[1];
 
-            object dictionary = typeScope.GetConstructor(new Type[] {}).Invoke(new object[] {});
+            IDictionary dictionary = CreateDictionaryInstance(deserializationType);
 
             foreach (JsonValue pair in json.AsJsonArray)
             {
-                typeScope.GetMethod("Add").Invoke(dictionary, new object[] {
+                dictionary.Add(
                     Serializer.FromJson(pair.AsJsonArray[0], keyType, context),
                     Serializer.FromJson(pair.AsJsonArray[1], valueType, context)
-                });
+                );
             }
 
             return dictionary;
+        }
+
+        private static IDictionary CreateDictionaryInstance(
+            Type deserializationType
+        )
+        {
+            if (!typeof(IDictionary).IsAssignableFrom(deserializationType))
+                throw new ArgumentException(
+                    $"Given type {deserializationType} doesn't inherit from " +
+                    $"the {nameof(IDictionary)} interface."
+                );
+            
+            var constructor = deserializationType.GetConstructor(new Type[] { });
+            
+            if (constructor == null)
+                throw new ArgumentException(
+                    $"Given type {deserializationType} doesn't implement " +
+                    $"the default constructor."
+                );
+            
+            return (IDictionary) constructor.Invoke(new object[] {});
+        }
+
+        /// <summary>
+        /// Returns true for types that can be used as string keys
+        /// in a regular JSON object
+        /// </summary>
+        private static bool IsTypeSuitableAsKey(Type type)
+        {
+            if (type == typeof(string))
+                return true;
+            
+            if (type.IsPrimitive)
+                return true;
+
+            if (type.IsEnum)
+                return true;
+
+            return false;
         }
     }
 }

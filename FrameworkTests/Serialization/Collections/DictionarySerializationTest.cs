@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using Unisave.Serialization;
+using UnityEngine;
 
 namespace FrameworkTests.Serialization.Collections
 {
@@ -59,24 +60,47 @@ namespace FrameworkTests.Serialization.Collections
             Assert.NotNull(dict);
             Assert.IsEmpty(dict);
         }
-
+        
         [Test]
-        public void ItSerializesNonStringDictionaries()
+        public void ItSerializesPrimitiveKeyDictionaries()
         {
             var subject = new Dictionary<int, string> {
-                [5] = "42",
-                [6] = "2"
+                [5] = "foo",
+                [6] = "bar"
             };
 
             Assert.AreEqual(
-                "[[5,\"42\"],[6,\"2\"]]",
+                "{'5':'foo','6':'bar'}".Replace('\'', '\"'),
                 Serializer.ToJson(subject).ToString()
             );
 
             Assert.AreEqual(
                 subject,
                 Serializer.FromJsonString<Dictionary<int, string>>(
-                    "[[5,\"42\"],[6,\"2\"]]"
+                    "{'5':'foo','6':'bar'}".Replace('\'', '\"')
+                )
+            );
+        }
+
+        [Test]
+        public void ItSerializesNonStringDictionaries()
+        {
+            var subject = new Dictionary<Vector2, string> {
+                [Vector2.zero] = "foo",
+                [Vector2.one] = "bar"
+            };
+
+            Assert.AreEqual(
+                "[[{'x':0,'y':0},'foo'],[{'x':1,'y':1},'bar']]"
+                    .Replace('\'', '\"'),
+                Serializer.ToJson(subject).ToString()
+            );
+
+            Assert.AreEqual(
+                subject,
+                Serializer.FromJsonString<Dictionary<Vector2, string>>(
+                    "[[{'x':0,'y':0},'foo'],[{'x':1,'y':1},'bar']]"
+                        .Replace('\'', '\"')
                 )
             );
         }
@@ -84,7 +108,7 @@ namespace FrameworkTests.Serialization.Collections
         [Test]
         public void ItSerializesEmptyNonStringDictionaries()
         {
-            var subject = new Dictionary<int, string>();
+            var subject = new Dictionary<Vector2, string>();
 
             Assert.AreEqual(
                 "[]",
@@ -93,7 +117,7 @@ namespace FrameworkTests.Serialization.Collections
 
             Assert.AreEqual(
                 subject,
-                Serializer.FromJsonString<Dictionary<int, string>>(
+                Serializer.FromJsonString<Dictionary<Vector2, string>>(
                     "[]"
                 )
             );

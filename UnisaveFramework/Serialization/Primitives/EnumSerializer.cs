@@ -23,6 +23,13 @@ namespace Unisave.Serialization.Primitives
             if (json.IsInteger)
                 return json.AsInteger;
 
+            // can be a legacy enum, or a string integer (in dictionary keys) 
+            if (json.IsString)
+            {
+                if (!json.AsString.Contains("=")) // not a legacy enum
+                    return json.AsInteger;
+            }
+
             return FromLegacyJson(json, typeScope);
         }
 
