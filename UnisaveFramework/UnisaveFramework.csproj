@@ -177,6 +177,7 @@
     <Compile Include="Serialization\Primitives\EnumSerializer.cs" />
     <Compile Include="Serialization\Primitives\LightJsonSerializer.cs" />
     <Compile Include="Serialization\Primitives\NullableSerializer.cs" />
+    <Compile Include="Serialization\Primitives\TimeSpanSerializer.cs" />
     <Compile Include="Serialization\Primitives\TupleSerializer.cs" />
     <Compile Include="Serialization\UnisaveSerializationException.cs" />
     <Compile Include="Serialization\Unisave\EntitySerializer.cs" />

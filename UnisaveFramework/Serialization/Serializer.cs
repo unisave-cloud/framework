@@ -49,6 +49,7 @@ namespace Unisave.Serialization
             SetSerializer<JsonObject>(new LightJsonSerializer());
             
             SetSerializer<DateTime>(new DateTimeSerializer());
+            SetSerializer<TimeSpan>(new TimeSpanSerializer());
             SetSerializer<decimal>(new DecimalSerializer());
             
             SetPolymorphicSerializer(typeof(Exception), new ExceptionSerializer());
