@@ -64,6 +64,23 @@ namespace Unisave.Serialization
             SetSerializer(typeof(SortedDictionary<,>), new DictionarySerializer());
             SetSerializer(typeof(SortedList<,>), new DictionarySerializer());
             
+            SetSerializer(typeof(Tuple<>), new TupleSerializer());
+            SetSerializer(typeof(Tuple<,>), new TupleSerializer());
+            SetSerializer(typeof(Tuple<,,>), new TupleSerializer());
+            SetSerializer(typeof(Tuple<,,,>), new TupleSerializer());
+            SetSerializer(typeof(Tuple<,,,,>), new TupleSerializer());
+            SetSerializer(typeof(Tuple<,,,,,>), new TupleSerializer());
+            SetSerializer(typeof(Tuple<,,,,,,>), new TupleSerializer());
+            SetSerializer(typeof(Tuple<,,,,,,,>), new TupleSerializer());
+            SetSerializer(typeof(ValueTuple<>), new TupleSerializer());
+            SetSerializer(typeof(ValueTuple<,>), new TupleSerializer());
+            SetSerializer(typeof(ValueTuple<,,>), new TupleSerializer());
+            SetSerializer(typeof(ValueTuple<,,,>), new TupleSerializer());
+            SetSerializer(typeof(ValueTuple<,,,,>), new TupleSerializer());
+            SetSerializer(typeof(ValueTuple<,,,,,>), new TupleSerializer());
+            SetSerializer(typeof(ValueTuple<,,,,,,>), new TupleSerializer());
+            SetSerializer(typeof(ValueTuple<,,,,,,,>), new TupleSerializer());
+            
             SetSerializer(typeof(Nullable<>), new NullableSerializer());
             
             SetSerializer(typeof(Vector2Int), new Vector2IntSerializer());
