@@ -21,6 +21,13 @@ namespace Unisave.Serialization.Context
         /// Does the serialized data cross a security domain boundary?
         /// </summary>
         public SecurityDomainCrossing securityDomainCrossing;
+
+        /// <summary>
+        /// When true, a byte[] (binary data) will be serialized
+        /// like any other array - to a JSON array. Otherwise
+        /// a Base64 encoded string is used.
+        /// </summary>
+        public bool serializeBinaryAsByteArray;
         
         /// <summary>
         /// Returns a .NET streaming context corresponding

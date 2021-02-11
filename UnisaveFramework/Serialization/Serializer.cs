@@ -268,8 +268,14 @@ namespace Unisave.Serialization
 
             // arrays
             if (type.IsArray)
+            {
+                // binary data
+                if (type == typeof(byte[]))
+                    return BinarySerializer.ToJson(subject, typeScope, context);
+                
                 return ArraySerializer.ToJson(subject, typeScope, context);
-            
+            }
+
             // by what type value to search through ITypeSerializers
             var searchType = type.IsGenericType
                 ? type.GetGenericTypeDefinition()
@@ -362,7 +368,13 @@ namespace Unisave.Serialization
 
             // arrays
             if (typeScope.IsArray)
+            {
+                // binary data
+                if (typeScope == typeof(byte[]))
+                    return BinarySerializer.FromJson(json, typeScope, context);
+                
                 return ArraySerializer.FromJson(json, typeScope, context);
+            }
 
             // by what type value to search through ITypeSerializers
             var searchType = typeScope.IsGenericType
