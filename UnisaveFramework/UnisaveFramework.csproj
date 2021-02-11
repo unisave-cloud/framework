@@ -170,6 +170,7 @@
     <Compile Include="Serialization\Context\TypeSerialization.cs" />
     <Compile Include="Serialization\Exceptions\ExceptionSerializer.cs" />
     <Compile Include="Serialization\Exceptions\SerializedException.cs" />
+    <Compile Include="Serialization\InsecureDeserializationException.cs" />
     <Compile Include="Serialization\IUnisaveSerializable.cs" />
     <Compile Include="Serialization\Primitives\DateTimeSerializer.cs" />
     <Compile Include="Serialization\Primitives\DecimalSerializer.cs" />

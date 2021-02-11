@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using LightJson;
 using NUnit.Framework;
 using Unisave.Serialization;
+using Unisave.Serialization.Context;
 
 namespace FrameworkTests.Serialization.Composites
 {
@@ -133,13 +134,17 @@ namespace FrameworkTests.Serialization.Composites
         [Test]
         public void EachMoveCanBeDeserializedAsObject()
         {
+            // allow insecure deserialization to object
+            var context = default(DeserializationContext);
+            context.suppressInsecureDeserializationException = true;
+            
             // DoNothingMove
             {
                 var json = new JsonObject {
                     ["player"] = "John",
                     ["$type"] = typeof(DoNothingMove).FullName
                 };
-                var value = Serializer.FromJson<object>(json);
+                var value = Serializer.FromJson<object>(json, context);
                 Assert.IsInstanceOf<DoNothingMove>(value);
                 Assert.AreEqual("John", ((PlayerMove) value).player);
             }
@@ -151,7 +156,7 @@ namespace FrameworkTests.Serialization.Composites
                     ["cardIndex"] = 2,
                     ["$type"] = typeof(PlayCardMove).FullName
                 };
-                var value = Serializer.FromJson<object>(json);
+                var value = Serializer.FromJson<object>(json, context);
                 Assert.IsInstanceOf<PlayCardMove>(value);
                 Assert.AreEqual("Peter", ((PlayerMove) value).player);
                 Assert.AreEqual(2, ((PlayCardMove) value).cardIndex);

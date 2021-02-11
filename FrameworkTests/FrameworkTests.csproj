@@ -89,6 +89,7 @@
     <Compile Include="Serialization\Exceptions\ExceptionSerializationTest.cs" />
     <Compile Include="Serialization\Primitives\TimeSpanSerializationTest.cs" />
     <Compile Include="Serialization\Primitives\TupleSerializationTest.cs" />
+    <Compile Include="Serialization\Security\InsecureDeserializationTest.cs" />
     <Compile Include="Serialization\SerializationContextTest.cs" />
     <Compile Include="Serialization\Primitives\DateTimeSerializationTest.cs" />
     <Compile Include="Serialization\Primitives\EnumSerializationTest.cs" />

@@ -114,11 +114,16 @@ namespace FrameworkTests.Serialization.Composites
         [Test]
         public void DeserializationWithTypeAndWithoutContextWorks()
         {
+            // allow insecure deserialization to object
+            var context = default(DeserializationContext);
+            context.suppressInsecureDeserializationException = true;
+            
             object value = Serializer.FromJson<object>(
                 new JsonObject {
                     ["foo"] = "foo",
                     ["$type"] = typeof(MyClass).FullName
-                }
+                },
+                context
             );
             Assert.IsInstanceOf<MyClass>(value);
             Assert.AreEqual("foo", ((MyClass) value).foo);

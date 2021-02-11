@@ -16,6 +16,12 @@ namespace Unisave.Serialization.Context
         /// Does the serialized data cross a security domain boundary?
         /// </summary>
         public SecurityDomainCrossing securityDomainCrossing;
+
+        /// <summary>
+        /// When set to true, no exception will be thrown when
+        /// deserializing in the object or dynamic type scope
+        /// </summary>
+        public bool suppressInsecureDeserializationException;
         
         /// <summary>
         /// Returns a .NET streaming context corresponding

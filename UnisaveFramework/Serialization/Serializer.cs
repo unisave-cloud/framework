@@ -325,6 +325,19 @@ namespace Unisave.Serialization
             
             // context cannot be null, no need to check
             
+            // === Guard insecure deserialization ===
+
+            if (!context.suppressInsecureDeserializationException)
+            {
+                if (typeScope == typeof(object))
+                    throw new InsecureDeserializationException(
+                        "You cannot deserialize unknown data to an 'object' " +
+                        "or 'dynamic' variable, as it poses a security risk. " +
+                        "Read the security section of the serialization " +
+                        "documentation to learn more."
+                    );
+            }
+            
             // === Determine deserialization type (the "$type" argument) ===
             
             Type deserializationType = GetDeserializationType(json, typeScope);
