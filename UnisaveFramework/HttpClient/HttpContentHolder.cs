@@ -99,30 +99,67 @@ namespace Unisave.HttpClient
         {
             if (jsonCacheUsed)
                 return jsonCache;
-            
-            if (Content == null)
+
+            JsonValue json = JsonValue();
+
+            if (json.IsNull)
                 return null;
+            
+            if (!json.IsJsonObject)
+                throw new InvalidOperationException(
+                    "The body is not a JSON object"
+                );
+
+            jsonCache = json.AsJsonObject;
+            jsonCacheUsed = true;
+            return jsonCache;
+        }
+
+        /// <summary>
+        /// Returns the body as a parsed JSON array,
+        /// or null if the body does not exist.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="JsonParseException"></exception>
+        public JsonArray JsonArray()
+        {
+            JsonValue json = JsonValue();
+            
+            if (json.IsNull)
+                return null;
+            
+            if (!json.IsJsonArray)
+                throw new InvalidOperationException(
+                    "The body is not a JSON array"
+                );
+
+            return json.AsJsonArray;
+        }
+
+        /// <summary>
+        /// Returns the body as a parsed JSON value,
+        /// or JsonValue.Null if the body is null or doesn't exist
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="JsonParseException"></exception>
+        public JsonValue JsonValue()
+        {
+            if (Content == null)
+                return LightJson.JsonValue.Null;
             
             if (Content.Headers.ContentType.MediaType != "application/json")
             {
                 throw new InvalidOperationException(
-                    "The response is not application/json but: " +
+                    "The content type is not application/json but: " +
                     Content.Headers.ContentType.MediaType 
                 );
             }
 
             string jsonString = Body();
 
-            JsonValue json = JsonReader.Parse(jsonString);
-            
-            if (!json.IsJsonObject)
-                throw new InvalidOperationException(
-                    "The response body is not a JSON object"
-                );
-
-            jsonCache = json.AsJsonObject;
-            jsonCacheUsed = true;
-            return jsonCache;
+            return JsonReader.Parse(jsonString);
         }
 
         /// <summary>
@@ -143,7 +180,7 @@ namespace Unisave.HttpClient
                 "application/x-www-form-urlencoded")
             {
                 throw new InvalidOperationException(
-                    "The response is not " +
+                    "The body is not of type " +
                     "application/x-www-form-urlencoded but: " +
                     Content.Headers.ContentType.MediaType 
                 );
