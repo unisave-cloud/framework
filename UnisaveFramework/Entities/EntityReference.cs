@@ -91,30 +91,6 @@ namespace Unisave.Entities
         // TODO: add FindOrFail variant
 
         /// <summary>
-        /// Find the target of the reference or create a new entity
-        /// if there's no target or the target doesn't exist.
-        /// </summary>
-        /// <param name="creator">Action that gets called during creation</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public TTarget FindOrCreate(Action<TTarget> creator)
-        {
-            if (creator == null)
-                throw new ArgumentNullException(nameof(creator));
-            
-            var entity = Find();
-            
-            if (entity == null)
-            {
-                entity = new TTarget();
-                creator.Invoke(entity);
-                entity.Save();
-            }
-
-            return entity;
-        }
-        
-        /// <summary>
         /// Explicitly converts ID string to an entity reference
         /// NOTE: has to be explicit, otherwise null assignments become ambiguous
         /// </summary>
