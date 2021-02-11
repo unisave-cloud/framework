@@ -183,6 +183,12 @@ namespace Unisave.Entities
                 newDocument["CreatedAt"] = oldDocument["CreatedAt"];
                 newDocument["UpdatedAt"] = Serializer.ToJson(DateTime.UtcNow);
 
+                // if we aren't careful, then don't even send the _rev key
+                // (just to make sure the database won't throw a conflict)
+                // (this probably doesn't help with anything, but why not do it)
+                if (!carefully)
+                    newDocument.Remove("_rev");
+
                 var newAttributes = arango.ExecuteAqlQuery(new AqlQuery()
                     .Replace(() => newDocument)
                     .CheckRevs(carefully)
@@ -199,25 +205,37 @@ namespace Unisave.Entities
             catch (ArangoException e) when (e.ErrorNumber == 1200)
             {
                 // write-write conflict
-                // (can occur even without revision checking)
-
-                // We are not careful, so we don't care.
-                // We just log a warning that this happened
-                // so that it will be noticed.
-                if (!carefully)
+                
+                /*
+                 * Write-write conflict (1200) can be thrown even when we
+                 * don't explicitly check for revisions. This comes down
+                 * to the way ArangoDB works. If it tries to acquire a write
+                 * lock on a document and fails, it doesn't retry and throws
+                 * the conflict error (it fails because someone else is
+                 * currently writing to that document). Giving up on the write
+                 * is ok in this situation as it could be though of as the
+                 * other process immediately overwriting our update.
+                 * 
+                 * https://github.com/arangodb/arangodb/issues/9702
+                 */
+                
+                // When we are careful, we need to notify the user by
+                // throwing a conflict exception
+                if (carefully)
                 {
-                    log.Warning(
-                        "Entity wasn't saved due to a write-write conflict " +
-                        "(other process was saving the same entity at the " +
-                        "same time).\nCheck out documentation for the method " +
-                        "entity.SaveCarefully() to learn more.",
-                        e
+                    throw new EntityRevConflictException(
+                        "Entity has been modified since the last refresh"
                     );
                 }
                 
-                // if we are careful, we throw an exception
-                throw new EntityRevConflictException(
-                    "Entity has been modified since the last refresh"
+                // When we aren't careful, we just warn the user and
+                // ignore the fact the write failed. (see the note above)
+                log.Warning(
+                    "Entity wasn't saved due to a write-write conflict " +
+                    "(other process was saving the same entity at the " +
+                    "same time).\nCheck out documentation for the method " +
+                    "entity.SaveCarefully() to learn more.",
+                    e
                 );
             }
             catch (ArangoException e) when (e.ErrorNumber == 1202)

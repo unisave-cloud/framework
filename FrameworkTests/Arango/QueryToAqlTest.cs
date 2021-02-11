@@ -114,6 +114,40 @@ namespace FrameworkTests.Arango
         }
 
         [Test]
+        public void TestEntitySaveCarefulness()
+        {
+            var entity = new JsonObject {
+                ["_key"] = "123"
+            };
+            
+            // NOT CAREFULLY (ignore revs)
+            Assert.AreEqual(
+                "REPLACE {\"_key\":\"123\"} IN foo " +
+                "OPTIONS {\"ignoreRevs\":true}\n" +
+                "RETURN NEW",
+                new AqlQuery()
+                    .Replace(() => entity)
+                    .CheckRevs(false)
+                    .In("foo")
+                    .Return("NEW")
+                    .ToAql()
+            );
+            
+            // CAREFULLY (dont' ignore revs)
+            Assert.AreEqual(
+                "REPLACE {\"_key\":\"123\"} IN foo " +
+                "OPTIONS {\"ignoreRevs\":false}\n" +
+                "RETURN NEW",
+                new AqlQuery()
+                    .Replace(() => entity)
+                    .CheckRevs(true)
+                    .In("foo")
+                    .Return("NEW")
+                    .ToAql()
+            );
+        }
+
+        [Test]
         public void TestRemove()
         {
             Assert.AreEqual(
