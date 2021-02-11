@@ -7,17 +7,38 @@ namespace UnityEngine
 {
     public struct Vector3Int : IEquatable<Vector3Int>
 	{
-		public int x { get; set; }
-		public int y { get; set; }
-		public int z { get; set; }
+		private int m_X;
+		private int m_Y;
+		private int m_Z;
+		
+		// ReSharper disable once ConvertToAutoProperty
+		public int x
+		{
+			get => m_X;
+			set => m_X = value;
+		}
+
+		// ReSharper disable once ConvertToAutoProperty
+		public int y
+		{
+			get => m_Y;
+			set => m_Y = value;
+		}
+		
+		// ReSharper disable once ConvertToAutoProperty
+		public int z
+		{
+			get => m_Z;
+			set => m_Z = value;
+		}
 
 		#region "Constructor and field access"
 		
 		public Vector3Int(int x, int y, int z)
 		{
-			this.x = x;
-			this.y = y;
-			this.z = z;
+			m_X = x;
+			m_Y = y;
+			m_Z = z;
 		}
 
 		public int this[int index]

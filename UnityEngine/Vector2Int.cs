@@ -7,15 +7,29 @@ namespace UnityEngine
 {
     public struct Vector2Int : IEquatable<Vector2Int>
 	{
-		public int x { get; set; }
-		public int y { get; set; }
+		private int m_X;
+		private int m_Y;
+		
+		// ReSharper disable once ConvertToAutoProperty
+		public int x
+		{
+			get => m_X;
+			set => m_X = value;
+		}
+
+		// ReSharper disable once ConvertToAutoProperty
+		public int y
+		{
+			get => m_Y;
+			set => m_Y = value;
+		}
 		
 		#region "Constructor and field access"
 		
 		public Vector2Int(int x, int y)
 		{
-			this.x = x;
-			this.y = y;
+			m_X = x;
+			m_Y = y;
 		}
 
 		public int this[int index]

@@ -2,15 +2,13 @@
 using System.Runtime.CompilerServices;
 
 [assembly: AssemblyTitle("Unisave Framework")]
-[assembly: AssemblyDescription("Framework for Unisave server side scripts.")]
-[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyDescription(
+    "Framework for the Unisave service."
+)]
 [assembly: AssemblyCompany("Jiří Mayer")]
 [assembly: AssemblyProduct("Unisave")]
-[assembly: AssemblyCopyright("Copyright © 2020")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
 
 [assembly: InternalsVisibleTo("FrameworkTests")]
 
-[assembly: AssemblyVersion("0.10.1.0")]
-[assembly: AssemblyInformationalVersion("0.10.1")]
+[assembly: AssemblyVersion("0.10.2.0")]
+[assembly: AssemblyInformationalVersion("0.10.2-dev")]

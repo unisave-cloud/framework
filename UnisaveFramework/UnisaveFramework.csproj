@@ -179,6 +179,8 @@
     <Compile Include="Serialization\Primitives\NullableSerializer.cs" />
     <Compile Include="Serialization\UnisaveSerializationException.cs" />
     <Compile Include="Serialization\Unisave\EntitySerializer.cs" />
+    <Compile Include="Serialization\Unity\Vector2IntSerializer.cs" />
+    <Compile Include="Serialization\Unity\Vector3IntSerializer.cs" />
     <Compile Include="Sessions\ArangoSessionStorage.cs" />
     <Compile Include="Sessions\InMemorySessionStorage.cs" />
     <Compile Include="Sessions\ISessionStorage.cs" />

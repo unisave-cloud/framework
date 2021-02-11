@@ -16,11 +16,11 @@ using Unisave.Serialization.Context;
 using Unisave.Serialization.Exceptions;
 using Unisave.Serialization.Primitives;
 using Unisave.Serialization.Unisave;
+using Unisave.Serialization.Unity;
+using UnityEngine;
 
 namespace Unisave.Serialization
 {
-    // TODO: handle decimal type
-    
     /// <summary>
     /// Handles Unisave JSON serialization
     /// </summary>
@@ -65,6 +65,9 @@ namespace Unisave.Serialization
             SetSerializer(typeof(SortedList<,>), new DictionarySerializer());
             
             SetSerializer(typeof(Nullable<>), new NullableSerializer());
+            
+            SetSerializer(typeof(Vector2Int), new Vector2IntSerializer());
+            SetSerializer(typeof(Vector3Int), new Vector3IntSerializer());
             
             SetPolymorphicSerializer(typeof(Entity), new EntitySerializer());
         }
