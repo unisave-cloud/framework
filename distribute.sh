@@ -9,20 +9,22 @@
 
 VERSION=$(grep -oP "AssemblyInformationalVersion\(\"\K[^\"]+" UnisaveFramework/Properties/AssemblyInfo.cs)
 
-# services
-echo "Copying to services..."
-mkdir -p ~/ImportantCode/Unisave/Services/unisave-framework/$VERSION
-cp -R UnisaveFramework/bin/Debug/* ~/ImportantCode/Unisave/Services/unisave-framework/$VERSION
-echo $VERSION > ~/ImportantCode/Unisave/Services/unisave-framework/latest.txt
+# releases
+echo "Copying to releases..."
+mkdir -p releases/$VERSION
+cp -R UnisaveFramework/bin/Debug/* releases/$VERSION
+echo $VERSION > releases/latest.txt
 
 # unity asset
 echo "Copying to the asset..."
-cp -R UnisaveFramework/bin/Debug/UnisaveFramework.dll ~/ImportantCode/Unisave/Asset/Assets/Unisave/Libraries/UnisaveFramework
-cp -R UnisaveFramework/bin/Debug/UnisaveFramework.pdb ~/ImportantCode/Unisave/Asset/Assets/Unisave/Libraries/UnisaveFramework
+cp -R UnisaveFramework/bin/Debug/UnisaveFramework.dll ../asset/Assets/Unisave/Libraries/UnisaveFramework
+cp -R UnisaveFramework/bin/Debug/UnisaveFramework.pdb ../asset/Assets/Unisave/Libraries/UnisaveFramework
 
 # restart sandboxes, to pull the new .dll file
 echo "Restarting the script runner..."
-docker restart script_runner > /dev/null
+echo "TODO: restart OpenFaas sandboxes"
+exit 1
+#docker restart script_runner > /dev/null
 
 # done
 echo "Done."
