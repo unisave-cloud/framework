@@ -56,13 +56,15 @@ namespace Unisave.Broadcasting
                 SerializationContext.ServerToClient
             );
             
-            http.PendingRequest().Post(url, new JsonObject {
+            Response response = http.PendingRequest().Post(url, new JsonObject {
                 ["environmentId"] = environmentId,
                 ["broadcastingKey"] = broadcastingKey,
                 ["channel"] = channel.ChannelName,
                 ["sessionId"] = sessionId,
                 ["subscription"] = serializedSubscription
             });
+
+            response.Throw();
             
             return subscription;
         }
@@ -81,12 +83,14 @@ namespace Unisave.Broadcasting
                 SerializationContext.ServerToClient
             );
 
-            http.PendingRequest().Post(url, new JsonObject {
+            Response response = http.PendingRequest().Post(url, new JsonObject {
                 ["environmentId"] = environmentId,
                 ["broadcastingKey"] = broadcastingKey,
                 ["channel"] = channel.ChannelName,
                 ["message"] = serializedMessage
             });
+
+            response.Throw();
         }
     }
 }
