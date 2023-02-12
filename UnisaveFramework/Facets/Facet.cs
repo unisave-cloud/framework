@@ -108,7 +108,7 @@ namespace Unisave.Facets
             if (methods.Count == 0)
                 throw new MethodSearchException(
                     $"Class '{type}' doesn't have public method "
-                    + "called '{name}'."
+                    + $"called '{name}'."
                 );
 
             MethodInfo methodInfo = methods[0];
