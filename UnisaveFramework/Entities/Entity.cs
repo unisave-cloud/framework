@@ -241,13 +241,17 @@ namespace Unisave.Entities
         /// <summary>
         /// Delete the entity from database
         /// </summary>
-        public virtual void Delete(bool carefully = false)
+        /// <returns>
+        /// True if an entity was removed from database,
+        /// false if it wasn't there to begin with
+        /// </returns>
+        public virtual bool Delete(bool carefully = false)
         {
             GuardStorageOfInsecureData();
             
             // nothing to delete, it's not even saved yet
             if (EntityId == null)
-                return;
+                return false;
             
             if (!Facade.HasApp)
                 throw new InvalidOperationException(
@@ -257,10 +261,12 @@ namespace Unisave.Entities
 
             var manager = GetEntityManager();
             
-            manager.Delete(this, carefully);
+            bool databaseWasModified = manager.Delete(this, carefully);
             
             // clear metadata
             EntityId = null;
+
+            return databaseWasModified;
         }
         
         #endregion

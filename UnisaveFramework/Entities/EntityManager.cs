@@ -258,7 +258,7 @@ namespace Unisave.Entities
         /// Deletes an entity
         /// Careful deletes check revisions
         /// </summary>
-        public virtual void Delete(Entity entity, bool carefully = false)
+        public virtual bool Delete(Entity entity, bool carefully = false)
         {
             string type = EntityUtils.GetEntityStringType(entity.GetType());
             
@@ -276,18 +276,16 @@ namespace Unisave.Entities
                     .CheckRevs(carefully)
                     .In(EntityUtils.CollectionFromType(type))
                 );
+
+                return true; // an entity was deleted
             }
             catch (ArangoException e)
             {
                 if (e.ErrorNumber == 1203) // collection not found
-                    throw new EntityPersistenceException(
-                        "Entity has not yet been inserted, or already deleted"
-                    );
+                    return false; // no entity to be deleted
                 
                 if (e.ErrorNumber == 1202) // document not found
-                    throw new EntityPersistenceException(
-                        "Entity has not yet been inserted, or already deleted"
-                    );
+                    return false; // no entity to be deleted
                 
                 if (e.ErrorNumber == 1200) // conflict
                     throw new EntityRevConflictException(

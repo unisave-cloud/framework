@@ -315,11 +315,13 @@ namespace FrameworkTests.Entities
                 manager.Find<PlayerEntity>("e_PlayerEntity/john")
             );
             
-            manager.Delete(new PlayerEntity {
+            bool ret = manager.Delete(new PlayerEntity {
                 EntityKey = "john",
                 Name = "John Doe", // should be ignored
                 EntityRevision = "123456789" // should be ignored
             });
+            
+            Assert.IsTrue(ret);
             
             Assert.IsNull(
                 manager.Find<PlayerEntity>("e_PlayerEntity/john")
@@ -327,27 +329,27 @@ namespace FrameworkTests.Entities
         }
 
         [Test]
-        public void DeletingNonExistingCollectionThrows()
+        public void DeletingNonExistingCollectionReturnsFalse()
         {
             arango.Collections.Remove(
                 EntityUtils.CollectionFromType(typeof(PlayerEntity))
             );
             
-            Assert.Throws<EntityPersistenceException>(() => {
-                manager.Delete(new PlayerEntity {
-                    EntityKey = "john"
-                });
+            bool ret = manager.Delete(new PlayerEntity {
+                EntityKey = "john"
             });
+            
+            Assert.IsFalse(ret);
         }
 
         [Test]
-        public void DeletingNonExistingEntityThrows()
+        public void DeletingNonExistingEntityReturnsFalse()
         {
-            Assert.Throws<EntityPersistenceException>(() => {
-                manager.Delete(new PlayerEntity {
-                    EntityKey = "jim"
-                });
+            bool ret = manager.Delete(new PlayerEntity {
+                EntityKey = "jim"
             });
+            
+            Assert.IsFalse(ret);
         }
 
         [Test]
@@ -366,10 +368,12 @@ namespace FrameworkTests.Entities
             var john = manager.Find<PlayerEntity>("e_PlayerEntity/john");
             Assert.IsNotNull(john);
             
-            manager.Delete(new PlayerEntity {
+            bool ret = manager.Delete(new PlayerEntity {
                 EntityKey = "john",
                 EntityRevision = john.EntityRevision
             }, carefully: true);
+            
+            Assert.IsTrue(ret);
             
             Assert.IsNull(manager.Find<PlayerEntity>("e_PlayerEntity/john"));
         }
