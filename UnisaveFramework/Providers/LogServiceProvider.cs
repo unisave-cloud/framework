@@ -37,11 +37,30 @@ namespace Unisave.Providers
 
         private void HookIntoUnityEngineDebug()
         {
-            Debug.UnisaveAdapter = new Debug.Adapter {
+            PropertyInfo pi = typeof(Debug)
+                .GetProperties(BindingFlags.NonPublic | BindingFlags.Static)
+                .FirstOrDefault(p => p.Name == nameof(Debug.UnisaveAdapter));
+
+            if (pi == null)
+                return;
+
+            if (!pi.CanWrite)
+                return;
+            
+            var adapter = new Debug.Adapter {
                 info = (message, context) => log.Info(message, context),
                 warning = (message, context) => log.Warning(message, context),
                 error = (message, context) => log.Error(message, context)
             };
+
+            try
+            {
+                pi.SetValue(null, adapter, null);
+            }
+            catch
+            {
+                // ignored
+            }
         }
 
         public override void TearDown()
