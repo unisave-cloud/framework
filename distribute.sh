@@ -20,11 +20,5 @@ echo "Copying to the asset..."
 cp -R UnisaveFramework/bin/Debug/UnisaveFramework.dll ../asset/Assets/Unisave/Libraries/UnisaveFramework
 cp -R UnisaveFramework/bin/Debug/UnisaveFramework.pdb ../asset/Assets/Unisave/Libraries/UnisaveFramework
 
-# restart sandboxes, to pull the new .dll file
-echo "Restarting the script runner..."
-echo "TODO: restart OpenFaas sandboxes"
-exit 1
-#docker restart script_runner > /dev/null
-
 # done
 echo "Done."
