@@ -1,6 +1,7 @@
 using LightJson;
 using Unisave.Serialization;
 using Unisave.Serialization.Context;
+using UnityEngine.Scripting;
 
 namespace Unisave.Arango
 {
@@ -97,11 +98,13 @@ namespace Unisave.Arango
         
         #region "IUnisaveSerializable"
 
+        [Preserve]
         private DocumentId(JsonValue json, DeserializationContext context)
         {
             this = Parse(json.AsString);
         }
         
+        [Preserve]
         JsonValue IUnisaveSerializable.ToJson(SerializationContext context)
         {
             return Id;

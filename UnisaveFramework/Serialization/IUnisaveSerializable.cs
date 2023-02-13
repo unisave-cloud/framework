@@ -9,7 +9,12 @@ namespace Unisave.Serialization
          * It cannot be required by an interface
          * but any type implementing this should
          * also provide a constructor for deserialization:
+         *
+         * [Preserve]
          * Ctor(JsonValue, DeserializationContext)
+         *
+         * The constructor needs to have the [Preserve] attribute to prevent
+         * it from being stripped during IL2CPP managed code stripping.
          */
         
         /// <summary>

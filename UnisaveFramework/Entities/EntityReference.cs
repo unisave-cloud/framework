@@ -4,6 +4,7 @@ using Unisave.Arango;
 using Unisave.Facades;
 using Unisave.Serialization;
 using Unisave.Serialization.Context;
+using UnityEngine.Scripting;
 
 namespace Unisave.Entities
 {
@@ -31,10 +32,12 @@ namespace Unisave.Entities
         public bool IsNull => targetId == null;
 
         #region "Serialization"
-        
+
+        [Preserve]
         private EntityReference(JsonValue json, DeserializationContext context)
             : this(json.AsString) { }
 
+        [Preserve]
         JsonValue IUnisaveSerializable.ToJson(SerializationContext context)
             => TargetId;
         

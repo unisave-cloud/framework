@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using Unisave.Exceptions;
 
 namespace Unisave.Entities
@@ -138,15 +139,19 @@ namespace Unisave.Entities
             ConstructorInfo ci = type.GetConstructor(new Type[] { });
 
             if (ci == null)
-                throw new ArgumentException(
-                    $"Provided entity type {type} lacks " +
-                    "parameterless constructor."
+            {
+                // If there is no parameterless constructor, then either
+                // it is not defined, or IL2CPP has stripped it away.
+                // In either case, get at least an empty instance and
+                // deserialize into that.
+                
+                return (Entity) FormatterServices.GetUninitializedObject(
+                    type
                 );
+            }
 
-            // create instance
-            Entity entity = (Entity)ci.Invoke(new object[] { });
-
-            return entity;
+            // create an instance via the constructor
+            return (Entity) ci.Invoke(new object[] { });
         }
     }
 }

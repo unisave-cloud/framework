@@ -1,22 +1,27 @@
 using Unisave.Utils;
+using UnityEngine.Scripting;
 
 namespace Unisave.Broadcasting
 {
+    [Preserve]
     public class ChannelSubscription
     {
         /// <summary>
         /// Full name of the channel to which the subscription applies
         /// </summary>
+        [Preserve]
         public string ChannelName { get; }
         
         /// <summary>
         /// Session ID of the client, receiving the subscription
         /// </summary>
+        [Preserve]
         public string SessionId { get; }
         
         /// <summary>
         /// ID to identify the subscription
         /// </summary>
+        [Preserve]
         public string SubscriptionId { get; }
 
         public ChannelSubscription(string channelName, string sessionId)
