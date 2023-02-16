@@ -6,5 +6,8 @@ using System.Runtime.CompilerServices;
     "Fake UnityEngine.dll implementing ony things " +
     "that might beneeded on the server"
 )]
+
+[assembly: InternalsVisibleTo("FrameworkTests")]
+
 [assembly: InternalsVisibleTo("UnisaveFramework")]
 [assembly: AssemblyVersion("0.0.0.0")]

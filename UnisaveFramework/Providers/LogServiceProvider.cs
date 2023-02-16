@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Reflection;
 using Unisave.Contracts;
@@ -37,30 +38,62 @@ namespace Unisave.Providers
 
         private void HookIntoUnityEngineDebug()
         {
+            // === Get the static property to assign to ===
+            
             PropertyInfo pi = typeof(Debug)
                 .GetProperties(BindingFlags.NonPublic | BindingFlags.Static)
                 .FirstOrDefault(p => p.Name == nameof(Debug.UnisaveAdapter));
 
-            if (pi == null)
+            if (pi == null) // missing on the client, do nothing
                 return;
 
             if (!pi.CanWrite)
                 return;
             
-            var adapter = new Debug.Adapter {
-                info = (message, context) => log.Info(message, context),
-                warning = (message, context) => log.Warning(message, context),
-                error = (message, context) => log.Error(message, context)
-            };
+            // === Create an adapter instance ===
+            
+            Type adapterType = typeof(UnityEngine.Debug)
+                .GetNestedType(
+                    nameof(UnityEngine.Debug.Adapter),
+                    BindingFlags.NonPublic
+                );
 
-            try
-            {
-                pi.SetValue(null, adapter, null);
-            }
-            catch
-            {
-                // ignored
-            }
+            ConstructorInfo ci = adapterType.GetConstructor(new Type[] { });
+
+            if (ci == null)
+                return;
+            
+            object adapterInstance = ci.Invoke(new object[] { });
+            
+            // === Populate the instance with log handlers ===
+
+            FieldInfo fiInfo = adapterType.GetField(nameof(Debug.Adapter.info));
+            fiInfo.SetValue(
+                adapterInstance,
+                new Action<string, object>(
+                    (message, context) => log.Info(message, context)
+                )
+            );
+            
+            FieldInfo fiWarning = adapterType.GetField(nameof(Debug.Adapter.warning));
+            fiWarning.SetValue(
+                adapterInstance,
+                new Action<string, object>(
+                    (message, context) => log.Warning(message, context)
+                )
+            );
+            
+            FieldInfo fiError = adapterType.GetField(nameof(Debug.Adapter.error));
+            fiError.SetValue(
+                adapterInstance,
+                new Action<string, object>(
+                    (message, context) => log.Error(message, context)
+                )
+            );
+            
+            // === Set the instance into the static property ===
+
+            pi.SetValue(null, adapterInstance, null);
         }
 
         public override void TearDown()

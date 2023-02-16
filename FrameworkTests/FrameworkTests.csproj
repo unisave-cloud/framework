@@ -67,6 +67,7 @@
     <Compile Include="EntrypointTest.cs" />
     <Compile Include="EnvTest.cs" />
     <Compile Include="Foundation\EnvStoreTest.cs" />
+    <Compile Include="Logging\HookIntoUnityEngineTest.cs" />
     <Compile Include="Modules\Matchmaking\Basic\BasicMatchmakerTest.cs" />
     <Compile Include="Modules\Matchmaking\Basic\BmMatchEntity.cs" />
     <Compile Include="Modules\Matchmaking\Basic\BmMatchmakerFacet.cs" />
