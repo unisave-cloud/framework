@@ -24,6 +24,7 @@ namespace Unisave.Broadcasting
         [Preserve]
         public string SubscriptionId { get; }
 
+        [Preserve]
         public ChannelSubscription(string channelName, string sessionId)
         {
             ChannelName = channelName;
@@ -31,11 +32,13 @@ namespace Unisave.Broadcasting
             SubscriptionId = Str.Random(16);
         }
 
+        [Preserve]
         protected bool Equals(ChannelSubscription other)
         {
             return SubscriptionId == other.SubscriptionId;
         }
 
+        [Preserve]
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
@@ -44,6 +47,7 @@ namespace Unisave.Broadcasting
             return Equals((ChannelSubscription) obj);
         }
 
+        [Preserve]
         public override int GetHashCode()
         {
             return (SubscriptionId != null ? SubscriptionId.GetHashCode() : 0);
