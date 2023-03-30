@@ -27,6 +27,7 @@ namespace Unisave.Arango
             }
         }
         
+        [Preserve]
         private string collection;
 
         /// <summary>
@@ -45,6 +46,7 @@ namespace Unisave.Arango
             }
         }
 
+        [Preserve]
         private string key;
         
         /// <summary>

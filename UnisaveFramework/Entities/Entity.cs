@@ -4,6 +4,7 @@ using Unisave.Arango;
 using Unisave.Facades;
 using Unisave.Serialization.Context;
 using Unisave.Serialization.Unisave;
+using UnityEngine.Scripting;
 
 namespace Unisave.Entities
 {
@@ -46,6 +47,7 @@ namespace Unisave.Entities
         /// Backing field for EntityId and EntityKey
         /// </summary>
         [SerializeAs("_id")]
+        [Preserve]
         private DocumentId documentId = DocumentId.Null;
 
         /// <summary>
@@ -73,18 +75,24 @@ namespace Unisave.Entities
         /// Used by the database to detect changes
         /// </summary>
         [SerializeAs("_rev")]
+        [Preserve]
+        [field: Preserve]
         public string EntityRevision { get; set; }
 
         /// <summary>
         /// When has been the entity created
         /// Has default DateTime value if the entity hasn't been created yet
         /// </summary>
+        [Preserve]
+        [field: Preserve]
         public DateTime CreatedAt { get; set; } = default(DateTime);
 
         /// <summary>
         /// Last time the entity has been saved
         /// Has default DateTime value if the entity hasn't been created yet
         /// </summary>
+        [Preserve]
+        [field: Preserve]
         public DateTime UpdatedAt { get; set; } = default(DateTime);
         
         /// <summary>
@@ -92,6 +100,8 @@ namespace Unisave.Entities
         /// from an untrusted security domain
         /// </summary>
         [DontSerialize]
+        [Preserve]
+        [field: Preserve]
         internal bool ContainsInsecureData { get; set; }
         
         /// <summary>
