@@ -17,8 +17,8 @@ echo $VERSION > releases/latest.txt
 
 # unity asset
 echo "Copying to the asset..."
-cp -R UnisaveFramework/bin/Debug/UnisaveFramework.dll ../asset/Assets/Unisave/Libraries/UnisaveFramework
-cp -R UnisaveFramework/bin/Debug/UnisaveFramework.pdb ../asset/Assets/Unisave/Libraries/UnisaveFramework
+cp -R UnisaveFramework/bin/Debug/UnisaveFramework.dll ../asset/Assets/Plugins/Unisave/Libraries/UnisaveFramework
+cp -R UnisaveFramework/bin/Debug/UnisaveFramework.pdb ../asset/Assets/Plugins/Unisave/Libraries/UnisaveFramework
 
 # done
 echo "Done."
