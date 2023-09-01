@@ -6,6 +6,7 @@ source https://api.nuget.org/v3/index.json
 // Unisave Framework
 nuget JWT >= 10.1.0
 nuget RSG.Promise >= 3.0.1
+github MarcosLopezC/LightJson:v0.5.2
 
 // Testing
 nuget NUnit >= 3.12.0
