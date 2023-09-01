@@ -93,8 +93,8 @@
     <Compile Include="Utils\StrTest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LightJson\Sources\LightJson\LightJson.csproj">
-      <Project>{3BC85E8B-8A37-4015-B4A8-2D973F8622F1}</Project>
+    <ProjectReference Include="..\paket-files\MarcosLopezC\LightJson\Sources\LightJson\LightJson.csproj">
+      <Project>{3bc85e8b-8a37-4015-b4a8-2d973f8622f1}</Project>
       <Name>LightJson</Name>
     </ProjectReference>
     <ProjectReference Include="..\UnisaveFramework\UnisaveFramework.csproj">
