@@ -1,0 +1,15 @@
+references: strict
+storage: packages
+framework: net4.7
+source https://api.nuget.org/v3/index.json
+
+// Unisave Framework
+nuget JWT >= 10.1.0
+nuget RSG.Promise >= 3.0.1
+
+// Testing
+nuget NUnit >= 3.12.0
+nuget Moq >= 4.13.0
+nuget System.Threading.Tasks.Extensions >= 4.5.1 // Moq dependency
+nuget System.Runtime.CompilerServices.Unsafe >= 4.5.0 // Moq dependency
+nuget Castle.Core >= 4.4.0 // Moq dependency
