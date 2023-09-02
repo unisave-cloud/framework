@@ -1,0 +1,5 @@
+Owin
+Microsoft.Owin
+Microsoft.Owin.Hosting
+Microsoft.Owin.Host.HttpListener
+Microsoft.Owin.Diagnostics
