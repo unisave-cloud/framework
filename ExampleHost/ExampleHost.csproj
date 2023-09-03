@@ -49,6 +49,16 @@
   <ItemGroup>
     <Content Include="paket.references" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ExampleBackend\ExampleBackend.csproj">
+      <Project>{e5c7e1d8-122c-4086-b41e-f207709f0bd8}</Project>
+      <Name>ExampleBackend</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UnisaveFramework\UnisaveFramework.csproj">
+      <Project>{dbfe1b89-ff6d-4ed7-bea3-c6377f6a0b40}</Project>
+      <Name>UnisaveFramework</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
          Other similar extension points exist, see Microsoft.Common.targets.

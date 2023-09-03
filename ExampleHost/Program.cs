@@ -9,10 +9,14 @@ namespace ExampleHost
     {
         public static void Main(string[] args)
         {
+            Console.WriteLine("Starting server...");
             using (WebApp.Start<Startup>("http://localhost:1234"))
             {
+                Console.WriteLine("Running.");
                 WaitForTermination();
+                Console.WriteLine("Disposing...");
             }
+            Console.WriteLine("Disposed.");
 
             // if there was an execution timeout
             // or the user started some rogue threads,

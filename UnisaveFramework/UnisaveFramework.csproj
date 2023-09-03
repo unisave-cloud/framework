@@ -189,6 +189,7 @@
     <Compile Include="Sessions\ServerSessionIdRepository.cs" />
     <Compile Include="Sessions\SessionOverStorage.cs" />
     <Compile Include="Exceptions\UnisaveException.cs" />
+    <Compile Include="FrameworkStartup.cs" />
     <Compile Include="Utils\Hash.cs" />
     <Compile Include="Utils\Str.cs" />
     <Compile Include="Serialization\SerializationParams.cs" />
@@ -223,6 +224,28 @@
       <ItemGroup>
         <Reference Include="JWT">
           <HintPath>..\packages\JWT\lib\net462\JWT.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.7'">
+      <ItemGroup>
+        <Reference Include="Microsoft.Owin">
+          <HintPath>..\packages\Microsoft.Owin\lib\net45\Microsoft.Owin.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.7'">
+      <ItemGroup>
+        <Reference Include="Owin">
+          <HintPath>..\packages\Owin\lib\net40\Owin.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
