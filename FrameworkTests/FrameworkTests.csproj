@@ -40,6 +40,7 @@
     <Compile Include="Arango\QueryExecutionTest.cs" />
     <Compile Include="Arango\QueryToAqlTest.cs" />
     <Compile Include="Arango\QueryVerificationTest.cs" />
+    <Compile Include="Bootstrapping\BootstrappingEngineTest.cs" />
     <Compile Include="Entities\EntityReferenceTest.cs" />
     <Compile Include="Entities\MassAssignmentTest.cs" />
     <Compile Include="HttpClient\AuthorizationTest.cs" />
