@@ -7,7 +7,7 @@ namespace Unisave.Providers
 {
     public class SessionServiceProvider : ServiceProvider
     {
-        public SessionServiceProvider(Application app) : base(app) { }
+        public SessionServiceProvider(BackendApplication app) : base(app) { }
         
         public override void Register()
         {

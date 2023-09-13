@@ -10,7 +10,7 @@ namespace Unisave.Sessions.Middleware
     /// </summary>
     public class StartSession : FacetMiddleware
     {
-        public StartSession(Application app) : base(app) { }
+        public StartSession(BackendApplication app) : base(app) { }
         
         public override FacetResponse Handle(
             FacetRequest request,

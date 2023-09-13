@@ -5,7 +5,7 @@ namespace Unisave.Providers
 {
     public class HttpClientServiceProvider : ServiceProvider
     {
-        public HttpClientServiceProvider(Application app) : base(app) { }
+        public HttpClientServiceProvider(BackendApplication app) : base(app) { }
 
         public override void Register()
         {

@@ -16,11 +16,11 @@ namespace Unisave.Runtime.Kernels
     /// </summary>
     public class FacetCallKernel
     {
-        private readonly Application app;
+        private readonly BackendApplication app;
         private readonly SpecialValues specialValues;
         private readonly ServerSessionIdRepository sessionIdRepository;
         
-        public FacetCallKernel(Application app, SpecialValues specialValues)
+        public FacetCallKernel(BackendApplication app, SpecialValues specialValues)
         {
             this.app = app;
             this.specialValues = specialValues;

@@ -13,7 +13,7 @@ namespace Unisave.Providers
     {
         private readonly InMemoryLog log;
         
-        public LogServiceProvider(Application app) : base(app)
+        public LogServiceProvider(BackendApplication app) : base(app)
         {
             log = new InMemoryLog(
                 maxRecordCount: 50,

@@ -8,7 +8,7 @@ namespace Unisave.Providers
 {
     public class BroadcastingServiceProvider : ServiceProvider
     {
-        public BroadcastingServiceProvider(Application app) : base(app) { }
+        public BroadcastingServiceProvider(BackendApplication app) : base(app) { }
 
         public override void Register()
         {

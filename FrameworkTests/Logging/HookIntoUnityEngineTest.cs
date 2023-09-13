@@ -11,7 +11,7 @@ namespace FrameworkTests.Logging
     [TestFixture]
     public class HookIntoUnityEngineTest
     {
-        private Application app;
+        private BackendApplication app;
         private LogServiceProvider provider;
         
         [SetUp]
@@ -21,7 +21,7 @@ namespace FrameworkTests.Logging
             UnityEngine.Debug.UnisaveAdapter = null;
             
             // create app and log service provider
-            app = new Application(new Type[] { });
+            app = new BackendApplication(new Type[] { });
             provider = new LogServiceProvider(app);
         }
 

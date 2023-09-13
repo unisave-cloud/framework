@@ -7,7 +7,7 @@ namespace Unisave.Providers
 {
     public class AuthServiceProvider : ServiceProvider
     {
-        public AuthServiceProvider(Application app) : base(app) { }
+        public AuthServiceProvider(BackendApplication app) : base(app) { }
 
         public override void Register()
         {

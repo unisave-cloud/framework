@@ -14,14 +14,14 @@ namespace FrameworkTests.Sessions
     [TestFixture]
     public class SessionOverStorageTest
     {
-        private Application app;
+        private BackendApplication app;
         private SessionOverStorage session;
         private Mock<ISessionStorage> storageMock;
         
         [SetUp]
         public void SetUp()
         {
-            app = new Application(new Type[0]);
+            app = new BackendApplication(new Type[0]);
             
             storageMock = new Mock<ISessionStorage>();
             session = new SessionOverStorage(storageMock.Object, 42);

@@ -8,7 +8,7 @@ namespace Unisave.Providers
 {
     public class ArangoServiceProvider : ServiceProvider
     {
-        public ArangoServiceProvider(Application app) : base(app) { }
+        public ArangoServiceProvider(BackendApplication app) : base(app) { }
 
         public override void Register()
         {

@@ -6,7 +6,7 @@ namespace Unisave.Providers
 {
     public class EntityServiceProvider : ServiceProvider
     {
-        public EntityServiceProvider(Application app) : base(app) { }
+        public EntityServiceProvider(BackendApplication app) : base(app) { }
 
         public override void Register()
         {

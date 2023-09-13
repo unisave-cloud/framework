@@ -12,9 +12,9 @@ namespace Unisave.Facets
     /// </summary>
     public abstract class FacetMiddleware
     {
-        protected Application App { get; }
+        protected BackendApplication App { get; }
         
-        public FacetMiddleware(Application app)
+        public FacetMiddleware(BackendApplication app)
         {
             App = app;
         }
@@ -33,7 +33,7 @@ namespace Unisave.Facets
         /// Executes provided closure inside all middleware layers
         /// </summary>
         public static FacetResponse ExecuteMiddlewareStack(
-            Application app,
+            BackendApplication app,
             IEnumerable<MiddlewareAttribute> globalMiddleware,
             FacetRequest request,
             Func<FacetRequest, FacetResponse> action
@@ -57,7 +57,7 @@ namespace Unisave.Facets
         /// Extracts and sorts middleware layers from a facet request
         /// </summary>
         private static List<Layer> ObtainMiddlewareLayers(
-            Application app,
+            BackendApplication app,
             IEnumerable<MiddlewareAttribute> globalMiddleware,
             FacetRequest request
         )
@@ -92,7 +92,7 @@ namespace Unisave.Facets
             public readonly string[] parameters;
             public readonly int order;
 
-            public Layer(Application app, MiddlewareAttribute attribute)
+            public Layer(BackendApplication app, MiddlewareAttribute attribute)
             {
                 order = attribute.Order;
                 parameters = attribute.Parameters;

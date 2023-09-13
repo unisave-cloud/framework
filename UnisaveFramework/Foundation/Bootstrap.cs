@@ -14,16 +14,16 @@ namespace Unisave.Foundation
         /// <summary>
         /// Bootstraps a new application
         /// </summary>
-        public static Application Boot(
+        public static BackendApplication Boot(
             Type[] gameAssemblyTypes,
             EnvStore envStore,
             SpecialValues specialValues
         )
         {
-            var app = new Application(gameAssemblyTypes);
+            var app = new BackendApplication(gameAssemblyTypes);
             
             // application can be resolved
-            app.Services.RegisterInstance<Application>(app);
+            app.Services.RegisterInstance<BackendApplication>(app);
             
             // basic services, used even inside service providers
             app.Services.RegisterInstance<EnvStore>(envStore);

@@ -11,13 +11,13 @@ namespace Unisave.Facades
         /// <summary>
         /// Application instance that should be used by facades
         /// </summary>
-        public static Application App => app
+        public static BackendApplication App => app
             ?? throw new InvalidOperationException(
                 "Trying to use a facade, but facades have not been "
                 + "initialized to an application instance."
             );
 
-        private static Application app;
+        private static BackendApplication app;
 
         /// <summary>
         /// True if an application instance is set and can be used
@@ -27,7 +27,7 @@ namespace Unisave.Facades
         /// <summary>
         /// Sets the application instance to be used by facades
         /// </summary>
-        public static void SetApplication(Application newApp)
+        public static void SetApplication(BackendApplication newApp)
         {
             app = newApp;
         }

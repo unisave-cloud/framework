@@ -144,7 +144,7 @@ namespace Unisave.Runtime
         /// </summary>
         private static JsonValue ExecuteProperMethod(
             ExecutionParameters executionParameters,
-            Application app
+            BackendApplication app
         )
         {
             switch (executionParameters.Method)

@@ -11,7 +11,7 @@ namespace Unisave.Authentication.Middleware
     {
         private readonly AuthenticationManager auth;
         
-        public Authenticate(Application app) : base(app)
+        public Authenticate(BackendApplication app) : base(app)
         {
             auth = app.Services.Resolve<AuthenticationManager>();
         }

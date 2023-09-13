@@ -4,9 +4,9 @@ namespace Unisave.Providers
 {
     public abstract class ServiceProvider
     {
-        protected Application App { get; }
+        protected BackendApplication App { get; }
 
-        public ServiceProvider(Application app)
+        public ServiceProvider(BackendApplication app)
         {
             App = app;
         }

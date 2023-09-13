@@ -5,9 +5,9 @@ using Unisave.Providers;
 namespace Unisave.Foundation
 {
     /// <summary>
-    /// Contains the entire application
+    /// Contains the entire game backend application
     /// </summary>
-    public class Application : IDisposable
+    public class BackendApplication : IDisposable
     {
         /// <summary>
         /// All types defined inside the game assembly that
@@ -30,7 +30,7 @@ namespace Unisave.Foundation
         /// </summary>
         private bool disposed = false;
 
-        public Application(Type[] gameAssemblyTypes)
+        public BackendApplication(Type[] gameAssemblyTypes)
         {
             GameAssemblyTypes = gameAssemblyTypes;
             
