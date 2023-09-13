@@ -136,9 +136,7 @@
     <Compile Include="Facets\InstantiationException.cs" />
     <Compile Include="Facets\MethodSearchException.cs" />
     <Compile Include="Foundation\Application.cs" />
-    <Compile Include="Foundation\BindingResolutionException.cs" />
     <Compile Include="Foundation\Bootstrap.cs" />
-    <Compile Include="Foundation\Container.cs" />
     <Compile Include="Foundation\EnvStore.cs" />
     <Compile Include="Logging\ClientSideLog.cs" />
     <Compile Include="Logging\LogLevel.cs" />

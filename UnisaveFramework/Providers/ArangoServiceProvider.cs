@@ -12,8 +12,8 @@ namespace Unisave.Providers
 
         public override void Register()
         {
-            App.Singleton<IArango>(app => {
-                var env = app.Resolve<EnvStore>();
+            App.Services.RegisterSingleton<IArango>(container => {
+                var env = container.Resolve<EnvStore>();
                 
                 string driver = env.GetString("ARANGO_DRIVER", "http");
 

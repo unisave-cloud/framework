@@ -15,7 +15,7 @@ namespace Unisave.Facades
                     "You cannot access env variables from the client side."
                 );
             
-            return Facade.App.Resolve<EnvStore>();
+            return Facade.App.Services.Resolve<EnvStore>();
         }
 
         /// <summary>

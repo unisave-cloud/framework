@@ -22,13 +22,12 @@ namespace Unisave.Foundation
         {
             var app = new Application(gameAssemblyTypes);
             
-            // application can resolve itself
-            app.Instance<Application>(app);
-            app.DontDisposeInstance(app);
+            // application can be resolved
+            app.Services.RegisterInstance<Application>(app);
             
             // basic services, used even inside service providers
-            app.Instance<EnvStore>(envStore);
-            app.Instance<SpecialValues>(specialValues);
+            app.Services.RegisterInstance<EnvStore>(envStore);
+            app.Services.RegisterInstance<SpecialValues>(specialValues);
             
             app.RegisterServiceProviders();
             

@@ -24,7 +24,7 @@ namespace Unisave.Runtime.Kernels
         {
             this.app = app;
             this.specialValues = specialValues;
-            sessionIdRepository = app.Resolve<ServerSessionIdRepository>();
+            sessionIdRepository = app.Services.Resolve<ServerSessionIdRepository>();
         }
         
         /// <summary>

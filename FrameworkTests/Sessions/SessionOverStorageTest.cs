@@ -25,7 +25,7 @@ namespace FrameworkTests.Sessions
             
             storageMock = new Mock<ISessionStorage>();
             session = new SessionOverStorage(storageMock.Object, 42);
-            app.Instance<ISession>(session);
+            app.Services.RegisterInstance<ISession>(session);
             
             Facade.SetApplication(app);
         }

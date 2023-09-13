@@ -16,7 +16,7 @@ namespace Unisave.Facades
                     "You cannot access session data from the client side."
                 );
             
-            return Facade.App.Resolve<ISession>();
+            return Facade.App.Services.Resolve<ISession>();
         }
         
         /// <summary>

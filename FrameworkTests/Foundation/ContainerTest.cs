@@ -1,4 +1,5 @@
-using System.Diagnostics;
+using System;
+using Moq;
 using NUnit.Framework;
 using TinyIoC;
 using Unisave.Foundation;
@@ -10,6 +11,26 @@ namespace FrameworkTests.Foundation
     {
         private TinyIoCContainer tinyIoCContainer;
         private IContainer container;
+
+        // dummy interface
+        public interface IFoo : IDisposable
+        {
+            void DoFoo();
+        }
+        
+        // another dummy interface
+        public interface IBar : IDisposable
+        {
+            void DoBar();
+        }
+        
+        // dummy service
+        public class Foo : IFoo
+        {
+            public void DoFoo() { }
+            
+            public void Dispose() { }
+        }
         
         [SetUp]
         public void SetUp()
@@ -46,11 +67,11 @@ namespace FrameworkTests.Foundation
         [Test]
         public void ItResolvesConcreteClassesTransiently()
         {
-            Assert.IsTrue(container.CanResolve<Stopwatch>());
-            Assert.IsFalse(container.IsRegistered<Stopwatch>());
+            Assert.IsTrue(container.CanResolve<Foo>());
+            Assert.IsFalse(container.IsRegistered<Foo>());
             
-            var firstInstance = container.Resolve<Stopwatch>();
-            var secondInstance = container.Resolve<Stopwatch>();
+            var firstInstance = container.Resolve<Foo>();
+            var secondInstance = container.Resolve<Foo>();
             Assert.IsNotNull(firstInstance);
             Assert.IsNotNull(secondInstance);
             Assert.AreNotSame(firstInstance, secondInstance);
@@ -59,16 +80,16 @@ namespace FrameworkTests.Foundation
         [Test]
         public void ItRegistersConcreteClassesAsSingletons()
         {
-            Assert.IsTrue(container.CanResolve<Stopwatch>());
-            Assert.IsFalse(container.IsRegistered<Stopwatch>());
+            Assert.IsTrue(container.CanResolve<Foo>());
+            Assert.IsFalse(container.IsRegistered<Foo>());
             
-            container.RegisterSingleton<Stopwatch>();
+            container.RegisterSingleton<Foo>();
             
-            Assert.IsTrue(container.CanResolve<Stopwatch>());
-            Assert.IsTrue(container.IsRegistered<Stopwatch>());
+            Assert.IsTrue(container.CanResolve<Foo>());
+            Assert.IsTrue(container.IsRegistered<Foo>());
             
-            var firstInstance = container.Resolve<Stopwatch>();
-            var secondInstance = container.Resolve<Stopwatch>();
+            var firstInstance = container.Resolve<Foo>();
+            var secondInstance = container.Resolve<Foo>();
             Assert.IsNotNull(firstInstance);
             Assert.IsNotNull(secondInstance);
             Assert.AreSame(firstInstance, secondInstance);
@@ -77,19 +98,57 @@ namespace FrameworkTests.Foundation
         [Test]
         public void ItRegistersConcreteClassesAsInstances()
         {
-            var instance = new Stopwatch();
+            var instance = new Foo();
             
-            Assert.IsTrue(container.CanResolve<Stopwatch>());
-            Assert.IsFalse(container.IsRegistered<Stopwatch>());
+            Assert.IsTrue(container.CanResolve<Foo>());
+            Assert.IsFalse(container.IsRegistered<Foo>());
             
-            container.RegisterInstance<Stopwatch>(instance);
+            container.RegisterInstance<Foo>(instance);
             
-            Assert.IsTrue(container.CanResolve<Stopwatch>());
-            Assert.IsTrue(container.IsRegistered<Stopwatch>());
+            Assert.IsTrue(container.CanResolve<Foo>());
+            Assert.IsTrue(container.IsRegistered<Foo>());
 
-            var resolvedInstance = container.Resolve<Stopwatch>();
+            var resolvedInstance = container.Resolve<Foo>();
             Assert.IsNotNull(resolvedInstance);
             Assert.AreSame(instance, resolvedInstance);
+        }
+
+        [Test]
+        public void ItCreatesChildContainers()
+        {
+            string log = "";
+            
+            // global service (e.g. database connection)
+            container.RegisterSingleton<IFoo, Foo>();
+            IFoo foo = container.Resolve<IFoo>();
+            
+            // request comes, we create a request-scoped child container
+            using (var child = container.CreateChildContainer())
+            {
+                // register request-scoped service (e.g. http context)
+                child.RegisterSingleton<IBar>(_ => {
+                    var mock = new Mock<IBar>();
+                    log += "+Bar";
+                    mock.Setup(b => b.Dispose()).Callback(() => {
+                        log += "~Bar";
+                    });
+                    return mock.Object;
+                });
+                
+                // nothing should be created yet
+                Assert.AreEqual("", log);
+                
+                // now user requests the http context so it's created
+                var childBar = child.Resolve<IBar>();
+                Assert.AreEqual("+Bar", log);
+                
+                // we can also resolve from parent via the child
+                var childFoo = child.Resolve<IFoo>();
+                Assert.AreSame(foo, childFoo);
+            }
+            
+            // now after the child dispose, the http context should be disposed
+            Assert.AreEqual("+Bar~Bar", log);
         }
     }
 }

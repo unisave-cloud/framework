@@ -16,7 +16,7 @@ namespace Unisave.Facades
                     "You cannot access authentication logic from the client side."
                 );
             
-            return Facade.App.Resolve<AuthenticationManager>();
+            return Facade.App.Services.Resolve<AuthenticationManager>();
         }
         
         /// <summary>

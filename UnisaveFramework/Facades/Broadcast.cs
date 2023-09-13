@@ -16,7 +16,7 @@ namespace Unisave.Facades
                     "only listen to subscriptions."
                 );
             
-            return Facade.App.Resolve<IBroadcaster>();
+            return Facade.App.Services.Resolve<IBroadcaster>();
         }
         
         /// <summary>

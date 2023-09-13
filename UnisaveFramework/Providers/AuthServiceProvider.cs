@@ -11,10 +11,10 @@ namespace Unisave.Providers
 
         public override void Register()
         {
-            App.Singleton<AuthenticationManager>(
-                app => new AuthenticationManager(
-                    app.Resolve<ISession>(),
-                    app.Resolve<EntityManager>()
+            App.Services.RegisterSingleton<AuthenticationManager>(
+                container => new AuthenticationManager(
+                    container.Resolve<ISession>(),
+                    container.Resolve<EntityManager>()
                 )
             );
         }

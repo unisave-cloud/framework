@@ -29,7 +29,7 @@ namespace Unisave.Facades
                     "You cannot use the Http facade the client side."
                 );
             
-            return Facade.App.Resolve<Factory>();
+            return Facade.App.Services.Resolve<Factory>();
         }
         
         #region "Request construction"

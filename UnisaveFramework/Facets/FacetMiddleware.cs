@@ -96,7 +96,7 @@ namespace Unisave.Facets
             {
                 order = attribute.Order;
                 parameters = attribute.Parameters;
-                middleware = (FacetMiddleware) app.Resolve(
+                middleware = (FacetMiddleware) app.Services.Resolve(
                     attribute.MiddlewareType
                 );
             }

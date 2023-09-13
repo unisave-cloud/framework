@@ -12,13 +12,15 @@ namespace Unisave.Providers
 
         public override void Register()
         {
-            App.Singleton<IBroadcaster>(app => new UnisaveBroadcaster(
-                app.Resolve<ServerSessionIdRepository>(),
-                app.Resolve<Factory>(),
-                Env.GetString("BROADCASTING_SERVER_URL"),
-                Env.GetString("BROADCASTING_KEY"),
-                Env.GetString("UNISAVE_ENVIRONMENT_ID")
-            ));
+            App.Services.RegisterSingleton<IBroadcaster>(
+                container => new UnisaveBroadcaster(
+                    container.Resolve<ServerSessionIdRepository>(),
+                    container.Resolve<Factory>(),
+                    Env.GetString("BROADCASTING_SERVER_URL"),
+                    Env.GetString("BROADCASTING_KEY"),
+                    Env.GetString("UNISAVE_ENVIRONMENT_ID")
+                )
+            );
         }
     }
 }

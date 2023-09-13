@@ -11,10 +11,12 @@ namespace Unisave.Providers
         
         public override void Register()
         {
-            App.Singleton<ServerSessionIdRepository>(_ => new ServerSessionIdRepository());
+            App.Services.RegisterSingleton<ServerSessionIdRepository>(
+                _ => new ServerSessionIdRepository()
+            );
             
-            App.Singleton<ISession>(app => {
-                var env = app.Resolve<EnvStore>();
+            App.Services.RegisterSingleton<ISession>(container => {
+                var env = container.Resolve<EnvStore>();
                 
                 string driver = env.GetString("SESSION_DRIVER", "arango");
                 int lifetime = env.GetInt("SESSION_LIFETIME", 3600); // 1h
@@ -24,8 +26,8 @@ namespace Unisave.Providers
                     case "arango":
                         return new SessionOverStorage(
                             new ArangoSessionStorage(
-                                app.Resolve<IArango>(),
-                                app.Resolve<ILog>()
+                                container.Resolve<IArango>(),
+                                container.Resolve<ILog>()
                             ),
                             lifetime
                         );

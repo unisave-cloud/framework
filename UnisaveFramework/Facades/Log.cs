@@ -14,7 +14,7 @@ namespace Unisave.Facades
             if (!Facade.HasApp)
                 return new ClientSideLog();
             
-            return Facade.App.Resolve<ILog>();
+            return Facade.App.Services.Resolve<ILog>();
         }
         
         /// <summary>

@@ -1,4 +1,5 @@
 using System;
+using TinyIoC;
 using Unisave.Providers;
 
 namespace Unisave.Foundation
@@ -6,22 +7,34 @@ namespace Unisave.Foundation
     /// <summary>
     /// Contains the entire application
     /// </summary>
-    public class Application : Container, IDisposable
+    public class Application : IDisposable
     {
         /// <summary>
         /// All types defined inside the game assembly that
         /// can be searched for appropriate user implementation
         /// </summary>
         public Type[] GameAssemblyTypes { get; }
+        
+        /// <summary>
+        /// IoC service container for the entire application
+        /// </summary>
+        public IContainer Services { get; }
 
         /// <summary>
         /// Loaded service providers
         /// </summary>
         private ServiceProvider[] providers;
 
+        /// <summary>
+        /// Has the application been already disposed
+        /// </summary>
+        private bool disposed = false;
+
         public Application(Type[] gameAssemblyTypes)
         {
             GameAssemblyTypes = gameAssemblyTypes;
+            
+            Services = new TinyIoCAdapter(new TinyIoCContainer());
         }
 
         public void RegisterServiceProviders()
@@ -46,8 +59,12 @@ namespace Unisave.Foundation
             };
         }
 
-        public override void Dispose()
+        public void Dispose()
         {
+            if (disposed)
+                return;
+            disposed = true;
+            
             if (providers != null)
             {
                 for (int i = providers.Length - 1; i >= 0; i--)
@@ -56,7 +73,7 @@ namespace Unisave.Foundation
                 providers = null;
             }
             
-            base.Dispose();
+            Services.Dispose();
         }
     }
 }

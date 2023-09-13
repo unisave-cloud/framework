@@ -23,7 +23,7 @@ namespace Unisave.Providers
 
         public override void Register()
         {
-            App.Singleton<ILog>(app => log);
+            App.Services.RegisterSingleton<ILog>(container => log);
 
             // if there's a property called "unisave adapter" on the Debug class
             // then we're definitely running in a sandbox and we do the binding
@@ -98,7 +98,7 @@ namespace Unisave.Providers
 
         public override void TearDown()
         {
-            var specialValues = App.Resolve<SpecialValues>();
+            var specialValues = App.Services.Resolve<SpecialValues>();
             specialValues.Add("logs", log.ExportLog());
         }
     }

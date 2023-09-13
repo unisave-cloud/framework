@@ -13,7 +13,7 @@ namespace Unisave.Authentication.Middleware
         
         public Authenticate(Application app) : base(app)
         {
-            auth = app.Resolve<AuthenticationManager>();
+            auth = app.Services.Resolve<AuthenticationManager>();
         }
 
         public override FacetResponse Handle(

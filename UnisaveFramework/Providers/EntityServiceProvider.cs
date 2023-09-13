@@ -10,10 +10,10 @@ namespace Unisave.Providers
 
         public override void Register()
         {
-            App.Singleton<EntityManager>(
-                app => new EntityManager(
-                    app.Resolve<IArango>(),
-                    app.Resolve<ILog>()
+            App.Services.RegisterSingleton<EntityManager>(
+                container => new EntityManager(
+                    container.Resolve<IArango>(),
+                    container.Resolve<ILog>()
                 )
             );
         }

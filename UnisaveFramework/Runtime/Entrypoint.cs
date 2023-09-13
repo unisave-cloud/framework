@@ -152,11 +152,11 @@ namespace Unisave.Runtime
                 case "entrypoint-test":
                     return EntrypointTest.Start(
                         executionParameters.MethodParameters,
-                        app.Resolve<SpecialValues>()
+                        app.Services.Resolve<SpecialValues>()
                     );
                 
                 case "facet-call":
-                    var kernel = app.Resolve<FacetCallKernel>();
+                    var kernel = app.Services.Resolve<FacetCallKernel>();
                     var parameters = FacetCallKernel.MethodParameters
                         .Parse(executionParameters.MethodParameters);
                     return kernel.Handle(parameters);

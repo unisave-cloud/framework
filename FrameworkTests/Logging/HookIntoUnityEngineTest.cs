@@ -40,7 +40,7 @@ namespace FrameworkTests.Logging
             UnityEngine.Debug.LogWarning("B");
             UnityEngine.Debug.LogError("C");
 
-            InMemoryLog log = (InMemoryLog) app.Resolve<ILog>();
+            InMemoryLog log = (InMemoryLog) app.Services.Resolve<ILog>();
 
             JsonArray records = log.ExportLog();
             

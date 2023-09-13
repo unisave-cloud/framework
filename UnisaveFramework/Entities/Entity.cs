@@ -168,7 +168,7 @@ namespace Unisave.Entities
         /// </summary>
         protected virtual EntityManager GetEntityManager()
         {
-            return Facade.App.Resolve<EntityManager>();
+            return Facade.App.Services.Resolve<EntityManager>();
         }
         
         /// <summary>

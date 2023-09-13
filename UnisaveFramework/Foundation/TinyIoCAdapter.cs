@@ -10,7 +10,7 @@ namespace Unisave.Foundation
     {
         private readonly TinyIoCContainer container;
         
-        private bool disposeCalled = false;
+        private bool disposed = false;
 
         public TinyIoCAdapter(TinyIoCContainer container)
         {
@@ -163,11 +163,10 @@ namespace Unisave.Foundation
         
         public void Dispose()
         {
-            // prevents repeated dispose for self-registrations
-            if (disposeCalled)
+            if (disposed)
                 return;
             
-            disposeCalled = true;
+            disposed = true;
             
             container.Dispose();
         }

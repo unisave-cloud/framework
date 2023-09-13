@@ -32,7 +32,7 @@ namespace FrameworkTests.Entities
             var arango = new Mock<IArango>();
             var log = new Mock<ILog>();
             var manager = new Mock<EntityManager>(arango.Object, log.Object);
-            app.Singleton<EntityManager>(_ => manager.Object);
+            app.Services.RegisterInstance<EntityManager>(manager.Object);
             Facade.SetApplication(app);
         }
         

@@ -30,7 +30,7 @@ namespace Unisave.Facades
         {
             GuardClientSide();
             
-            return Facade.App.Resolve<IArango>();
+            return Facade.App.Services.Resolve<IArango>();
         }
         
         /// <summary>
