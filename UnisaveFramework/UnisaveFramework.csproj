@@ -32,6 +32,10 @@
     <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\paket-files\grumpydev\TinyIoC\src\TinyIoC\TinyIoC.cs">
+      <Paket>True</Paket>
+      <Link>Foundation/TinyIoC.cs</Link>
+    </Compile>
     <Compile Include="Arango\ArangoConnection.cs" />
     <Compile Include="Arango\ArangoException.cs" />
     <Compile Include="Arango\ArangoUtils.cs" />
@@ -90,6 +94,9 @@
     <Compile Include="Broadcasting\SpecificChannel.cs" />
     <Compile Include="Broadcasting\UnisaveBroadcaster.cs" />
     <Compile Include="Entities\EntitySecurityException.cs" />
+    <Compile Include="Foundation\IContainer.cs" />
+    <Compile Include="Foundation\ContainerExtensions.cs" />
+    <Compile Include="Foundation\TinyIoCAdapter.cs" />
     <Compile Include="HttpClient\Factory.cs" />
     <Compile Include="HttpClient\HttpContentHolder.cs" />
     <Compile Include="HttpClient\PendingRequest.cs" />

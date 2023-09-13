@@ -43,6 +43,7 @@
     <Compile Include="Bootstrapping\BootstrappingEngineTest.cs" />
     <Compile Include="Entities\EntityReferenceTest.cs" />
     <Compile Include="Entities\MassAssignmentTest.cs" />
+    <Compile Include="Foundation\ContainerTest.cs" />
     <Compile Include="HttpClient\AuthorizationTest.cs" />
     <Compile Include="HttpClient\FakingTest.cs" />
     <Compile Include="HttpClient\PendingRequestTest.cs" />

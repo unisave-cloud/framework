@@ -7,6 +7,7 @@ source https://api.nuget.org/v3/index.json
 nuget JWT >= 10.1.0
 nuget RSG.Promise >= 3.0.1
 github MarcosLopezC/LightJson:v0.5.2
+github grumpydev/TinyIoC:1.4.0-rc1 src/TinyIoC/TinyIoC.cs
 
 // Owin & Katana
 nuget Owin >= 1.0.0
