@@ -21,7 +21,7 @@ namespace FrameworkTests.Logging
             UnityEngine.Debug.UnisaveAdapter = null;
             
             // create app and log service provider
-            app = new BackendApplication(new Type[] { });
+            app = new BackendApplication(new Type[] { }, new EnvStore(), false);
             provider = new LogServiceProvider(app);
         }
 

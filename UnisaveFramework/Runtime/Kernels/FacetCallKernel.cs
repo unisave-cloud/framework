@@ -38,7 +38,7 @@ namespace Unisave.Runtime.Kernels
                 methodParameters.FacetName,
                 methodParameters.MethodName,
                 methodParameters.Arguments,
-                app.GameAssemblyTypes
+                app.BackendTypes
             );
 
             MiddlewareAttribute[] globalMiddleware = {

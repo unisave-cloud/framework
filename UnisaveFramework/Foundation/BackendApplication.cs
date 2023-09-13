@@ -1,6 +1,8 @@
 using System;
 using TinyIoC;
+using Unisave.Bootstrapping;
 using Unisave.Providers;
+using Unisave.Runtime;
 
 namespace Unisave.Foundation
 {
@@ -10,10 +12,10 @@ namespace Unisave.Foundation
     public class BackendApplication : IDisposable
     {
         /// <summary>
-        /// All types defined inside the game assembly that
+        /// All types defined inside the game backend that
         /// can be searched for appropriate user implementation
         /// </summary>
-        public Type[] GameAssemblyTypes { get; }
+        public Type[] BackendTypes { get; }
         
         /// <summary>
         /// IoC service container for the entire application
@@ -30,11 +32,31 @@ namespace Unisave.Foundation
         /// </summary>
         private bool disposed = false;
 
-        public BackendApplication(Type[] gameAssemblyTypes)
+        /// <summary>
+        /// Creates a new game backend application instance
+        /// </summary>
+        /// <param name="backendTypes">All types in the game backend</param>
+        /// <param name="envStore">Environment variables</param>
+        public BackendApplication(
+            Type[] backendTypes,
+            EnvStore envStore,
+            bool registerFrameworkServices = true
+        )
         {
-            GameAssemblyTypes = gameAssemblyTypes;
+            BackendTypes = backendTypes;
             
             Services = new TinyIoCAdapter(new TinyIoCContainer());
+            
+            // register instances
+            Services.RegisterInstance<BackendApplication>(this);
+            Services.RegisterInstance<EnvStore>(envStore);
+            
+            if (registerFrameworkServices)
+                RegisterServiceProviders();
+            
+            // run bootstrappers
+            var engine = new BootstrappingEngine(BackendTypes);
+            engine.Run();
         }
 
         public void RegisterServiceProviders()

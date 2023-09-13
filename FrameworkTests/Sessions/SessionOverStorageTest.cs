@@ -21,7 +21,7 @@ namespace FrameworkTests.Sessions
         [SetUp]
         public void SetUp()
         {
-            app = new BackendApplication(new Type[0]);
+            app = new BackendApplication(new Type[0], new EnvStore());
             
             storageMock = new Mock<ISessionStorage>();
             session = new SessionOverStorage(storageMock.Object, 42);

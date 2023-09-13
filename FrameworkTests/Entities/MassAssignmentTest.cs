@@ -28,7 +28,7 @@ namespace FrameworkTests.Entities
         [SetUp]
         public void SetUp()
         {
-            var app = new BackendApplication(new Type[] {});
+            var app = new BackendApplication(new Type[] {}, new EnvStore());
             var arango = new Mock<IArango>();
             var log = new Mock<ILog>();
             var manager = new Mock<EntityManager>(arango.Object, log.Object);

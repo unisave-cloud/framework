@@ -69,20 +69,27 @@ namespace Unisave.Runtime
 
                         JsonValue methodResult;
                         
-                        using (var app = Bootstrap.Boot(
+                        using (var app = new BackendApplication(
                             gameAssemblyTypes,
-                            env,
-                            specialValues
+                            env
                         ))
                         {
-                            Facade.SetApplication(app);
-                            
-                            methodResult = ExecuteProperMethod(
-                                executionParameters,
-                                app
-                            );
-                            
-                            Facade.SetApplication(null);
+                            // simulate a single request
+                            using (IContainer requestServices = app.Services.CreateChildContainer())
+                            {
+                                app.Services.RegisterInstance<SpecialValues>(
+                                    specialValues
+                                );
+                                
+                                Facade.SetApplication(app);
+                                
+                                methodResult = ExecuteProperMethod(
+                                    executionParameters,
+                                    requestServices
+                                );
+                                
+                                Facade.SetApplication(null);
+                            }
                         }
                         
                         return new JsonObject()
@@ -144,7 +151,7 @@ namespace Unisave.Runtime
         /// </summary>
         private static JsonValue ExecuteProperMethod(
             ExecutionParameters executionParameters,
-            BackendApplication app
+            IContainer requestServices
         )
         {
             switch (executionParameters.Method)
@@ -152,11 +159,11 @@ namespace Unisave.Runtime
                 case "entrypoint-test":
                     return EntrypointTest.Start(
                         executionParameters.MethodParameters,
-                        app.Services.Resolve<SpecialValues>()
+                        requestServices.Resolve<SpecialValues>()
                     );
                 
                 case "facet-call":
-                    var kernel = app.Services.Resolve<FacetCallKernel>();
+                    var kernel = requestServices.Resolve<FacetCallKernel>();
                     var parameters = FacetCallKernel.MethodParameters
                         .Parse(executionParameters.MethodParameters);
                     return kernel.Handle(parameters);
