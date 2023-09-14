@@ -21,17 +21,61 @@ namespace FrameworkTests.Bootstrapping
 
         #region "Bootstrappers"
 
-        private abstract class TestingBootstrapperBase : IBootstrapper
+        private abstract class TestingBootstrapperBase : Bootstrapper
         {
-            public virtual void Main()
+            public override void Main()
             {
                 executionLog.Add(this.GetType());
             }
         }
         
         private class SimpleBootstrapper : TestingBootstrapperBase { }
+        
+        private class ZzzBootstrapper : TestingBootstrapperBase { }
+
+        private class SimpleBeforeBootstrapper : TestingBootstrapperBase
+        {
+            public override Type[] RunBefore => new[] {
+                typeof(SimpleBootstrapper)
+            };
+        }
+        
+        private class CycleBootstrapper : TestingBootstrapperBase
+        {
+            public override Type[] RunAfter => new[] {
+                typeof(SimpleBootstrapper)
+            };
+            
+            public override Type[] RunBefore => new[] {
+                typeof(SimpleBeforeBootstrapper)
+            };
+        }
+
+        private class FrameworkBootstrapper : TestingBootstrapperBase
+        {
+            public override int StageNumber => BootstrappingStage.Framework;
+        }
+        
+        private class FrameworkAfterBootstrapper : TestingBootstrapperBase
+        {
+            public override int StageNumber => BootstrappingStage.Framework;
+
+            public override Type[] RunAfter => new[] {
+                typeof(FrameworkBootstrapper)
+            };
+        }
     
         #endregion
+        
+        private static Type[] Shuffle(Type[] types)
+        {
+            var rnd = new Random();
+            return types
+                .Select(x => (x, rnd.Next()))
+                .OrderBy(tuple => tuple.Item2)
+                .Select(tuple => tuple.Item1)
+                .ToArray();
+        }
 
         [SetUp]
         public void SetUp()
@@ -42,10 +86,10 @@ namespace FrameworkTests.Bootstrapping
         void AssertExecutionLog(Type[] expectedLog)
         {
             string expected = string.Join(
-                "\n", expectedLog.Select(t => t.FullName)
+                "\n", expectedLog.Select(t => t.Name)
             );
             string actual = string.Join(
-                "\n", executionLog.Select(t => t.FullName)
+                "\n", executionLog.Select(t => t.Name)
             );
             Assert.AreEqual(expected, actual);
         }
@@ -88,13 +132,159 @@ namespace FrameworkTests.Bootstrapping
             );
         }
 
-        // TODO: ItProvidesBootstrapperDependencies
-        // from the container via the constructor
+        [Test]
+        public void ItOrdersBootstrappersByStages()
+        {
+            for (int i = 0; i < 20; i++)
+            {
+                SetUp();
+            
+                var engine = new BootstrappingEngine(container, Shuffle(new[] {
+                    typeof(SimpleBootstrapper),
+                    typeof(FrameworkBootstrapper),
+                }));
 
-        // TODO: ItOrdersBootstrappersByDependencies
+                engine.Run();
+                
+                AssertExecutionLog(new [] {
+                    typeof(FrameworkBootstrapper),
+                    typeof(SimpleBootstrapper)
+                });
+            }
+        }
         
-        // TODO: ItOrdersBootstrappersAlphabetically
+        [Test]
+        public void ItOrdersBootstrappersByDependencies()
+        {
+            for (int i = 0; i < 20; i++)
+            {
+                SetUp();
 
-        // TODO: ItDetectsOrderingLoops
+                var engine = new BootstrappingEngine(container, new[] {
+                    typeof(SimpleBootstrapper),
+                    typeof(SimpleBeforeBootstrapper)
+                });
+
+                engine.Run();
+
+                AssertExecutionLog(new[] {
+                    typeof(SimpleBeforeBootstrapper),
+                    typeof(SimpleBootstrapper)
+                });
+            }
+            
+            for (int i = 0; i < 20; i++)
+            {
+                SetUp();
+
+                var engine = new BootstrappingEngine(container, new[] {
+                    typeof(FrameworkBootstrapper),
+                    typeof(FrameworkAfterBootstrapper)
+                });
+
+                engine.Run();
+
+                AssertExecutionLog(new[] {
+                    typeof(FrameworkBootstrapper),
+                    typeof(FrameworkAfterBootstrapper)
+                });
+            }
+        }
+
+        [Test]
+        public void ItOrdersBootstrappersAlphabetically()
+        {
+            for (int i = 0; i < 20; i++)
+            {
+                SetUp();
+
+                var engine = new BootstrappingEngine(container, new[] {
+                    typeof(SimpleBootstrapper),
+                    typeof(ZzzBootstrapper)
+                });
+
+                engine.Run();
+
+                AssertExecutionLog(new[] {
+                    typeof(SimpleBootstrapper),
+                    typeof(ZzzBootstrapper)
+                });
+            }
+        }
+
+        [Test]
+        public void ItOrdersBootstrappersCompletely()
+        {
+            for (int i = 0; i < 20; i++)
+            {
+                SetUp();
+
+                var engine = new BootstrappingEngine(container, new[] {
+                    typeof(SimpleBootstrapper),
+                    typeof(ZzzBootstrapper),
+                    typeof(SimpleBeforeBootstrapper),
+                    typeof(FrameworkBootstrapper),
+                    typeof(FrameworkAfterBootstrapper)
+                });
+
+                engine.Run();
+
+                AssertExecutionLog(new[] {
+                    // framework stage
+                    // plane 0
+                    typeof(FrameworkBootstrapper),
+                    // plane 1
+                    typeof(FrameworkAfterBootstrapper),
+                    
+                    // default stage
+                    // plane 0
+                    typeof(SimpleBeforeBootstrapper),
+                    typeof(ZzzBootstrapper),
+                    // plane 1
+                    typeof(SimpleBootstrapper)
+                });
+            }
+        }
+
+        [Test]
+        public void ItDetectsOrderingLoops()
+        {
+            var engine = new BootstrappingEngine(container, new[] {
+                typeof(SimpleBootstrapper),
+                typeof(ZzzBootstrapper),
+                typeof(SimpleBeforeBootstrapper),
+                typeof(FrameworkBootstrapper),
+                typeof(FrameworkAfterBootstrapper),
+                
+                typeof(CycleBootstrapper) // culprit
+            });
+
+            var e = Assert.Throws<BootstrappingException>(() => {
+                engine.Run();
+            });
+            
+            Assert.IsTrue(e.Message.Contains(nameof(SimpleBootstrapper)));
+            Assert.IsTrue(e.Message.Contains(nameof(SimpleBeforeBootstrapper)));
+            Assert.IsTrue(e.Message.Contains(nameof(CycleBootstrapper)));
+        }
+
+        [Test]
+        public void ItFailsOnWrongDependencyType()
+        {
+            var engine = new BootstrappingEngine(container, new[] {
+                typeof(SimpleBootstrapper),
+                typeof(ZzzBootstrapper),
+                typeof(SimpleBeforeBootstrapper),
+                
+                typeof(FrameworkAfterBootstrapper) // culprit
+            });
+
+            var e = Assert.Throws<BootstrappingException>(() => {
+                engine.Run();
+            });
+            
+            Assert.IsTrue(e.Message.Contains(nameof(FrameworkAfterBootstrapper)));
+            Assert.IsTrue(e.Message.Contains(nameof(FrameworkBootstrapper)));
+        }
     }
 }

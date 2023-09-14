@@ -96,8 +96,6 @@ namespace Unisave.Foundation
         /// </summary>
         public void Initialize()
         {
-            // TODO: what about async initialization and async bootstrappers?
-            
             if (initialized)
             {
                 throw new InvalidOperationException(

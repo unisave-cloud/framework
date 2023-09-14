@@ -85,7 +85,11 @@
     <Compile Include="Authentication\AuthException.cs" />
     <Compile Include="Authentication\AuthenticationManager.cs" />
     <Compile Include="Authentication\Middleware\Authenticate.cs" />
+    <Compile Include="Bootstrapping\AsyncBootstrapper.cs" />
+    <Compile Include="Bootstrapping\Bootstrapper.cs" />
     <Compile Include="Bootstrapping\BootstrappingEngine.cs" />
+    <Compile Include="Bootstrapping\BootstrappingException.cs" />
+    <Compile Include="Bootstrapping\BootstrappingStage.cs" />
     <Compile Include="Bootstrapping\IBootstrapper.cs" />
     <Compile Include="Broadcasting\BroadcastingChannel.cs" />
     <Compile Include="Broadcasting\BroadcastingMessage.cs" />

@@ -6,17 +6,12 @@ using Unisave.Bootstrapping;
 
 namespace Unisave.Foundation.Pipeline
 {
-    public class UnisaveRequestMiddlewareBootstrapper : IBootstrapper
+    public class UnisaveRequestMiddlewareBootstrapper : Bootstrapper
     {
-        private readonly IAppBuilder owinAppBuilder;
-        
-        public UnisaveRequestMiddlewareBootstrapper(IAppBuilder owinAppBuilder)
+        public override void Main()
         {
-            this.owinAppBuilder = owinAppBuilder;
-        }
-        
-        public void Main()
-        {
+            var owinAppBuilder = Services.Resolve<IAppBuilder>();
+            
             owinAppBuilder.MapWhen(IsUnisaveRequest, branch => {
 
                 branch.Use(async (IOwinContext ctx, Func<Task> next) => {
