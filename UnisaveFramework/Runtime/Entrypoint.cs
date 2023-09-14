@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Diagnostics;
+using System.Linq;
 using LightJson;
 using Unisave.Serialization;
 using Unisave.Exceptions;
@@ -67,12 +69,14 @@ namespace Unisave.Runtime
 
                         var env = EnvStore.Parse(executionParameters.EnvSource);
 
+                        // both the game assembly and the unisave framework
+                        Type[] backendTypes = gameAssemblyTypes.Concat(
+                            typeof(Entrypoint).Assembly.GetTypes()
+                        ).ToArray();
+
                         JsonValue methodResult;
                         
-                        using (var app = new BackendApplication(
-                            gameAssemblyTypes,
-                            env
-                        ))
+                        using (var app = BackendApplication.Start(backendTypes, env))
                         {
                             // simulate a single request
                             using (IContainer requestServices = app.Services.CreateChildContainer())

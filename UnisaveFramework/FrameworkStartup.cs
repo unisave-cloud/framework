@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Owin;
+using Microsoft.Owin.Builder;
 using Owin;
+using Unisave.Foundation;
 
 [assembly: OwinStartup("UnisaveFramework", typeof(Unisave.FrameworkStartup))]
 
@@ -22,27 +25,32 @@ namespace Unisave
     ///     of type System.Reflection.Assembly[]
     ///     Contains all the game backend assemblies that should be used
     ///     to look up Bootstrappers, Facets, Entities, etc.
+    ///     This should include the Unisave Framework assembly, as it may
+    ///     in theory be replaced by a custom framework.
     /// </summary>
     public class FrameworkStartup
     {
         public void Configuration(IAppBuilder app)
         {
-            // build the middleware stack
-            app.Use(async (IOwinContext ctx, Func<Task> next) => {
-                ctx.Response.ContentType = "text/plain";
-                await ctx.Response.WriteAsync("Hello from the framework Startup!\n");
-            });
-            
             // get backend assemblies from properties via custom property
             Assembly[] gameAssemblies = (Assembly[]) app.Properties["unisave.GameAssemblies"];
+            Type[] backendTypes = gameAssemblies.SelectMany(asm => asm.GetTypes()).ToArray();
+            
+            // TODO: load unisave environment variables
+            var env = new EnvStore();
             
             // create new BackendApplication instance
             // and do its bootstrapping
+            var backendApplication = BackendApplication.Start(backendTypes, env);
+            
+            // forward requests into the BackendApplication
+            app.Run(backendApplication.Invoke);
             
             // register application tear down
             CancellationToken token = (CancellationToken)app.Properties["host.OnAppDisposing"];
             token.Register(() => {
                 Console.WriteLine("Framework startup shutting down!");
+                backendApplication.Dispose();
             });
         }
     }

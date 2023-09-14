@@ -1,11 +1,17 @@
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.Owin;
+using Microsoft.Owin.Builder;
+using Owin;
 using TinyIoC;
 using Unisave.Bootstrapping;
 using Unisave.Providers;
-using Unisave.Runtime;
 
 namespace Unisave.Foundation
 {
+    using AppFunc = Func<IDictionary<string, object>, Task>;
+    
     /// <summary>
     /// Contains the entire game backend application
     /// </summary>
@@ -28,6 +34,17 @@ namespace Unisave.Foundation
         private ServiceProvider[] providers;
 
         /// <summary>
+        /// The final OWIN AppFunc used to handle HTTP requests
+        /// (set at the end of initialization)
+        /// </summary>
+        private AppFunc compiledOwinAppFunc;
+
+        /// <summary>
+        /// Has the application been already initialized
+        /// </summary>
+        private bool initialized = false;
+        
+        /// <summary>
         /// Has the application been already disposed
         /// </summary>
         private bool disposed = false;
@@ -35,12 +52,13 @@ namespace Unisave.Foundation
         /// <summary>
         /// Creates a new game backend application instance
         /// </summary>
-        /// <param name="backendTypes">All types in the game backend</param>
+        /// <param name="backendTypes">
+        /// All types in the game backend, including the UnisaveFramework
+        /// </param>
         /// <param name="envStore">Environment variables</param>
         public BackendApplication(
             Type[] backendTypes,
-            EnvStore envStore,
-            bool registerFrameworkServices = true
+            EnvStore envStore
         )
         {
             BackendTypes = backendTypes;
@@ -51,15 +69,64 @@ namespace Unisave.Foundation
             Services.RegisterInstance<BackendApplication>(this);
             Services.RegisterInstance<EnvStore>(envStore);
             
-            if (registerFrameworkServices)
-                RegisterServiceProviders();
-            
-            // run bootstrappers
-            var engine = new BootstrappingEngine(BackendTypes);
-            engine.Run();
+            // initialize OWIN middleware stack
+            // to be built up by the bootstrappers during initialization
+            var owinAppBuilder = new AppBuilder();
+            Services.RegisterInstance<IAppBuilder>(owinAppBuilder);
         }
 
-        public void RegisterServiceProviders()
+        /// <summary>
+        /// Creates and initializes a backend application in one method
+        /// </summary>
+        /// <returns>Ready to use backend application</returns>
+        public static BackendApplication Start(
+            Type[] backendTypes,
+            EnvStore envStore
+        )
+        {
+            var app = new BackendApplication(backendTypes, envStore);
+            
+            app.Initialize();
+
+            return app;
+        }
+
+        /// <summary>
+        /// Runs bootstrapping, preparing the instance to be used
+        /// </summary>
+        public void Initialize()
+        {
+            // TODO: what about async initialization and async bootstrappers?
+            
+            if (initialized)
+            {
+                throw new InvalidOperationException(
+                    $"The {nameof(BackendApplication)} is already initialized."
+                );
+            }
+            
+            if (disposed)
+            {
+                throw new ObjectDisposedException(
+                    $"The {nameof(BackendApplication)} is already disposed."
+                );
+            }
+
+            RegisterServiceProviders();
+            
+            // run bootstrappers
+            var engine = new BootstrappingEngine(Services, BackendTypes);
+            engine.Run();
+            
+            // compile the OWIN AppFunc
+            IAppBuilder owinApp = Services.Resolve<IAppBuilder>();
+            compiledOwinAppFunc = owinApp.Build<AppFunc>();
+
+            // initialization is complete
+            initialized = true;
+        }
+
+        private void RegisterServiceProviders()
         {
             LoadServiceProviders();
             
@@ -79,6 +146,32 @@ namespace Unisave.Foundation
                 new HttpClientServiceProvider(this),
                 new BroadcastingServiceProvider(this), 
             };
+        }
+
+        /// <summary>
+        /// Invoked for each HTTP request received
+        /// </summary>
+        /// <param name="context"></param>
+        public Task Invoke(IOwinContext context)
+        {
+            if (!initialized)
+            {
+                throw new InvalidOperationException(
+                    $"The {nameof(BackendApplication)} must be initialized before use."
+                );
+            }
+            
+            if (disposed)
+            {
+                throw new ObjectDisposedException(
+                    $"The {nameof(BackendApplication)} is already disposed."
+                );
+            }
+            
+            // TODO: create request-scoped service container and attach it to the request
+            
+            // forward the request into the compiled OWIN AppFunc
+            return compiledOwinAppFunc.Invoke(context.Environment);
         }
 
         public void Dispose()

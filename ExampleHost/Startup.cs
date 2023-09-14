@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using ExampleBackend;
 using Microsoft.Owin;
 using Owin;
 
@@ -18,10 +19,10 @@ namespace ExampleHost
             // resolve all the game backend assemblies
             // (these would be loaded from downloaded files during
             // backend code downloading)
-            Assembly[] gameAssemblies = AppDomain.CurrentDomain
-                .GetAssemblies()
-                .Where(a => a.FullName == "ExampleBackend")
-                .ToArray();
+            Assembly[] gameAssemblies = new Assembly[] {
+                typeof(Unisave.FrameworkStartup).Assembly,
+                typeof(Class1).Assembly
+            };
             
             // populate game assemblies property
             app.Properties["unisave.GameAssemblies"] = gameAssemblies;

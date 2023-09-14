@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using TinyIoC;
 using Unisave.Bootstrapping;
 using Unisave.Contracts;
 using Unisave.Entities;
+using Unisave.Foundation;
 using Unisave.Runtime;
 using UnityEngine;
 
@@ -13,6 +15,8 @@ namespace FrameworkTests.Bootstrapping
     [TestFixture]
     public class BootstrappingEngineTest
     {
+        private IContainer container = new TinyIoCAdapter(new TinyIoCContainer());
+        
         private static List<Type> executionLog = new List<Type>();
 
         #region "Bootstrappers"
@@ -49,7 +53,7 @@ namespace FrameworkTests.Bootstrapping
         [Test]
         public void ItRunsSimpleBootstrapper()
         {
-            var engine = new BootstrappingEngine(new[] {
+            var engine = new BootstrappingEngine(container, new[] {
                 typeof(SimpleBootstrapper)
             });
 
@@ -63,7 +67,7 @@ namespace FrameworkTests.Bootstrapping
         [Test]
         public void ItFiltersOutNonBootstrapperTypes()
         {
-            var engine = new BootstrappingEngine(new[] {
+            var engine = new BootstrappingEngine(container, new[] {
                 typeof(BootstrappingEngineTest), // unrelated class
                 typeof(Entity), // abstract class,
                 typeof(Entrypoint), // static class
