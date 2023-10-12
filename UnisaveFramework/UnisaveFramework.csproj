@@ -98,6 +98,7 @@
     <Compile Include="Broadcasting\SpecificChannel.cs" />
     <Compile Include="Broadcasting\UnisaveBroadcaster.cs" />
     <Compile Include="Entities\EntitySecurityException.cs" />
+    <Compile Include="Facets\FacetsBootstrapper.cs" />
     <Compile Include="Foundation\IContainer.cs" />
     <Compile Include="Foundation\ContainerExtensions.cs" />
     <Compile Include="Foundation\Pipeline\UnisaveRequestMiddleware.cs" />

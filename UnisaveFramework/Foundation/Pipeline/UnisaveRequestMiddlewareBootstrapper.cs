@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Owin;
 using Owin;
@@ -6,25 +7,49 @@ using Unisave.Bootstrapping;
 
 namespace Unisave.Foundation.Pipeline
 {
+    using AppFunc = Func<IDictionary<string, object>, Task>;
+    
     public class UnisaveRequestMiddlewareBootstrapper : Bootstrapper
     {
-        public override void Main()
-        {
-            var owinAppBuilder = Services.Resolve<IAppBuilder>();
-            
-            owinAppBuilder.MapWhen(IsUnisaveRequest, branch => {
+        public override int StageNumber => BootstrappingStage.Framework;
+        
+        private readonly IAppBuilder owinAppBuilder;
 
-                branch.Use(async (IOwinContext ctx, Func<Task> next) => {
-                    ctx.Response.ContentType = "text/plain";
-                    await ctx.Response.WriteAsync("Unisave Request!\n");
-                });
-                
-            });
+        private readonly Dictionary<string, IAppBuilder> branchBuilders =
+            new Dictionary<string, IAppBuilder>();
+        
+        public UnisaveRequestMiddlewareBootstrapper(IAppBuilder owinAppBuilder)
+        {
+            this.owinAppBuilder = owinAppBuilder;
         }
 
-        private static bool IsUnisaveRequest(IOwinContext ctx)
+        public IAppBuilder DefineBranch(string unisaveRequestKind)
         {
-            return ctx.Request.Headers.ContainsKey("X-Unisave-Request");
+            var branchBuilder = owinAppBuilder.New();
+            branchBuilders[unisaveRequestKind] = branchBuilder;
+            return branchBuilder;
+        }
+
+        private Dictionary<string, AppFunc> CompileBranches()
+        {
+            Dictionary<string, AppFunc> branches
+                = new Dictionary<string, AppFunc>();
+            
+            foreach (string key in branchBuilders.Keys)
+            {
+                branches[key] = (AppFunc) branchBuilders[key].Build(
+                    typeof(AppFunc)
+                );
+            }
+
+            return branches;
+        }
+        
+        public override void Main()
+        {
+            Dictionary<string, AppFunc> branches = CompileBranches();
+
+            owinAppBuilder.Use<UnisaveRequestMiddleware>(branches);
         }
     }
 }

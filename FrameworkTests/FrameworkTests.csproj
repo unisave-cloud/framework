@@ -29,6 +29,9 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Owin">
+      <HintPath>..\packages\Microsoft.Owin\lib\net45\Microsoft.Owin.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Net.Http" />
@@ -43,6 +46,8 @@
     <Compile Include="Bootstrapping\BootstrappingEngineTest.cs" />
     <Compile Include="Entities\EntityReferenceTest.cs" />
     <Compile Include="Entities\MassAssignmentTest.cs" />
+    <Compile Include="Facets\BaseFacetCallingTest.cs" />
+    <Compile Include="Facets\FacetCallTest.cs" />
     <Compile Include="Foundation\ContainerTest.cs" />
     <Compile Include="HttpClient\AuthorizationTest.cs" />
     <Compile Include="HttpClient\FakingTest.cs" />
