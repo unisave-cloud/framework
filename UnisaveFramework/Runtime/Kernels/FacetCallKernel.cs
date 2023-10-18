@@ -13,7 +13,6 @@ using Unisave.Foundation;
 using Unisave.Serialization;
 using Unisave.Sessions;
 using Unisave.Sessions.Middleware;
-using Unisave.Utils;
 
 namespace Unisave.Runtime.Kernels
 {
@@ -22,21 +21,22 @@ namespace Unisave.Runtime.Kernels
     /// </summary>
     public class FacetCallKernel
     {
+        private readonly IOwinContext owinContext;
         private readonly IContainer services;
-        private readonly SpecialValues specialValues;
         private readonly BackendTypes backendTypes;
         private readonly ServerSessionIdRepository sessionIdRepository;
         
         public FacetCallKernel(
+            IOwinContext owinContext,
             IContainer services,
-            SpecialValues specialValues,
-            BackendTypes backendTypes
+            BackendTypes backendTypes,
+            ServerSessionIdRepository sessionIdRepository
         )
         {
+            this.owinContext = owinContext;
             this.services = services;
-            this.specialValues = specialValues;
             this.backendTypes = backendTypes;
-            sessionIdRepository = services.Resolve<ServerSessionIdRepository>();
+            this.sessionIdRepository = sessionIdRepository;
         }
         
         /// <summary>
@@ -116,7 +116,17 @@ namespace Unisave.Runtime.Kernels
                 ?? ServerSessionIdRepository.GenerateSessionId();
 
             sessionIdRepository.SessionId = sessionId;
-            specialValues.Add("sessionId", sessionId);
+            
+            owinContext.Response.Cookies.Append(
+                "unisave_session_id",
+                sessionId,
+                new CookieOptions() {
+                    HttpOnly = true,
+                    Path = "/",
+                    // TODO: load expiration time from session configuration
+                    Expires = DateTime.UtcNow.Add(TimeSpan.FromHours(1))
+                }
+            );
             
             return sessionId;
         }

@@ -11,6 +11,7 @@ namespace Unisave.Providers
         
         public override void Register()
         {
+            // TODO: this should be request-scoped singleton
             App.Services.RegisterSingleton<ServerSessionIdRepository>(
                 _ => new ServerSessionIdRepository()
             );

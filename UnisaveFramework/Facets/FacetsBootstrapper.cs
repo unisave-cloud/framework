@@ -5,6 +5,7 @@ using LightJson;
 using Microsoft.Owin;
 using Owin;
 using Unisave.Bootstrapping;
+using Unisave.Foundation;
 using Unisave.Foundation.Pipeline;
 using Unisave.Runtime.Kernels;
 using Unisave.Serialization;
@@ -35,9 +36,8 @@ namespace Unisave.Facets
 
         private async Task HandleFacetRequest(IOwinContext ctx)
         {
-            // TODO: this should use request-scoped services, not global services!
-            var requestServices = this.Services;
-
+            var requestServices = ctx.Get<IContainer>("unisave.RequestServices");
+            
             JsonObject data;
             try
             {

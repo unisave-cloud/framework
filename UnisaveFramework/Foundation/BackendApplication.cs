@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Owin;
 using Microsoft.Owin.Builder;
+using Microsoft.Owin.Security;
 using Owin;
 using TinyIoC;
 using Unisave.Bootstrapping;
@@ -151,7 +152,7 @@ namespace Unisave.Foundation
         /// Invoked for each HTTP request received
         /// </summary>
         /// <param name="context"></param>
-        public Task Invoke(IOwinContext context)
+        public async Task Invoke(IOwinContext context)
         {
             if (!initialized)
             {
@@ -166,11 +167,36 @@ namespace Unisave.Foundation
                     $"The {nameof(BackendApplication)} is already disposed."
                 );
             }
-            
-            // TODO: create request-scoped service container and attach it to the request
-            
-            // forward the request into the compiled OWIN AppFunc
-            return compiledOwinAppFunc.Invoke(context.Environment);
+
+            // create request-scoped service container and attach it to the request
+            using (IContainer requestServices = Services.CreateChildContainer())
+            {
+                // register instances
+                requestServices.RegisterInstance<IContainer>(requestServices); // TODO: dont dispose
+                requestServices.RegisterInstance<IOwinContext>(context);
+                requestServices.RegisterInstance<IOwinRequest>(context.Request);
+                requestServices.RegisterInstance<IOwinResponse>(context.Response);
+                requestServices.RegisterInstance<IAuthenticationManager>(context.Authentication);
+                
+                // TODO: get completely rid of SpecialValues, since they should
+                // be scoped by the request, but are not anymore
+                
+                // attach to the request
+                // TODO: add this to the documentation page
+                context.Environment["unisave.RequestServices"] = requestServices;
+                
+                // TODO: attach the request in this async context to Facades
+                
+                // TODO catch exception and wrap in 500 HTTP response
+                // (with more info than what would the host provide)
+                // (figure out the output silencing for production on gateway,
+                // probably via some HTTP response header and document it)
+                // (or maybe do this in some exception handler?? or in addition?)
+                // (for formatting custom exceptions?)
+                
+                // forward the request into the compiled OWIN AppFunc
+                await compiledOwinAppFunc.Invoke(context.Environment);
+            }
         }
 
         public void Dispose()
