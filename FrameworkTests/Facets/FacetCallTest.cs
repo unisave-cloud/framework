@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using LightJson;
 using Microsoft.Owin;
@@ -11,6 +10,8 @@ namespace FrameworkTests.Facets
     [TestFixture]
     public class FacetCallTest : BaseFacetCallingTest
     {
+        #region "Backend definition"
+        
         public class MyFacet : Facet
         {
             public static bool flag = false;
@@ -19,7 +20,19 @@ namespace FrameworkTests.Facets
             {
                 flag = true;
             }
+            
+            public void MyParametrizedProcedure(bool value)
+            {
+                flag = value;
+            }
+
+            public int SquaringFunction(int value)
+            {
+                return value * value;
+            }
         }
+        
+        #endregion
 
         [SetUp]
         public void SetUp()
@@ -37,20 +50,48 @@ namespace FrameworkTests.Facets
             IOwinResponse response = await CallFacet(
                 facetName: typeof(MyFacet).FullName,
                 methodName: nameof(MyFacet.MyProcedure),
-                arguments: new JsonArray(),
-                sessionId: null
+                arguments: new JsonArray()
             );
-            
-            // validate the response content
-            Assert.AreEqual(200, response.StatusCode);
-            
-            Console.WriteLine("Response:");
-            Console.WriteLine(
-                await new StreamReader(response.Body).ReadToEndAsync()
-            );
+            await AssertOkVoidResponse(response);
             
             // check that facet was actually invoked
             Assert.IsTrue(MyFacet.flag);
+        }
+
+        [Test]
+        public async Task ItRunsMyParametrizedProcedure()
+        {
+            MyFacet.flag = false;
+            
+            IOwinResponse response = await CallFacet(
+                facetName: typeof(MyFacet).FullName,
+                methodName: nameof(MyFacet.MyParametrizedProcedure),
+                arguments: new JsonArray() { true }
+            );
+            await AssertOkVoidResponse(response);
+            
+            Assert.IsTrue(MyFacet.flag);
+            
+            response = await CallFacet(
+                facetName: typeof(MyFacet).FullName,
+                methodName: nameof(MyFacet.MyParametrizedProcedure),
+                arguments: new JsonArray() { false }
+            );
+            await AssertOkVoidResponse(response);
+            
+            Assert.IsFalse(MyFacet.flag);
+        }
+
+        [Test]
+        public async Task ItRunsFunctions()
+        {
+            IOwinResponse response = await CallFacet(
+                facetName: typeof(MyFacet).FullName,
+                methodName: nameof(MyFacet.SquaringFunction),
+                arguments: new JsonArray() { 5 }
+            );
+            int returned = await GetReturnedValue<int>(response);
+            Assert.AreEqual(25, returned);
         }
     }
 }

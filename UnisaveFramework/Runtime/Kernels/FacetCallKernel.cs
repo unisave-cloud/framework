@@ -1,10 +1,15 @@
 using System;
+using System.IO;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
 using LightJson;
+using Microsoft.Owin;
 using Unisave.Facets;
 using Unisave.Foundation;
+using Unisave.Serialization;
 using Unisave.Sessions;
 using Unisave.Sessions.Middleware;
 using Unisave.Utils;
@@ -139,6 +144,29 @@ namespace Unisave.Runtime.Kernels
                     methodParameters["arguments"],
                     methodParameters["sessionId"]
                 );
+            }
+
+            public static async Task<MethodParameters> Parse(IOwinRequest request)
+            {
+                string[] segments = request.Path.Value.Split('/');
+
+                // TODO: handle invalid number of segments
+                
+                string sessionId = request.Cookies["unisave_session_id"];
+                
+                using (var sr = new StreamReader(request.Body, Encoding.UTF8))
+                {
+                    string json = await sr.ReadToEndAsync();
+
+                    JsonObject body = Serializer.FromJsonString<JsonObject>(json);
+
+                    return new MethodParameters(
+                        facetName: segments[1],
+                        methodName: segments[2],
+                        arguments: body["arguments"].AsJsonArray,
+                        sessionId: sessionId
+                    );
+                }
             }
         }
     }

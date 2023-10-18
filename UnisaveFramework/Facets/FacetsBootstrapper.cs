@@ -1,44 +1,79 @@
 using System;
-using System.IO;
+using System.Text;
+using System.Threading.Tasks;
+using LightJson;
+using Microsoft.Owin;
 using Owin;
 using Unisave.Bootstrapping;
 using Unisave.Foundation.Pipeline;
+using Unisave.Runtime.Kernels;
+using Unisave.Serialization;
 
 namespace Unisave.Facets
 {
     public class FacetsBootstrapper : Bootstrapper
     {
-        public const string FacetRequestKind = "Facet";
-        
         public override int StageNumber => BootstrappingStage.Framework;
 
         public override Type[] RunBefore => new Type[] {
             typeof(UnisaveRequestMiddlewareBootstrapper)
         };
 
-        private readonly UnisaveRequestMiddlewareBootstrapper router;
+        private readonly UnisaveRequestMiddlewareBootstrapper unisaveRequestRouter;
 
-        public FacetsBootstrapper(UnisaveRequestMiddlewareBootstrapper router)
+        public FacetsBootstrapper(UnisaveRequestMiddlewareBootstrapper unisaveRequestRouter)
         {
-            this.router = router;
+            this.unisaveRequestRouter = unisaveRequestRouter;
         }
         
         public override void Main()
         {
-            IAppBuilder owinAppBuilder = router.DefineBranch(FacetRequestKind);
+            unisaveRequestRouter
+                .DefineBranch("Facet")
+                .Run(HandleFacetRequest);
+        }
+
+        private async Task HandleFacetRequest(IOwinContext ctx)
+        {
+            // TODO: this should use request-scoped services, not global services!
+            var requestServices = this.Services;
+
+            JsonObject data;
+            try
+            {
+                var kernel = requestServices.Resolve<FacetCallKernel>();
+                var parameters =
+                    await FacetCallKernel.MethodParameters.Parse(
+                        ctx.Request);
+
+                JsonValue returned = kernel.Handle(parameters);
+                    
+                data = new JsonObject()
+                    .Add("status", "ok")
+                    .Add("returned", returned);
+                // TODO: logs
+            }
+            catch (Exception e)
+            {
+                data = new JsonObject()
+                    .Add("status", "exception")
+                    .Add("exception", Serializer.ToJson(e));
+                // TODO: logs
+            }
+
+            await SendJson(ctx.Response, data);
+        }
+
+        private async Task SendJson(IOwinResponse response, JsonValue json)
+        {
+            byte[] bytes = Encoding.UTF8.GetBytes(json.ToString());
             
-            owinAppBuilder.Use(async (ctx, next) => {
-                
-                // TODO: parse the request and route it through the facet system
-                
-                ctx.Response.StatusCode = 200;
-                ctx.Response.Headers["Content-Type"] = "text/plain";
-                var sw = new StreamWriter(ctx.Response.Body);
-                await sw.WriteAsync(
-                    "Hello world from a facet handler!"
-                );
-                sw.Dispose();
-            });
+            response.StatusCode = 200;
+            response.Headers["Content-Type"] = "application/json";
+            response.Headers["Content-Length"] = bytes.Length.ToString();
+            
+            await response.Body.WriteAsync(bytes, 0, bytes.Length);
+            response.Body.Close();
         }
     }
 }

@@ -48,6 +48,8 @@
     <Compile Include="Entities\MassAssignmentTest.cs" />
     <Compile Include="Facets\BaseFacetCallingTest.cs" />
     <Compile Include="Facets\FacetCallTest.cs" />
+    <Compile Include="Facets\MiddlewareTest.cs" />
+    <Compile Include="Facets\SessionTrackingTest.cs" />
     <Compile Include="Foundation\ContainerTest.cs" />
     <Compile Include="HttpClient\AuthorizationTest.cs" />
     <Compile Include="HttpClient\FakingTest.cs" />
