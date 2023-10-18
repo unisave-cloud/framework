@@ -67,14 +67,15 @@ namespace FrameworkTests.Bootstrapping
     
         #endregion
         
-        private static Type[] Shuffle(Type[] types)
+        private static BackendTypes Shuffle(BackendTypes types)
         {
             var rnd = new Random();
-            return types
-                .Select(x => (x, rnd.Next()))
-                .OrderBy(tuple => tuple.Item2)
-                .Select(tuple => tuple.Item1)
-                .ToArray();
+            return new BackendTypes(
+                types
+                    .Select(x => (x, rnd.Next()))
+                    .OrderBy(tuple => tuple.Item2)
+                    .Select(tuple => tuple.Item1)
+            );
         }
 
         [SetUp]
@@ -97,7 +98,7 @@ namespace FrameworkTests.Bootstrapping
         [Test]
         public void ItRunsSimpleBootstrapper()
         {
-            var engine = new BootstrappingEngine(container, new[] {
+            var engine = new BootstrappingEngine(container, new BackendTypes {
                 typeof(SimpleBootstrapper)
             });
 
@@ -111,7 +112,7 @@ namespace FrameworkTests.Bootstrapping
         [Test]
         public void ItFiltersOutNonBootstrapperTypes()
         {
-            var engine = new BootstrappingEngine(container, new[] {
+            var engine = new BootstrappingEngine(container, new BackendTypes {
                 typeof(BootstrappingEngineTest), // unrelated class
                 typeof(Entity), // abstract class,
                 typeof(Entrypoint), // static class
@@ -139,7 +140,7 @@ namespace FrameworkTests.Bootstrapping
             {
                 SetUp();
             
-                var engine = new BootstrappingEngine(container, Shuffle(new[] {
+                var engine = new BootstrappingEngine(container, Shuffle(new BackendTypes {
                     typeof(SimpleBootstrapper),
                     typeof(FrameworkBootstrapper),
                 }));
@@ -160,7 +161,7 @@ namespace FrameworkTests.Bootstrapping
             {
                 SetUp();
 
-                var engine = new BootstrappingEngine(container, new[] {
+                var engine = new BootstrappingEngine(container, new BackendTypes {
                     typeof(SimpleBootstrapper),
                     typeof(SimpleBeforeBootstrapper)
                 });
@@ -177,7 +178,7 @@ namespace FrameworkTests.Bootstrapping
             {
                 SetUp();
 
-                var engine = new BootstrappingEngine(container, new[] {
+                var engine = new BootstrappingEngine(container, new BackendTypes {
                     typeof(FrameworkBootstrapper),
                     typeof(FrameworkAfterBootstrapper)
                 });
@@ -198,7 +199,7 @@ namespace FrameworkTests.Bootstrapping
             {
                 SetUp();
 
-                var engine = new BootstrappingEngine(container, new[] {
+                var engine = new BootstrappingEngine(container, new BackendTypes {
                     typeof(SimpleBootstrapper),
                     typeof(ZzzBootstrapper)
                 });
@@ -219,7 +220,7 @@ namespace FrameworkTests.Bootstrapping
             {
                 SetUp();
 
-                var engine = new BootstrappingEngine(container, new[] {
+                var engine = new BootstrappingEngine(container, new BackendTypes {
                     typeof(SimpleBootstrapper),
                     typeof(ZzzBootstrapper),
                     typeof(SimpleBeforeBootstrapper),
@@ -249,7 +250,7 @@ namespace FrameworkTests.Bootstrapping
         [Test]
         public void ItDetectsOrderingLoops()
         {
-            var engine = new BootstrappingEngine(container, new[] {
+            var engine = new BootstrappingEngine(container, new BackendTypes {
                 typeof(SimpleBootstrapper),
                 typeof(ZzzBootstrapper),
                 typeof(SimpleBeforeBootstrapper),
@@ -271,7 +272,7 @@ namespace FrameworkTests.Bootstrapping
         [Test]
         public void ItFailsOnWrongDependencyType()
         {
-            var engine = new BootstrappingEngine(container, new[] {
+            var engine = new BootstrappingEngine(container, new BackendTypes {
                 typeof(SimpleBootstrapper),
                 typeof(ZzzBootstrapper),
                 typeof(SimpleBeforeBootstrapper),

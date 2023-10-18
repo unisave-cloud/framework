@@ -57,7 +57,8 @@ namespace Unisave.Facets
             {
                 data = new JsonObject()
                     .Add("status", "exception")
-                    .Add("exception", Serializer.ToJson(e));
+                    .Add("exception", Serializer.ToJson(e))
+                    .Add("isKnownException", false); // TODO: add the known-exception system
                 // TODO: logs
             }
 

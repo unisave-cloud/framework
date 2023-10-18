@@ -11,9 +11,9 @@ namespace Unisave.Authentication.Middleware
     {
         private readonly AuthenticationManager auth;
         
-        public Authenticate(BackendApplication app) : base(app)
+        public Authenticate(AuthenticationManager auth)
         {
-            auth = app.Services.Resolve<AuthenticationManager>();
+            this.auth = auth;
         }
 
         public override FacetResponse Handle(

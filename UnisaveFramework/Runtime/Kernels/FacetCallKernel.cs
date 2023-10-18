@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
@@ -21,15 +22,21 @@ namespace Unisave.Runtime.Kernels
     /// </summary>
     public class FacetCallKernel
     {
-        private readonly BackendApplication app;
+        private readonly IContainer services;
         private readonly SpecialValues specialValues;
+        private readonly BackendTypes backendTypes;
         private readonly ServerSessionIdRepository sessionIdRepository;
         
-        public FacetCallKernel(BackendApplication app, SpecialValues specialValues)
+        public FacetCallKernel(
+            IContainer services,
+            SpecialValues specialValues,
+            BackendTypes backendTypes
+        )
         {
-            this.app = app;
+            this.services = services;
             this.specialValues = specialValues;
-            sessionIdRepository = app.Services.Resolve<ServerSessionIdRepository>();
+            this.backendTypes = backendTypes;
+            sessionIdRepository = services.Resolve<ServerSessionIdRepository>();
         }
         
         /// <summary>
@@ -43,7 +50,8 @@ namespace Unisave.Runtime.Kernels
                 methodParameters.FacetName,
                 methodParameters.MethodName,
                 methodParameters.Arguments,
-                app.BackendTypes
+                backendTypes,
+                services
             );
 
             MiddlewareAttribute[] globalMiddleware = {
@@ -55,7 +63,7 @@ namespace Unisave.Runtime.Kernels
             };
 
             var response = FacetMiddleware.ExecuteMiddlewareStack(
-                app,
+                services,
                 globalMiddleware,
                 request,
                 rq => {

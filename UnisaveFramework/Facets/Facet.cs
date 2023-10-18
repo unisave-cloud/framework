@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using LightJson;
+using Unisave.Foundation;
 using Unisave.Serialization;
 using Unisave.Serialization.Context;
 using Unisave.Utils;
@@ -60,7 +61,7 @@ namespace Unisave.Facets
         /// <summary>
         /// Creates facet instance of given type
         /// </summary>
-        public static Facet CreateInstance(Type facetType)
+        public static Facet CreateInstance(Type facetType, IContainer services)
         {
             // check proper parent
             if (!typeof(Facet).IsAssignableFrom(facetType))
@@ -69,17 +70,8 @@ namespace Unisave.Facets
                     + $"the {typeof(Facet)} class."
                 );
 
-            // get parameterless constructor
-            ConstructorInfo ci = facetType.GetConstructor(new Type[] { });
-
-            if (ci == null)
-                throw new InstantiationException(
-                    $"Provided type {facetType} lacks "
-                    + "parameterless constructor."
-                );
-
-            // create instance
-            return (Facet)ci.Invoke(new object[] { });
+            // let the ioc container create the instance
+            return (Facet) services.Resolve(facetType);
         }
         
         /// <summary>

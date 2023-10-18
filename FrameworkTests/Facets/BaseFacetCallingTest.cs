@@ -95,6 +95,7 @@ namespace FrameworkTests.Facets
         {
             JsonObject body = await GetResponseBody(response);
             Assert.AreEqual("exception", body["status"].AsString);
+            Assert.IsTrue(body.ContainsKey("isKnownException"));
             return Serializer.FromJson<T>(body["exception"]);
         }
 

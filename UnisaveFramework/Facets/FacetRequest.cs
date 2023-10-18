@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using LightJson;
+using Unisave.Foundation;
 using Unisave.Utils;
 
 namespace Unisave.Facets
@@ -25,7 +26,8 @@ namespace Unisave.Facets
             string facetName,
             string methodName,
             JsonArray jsonArguments,
-            IEnumerable<Type> typesToSearch
+            BackendTypes backendTypes,
+            IContainer services
         )
         {
             var request = new FacetRequest {
@@ -34,7 +36,7 @@ namespace Unisave.Facets
                 JsonArguments = jsonArguments,
                 FacetType = Facet.FindFacetTypeByName(
                     facetName,
-                    typesToSearch
+                    backendTypes
                 )
             };
 
@@ -48,7 +50,7 @@ namespace Unisave.Facets
                 jsonArguments
             );
 
-            request.Facet = Facet.CreateInstance(request.FacetType);
+            request.Facet = Facet.CreateInstance(request.FacetType, services);
 
             return request;
         }

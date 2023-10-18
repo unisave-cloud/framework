@@ -38,8 +38,6 @@ namespace FrameworkTests.Facets
         
         public class MyMiddleware : FacetMiddleware
         {
-            public MyMiddleware(BackendApplication app) : base(app) { }
-            
             public override FacetResponse Handle(
                 FacetRequest request,
                 Func<FacetRequest, FacetResponse> next,

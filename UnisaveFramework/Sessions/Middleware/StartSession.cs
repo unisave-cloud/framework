@@ -10,8 +10,13 @@ namespace Unisave.Sessions.Middleware
     /// </summary>
     public class StartSession : FacetMiddleware
     {
-        public StartSession(BackendApplication app) : base(app) { }
-        
+        private readonly IContainer services;
+
+        public StartSession(IContainer services)
+        {
+            this.services = services;
+        }
+
         public override FacetResponse Handle(
             FacetRequest request,
             Func<FacetRequest, FacetResponse> next,
@@ -25,7 +30,7 @@ namespace Unisave.Sessions.Middleware
             
             string sessionId = parameters[0];
             
-            ISession sessionOnStartup = App.Services.Resolve<ISession>();
+            ISession sessionOnStartup = services.Resolve<ISession>();
             sessionOnStartup.LoadSession(sessionId);
             
             try
@@ -36,7 +41,7 @@ namespace Unisave.Sessions.Middleware
             {
                 // someone might have tampered with the session service
                 // (which happens in full stack tests when clearing the database)
-                ISession sessionOnTeardown = App.Services.Resolve<ISession>();
+                ISession sessionOnTeardown = services.Resolve<ISession>();
                 sessionOnTeardown.StoreSession(sessionId);
             }
         }

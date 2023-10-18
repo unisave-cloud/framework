@@ -30,6 +30,11 @@ namespace FrameworkTests.Facets
             {
                 return value * value;
             }
+
+            public void ThrowingProcedure()
+            {
+                throw new InvalidOperationException("Hello world!");
+            }
         }
         
         #endregion
@@ -92,6 +97,22 @@ namespace FrameworkTests.Facets
             );
             int returned = await GetReturnedValue<int>(response);
             Assert.AreEqual(25, returned);
+        }
+        
+        [Test]
+        public async Task ItHandlesUnknownExceptions()
+        {
+            IOwinResponse response = await CallFacet(
+                facetName: typeof(MyFacet).FullName,
+                methodName: nameof(MyFacet.ThrowingProcedure),
+                arguments: new JsonArray()
+            );
+            Exception e = await GetThrownException<Exception>(response);
+            Assert.IsInstanceOf<InvalidOperationException>(e);
+            Assert.AreEqual("Hello world!", e.Message);
+            
+            JsonObject body = await GetResponseBody(response);
+            Assert.IsFalse(body["isKnownException"].AsBoolean);
         }
     }
 }

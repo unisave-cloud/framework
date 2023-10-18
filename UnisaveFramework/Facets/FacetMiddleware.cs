@@ -12,13 +12,6 @@ namespace Unisave.Facets
     /// </summary>
     public abstract class FacetMiddleware
     {
-        protected BackendApplication App { get; }
-        
-        public FacetMiddleware(BackendApplication app)
-        {
-            App = app;
-        }
-        
         /// <summary>
         /// Handles a request, passes it to the next layer
         /// and returns the response
@@ -33,14 +26,14 @@ namespace Unisave.Facets
         /// Executes provided closure inside all middleware layers
         /// </summary>
         public static FacetResponse ExecuteMiddlewareStack(
-            BackendApplication app,
+            IContainer services,
             IEnumerable<MiddlewareAttribute> globalMiddleware,
             FacetRequest request,
             Func<FacetRequest, FacetResponse> action
         )
         {
             List<Layer> layers = ObtainMiddlewareLayers(
-                app,
+                services,
                 globalMiddleware,
                 request
             );
@@ -57,23 +50,23 @@ namespace Unisave.Facets
         /// Extracts and sorts middleware layers from a facet request
         /// </summary>
         private static List<Layer> ObtainMiddlewareLayers(
-            BackendApplication app,
+            IContainer services,
             IEnumerable<MiddlewareAttribute> globalMiddleware,
             FacetRequest request
         )
         {
             var globalLayers = globalMiddleware
-                .Select(attr => new Layer(app, attr))
+                .Select(attr => new Layer(services, attr))
                 .OrderBy(l => l.order);
             
             var classLayers = request.FacetType
                 .GetCustomAttributes<MiddlewareAttribute>(inherit: true)
-                .Select(attr => new Layer(app, attr))
+                .Select(attr => new Layer(services, attr))
                 .OrderBy(l => l.order);
             
             var methodLayers = request.Method
                 .GetCustomAttributes<MiddlewareAttribute>(inherit: true)
-                .Select(attr => new Layer(app, attr))
+                .Select(attr => new Layer(services, attr))
                 .OrderBy(l => l.order);
 
             return globalLayers
@@ -92,11 +85,11 @@ namespace Unisave.Facets
             public readonly string[] parameters;
             public readonly int order;
 
-            public Layer(BackendApplication app, MiddlewareAttribute attribute)
+            public Layer(IContainer services, MiddlewareAttribute attribute)
             {
                 order = attribute.Order;
                 parameters = attribute.Parameters;
-                middleware = (FacetMiddleware) app.Services.Resolve(
+                middleware = (FacetMiddleware) services.Resolve(
                     attribute.MiddlewareType
                 );
             }

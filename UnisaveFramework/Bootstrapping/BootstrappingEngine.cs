@@ -27,17 +27,17 @@ namespace Unisave.Bootstrapping
         /// <param name="container">
         /// Container used for bootstrapper singleton registration and resolution
         /// </param>
-        /// <param name="typesToSearch">
+        /// <param name="backendTypes">
         /// Types to go through to find the bootstrapper classes
         /// </param>
         public BootstrappingEngine(
             IContainer container,
-            IEnumerable<Type> typesToSearch
+            BackendTypes backendTypes
         )
         {
             this.container = container;
             
-            BootstrapperTypes = typesToSearch.Where(type => {
+            BootstrapperTypes = backendTypes.Where(type => {
                 if (type.IsAbstract || type.IsValueType || type.IsInterface)
                     return false;
                 

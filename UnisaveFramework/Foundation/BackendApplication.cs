@@ -21,7 +21,7 @@ namespace Unisave.Foundation
         /// All types defined inside the game backend that
         /// can be searched for appropriate user implementation
         /// </summary>
-        public Type[] BackendTypes { get; }
+        public BackendTypes BackendTypes { get; }
         
         /// <summary>
         /// IoC service container for the entire application
@@ -61,12 +61,13 @@ namespace Unisave.Foundation
             EnvStore envStore
         )
         {
-            BackendTypes = backendTypes;
+            BackendTypes = new BackendTypes(backendTypes);
             
             Services = new TinyIoCAdapter(new TinyIoCContainer());
             
             // register instances
             Services.RegisterInstance<BackendApplication>(this);
+            Services.RegisterInstance<BackendTypes>(BackendTypes);
             Services.RegisterInstance<EnvStore>(envStore);
             
             // initialize OWIN middleware stack
@@ -113,7 +114,7 @@ namespace Unisave.Foundation
             RegisterServiceProviders();
             
             // run bootstrappers
-            var engine = new BootstrappingEngine(Services, BackendTypes);
+            var engine = Services.Resolve<BootstrappingEngine>();
             engine.Run();
             
             // compile the OWIN AppFunc
