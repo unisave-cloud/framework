@@ -172,7 +172,6 @@ namespace Unisave.Foundation
             using (IContainer requestServices = Services.CreateChildContainer())
             {
                 // register instances
-                requestServices.RegisterInstance<IContainer>(requestServices); // TODO: dont dispose
                 requestServices.RegisterInstance<IOwinContext>(context);
                 requestServices.RegisterInstance<IOwinRequest>(context.Request);
                 requestServices.RegisterInstance<IOwinResponse>(context.Response);

@@ -126,9 +126,32 @@ namespace Unisave.Foundation
         /// <summary>
         /// Add/replace an instance to be returned for a given type.
         /// </summary>
+        /// <param name="registerType"></param>
+        /// <param name="instance"></param>
+        /// <param name="transferOwnership">
+        /// If the ownership is transferred, the container is responsible for
+        /// disposal of the instance.
+        /// </param>
+        void RegisterInstance(Type registerType, object instance, bool transferOwnership);
+        
+        /// <summary>
+        /// Add/replace an instance to be returned for a given type.
+        /// </summary>
         /// <param name="instance"></param>
         /// <typeparam name="TRegisterType"></typeparam>
         void RegisterInstance<TRegisterType>(TRegisterType instance)
+            where TRegisterType : class;
+        
+        /// <summary>
+        /// Add/replace an instance to be returned for a given type.
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <typeparam name="TRegisterType"></typeparam>
+        /// <param name="transferOwnership">
+        /// If the ownership is transferred, the container is responsible for
+        /// disposal of the instance.
+        /// </param>
+        void RegisterInstance<TRegisterType>(TRegisterType instance, bool transferOwnership)
             where TRegisterType : class;
         
         #endregion

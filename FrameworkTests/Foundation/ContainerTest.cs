@@ -150,5 +150,53 @@ namespace FrameworkTests.Foundation
             // now after the child dispose, the http context should be disposed
             Assert.AreEqual("+Bar~Bar", log);
         }
+
+        [Test]
+        public void ItDisposesOwnedInstances()
+        {
+            bool fooDisposed = false;
+            
+            var mock = new Mock<IFoo>();
+            mock.Setup(b => b.Dispose()).Callback(() => {
+                fooDisposed = true;
+            });
+            IFoo foo = mock.Object;
+            
+            Assert.IsFalse(fooDisposed);
+            container.RegisterInstance<IFoo>(foo, transferOwnership: true);
+            Assert.IsFalse(fooDisposed);
+            
+            Assert.IsFalse(fooDisposed);
+            container.Resolve<IFoo>();
+            Assert.IsFalse(fooDisposed);
+            
+            container.Dispose();
+            Assert.IsTrue(fooDisposed); // is disposed
+        }
+        
+        [Test]
+        public void ItDoesntDisposeExternalInstances()
+        {
+            bool fooDisposed = false;
+            
+            var mock = new Mock<IFoo>();
+            mock.Setup(b => b.Dispose()).Callback(() => {
+                fooDisposed = true;
+            });
+            IFoo foo = mock.Object;
+            
+            Assert.IsFalse(fooDisposed);
+            container.RegisterInstance<IFoo>(foo, transferOwnership: false);
+            Assert.IsFalse(fooDisposed);
+            
+            Assert.IsFalse(fooDisposed);
+            container.Resolve<IFoo>();
+            Assert.IsFalse(fooDisposed);
+            
+            container.Dispose();
+            Assert.IsFalse(fooDisposed); // stays alive
+        }
+        
+        // TODO: add a request-scoped singleton, registered at the parent level
     }
 }

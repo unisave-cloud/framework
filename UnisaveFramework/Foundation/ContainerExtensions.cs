@@ -262,6 +262,30 @@ namespace Unisave.Foundation
 
             return false;
         }
+        
+        /// <summary>
+        /// Add an instance (if not present) to be returned for a given type.
+        /// </summary>
+        /// <param name="container"></param>
+        /// <param name="registerType"></param>
+        /// <param name="instance"></param>
+        /// <param name="transferOwnership"></param>
+        /// <returns>True if the instance was registered.</returns>
+        public static bool TryRegisterInstance(
+            this IContainer container,
+            Type registerType,
+            object instance,
+            bool transferOwnership
+        )
+        {
+            if (!container.IsRegistered(registerType))
+            {
+                container.RegisterInstance(registerType, instance, transferOwnership);
+                return true;
+            }
+
+            return false;
+        }
 
         /// <summary>
         /// Add an instance (if not present) to be returned for a given type.
@@ -278,6 +302,29 @@ namespace Unisave.Foundation
             if (!container.IsRegistered<TRegisterType>())
             {
                 container.RegisterInstance<TRegisterType>(instance);
+                return true;
+            }
+
+            return false;
+        }
+        
+        /// <summary>
+        /// Add an instance (if not present) to be returned for a given type.
+        /// </summary>
+        /// <param name="container"></param>
+        /// <param name="instance"></param>
+        /// <typeparam name="TRegisterType"></typeparam>
+        /// <param name="transferOwnership"></param>
+        /// <returns>True if the instance was registered.</returns>
+        public static bool TryRegisterInstance<TRegisterType>(
+            this IContainer container,
+            TRegisterType instance,
+            bool transferOwnership
+        ) where TRegisterType : class
+        {
+            if (!container.IsRegistered<TRegisterType>())
+            {
+                container.RegisterInstance<TRegisterType>(instance, transferOwnership);
                 return true;
             }
 

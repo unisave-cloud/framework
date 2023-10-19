@@ -94,12 +94,43 @@ namespace Unisave.Foundation
 
         /// <inheritdoc />
         public void RegisterInstance(Type registerType, object instance)
-            => container.Register(registerType, instance);
+            => RegisterInstance(registerType, instance, transferOwnership: true);
+
+        /// <inheritdoc />
+        public void RegisterInstance(Type registerType, object instance,
+            bool transferOwnership)
+        {
+            if (transferOwnership)
+            {
+                // by default, TinyIoC claims ownership
+                container.Register(registerType, instance);
+            }
+            else
+            {
+                // we need to register a dummy multi-instance first,
+                // because that's one of the few instance factories that
+                // can be converted to custom-lifetime factory later
+                var options = container.Register(
+                    registerType,
+                    registerImplementation: instance.GetType()
+                );
+                TinyIoCContainer.RegisterOptions.ToCustomLifetimeManager(
+                    options,
+                    new ExternalInstanceLifetimeProvider(instance),
+                    "external instance"
+                );
+            }
+        }
 
         /// <inheritdoc />
         public void RegisterInstance<TRegisterType>(TRegisterType instance)
             where TRegisterType : class
-            => container.Register<TRegisterType>(instance);
+            => RegisterInstance(typeof(TRegisterType), instance, transferOwnership: true);
+        
+        /// <inheritdoc />
+        public void RegisterInstance<TRegisterType>(TRegisterType instance, bool transferOwnership)
+            where TRegisterType : class
+            => RegisterInstance(typeof(TRegisterType), instance, transferOwnership);
         
         #endregion
         
