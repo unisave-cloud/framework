@@ -51,6 +51,7 @@
     <Compile Include="Facets\MiddlewareTest.cs" />
     <Compile Include="Facets\SessionTrackingTest.cs" />
     <Compile Include="Foundation\ContainerTest.cs" />
+    <Compile Include="Foundation\RequestContextTest.cs" />
     <Compile Include="HttpClient\AuthorizationTest.cs" />
     <Compile Include="HttpClient\FakingTest.cs" />
     <Compile Include="HttpClient\PendingRequestTest.cs" />

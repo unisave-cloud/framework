@@ -105,6 +105,7 @@
     <Compile Include="Foundation\ContainerExtensions.cs" />
     <Compile Include="Foundation\Pipeline\UnisaveRequestMiddleware.cs" />
     <Compile Include="Foundation\Pipeline\UnisaveRequestMiddlewareBootstrapper.cs" />
+    <Compile Include="Foundation\RequestContext.cs" />
     <Compile Include="Foundation\TinyIoCAdapter.cs" />
     <Compile Include="HttpClient\Factory.cs" />
     <Compile Include="HttpClient\HttpContentHolder.cs" />

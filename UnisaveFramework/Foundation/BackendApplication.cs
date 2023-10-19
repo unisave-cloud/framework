@@ -157,8 +157,8 @@ namespace Unisave.Foundation
         /// <summary>
         /// Invoked for each HTTP request received
         /// </summary>
-        /// <param name="context"></param>
-        public async Task Invoke(IOwinContext context)
+        /// <param name="owinContext"></param>
+        public async Task Invoke(IOwinContext owinContext)
         {
             if (!initialized)
             {
@@ -174,31 +174,12 @@ namespace Unisave.Foundation
                 );
             }
 
-            // create request-scoped service container and attach it to the request
-            using (IContainer requestServices = Services.CreateChildContainer())
+            using (var requestContext = new RequestContext(this, owinContext))
             {
-                // register instances
-                requestServices.RegisterInstance<IOwinContext>(
-                    context, transferOwnership: false
-                );
-                requestServices.RegisterInstance<IOwinRequest>(
-                    context.Request, transferOwnership: false
-                );
-                requestServices.RegisterInstance<IOwinResponse>(
-                    context.Response, transferOwnership: false
-                );
-                requestServices.RegisterInstance<IAuthenticationManager>(
-                    context.Authentication, transferOwnership: false
-                );
-                
                 // TODO: get completely rid of SpecialValues, since they should
                 // be scoped by the request, but are not anymore
                 
-                // attach to the request
-                // TODO: add this to the documentation page
-                context.Environment["unisave.RequestServices"] = requestServices;
-                
-                // TODO: attach the request in this async context to Facades
+                // TODO: make facades use RequestContext.Current
                 
                 // TODO catch exception and wrap in 500 HTTP response
                 // (with more info than what would the host provide)
@@ -208,7 +189,7 @@ namespace Unisave.Foundation
                 // (for formatting custom exceptions?)
                 
                 // forward the request into the compiled OWIN AppFunc
-                await compiledOwinAppFunc.Invoke(context.Environment);
+                await compiledOwinAppFunc.Invoke(owinContext.Environment);
             }
         }
 

@@ -8,6 +8,8 @@ namespace FrameworkTests.HttpClient
     [TestFixture]
     public class AuthorizationTest
     {
+        private const string TargetUrl = "https://unisave.cloud/";
+        
         private Factory factory;
         
         [SetUp]
@@ -34,7 +36,7 @@ namespace FrameworkTests.HttpClient
 
             factory.PendingRequest()
                 .WithBasicAuth("john@doe.com", "secret")
-                .Get("https://example.com/");
+                .Get(TargetUrl);
             
             Assert.IsTrue(tested);
         }
@@ -58,7 +60,7 @@ namespace FrameworkTests.HttpClient
                 .WithHeaders(new Dictionary<string, string> {
                     ["Authorization"] = "lorem ipsum"
                 })
-                .Get("https://example.com/");
+                .Get(TargetUrl);
             
             Assert.IsTrue(tested);
         }
@@ -81,7 +83,7 @@ namespace FrameworkTests.HttpClient
                 .WithHeaders(new Dictionary<string, string> {
                     ["Authorization"] = "Basic am9obkBkb2UuY29tOnNlY3JldA=="
                 })
-                .Get("https://example.com/");
+                .Get(TargetUrl);
             
             Assert.IsTrue(tested);
         }
@@ -102,7 +104,7 @@ namespace FrameworkTests.HttpClient
 
             factory.PendingRequest()
                 .WithToken("<cryptic-token-string>")
-                .Get("https://example.com/");
+                .Get(TargetUrl);
             
             Assert.IsTrue(tested);
         }

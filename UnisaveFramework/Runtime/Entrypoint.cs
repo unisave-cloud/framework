@@ -78,6 +78,9 @@ namespace Unisave.Runtime
                         
                         using (var app = BackendApplication.Start(backendTypes, env))
                         {
+                            // TODO: create a fake owin context and send it through the app
+                            // app.Invoke()
+                            
                             // simulate a single request
                             using (IContainer requestServices = app.Services.CreateChildContainer())
                             {
