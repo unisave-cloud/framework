@@ -67,9 +67,15 @@ namespace Unisave.Foundation
             Services = new TinyIoCAdapter(new TinyIoCContainer());
             
             // register instances
-            Services.RegisterInstance<BackendApplication>(this);
-            Services.RegisterInstance<BackendTypes>(BackendTypes);
-            Services.RegisterInstance<EnvStore>(envStore);
+            Services.RegisterInstance<BackendApplication>(
+                this, transferOwnership: false
+            );
+            Services.RegisterInstance<BackendTypes>(
+                BackendTypes, transferOwnership: false
+            );
+            Services.RegisterInstance<EnvStore>(
+                envStore, transferOwnership: false
+            );
             
             // initialize OWIN middleware stack
             // to be built up by the bootstrappers during initialization
@@ -172,10 +178,18 @@ namespace Unisave.Foundation
             using (IContainer requestServices = Services.CreateChildContainer())
             {
                 // register instances
-                requestServices.RegisterInstance<IOwinContext>(context);
-                requestServices.RegisterInstance<IOwinRequest>(context.Request);
-                requestServices.RegisterInstance<IOwinResponse>(context.Response);
-                requestServices.RegisterInstance<IAuthenticationManager>(context.Authentication);
+                requestServices.RegisterInstance<IOwinContext>(
+                    context, transferOwnership: false
+                );
+                requestServices.RegisterInstance<IOwinRequest>(
+                    context.Request, transferOwnership: false
+                );
+                requestServices.RegisterInstance<IOwinResponse>(
+                    context.Response, transferOwnership: false
+                );
+                requestServices.RegisterInstance<IAuthenticationManager>(
+                    context.Authentication, transferOwnership: false
+                );
                 
                 // TODO: get completely rid of SpecialValues, since they should
                 // be scoped by the request, but are not anymore

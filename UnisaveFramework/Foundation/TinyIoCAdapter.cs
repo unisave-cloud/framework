@@ -17,8 +17,8 @@ namespace Unisave.Foundation
             this.container = container;
             
             // register itself
-            RegisterInstance<TinyIoCAdapter>(this);
-            RegisterInstance<IContainer>(this);
+            RegisterInstance<TinyIoCAdapter>(this, transferOwnership: false);
+            RegisterInstance<IContainer>(this, transferOwnership: false);
         }
 
         /// <inheritdoc />
