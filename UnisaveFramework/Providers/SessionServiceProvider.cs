@@ -11,12 +11,9 @@ namespace Unisave.Providers
         
         public override void Register()
         {
-            // TODO: this should be request-scoped singleton
-            App.Services.RegisterSingleton<ServerSessionIdRepository>(
-                _ => new ServerSessionIdRepository()
-            );
+            App.Services.RegisterPerRequestSingleton<ServerSessionIdRepository>();
             
-            App.Services.RegisterSingleton<ISession>(container => {
+            App.Services.RegisterPerRequestSingleton<ISession>(container => {
                 var env = container.Resolve<EnvStore>();
                 
                 string driver = env.GetString("SESSION_DRIVER", "arango");

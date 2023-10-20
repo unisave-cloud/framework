@@ -11,13 +11,14 @@ namespace FrameworkTests.Foundation
     [TestFixture]
     public class RequestContextTest
     {
-        private BackendApplication dummpyApp;
+        private IContainer dummyAppServices;
         private OwinContext dummyRequest;
 
         [SetUp]
         public void SetUp()
         {
-            dummpyApp = BackendApplication.Start(Type.EmptyTypes, new EnvStore());
+            var dummyApp = BackendApplication.Start(Type.EmptyTypes, new EnvStore());
+            dummyAppServices = dummyApp.Services;
             dummyRequest = new OwinContext(new Dictionary<string, object>());
         }
         
@@ -26,7 +27,7 @@ namespace FrameworkTests.Foundation
         {
             Assert.IsNull(RequestContext.Current);
             
-            using (var ctx = new RequestContext(dummpyApp, dummyRequest))
+            using (var ctx = new RequestContext(dummyAppServices, dummyRequest))
             {
                 Assert.AreSame(ctx, RequestContext.Current);
 
@@ -58,7 +59,7 @@ namespace FrameworkTests.Foundation
             async Task ExecuteRequest()
             {
                 Assert.IsNull(RequestContext.Current);
-                using (var ctx = new RequestContext(dummpyApp, dummyRequest))
+                using (var ctx = new RequestContext(dummyAppServices, dummyRequest))
                 {
                     Assert.AreSame(ctx, RequestContext.Current);
                     barrier.SignalAndWait();
@@ -109,7 +110,7 @@ namespace FrameworkTests.Foundation
                 Assert.AreSame(ctx, RequestContext.Current);
             }
             
-            using (var ctx = new RequestContext(dummpyApp, dummyRequest))
+            using (var ctx = new RequestContext(dummyAppServices, dummyRequest))
             {
                 Assert.AreSame(ctx, RequestContext.Current);
 
@@ -140,7 +141,7 @@ namespace FrameworkTests.Foundation
                 Assert.AreSame(expectedContext, RequestContext.Current);
             }
             
-            using (var ctx = new RequestContext(dummpyApp, dummyRequest))
+            using (var ctx = new RequestContext(dummyAppServices, dummyRequest))
             {
                 Assert.AreSame(ctx, RequestContext.Current);
 
@@ -166,7 +167,7 @@ namespace FrameworkTests.Foundation
                 Assert.IsNotNull(RequestContext.Current);
             }
             
-            using (var ctx = new RequestContext(dummpyApp, dummyRequest))
+            using (var ctx = new RequestContext(dummyAppServices, dummyRequest))
             {
                 Assert.AreSame(ctx, RequestContext.Current);
 

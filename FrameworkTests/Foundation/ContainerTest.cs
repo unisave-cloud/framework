@@ -1,5 +1,6 @@
 using System;
-using System.Threading;
+using System.Collections.Generic;
+using Microsoft.Owin;
 using Moq;
 using NUnit.Framework;
 using TinyIoC;
@@ -32,6 +33,23 @@ namespace FrameworkTests.Foundation
             
             public void Dispose() { }
         }
+
+        // dummy request-scoped service
+        public class RequestBaz
+        {
+            public readonly IFoo foo;
+
+            public RequestBaz(IFoo foo)
+            {
+                this.foo = foo;
+            }
+        }
+
+        // dummy service that needs a container to be constructed
+        public class ExampleContainerUsingService
+        {
+            public ExampleContainerUsingService(IContainer container) { }
+        }
         
         [SetUp]
         public void SetUp()
@@ -63,6 +81,12 @@ namespace FrameworkTests.Foundation
                 container,
                 container.Resolve<IContainer>()
             );
+        }
+
+        [Test]
+        public void ItResolvesItselfWhenConstructingService()
+        {
+            container.Resolve<ExampleContainerUsingService>();
         }
 
         [Test]
@@ -197,7 +221,278 @@ namespace FrameworkTests.Foundation
             container.Dispose();
             Assert.IsFalse(fooDisposed); // stays alive
         }
+
+        private RequestContext ConstructRequestContext()
+        {
+            var dummyRequest = new OwinContext(new Dictionary<string, object>());
+            return new RequestContext(container, dummyRequest);
+        }
         
-        // TODO: add a request-scoped singleton, registered at the parent level
+        [Test]
+        public void ItRegistersConcreteClassesAsPerRequestSingletons()
+        {
+            Assert.IsTrue(container.CanResolve<Foo>());
+            Assert.IsFalse(container.IsRegistered<Foo>());
+            
+            container.RegisterPerRequestSingleton<Foo>();
+            
+            Assert.IsTrue(container.CanResolve<Foo>());
+            Assert.IsTrue(container.IsRegistered<Foo>());
+        
+            using (var ctx = ConstructRequestContext())
+            {
+                Assert.IsTrue(ctx.Services.CanResolve<Foo>());
+                Assert.IsTrue(ctx.Services.IsRegistered<Foo>());
+                // Assert.IsFalse(ctx.Services.IsRegistered<Foo>(bubbleUp: false));
+                
+                var firstInstance = ctx.Services.Resolve<Foo>();
+                // Assert.IsTrue(ctx.Services.IsRegistered<Foo>(bubbleUp: false));
+                
+                var secondInstance = ctx.Services.Resolve<Foo>();
+                
+                Assert.IsNotNull(firstInstance);
+                Assert.IsNotNull(secondInstance);
+                Assert.AreSame(firstInstance, secondInstance);
+            }
+            
+            Assert.IsTrue(container.CanResolve<Foo>());
+            Assert.IsTrue(container.IsRegistered<Foo>());
+        }
+        
+        [Test]
+        public void ItRegistersFactoryAsPerRequestSingletons()
+        {
+            Assert.IsTrue(container.CanResolve<Foo>());
+            Assert.IsFalse(container.IsRegistered<Foo>());
+            
+            container.RegisterPerRequestSingleton<Foo>(
+                _ => new Foo()
+            );
+            
+            Assert.IsTrue(container.CanResolve<Foo>());
+            Assert.IsTrue(container.IsRegistered<Foo>());
+        
+            using (var ctx = ConstructRequestContext())
+            {
+                Assert.IsTrue(ctx.Services.CanResolve<Foo>());
+                Assert.IsTrue(ctx.Services.IsRegistered<Foo>());
+                // Assert.IsFalse(ctx.Services.IsRegistered<Foo>(bubbleUp: false));
+                
+                var firstInstance = ctx.Services.Resolve<Foo>();
+                // Assert.IsTrue(ctx.Services.IsRegistered<Foo>(bubbleUp: false));
+                
+                var secondInstance = ctx.Services.Resolve<Foo>();
+                
+                Assert.IsNotNull(firstInstance);
+                Assert.IsNotNull(secondInstance);
+                Assert.AreSame(firstInstance, secondInstance);
+            }
+            
+            Assert.IsTrue(container.CanResolve<Foo>());
+            Assert.IsTrue(container.IsRegistered<Foo>());
+        }
+
+        [Test]
+        public void IfOnlyChildCanResolveItGetsUsed()
+        {
+            using (var ctx = ConstructRequestContext())
+            {
+                ctx.Services.RegisterTransient<IFoo, Foo>();
+                
+                Assert.DoesNotThrow(() => {
+                    ctx.Services.Resolve<IFoo>();
+                });
+            }
+        }
+        
+        [Test]
+        public void IfOnlyChildCanConstructItGetsUsed()
+        {
+            using (var ctx = ConstructRequestContext())
+            {
+                ctx.Services.RegisterTransient<IFoo, Foo>();
+                
+                Assert.DoesNotThrow(() => {
+                    ctx.Services.Resolve<RequestBaz>();
+                });
+            }
+        }
+        
+        [Test]
+        public void IfOnlyParentCanResolveItGetsUsed()
+        {
+            container.RegisterTransient<IFoo, Foo>();
+            
+            using (var ctx = ConstructRequestContext())
+            {
+                Assert.DoesNotThrow(() => {
+                    ctx.Services.Resolve<IFoo>();
+                });
+            }
+        }
+        
+        [Test]
+        public void IfOnlyParentCanConstructItGetsUsed()
+        {
+            container.RegisterTransient<IFoo, Foo>();
+            
+            using (var ctx = ConstructRequestContext())
+            {
+                Assert.DoesNotThrow(() => {
+                    ctx.Services.Resolve<RequestBaz>();
+                });
+            }
+        }
+        
+        [Test]
+        public void IfOnlyChildRegistersItGetsUsed()
+        {
+            var foo = new Foo();
+            
+            using (var ctx = ConstructRequestContext())
+            {
+                ctx.Services.RegisterInstance<Foo>(foo);
+                
+                var resolved = ctx.Services.Resolve<Foo>();
+                Assert.AreSame(foo, resolved); // (does not get constructed by parent)
+            }
+        }
+        
+        [Test]
+        public void IfOnlyParentRegistersItGetsUsed()
+        {
+            var foo = new Foo();
+            
+            container.RegisterInstance<Foo>(foo);
+            
+            using (var ctx = ConstructRequestContext())
+            {
+                var resolved = ctx.Services.Resolve<Foo>();
+                Assert.AreSame(foo, resolved); // (does not get constructed by child)
+            }
+        }
+        
+        [Test]
+        public void IfNoneRegisterChildGetsUsed()
+        {
+            var parentFoo = new Foo();
+            var childFoo = new Foo();
+            
+            container.RegisterInstance<IFoo>(parentFoo);
+            
+            using (var ctx = ConstructRequestContext())
+            {
+                container.RegisterInstance<IFoo>(childFoo);
+                
+                var baz = ctx.Services.Resolve<RequestBaz>();
+                Assert.AreSame(childFoo, baz.foo); // uses the foo of the constructor
+            }
+        }
+        
+        [Test]
+        public void IfBothRegisterChildGetsUsed()
+        {
+            var parentFoo = new Foo();
+            var childFoo = new Foo();
+            
+            container.RegisterInstance<Foo>(parentFoo);
+            
+            using (var ctx = ConstructRequestContext())
+            {
+                container.RegisterInstance<Foo>(childFoo);
+                
+                var foo = ctx.Services.Resolve<Foo>();
+                Assert.AreSame(childFoo, foo);
+            }
+        }
+        
+        [Test]
+        public void TwoRequestsHaveSeparatePerRequestSingletons()
+        {
+            container.RegisterPerRequestSingleton<IFoo, Foo>();
+            
+            IFoo first;
+            IFoo second;
+            
+            using (var ctx = ConstructRequestContext())
+            {
+                first = ctx.Services.Resolve<IFoo>();
+            }
+            
+            using (var ctx = ConstructRequestContext())
+            {
+                second = ctx.Services.Resolve<IFoo>();
+            }
+            
+            Assert.AreNotSame(first, second);
+        }
+        
+        [Test]
+        public void PerRequestSingletonIsDisposedWithTheRequest()
+        {
+            string log = "";
+            
+            var mock = new Mock<IFoo>();
+            mock.Setup(b => b.Dispose()).Callback(() => {
+                log += "~Foo";
+            });
+            IFoo foo = mock.Object;
+            
+            container.RegisterPerRequestSingleton<IFoo>(_ => {
+                log += "+Foo";
+                return foo;
+            });
+            
+            Assert.AreEqual("", log);
+            
+            using (var ctx = ConstructRequestContext())
+            {
+                Assert.AreEqual("", log);
+                
+                // first time creates the instance
+                ctx.Services.Resolve<IFoo>();
+                Assert.AreEqual("+Foo", log);
+                
+                // second time just returns it
+                ctx.Services.Resolve<IFoo>();
+                Assert.AreEqual("+Foo", log);
+                
+                // third as well
+                ctx.Services.Resolve<IFoo>();
+                Assert.AreEqual("+Foo", log);
+            }
+            
+            Assert.AreEqual("+Foo~Foo", log);
+        }
+        
+        [Test]
+        public void ResolvingPerRequestSingletonFromParentFails()
+        {
+            container.RegisterPerRequestSingleton<IFoo, Foo>();
+        
+            var e = Assert.Throws<TinyIoCResolutionException>(() => {
+                container.Resolve<IFoo>();
+            });
+            
+            Assert.IsTrue(e.InnerException.Message.Contains(
+                "Per request singleton cannot be resolved from global context."
+            ));
+        }
+        
+        [Test]
+        public void PerRequestSingletonsCanDependOnRequestSpecificServices()
+        {
+            container.RegisterPerRequestSingleton<RequestBaz>();
+            
+            using (var ctx = ConstructRequestContext())
+            {
+                var foo = new Foo();
+                ctx.Services.RegisterInstance<IFoo>(foo);
+                
+                var baz = container.Resolve<RequestBaz>();
+                
+                Assert.AreSame(foo, baz.foo);
+            }
+        }
     }
 }

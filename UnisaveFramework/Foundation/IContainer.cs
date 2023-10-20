@@ -114,6 +114,64 @@ namespace Unisave.Foundation
         
         #endregion
         
+        #region "Register Per-Request Singleton"
+        
+        /// <summary>
+        /// Make a specific type be resolved as a per-request singleton
+        /// when requested from a child container.
+        /// </summary>
+        /// <param name="registerType"></param>
+        void RegisterPerRequestSingleton(Type registerType);
+        
+        /// <summary>
+        /// Make a specific type be resolved as a per-request singleton
+        /// when requested from a child container.
+        /// </summary>
+        /// <typeparam name="TRegisterType"></typeparam>
+        void RegisterPerRequestSingleton<TRegisterType>()
+            where TRegisterType : class;
+        
+        /// <summary>
+        /// Add/replace a type to be used each time an abstract type is resolved.
+        /// Only a single instance is created for each HTTP request processed.
+        /// </summary>
+        /// <param name="abstractType"></param>
+        /// <param name="concreteType"></param>
+        void RegisterPerRequestSingleton(Type abstractType, Type concreteType);
+        
+        /// <summary>
+        /// Add/replace a type to be used each time an abstract type is resolved.
+        /// Only a single instance is created for each HTTP request processed.
+        /// </summary>
+        /// <typeparam name="TAbstractType"></typeparam>
+        /// <typeparam name="TConcreteType"></typeparam>
+        void RegisterPerRequestSingleton<TAbstractType, TConcreteType>()
+            where TAbstractType : class
+            where TConcreteType : class, TAbstractType;
+        
+        /// <summary>
+        /// Add/replace a factory function that constructs a given type.
+        /// Only a single instance is created for each HTTP request processed.
+        /// </summary>
+        /// <param name="registerType"></param>
+        /// <param name="factory"></param>
+        void RegisterPerRequestSingleton(
+            Type registerType,
+            Func<IContainer, object> factory
+        );
+        
+        /// <summary>
+        /// Add/replace a factory function that constructs a given type.
+        /// Only a single instance is created for each HTTP request processed.
+        /// </summary>
+        /// <param name="factory"></param>
+        /// <typeparam name="TRegisterType"></typeparam>
+        void RegisterPerRequestSingleton<TRegisterType>(
+            Func<IContainer, TRegisterType> factory
+        ) where TRegisterType : class;
+        
+        #endregion
+        
         #region "Register Instance"
 
         /// <summary>

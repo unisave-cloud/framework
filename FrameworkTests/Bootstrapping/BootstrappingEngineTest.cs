@@ -15,7 +15,7 @@ namespace FrameworkTests.Bootstrapping
     [TestFixture]
     public class BootstrappingEngineTest
     {
-        private IContainer container = new TinyIoCAdapter(new TinyIoCContainer());
+        private IContainer container = new TinyIoCAdapter();
         
         private static List<Type> executionLog = new List<Type>();
 

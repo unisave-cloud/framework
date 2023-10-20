@@ -27,13 +27,32 @@ namespace Unisave.Foundation
         /// </summary>
         public IContainer Services { get; }
 
+        /// <summary>
+        /// OWIN HTTP request context
+        /// </summary>
+        public IOwinContext OwinContext { get; }
+        
+        /// <summary>
+        /// OWIN HTTP request wrapper
+        /// </summary>
+        public IOwinRequest OwinRequest { get; }
+        
+        /// <summary>
+        /// OWIN HTTP response wrapper
+        /// </summary>
+        public IOwinResponse OwinResponse { get; }
+
         private bool disposed = false;
         
-        public RequestContext(BackendApplication application, IOwinContext owinContext)
+        public RequestContext(IContainer applicationServices, IOwinContext owinContext)
         {
+            OwinContext = owinContext;
+            OwinRequest = owinContext.Request;
+            OwinResponse = owinContext.Response;
+            
             AttachToCurrentExecutionContext();
 
-            Services = application.Services.CreateChildContainer();
+            Services = applicationServices.CreateChildContainer();
             
             // register instances
             Services.RegisterInstance<IOwinContext>(
@@ -50,7 +69,6 @@ namespace Unisave.Foundation
             );
             
             // attach to the OWIN environment dictionary
-            // TODO: add this to the documentation page
             owinContext.Environment["unisave.RequestContext"] = this;
             owinContext.Environment["unisave.RequestServices"] = Services;
         }

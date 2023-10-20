@@ -64,7 +64,7 @@ namespace Unisave.Foundation
         {
             BackendTypes = new BackendTypes(backendTypes);
             
-            Services = new TinyIoCAdapter(new TinyIoCContainer());
+            Services = new TinyIoCAdapter();
             
             // register instances
             Services.RegisterInstance<BackendApplication>(
@@ -174,7 +174,7 @@ namespace Unisave.Foundation
                 );
             }
 
-            using (var requestContext = new RequestContext(this, owinContext))
+            using (var requestContext = new RequestContext(Services, owinContext))
             {
                 // TODO: get completely rid of SpecialValues, since they should
                 // be scoped by the request, but are not anymore
