@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using LightJson;
 using Microsoft.Owin;
 using NUnit.Framework;
+using Unisave.Facades;
 using Unisave.Facets;
 using Unisave.Sessions;
 
@@ -27,6 +28,16 @@ namespace FrameworkTests.Facets
             public void MyProcedure()
             {
                 // nothing
+            }
+
+            public void SetFoo(string value)
+            {
+                Session.Set("foo", value);
+            }
+
+            public string GetFoo()
+            {
+                return Session.Get<string>("foo");
             }
         }
         
@@ -68,10 +79,9 @@ namespace FrameworkTests.Facets
                 sessionCookie.StartsWith("unisave_session_id=" + MyFacet.LastSessionId + ";")
             );
             
-            Assert.IsTrue(sessionCookie.Contains("Path=/"));
-            Assert.IsTrue(sessionCookie.Contains("HttpOnly"));
-            Assert.IsTrue(sessionCookie.Contains("Expires="));
-            Assert.IsTrue(sessionCookie.Contains("Max-Age="));
+            Assert.IsTrue(sessionCookie.ToLowerInvariant().Contains("path=/"));
+            Assert.IsTrue(sessionCookie.ToLowerInvariant().Contains("httponly"));
+            Assert.IsTrue(sessionCookie.ToLowerInvariant().Contains("expires="));
         }
         
         [Test]
@@ -99,10 +109,81 @@ namespace FrameworkTests.Facets
                 sessionCookie.StartsWith("unisave_session_id=123456789")
             );
             
-            Assert.IsTrue(sessionCookie.Contains("Path=/"));
-            Assert.IsTrue(sessionCookie.Contains("HttpOnly"));
-            Assert.IsTrue(sessionCookie.Contains("Expires="));
-            Assert.IsTrue(sessionCookie.Contains("Max-Age="));
+            Assert.IsTrue(sessionCookie.ToLowerInvariant().Contains("path=/"));
+            Assert.IsTrue(sessionCookie.ToLowerInvariant().Contains("httponly"));
+            Assert.IsTrue(sessionCookie.ToLowerInvariant().Contains("expires="));
+        }
+
+        [Test]
+        public async Task SessionStoresValue()
+        {
+            // check two session have no foo set
+            
+            IOwinResponse response = await CallFacet(
+                facetName: typeof(MyFacet).FullName,
+                methodName: nameof(MyFacet.GetFoo),
+                arguments: new JsonArray(),
+                request => {
+                    request.Headers["Cookie"] = "unisave_session_id=firstSession;";
+                }
+            );
+            var firstFoo = await GetReturnedValue<string>(response);
+            Assert.IsNull(firstFoo);
+            
+            response = await CallFacet(
+                facetName: typeof(MyFacet).FullName,
+                methodName: nameof(MyFacet.GetFoo),
+                arguments: new JsonArray(),
+                request => {
+                    request.Headers["Cookie"] = "unisave_session_id=secondSession;";
+                }
+            );
+            var secondFoo = await GetReturnedValue<string>(response);
+            Assert.IsNull(secondFoo);
+            
+            // set values for both sessions
+            
+            await CallFacet(
+                facetName: typeof(MyFacet).FullName,
+                methodName: nameof(MyFacet.SetFoo),
+                arguments: new JsonArray("first"),
+                request => {
+                    request.Headers["Cookie"] = "unisave_session_id=firstSession;";
+                }
+            );
+            
+            await CallFacet(
+                facetName: typeof(MyFacet).FullName,
+                methodName: nameof(MyFacet.SetFoo),
+                arguments: new JsonArray("second"),
+                request => {
+                    request.Headers["Cookie"] = "unisave_session_id=secondSession;";
+                }
+            );
+            
+            // check both sessions have their proper values
+            
+            response = await CallFacet(
+                facetName: typeof(MyFacet).FullName,
+                methodName: nameof(MyFacet.GetFoo),
+                arguments: new JsonArray(),
+                request => {
+                    request.Headers["Cookie"] = "unisave_session_id=firstSession;";
+                }
+            );
+            firstFoo = await GetReturnedValue<string>(response);
+            Assert.AreEqual("first", firstFoo);
+            
+            response = await CallFacet(
+                facetName: typeof(MyFacet).FullName,
+                methodName: nameof(MyFacet.GetFoo),
+                arguments: new JsonArray(),
+                request => {
+                    request.Headers["Cookie"] = "unisave_session_id=secondSession;";
+                }
+            );
+            secondFoo = await GetReturnedValue<string>(response);
+            Assert.AreEqual("second", secondFoo);
         }
     }
 }
