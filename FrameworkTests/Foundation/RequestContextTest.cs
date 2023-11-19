@@ -8,6 +8,9 @@ using Unisave.Foundation;
 
 namespace FrameworkTests.Foundation
 {
+    /// <summary>
+    /// Tests the <see cref="RequestContext"/> class
+    /// </summary>
     [TestFixture]
     public class RequestContextTest
     {

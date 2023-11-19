@@ -10,12 +10,12 @@ namespace Unisave.Facades
     {
         private static EnvStore GetStore()
         {
-            if (!Facade.HasApp)
+            if (!Facade.CanUse)
                 throw new InvalidOperationException(
                     "You cannot access env variables from the client side."
                 );
             
-            return Facade.App.Services.Resolve<EnvStore>();
+            return Facade.Services.Resolve<EnvStore>();
         }
 
         /// <summary>

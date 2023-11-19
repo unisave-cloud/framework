@@ -24,12 +24,12 @@ namespace Unisave.Facades
     {
         private static Factory GetFactory()
         {
-            if (!Facade.HasApp)
+            if (!Facade.CanUse)
                 throw new InvalidOperationException(
                     "You cannot use the Http facade the client side."
                 );
             
-            return Facade.App.Services.Resolve<Factory>();
+            return Facade.Services.Resolve<Factory>();
         }
         
         #region "Request construction"

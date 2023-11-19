@@ -8,6 +8,7 @@ using Owin;
 using TinyIoC;
 using Unisave.Bootstrapping;
 using Unisave.Providers;
+using Unisave.Sessions;
 
 namespace Unisave.Foundation
 {
@@ -145,7 +146,6 @@ namespace Unisave.Foundation
         {
             providers = new ServiceProvider[] {
                 new LogServiceProvider(this),
-                new SessionServiceProvider(this),
                 new EntityServiceProvider(this),
                 new ArangoServiceProvider(this),
                 new AuthServiceProvider(this),

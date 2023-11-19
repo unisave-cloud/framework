@@ -10,13 +10,13 @@ namespace Unisave.Facades
     {
         internal static IBroadcaster GetBroadcaster()
         {
-            if (!Facade.HasApp)
+            if (!Facade.CanUse)
                 throw new InvalidOperationException(
                     "You cannot broadcasts from the client side, " +
                     "only listen to subscriptions."
                 );
             
-            return Facade.App.Services.Resolve<IBroadcaster>();
+            return Facade.Services.Resolve<IBroadcaster>();
         }
         
         /// <summary>

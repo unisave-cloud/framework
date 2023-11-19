@@ -1,5 +1,7 @@
 using System;
 using System.Threading.Tasks;
+using FrameworkTests.Testing;
+using FrameworkTests.Testing.Facets;
 using LightJson;
 using Microsoft.Owin;
 using NUnit.Framework;
@@ -10,7 +12,7 @@ using Unisave.Foundation;
 namespace FrameworkTests.Facets
 {
     [TestFixture]
-    public class MiddlewareTest : BaseFacetCallingTest
+    public class MiddlewareTest : BackendApplicationFixture
     {
         #region "Backend definition"
         
@@ -71,8 +73,7 @@ namespace FrameworkTests.Facets
         
         #endregion
         
-        [SetUp]
-        public void SetUp()
+        public override void SetUpBackendApplication()
         {
             CreateApplication(new Type[] {
                 typeof(FacetWithMiddleware),
@@ -84,24 +85,24 @@ namespace FrameworkTests.Facets
         public async Task ItRunsMiddlewareAsProperlyDefined()
         {
             FacetWithMiddleware.middlewareLog = null;
-            IOwinResponse response = await CallFacet(
+            IOwinResponse response = await app.CallFacet(
                 facetName: typeof(FacetWithMiddleware).FullName,
                 methodName: nameof(FacetWithMiddleware.MethodWithoutMiddleware),
                 arguments: new JsonArray()
             );
-            await AssertOkVoidResponse(response);
+            await response.AssertOkVoidResponse();
             Assert.AreEqual(
                 "C1,C2,B2,C2',C1'",
                 FacetWithMiddleware.middlewareLog
             );
             
             FacetWithMiddleware.middlewareLog = null;
-            response = await CallFacet(
+            response = await app.CallFacet(
                 facetName: typeof(FacetWithMiddleware).FullName,
                 methodName: nameof(FacetWithMiddleware.MethodWithMiddleware),
                 arguments: new JsonArray()
             );
-            await AssertOkVoidResponse(response);
+            await response.AssertOkVoidResponse();
             Assert.AreEqual(
                 "C1,C2,M1,M2,B1,M2',M1',C2',C1'",
                 FacetWithMiddleware.middlewareLog

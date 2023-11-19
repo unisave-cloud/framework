@@ -1,39 +1,33 @@
-using System;
+using FrameworkTests.Testing;
 using LightJson;
+using Microsoft.Owin;
 using Moq;
 using NUnit.Framework;
-using Unisave;
 using Unisave.Contracts;
 using Unisave.Facades;
 using Unisave.Foundation;
-using Unisave.Serialization;
 using Unisave.Sessions;
+using Unisave.Sessions.Storage;
 
 namespace FrameworkTests.Sessions
 {
+    /// <summary>
+    /// Tests the <see cref="SessionFrontend"/> class in isolation,
+    /// which implements the <see cref="ISession"/> contract
+    /// and is used by the <see cref="Session"/> facade.
+    /// </summary>
     [TestFixture]
-    public class SessionOverStorageTest
+    public class SessionFrontendTest : RequestContextFixture
     {
-        private BackendApplication app;
-        private SessionOverStorage session;
+        private SessionFrontend session;
         private Mock<ISessionStorage> storageMock;
         
         [SetUp]
         public void SetUp()
         {
-            app = new BackendApplication(new Type[0], new EnvStore());
-            
             storageMock = new Mock<ISessionStorage>();
-            session = new SessionOverStorage(storageMock.Object, 42);
-            app.Services.RegisterInstance<ISession>(session);
-            
-            Facade.SetApplication(app);
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            Facade.SetApplication(null);
+            session = new SessionFrontend(storageMock.Object, 42);
+            ctx.Services.RegisterInstance<ISession>(session);
         }
         
         [Test]

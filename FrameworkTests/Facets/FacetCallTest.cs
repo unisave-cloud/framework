@@ -1,5 +1,8 @@
 using System;
 using System.Threading.Tasks;
+using FrameworkTests.Testing;
+using FrameworkTests.Testing.Facets;
+using FrameworkTests.Testing.Foundation;
 using LightJson;
 using Microsoft.Owin;
 using NUnit.Framework;
@@ -8,7 +11,7 @@ using Unisave.Facets;
 namespace FrameworkTests.Facets
 {
     [TestFixture]
-    public class FacetCallTest : BaseFacetCallingTest
+    public class FacetCallTest : BackendApplicationFixture
     {
         #region "Backend definition"
         
@@ -39,8 +42,7 @@ namespace FrameworkTests.Facets
         
         #endregion
 
-        [SetUp]
-        public void SetUp()
+        public override void SetUpBackendApplication()
         {
             CreateApplication(new Type[] {
                 typeof(MyFacet)
@@ -52,12 +54,12 @@ namespace FrameworkTests.Facets
         {
             MyFacet.flag = false;
             
-            IOwinResponse response = await CallFacet(
+            IOwinResponse response = await app.CallFacet(
                 facetName: typeof(MyFacet).FullName,
                 methodName: nameof(MyFacet.MyProcedure),
                 arguments: new JsonArray()
             );
-            await AssertOkVoidResponse(response);
+            await response.AssertOkVoidResponse();
             
             // check that facet was actually invoked
             Assert.IsTrue(MyFacet.flag);
@@ -68,21 +70,21 @@ namespace FrameworkTests.Facets
         {
             MyFacet.flag = false;
             
-            IOwinResponse response = await CallFacet(
+            IOwinResponse response = await app.CallFacet(
                 facetName: typeof(MyFacet).FullName,
                 methodName: nameof(MyFacet.MyParametrizedProcedure),
                 arguments: new JsonArray() { true }
             );
-            await AssertOkVoidResponse(response);
+            await response.AssertOkVoidResponse();
             
             Assert.IsTrue(MyFacet.flag);
             
-            response = await CallFacet(
+            response = await app.CallFacet(
                 facetName: typeof(MyFacet).FullName,
                 methodName: nameof(MyFacet.MyParametrizedProcedure),
                 arguments: new JsonArray() { false }
             );
-            await AssertOkVoidResponse(response);
+            await response.AssertOkVoidResponse();
             
             Assert.IsFalse(MyFacet.flag);
         }
@@ -90,28 +92,28 @@ namespace FrameworkTests.Facets
         [Test]
         public async Task ItRunsFunctions()
         {
-            IOwinResponse response = await CallFacet(
+            IOwinResponse response = await app.CallFacet(
                 facetName: typeof(MyFacet).FullName,
                 methodName: nameof(MyFacet.SquaringFunction),
                 arguments: new JsonArray() { 5 }
             );
-            int returned = await GetReturnedValue<int>(response);
+            int returned = await response.GetReturnedValue<int>();
             Assert.AreEqual(25, returned);
         }
         
         [Test]
         public async Task ItHandlesUnknownExceptions()
         {
-            IOwinResponse response = await CallFacet(
+            IOwinResponse response = await app.CallFacet(
                 facetName: typeof(MyFacet).FullName,
                 methodName: nameof(MyFacet.ThrowingProcedure),
                 arguments: new JsonArray()
             );
-            Exception e = await GetThrownException<Exception>(response);
+            Exception e = await response.GetThrownException<Exception>();
             Assert.IsInstanceOf<InvalidOperationException>(e);
             Assert.AreEqual("Hello world!", e.Message);
             
-            JsonObject body = await GetResponseBody(response);
+            JsonObject body = await response.ReadJsonBody<JsonObject>();
             Assert.IsFalse(body["isKnownException"].AsBoolean);
         }
     }

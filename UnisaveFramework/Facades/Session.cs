@@ -11,12 +11,12 @@ namespace Unisave.Facades
     {
         private static ISession GetSession()
         {
-            if (!Facade.HasApp)
+            if (!Facade.CanUse)
                 throw new InvalidOperationException(
                     "You cannot access session data from the client side."
                 );
             
-            return Facade.App.Services.Resolve<ISession>();
+            return Facade.Services.Resolve<ISession>();
         }
         
         /// <summary>

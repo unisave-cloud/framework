@@ -46,10 +46,8 @@
     <Compile Include="Bootstrapping\BootstrappingEngineTest.cs" />
     <Compile Include="Entities\EntityReferenceTest.cs" />
     <Compile Include="Entities\MassAssignmentTest.cs" />
-    <Compile Include="Facets\BaseFacetCallingTest.cs" />
     <Compile Include="Facets\FacetCallTest.cs" />
     <Compile Include="Facets\MiddlewareTest.cs" />
-    <Compile Include="Facets\SessionTrackingTest.cs" />
     <Compile Include="Foundation\ContainerTest.cs" />
     <Compile Include="Foundation\RequestContextTest.cs" />
     <Compile Include="HttpClient\AuthorizationTest.cs" />
@@ -58,14 +56,8 @@
     <Compile Include="Entities\CollectionExtensions.cs" />
     <Compile Include="Entities\EntityManagerTest.cs" />
     <Compile Include="EntrypointTest.cs" />
-    <Compile Include="EnvTest.cs" />
     <Compile Include="Foundation\EnvStoreTest.cs" />
     <Compile Include="Logging\HookIntoUnityEngineTest.cs" />
-    <Compile Include="Modules\Matchmaking\Basic\BasicMatchmakerTest.cs" />
-    <Compile Include="Modules\Matchmaking\Basic\BmMatchEntity.cs" />
-    <Compile Include="Modules\Matchmaking\Basic\BmMatchmakerFacet.cs" />
-    <Compile Include="Modules\Matchmaking\Basic\BmMatchmakerTicket.cs" />
-    <Compile Include="Modules\Matchmaking\Basic\BmPlayerEntity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serialization\Attributes\DontLeaveServerAttributeTest.cs" />
     <Compile Include="Serialization\Attributes\DontSerializeAttributeTest.cs" />
@@ -95,10 +87,16 @@
     <Compile Include="Serialization\Unisave\DocumentIdSerializationTest.cs" />
     <Compile Include="Serialization\Unisave\EntityReferenceSerializationTest.cs" />
     <Compile Include="Serialization\Unisave\EntitySerializationTest.cs" />
-    <Compile Include="Sessions\SessionOverStorageTest.cs" />
-    <Compile Include="Stubs\SomeEntity.cs" />
+    <Compile Include="Sessions\FacetsAccessSessionsTest.cs" />
+    <Compile Include="Sessions\SessionFrontendTest.cs" />
+    <Compile Include="Sessions\FacetsTrackSessionsTest.cs" />
     <Compile Include="TestingUtils\ExecuteFramework.cs" />
     <Compile Include="TestingUtils\UAssert.cs" />
+    <Compile Include="Testing\BackendApplicationFixture.cs" />
+    <Compile Include="Testing\Facets\BackendApplicationExtensions.cs" />
+    <Compile Include="Testing\Facets\IOwinResponseExtensions.cs" />
+    <Compile Include="Testing\Foundation\IOwinResponseExtensions.cs" />
+    <Compile Include="Testing\RequestContextFixture.cs" />
     <Compile Include="Utils\HashTest.cs" />
     <Compile Include="Utils\StrTest.cs" />
   </ItemGroup>

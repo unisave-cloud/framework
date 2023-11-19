@@ -6,7 +6,7 @@ using Unisave.Arango.Expressions;
 using Unisave.Arango.Query;
 using Unisave.Contracts;
 
-namespace Unisave.Sessions
+namespace Unisave.Sessions.Storage
 {
     /// <summary>
     /// Provides storage for session data inside an ArangoDB collection
@@ -125,22 +125,12 @@ namespace Unisave.Sessions
         {
             arango.CreateCollection(CollectionName, CollectionType.Document);
             
-            log.Info(
-                $"[Unisave] {CollectionName} collection has been created. " +
-                "This collection is used for storing session data."
-            );
-            
             arango.CreateIndex(
                 CollectionName,
                 IndexType.TTL,
                 new string[] { "expiresAt" },
                 new JsonObject()
                     .Add("expireAfter", 0)
-            );
-            
-            log.Info(
-                $"[Unisave] TTL index on collection {CollectionName} has " +
-                "been created. It makes sure that old sessions get deleted."
             );
         }
     }

@@ -1,18 +1,16 @@
-using System;
+using FrameworkTests.Testing;
 using Moq;
 using NUnit.Framework;
 using Unisave;
 using Unisave.Contracts;
 using Unisave.Entities;
-using Unisave.Facades;
-using Unisave.Foundation;
 using Unisave.Serialization;
 using Unisave.Serialization.Context;
 
 namespace FrameworkTests.Entities
 {
     [TestFixture]
-    public class MassAssignmentTest
+    public class MassAssignmentTest : RequestContextFixture
     {
         private class MyEntity : Entity
         {
@@ -28,12 +26,10 @@ namespace FrameworkTests.Entities
         [SetUp]
         public void SetUp()
         {
-            var app = new BackendApplication(new Type[] {}, new EnvStore());
             var arango = new Mock<IArango>();
             var log = new Mock<ILog>();
             var manager = new Mock<EntityManager>(arango.Object, log.Object);
-            app.Services.RegisterInstance<EntityManager>(manager.Object);
-            Facade.SetApplication(app);
+            ctx.Services.RegisterInstance<EntityManager>(manager.Object);
         }
         
         [Test]

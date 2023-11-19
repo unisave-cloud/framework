@@ -1,6 +1,6 @@
 using LightJson;
 
-namespace Unisave.Sessions
+namespace Unisave.Sessions.Storage
 {
     public interface ISessionStorage
     {

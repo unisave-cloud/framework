@@ -9,27 +9,27 @@ namespace Unisave.Facades
     public static class Facade
     {
         /// <summary>
-        /// Application instance that should be used by facades
+        /// Service container scoped to the current backend request
         /// </summary>
-        public static BackendApplication App => app
-            ?? throw new InvalidOperationException(
-                "Trying to use a facade, but facades have not been "
-                + "initialized to an application instance."
-            );
-
-        private static BackendApplication app;
-
-        /// <summary>
-        /// True if an application instance is set and can be used
-        /// </summary>
-        public static bool HasApp => app != null;
-        
-        /// <summary>
-        /// Sets the application instance to be used by facades
-        /// </summary>
-        public static void SetApplication(BackendApplication newApp)
+        public static IContainer Services
         {
-            app = newApp;
+            get
+            {
+                var ctx = RequestContext.Current;
+                
+                if (ctx == null)
+                    throw new InvalidOperationException(
+                        "Facades can only be used in the " +
+                        "context of a backend request."
+                    );
+
+                return ctx.Services;
+            }
         }
+
+        /// <summary>
+        /// Returns true if facades can be used
+        /// </summary>
+        public static bool CanUse => RequestContext.Current != null;
     }
 }

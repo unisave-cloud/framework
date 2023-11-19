@@ -19,14 +19,14 @@ namespace Unisave.Facades
         {
             AQL.GuardClientSide();
             
-            return Facade.App.Services.Resolve<IArango>();
+            return Facade.Services.Resolve<IArango>();
         }
 
         private static EntityManager GetEntityManager()
         {
             AQL.GuardClientSide();
             
-            return Facade.App.Services.Resolve<EntityManager>();
+            return Facade.Services.Resolve<EntityManager>();
         }
 
         public static IAqlQuery Query(string aql)

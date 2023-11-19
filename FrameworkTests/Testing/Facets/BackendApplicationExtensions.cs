@@ -1,36 +1,30 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LightJson;
 using Microsoft.Owin;
 using NUnit.Framework;
-using Unisave;
 using Unisave.Foundation;
-using Unisave.Serialization;
 
-namespace FrameworkTests.Facets
+namespace FrameworkTests.Testing.Facets
 {
-    public abstract class BaseFacetCallingTest
+    public static class BackendApplicationExtensions
     {
-        public BackendApplication app;
-        
-        protected virtual void CreateApplication(Type[] additionalTypes)
-        {
-            var envStore = new EnvStore {
-                ["ARANGO_DRIVER"] = "memory",
-                ["SESSION_DRIVER"] = "memory"
-            };
-
-            app = BackendApplication.Start(
-                typeof(FrameworkMeta).Assembly.GetTypes()
-                    .Concat(additionalTypes).ToArray(),
-                envStore
-            );
-        }
-
-        protected async Task<IOwinResponse> CallFacet(
+        /// <summary>
+        /// Calls a facet method via the low-level OWIN HTTP interface
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="facetName"></param>
+        /// <param name="methodName"></param>
+        /// <param name="arguments"></param>
+        /// <param name="requestCallback">
+        /// Optional callback that lets you modify the OWIN request instance
+        /// before it is sent.
+        /// </param>
+        /// <returns></returns>
+        public static async Task<IOwinResponse> CallFacet(
+            this BackendApplication app,
             string facetName,
             string methodName,
             JsonArray arguments,
@@ -54,6 +48,7 @@ namespace FrameworkTests.Facets
                 requestCallback.Invoke(ctx.Request);
 
             // prepare response stream for writing
+            // TODO: use some stream that can grow the buffer!
             byte[] responseBuffer = new byte[100 * 1024];
             var responseStream = new MemoryStream(responseBuffer, writable: true);
             ctx.Response.Body = responseStream;
@@ -74,36 +69,6 @@ namespace FrameworkTests.Facets
             );
             
             return ctx.Response;
-        }
-
-        protected virtual async Task<JsonObject> GetResponseBody(IOwinResponse response)
-        {
-            response.Body.Seek(0, SeekOrigin.Begin);
-            string json = await new StreamReader(response.Body).ReadToEndAsync();
-            return Serializer.FromJsonString<JsonObject>(json);
-        }
-
-        protected virtual async Task<T> GetReturnedValue<T>(IOwinResponse response)
-        {
-            JsonObject body = await GetResponseBody(response);
-            Assert.AreEqual("ok", body["status"].AsString);
-            return Serializer.FromJson<T>(body["returned"]);
-        }
-        
-        protected virtual async Task<T> GetThrownException<T>(IOwinResponse response)
-            where T : Exception
-        {
-            JsonObject body = await GetResponseBody(response);
-            Assert.AreEqual("exception", body["status"].AsString);
-            Assert.IsTrue(body.ContainsKey("isKnownException"));
-            return Serializer.FromJson<T>(body["exception"]);
-        }
-
-        protected virtual async Task AssertOkVoidResponse(IOwinResponse response)
-        {
-            JsonObject body = await GetResponseBody(response);
-            Assert.AreEqual("ok", body["status"].AsString);
-            Assert.IsTrue(body["returned"].IsNull);
         }
     }
 }

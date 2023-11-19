@@ -11,10 +11,10 @@ namespace Unisave.Facades
     {
         private static ILog GetLog()
         {
-            if (!Facade.HasApp)
+            if (!Facade.CanUse)
                 return new ClientSideLog();
             
-            return Facade.App.Services.Resolve<ILog>();
+            return Facade.Services.Resolve<ILog>();
         }
         
         /// <summary>

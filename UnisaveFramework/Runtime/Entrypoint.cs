@@ -88,14 +88,10 @@ namespace Unisave.Runtime
                                     specialValues
                                 );
                                 
-                                Facade.SetApplication(app);
-                                
                                 methodResult = ExecuteProperMethod(
                                     executionParameters,
                                     requestServices
                                 );
-                                
-                                Facade.SetApplication(null);
                             }
                         }
                         

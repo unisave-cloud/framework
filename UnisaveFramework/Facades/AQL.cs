@@ -18,7 +18,7 @@ namespace Unisave.Facades
         /// <exception cref="InvalidOperationException"></exception>
         internal static void GuardClientSide()
         {
-            if (!Facade.HasApp)
+            if (!Facade.CanUse)
                 throw new InvalidOperationException(
                     "You cannot access database from the client side. Make " +
                     "sure that the code shared between client and server " +
@@ -30,7 +30,7 @@ namespace Unisave.Facades
         {
             GuardClientSide();
             
-            return Facade.App.Services.Resolve<IArango>();
+            return Facade.Services.Resolve<IArango>();
         }
         
         /// <summary>

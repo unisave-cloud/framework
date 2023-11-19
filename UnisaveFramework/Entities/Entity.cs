@@ -168,7 +168,7 @@ namespace Unisave.Entities
         /// </summary>
         protected virtual EntityManager GetEntityManager()
         {
-            return Facade.App.Services.Resolve<EntityManager>();
+            return Facade.Services.Resolve<EntityManager>();
         }
         
         /// <summary>
@@ -177,7 +177,7 @@ namespace Unisave.Entities
         /// <param name="carefully">Whether to check document revisions</param>
         public virtual void Save(bool carefully = false)
         {
-            if (!Facade.HasApp)
+            if (!Facade.CanUse)
                 throw new InvalidOperationException(
                     "You cannot save an entity from the client. " +
                     "Only the server has access to the database."
@@ -231,7 +231,7 @@ namespace Unisave.Entities
             if (EntityId == null)
                 return;
             
-            if (!Facade.HasApp)
+            if (!Facade.CanUse)
                 throw new InvalidOperationException(
                     "You cannot refresh an entity from the client. " +
                     "Only the server has access to the database."
@@ -263,7 +263,7 @@ namespace Unisave.Entities
             if (EntityId == null)
                 return false;
             
-            if (!Facade.HasApp)
+            if (!Facade.CanUse)
                 throw new InvalidOperationException(
                     "You cannot delete an entity from the client. " +
                     "Only the server has access to the database."

@@ -1,15 +1,21 @@
+using System;
 using LightJson;
 using LightJson.Serialization;
 using Unisave.Contracts;
 using Unisave.Serialization;
+using Unisave.Sessions.Storage;
 
 namespace Unisave.Sessions
 {
     /// <summary>
-    /// Implements session interface, keeping session data in memory
-    /// and when asked, storing the data to some session storage
+    /// Implements the <see cref="ISession"/> contract and in turn
+    /// the <see cref="Unisave.Facades.Session"/> facade.
+    /// Has only per-request lifetime and it loads/stores the session data
+    /// from some external <see cref="ISessionStorage"/> instance,
+    /// which is either in-memory or in-database storage.
+    /// This object holds and manipulates data of a single player session only.
     /// </summary>
-    public class SessionOverStorage : ISession
+    public class SessionFrontend : ISession
     {
         /// <summary>
         /// The underlying session storage
@@ -37,26 +43,20 @@ namespace Unisave.Sessions
         /// <param name="sessionLifetime">
         /// Lifetime of sessions in seconds
         /// </param>
-        public SessionOverStorage(ISessionStorage storage, int sessionLifetime)
+        public SessionFrontend(ISessionStorage storage, int sessionLifetime)
         {
-            Storage = storage;
+            Storage = storage ?? throw new ArgumentNullException(nameof(storage));
             SessionLifetime = sessionLifetime;
         }
 
         public void LoadSession(string sessionId)
         {
-            if (Storage == null)
-            {
-                data = new JsonObject();
-                return;
-            }
-
             data = Storage.Load(sessionId);
         }
 
         public void StoreSession(string sessionId)
         {
-            Storage?.Store(sessionId, data, SessionLifetime);
+            Storage.Store(sessionId, data, SessionLifetime);
         }
 
         public T Get<T>(string key, T defaultValue = default(T))
