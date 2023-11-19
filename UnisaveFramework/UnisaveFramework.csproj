@@ -98,6 +98,7 @@
     <Compile Include="Broadcasting\SpecificChannel.cs" />
     <Compile Include="Broadcasting\UnisaveBroadcaster.cs" />
     <Compile Include="Entities\EntitySecurityException.cs" />
+    <Compile Include="Facets\FacetExecutionKernel.cs" />
     <Compile Include="Facets\FacetsBootstrapper.cs" />
     <Compile Include="Foundation\BackendTypes.cs" />
     <Compile Include="Foundation\IContainer.cs" />
@@ -160,7 +161,6 @@
     <Compile Include="Providers\HttpClientServiceProvider.cs" />
     <Compile Include="Providers\LogServiceProvider.cs" />
     <Compile Include="Providers\ServiceProvider.cs" />
-    <Compile Include="Runtime\Kernels\FacetCallKernel.cs" />
     <Compile Include="Serialization\Collections\ArraySerializer.cs" />
     <Compile Include="Serialization\Collections\CollectionSerializer.cs" />
     <Compile Include="Serialization\Collections\DictionarySerializer.cs" />

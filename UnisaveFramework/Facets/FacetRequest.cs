@@ -16,9 +16,7 @@ namespace Unisave.Facets
         public Type FacetType { get; private set; }
         public string MethodName { get; private set; }
         public MethodInfo Method { get; private set; }
-        public JsonArray JsonArguments { get; private set; }
-        public object[] Arguments { get; private set; }
-        public Facet Facet { get; private set; }
+        public JsonArray Arguments { get; private set; }
         
         private FacetRequest() { }
 
@@ -26,14 +24,13 @@ namespace Unisave.Facets
             string facetName,
             string methodName,
             JsonArray jsonArguments,
-            BackendTypes backendTypes,
-            IContainer services
+            BackendTypes backendTypes
         )
         {
             var request = new FacetRequest {
                 FacetName = facetName,
                 MethodName = methodName,
-                JsonArguments = jsonArguments,
+                Arguments = jsonArguments,
                 FacetType = Facet.FindFacetTypeByName(
                     facetName,
                     backendTypes
@@ -44,13 +41,6 @@ namespace Unisave.Facets
                 request.FacetType,
                 methodName
             );
-
-            request.Arguments = Facet.DeserializeArguments(
-                request.Method,
-                jsonArguments
-            );
-
-            request.Facet = Facet.CreateInstance(request.FacetType, services);
 
             return request;
         }

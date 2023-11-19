@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using LightJson;
@@ -7,7 +8,6 @@ using Owin;
 using Unisave.Bootstrapping;
 using Unisave.Foundation;
 using Unisave.Foundation.Pipeline;
-using Unisave.Runtime.Kernels;
 using Unisave.Serialization;
 
 namespace Unisave.Facets
@@ -33,7 +33,16 @@ namespace Unisave.Facets
                 .DefineBranch("Facet")
                 .Run(HandleFacetRequest);
         }
+        
+        
+        ////////////////////////////
+        // Request-scoped methods //
+        ////////////////////////////
 
+        /// <summary>
+        /// Called by the OWIN middleware pipeline whenever a facet request
+        /// HTTP request is to be processed.
+        /// </summary>
         private async Task HandleFacetRequest(IOwinContext ctx)
         {
             var requestServices = ctx.Get<IContainer>("unisave.RequestServices");
@@ -41,16 +50,19 @@ namespace Unisave.Facets
             JsonObject data;
             try
             {
-                var kernel = requestServices.Resolve<FacetCallKernel>();
-                var parameters =
-                    await FacetCallKernel.MethodParameters.Parse(
-                        ctx.Request);
+                var kernel = requestServices.Resolve<FacetExecutionKernel>();
+                var backendTypes = requestServices.Resolve<BackendTypes>();
+                
+                FacetRequest request = await ParseFacetRequest(
+                    ctx.Request,
+                    backendTypes
+                );
 
-                JsonValue returned = kernel.Handle(parameters);
+                FacetResponse response = kernel.Handle(request);
                     
                 data = new JsonObject()
                     .Add("status", "ok")
-                    .Add("returned", returned);
+                    .Add("returned", response.ReturnedJson);
                 // TODO: logs
             }
             catch (Exception e)
@@ -63,6 +75,33 @@ namespace Unisave.Facets
             }
 
             await SendJson(ctx.Response, data);
+        }
+
+        private async Task<FacetRequest> ParseFacetRequest(
+            IOwinRequest owinRequest,
+            BackendTypes backendTypes
+        )
+        {
+            string[] segments = owinRequest.Path.Value.Split('/');
+
+            if (segments.Length != 3)
+                throw new ArgumentException(
+                    "Facet request HTTP path has invalid number of segments."
+                );
+
+            using (var sr = new StreamReader(owinRequest.Body, Encoding.UTF8))
+            {
+                string json = await sr.ReadToEndAsync();
+
+                JsonObject body = Serializer.FromJsonString<JsonObject>(json);
+                
+                return FacetRequest.CreateFrom(
+                    facetName: segments[1],
+                    methodName: segments[2],
+                    jsonArguments: body["arguments"].AsJsonArray,
+                    backendTypes
+                );
+            }
         }
 
         private async Task SendJson(IOwinResponse response, JsonValue json)
