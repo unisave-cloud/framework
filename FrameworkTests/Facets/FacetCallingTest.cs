@@ -11,7 +11,7 @@ using Unisave.Facets;
 namespace FrameworkTests.Facets
 {
     [TestFixture]
-    public class FacetCallTest : BackendApplicationFixture
+    public class FacetCallingTest : BackendApplicationFixture
     {
         #region "Backend definition"
         
@@ -37,6 +37,14 @@ namespace FrameworkTests.Facets
             public void ThrowingProcedure()
             {
                 throw new InvalidOperationException("Hello world!");
+            }
+            
+            public byte[] LargeResponse(int count)
+            {
+                byte[] data = new byte[count];
+                for (int i = 0; i < count; i++)
+                    data[i] = (byte)i;
+                return data;
             }
         }
         
@@ -115,6 +123,21 @@ namespace FrameworkTests.Facets
             
             JsonObject body = await response.ReadJsonBody<JsonObject>();
             Assert.IsFalse(body["isKnownException"].AsBoolean);
+        }
+        
+        [Test]
+        public async Task ItPassesAlongLargeResponses()
+        {
+            IOwinResponse response = await app.CallFacet(
+                facetName: typeof(MyFacet).FullName,
+                methodName: nameof(MyFacet.LargeResponse),
+                arguments: new JsonArray(1024 * 100) // ~ 100 KB
+            );
+
+            byte[] data = await response.GetReturnedValue<byte[]>();
+            
+            for (int i = 0; i < data.Length; i++)
+                Assert.AreEqual((byte)i, data[i]);
         }
     }
 }

@@ -48,9 +48,7 @@ namespace FrameworkTests.Testing.Facets
                 requestCallback.Invoke(ctx.Request);
 
             // prepare response stream for writing
-            // TODO: use some stream that can grow the buffer!
-            byte[] responseBuffer = new byte[100 * 1024];
-            var responseStream = new MemoryStream(responseBuffer, writable: true);
+            var responseStream = new MemoryStream(10 * 1024); // 10 KB
             ctx.Response.Body = responseStream;
             
             // run the app delegate
@@ -64,8 +62,9 @@ namespace FrameworkTests.Testing.Facets
             Assert.GreaterOrEqual(receivedBytes, 0);
 
             // prepare response stream for reading
+            // (the writing stream was disposed which closes it for operations)
             ctx.Response.Body = new MemoryStream(
-                responseBuffer, 0, receivedBytes, writable: false
+                responseStream.GetBuffer(), 0, receivedBytes, writable: false
             );
             
             return ctx.Response;

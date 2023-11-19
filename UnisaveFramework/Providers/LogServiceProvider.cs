@@ -98,8 +98,9 @@ namespace Unisave.Providers
 
         public override void TearDown()
         {
-            var specialValues = App.Services.Resolve<SpecialValues>();
-            specialValues.Add("logs", log.ExportLog());
+            // TODO: extract logs by registering log catchers or something...
+            // var specialValues = App.Services.Resolve<SpecialValues>();
+            // specialValues.Add("logs", log.ExportLog());
         }
     }
 }

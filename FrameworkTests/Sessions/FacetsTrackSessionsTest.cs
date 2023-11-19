@@ -19,11 +19,11 @@ namespace FrameworkTests.Sessions
         
         public class MyFacet : Facet
         {
-            public static string LastSessionId = null;
+            public static string lastSessionId = null;
 
             public MyFacet(ServerSessionIdRepository repo)
             {
-                LastSessionId = repo.SessionId;
+                lastSessionId = repo.SessionId;
             }
             
             public void MyProcedure()
@@ -44,14 +44,17 @@ namespace FrameworkTests.Sessions
         [Test]
         public async Task ItStartsNewSession()
         {
-            MyFacet.LastSessionId = null;
+            MyFacet.lastSessionId = null;
             IOwinResponse response = await app.CallFacet(
                 facetName: typeof(MyFacet).FullName,
                 methodName: nameof(MyFacet.MyProcedure),
-                arguments: new JsonArray()
+                arguments: new JsonArray(),
+                request => {
+                    request.Headers.Remove("Cookie");
+                }
             );
             await response.AssertOkVoidResponse();
-            Assert.IsNotNull(MyFacet.LastSessionId);
+            Assert.IsNotNull(MyFacet.lastSessionId);
 
             IList<string> setCookies = response.Headers.GetValues("Set-Cookie");
             Assert.IsNotNull(setCookies);
@@ -59,13 +62,9 @@ namespace FrameworkTests.Sessions
                 c => c.Contains("unisave_session_id")
             );
             Assert.IsNotNull(sessionCookie);
-            Assert.IsTrue(
-                sessionCookie.Contains(
-                    "unisave_session_id=" +
-                    Uri.EscapeDataString(MyFacet.LastSessionId)
-                ),
-                $"Cookie '{sessionCookie}' does not contain '{MyFacet.LastSessionId}'"
-            );
+            Assert.IsTrue(sessionCookie.StartsWith(
+                "unisave_session_id=" + Uri.EscapeDataString(MyFacet.lastSessionId)
+            ));
             
             Assert.IsTrue(sessionCookie.ToLowerInvariant().Contains("path=/"));
             Assert.IsTrue(sessionCookie.ToLowerInvariant().Contains("httponly"));
@@ -75,17 +74,19 @@ namespace FrameworkTests.Sessions
         [Test]
         public async Task ItRefreshesSession()
         {
-            MyFacet.LastSessionId = null;
+            MyFacet.lastSessionId = null;
             IOwinResponse response = await app.CallFacet(
                 facetName: typeof(MyFacet).FullName,
                 methodName: nameof(MyFacet.MyProcedure),
                 arguments: new JsonArray(),
                 request => {
-                    request.Headers["Cookie"] = "unisave_session_id=123456789;";
+                    var key = Uri.EscapeDataString("unisave_session_id");
+                    var value = Uri.EscapeDataString("123456789");
+                    request.Headers["Cookie"] = $"{key}={value};";
                 }
             );
             await response.AssertOkVoidResponse();
-            Assert.AreEqual("123456789", MyFacet.LastSessionId);
+            Assert.AreEqual("123456789", MyFacet.lastSessionId);
             
             IList<string> setCookies = response.Headers.GetValues("Set-Cookie");
             Assert.IsNotNull(setCookies);

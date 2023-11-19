@@ -160,10 +160,7 @@
     <Compile Include="Providers\HttpClientServiceProvider.cs" />
     <Compile Include="Providers\LogServiceProvider.cs" />
     <Compile Include="Providers\ServiceProvider.cs" />
-    <Compile Include="Runtime\ExecutionParameters.cs" />
     <Compile Include="Runtime\Kernels\FacetCallKernel.cs" />
-    <Compile Include="Runtime\Methods\EntrypointTest.cs" />
-    <Compile Include="Runtime\SpecialValues.cs" />
     <Compile Include="Serialization\Collections\ArraySerializer.cs" />
     <Compile Include="Serialization\Collections\CollectionSerializer.cs" />
     <Compile Include="Serialization\Collections\DictionarySerializer.cs" />
