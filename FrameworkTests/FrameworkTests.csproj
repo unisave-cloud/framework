@@ -56,10 +56,12 @@
     <Compile Include="Entities\CollectionExtensions.cs" />
     <Compile Include="Entities\EntityManagerTest.cs" />
     <Compile Include="Foundation\EnvStoreTest.cs" />
+    <Compile Include="Logging\FacetMethodsCanLog.cs" />
     <Compile Include="Logging\HookIntoUnityEngineTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Runtime\EntrypointEnvVarsTest.cs" />
     <Compile Include="Runtime\EntrypointFixture.cs" />
+    <Compile Include="Runtime\EntrypointLoggingTest.cs" />
     <Compile Include="Runtime\EntrypointResponse.cs" />
     <Compile Include="Runtime\EntrypointFacetCallingTest.cs" />
     <Compile Include="Runtime\EntrypointSessionTrackingTest.cs" />

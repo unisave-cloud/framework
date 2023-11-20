@@ -4,10 +4,13 @@ using System.Text;
 using System.Threading.Tasks;
 using LightJson;
 using Microsoft.Owin;
+using Microsoft.Owin.BuilderProperties;
 using Owin;
 using Unisave.Bootstrapping;
+using Unisave.Contracts;
 using Unisave.Foundation;
 using Unisave.Foundation.Pipeline;
+using Unisave.Logging;
 using Unisave.Serialization;
 
 namespace Unisave.Facets
@@ -46,6 +49,9 @@ namespace Unisave.Facets
         private async Task HandleFacetRequest(IOwinContext ctx)
         {
             var requestServices = ctx.Get<IContainer>("unisave.RequestServices");
+
+            // we use logger to pull out all the logs logged during this request
+            var logger = requestServices.Resolve<ILog>() as InMemoryLog;
             
             JsonObject data;
             try
@@ -62,16 +68,16 @@ namespace Unisave.Facets
                     
                 data = new JsonObject()
                     .Add("status", "ok")
-                    .Add("returned", response.ReturnedJson);
-                // TODO: logs
+                    .Add("returned", response.ReturnedJson)
+                    .Add("logs", logger?.ExportLog());
             }
             catch (Exception e)
             {
                 data = new JsonObject()
                     .Add("status", "exception")
                     .Add("exception", Serializer.ToJson(e))
-                    .Add("isKnownException", false); // TODO: add the known-exception system
-                // TODO: logs
+                    .Add("isKnownException", false) // TODO: add the known-exception system
+                    .Add("logs", logger?.ExportLog());
             }
 
             await SendJson(ctx.Response, data);

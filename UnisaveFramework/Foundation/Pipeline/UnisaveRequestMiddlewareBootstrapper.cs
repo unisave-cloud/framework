@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Owin;
 using Owin;
 using Unisave.Bootstrapping;
+using Unisave.Logging;
 
 namespace Unisave.Foundation.Pipeline
 {
@@ -12,6 +12,10 @@ namespace Unisave.Foundation.Pipeline
     public class UnisaveRequestMiddlewareBootstrapper : Bootstrapper
     {
         public override int StageNumber => BootstrappingStage.Framework;
+        
+        public override Type[] RunAfter => new Type[] {
+            typeof(LoggingBootstrapper)
+        };
         
         private readonly IAppBuilder owinAppBuilder;
 

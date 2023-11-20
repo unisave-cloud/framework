@@ -145,7 +145,6 @@ namespace Unisave.Foundation
         private void LoadServiceProviders()
         {
             providers = new ServiceProvider[] {
-                new LogServiceProvider(this),
                 new EntityServiceProvider(this),
                 new ArangoServiceProvider(this),
                 new AuthServiceProvider(this),

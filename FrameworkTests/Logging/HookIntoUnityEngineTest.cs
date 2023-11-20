@@ -1,28 +1,25 @@
-using System;
+using FrameworkTests.Testing;
 using LightJson;
 using NUnit.Framework;
 using Unisave.Contracts;
-using Unisave.Foundation;
 using Unisave.Logging;
-using Unisave.Providers;
 
 namespace FrameworkTests.Logging
 {
     [TestFixture]
-    public class HookIntoUnityEngineTest
+    public class HookIntoUnityEngineTest : RequestContextFixture
     {
-        private BackendApplication app;
-        private LogServiceProvider provider;
+        private InMemoryLog log;
         
         [SetUp]
         public void SetUp()
         {
             // reset adapter to null
             UnityEngine.Debug.UnisaveAdapter = null;
-            
-            // create app and log service provider
-            app = new BackendApplication(new Type[] { }, new EnvStore());
-            provider = new LogServiceProvider(app);
+
+            // set the logger
+            log = new InMemoryLog();
+            ctx.Services.RegisterInstance<ILog>(log);
         }
 
         [Test]
@@ -30,7 +27,7 @@ namespace FrameworkTests.Logging
         {
             Assert.IsNull(UnityEngine.Debug.UnisaveAdapter);
             
-            provider.Register();
+            LoggingBootstrapper.HookIntoUnityEngineDebug();
             
             Assert.NotNull(UnityEngine.Debug.UnisaveAdapter);
             
@@ -39,8 +36,6 @@ namespace FrameworkTests.Logging
             UnityEngine.Debug.Log("Hello!");
             UnityEngine.Debug.LogWarning("B");
             UnityEngine.Debug.LogError("C");
-
-            InMemoryLog log = (InMemoryLog) app.Services.Resolve<ILog>();
 
             JsonArray records = log.ExportLog();
             

@@ -51,7 +51,7 @@ namespace Unisave.Logging
                 return;
             
             // check max record count
-            if (records.Count >= maxRecordCount)
+            if (maxRecordCount >= 0 && records.Count >= maxRecordCount)
             {
                 maxRecordCountExceeded = true;
                 records.Add(

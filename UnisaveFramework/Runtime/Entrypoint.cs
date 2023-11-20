@@ -131,7 +131,7 @@ namespace Unisave.Runtime
                         ["result"] = owinResponse["status"],
                         ["special"] = new JsonObject() {
                             ["sessionId"] = newSessionId,
-                            ["logs"] = new JsonArray() // TODO: pass logs along
+                            ["logs"] = owinResponse["logs"]
                         }
                     };
                     

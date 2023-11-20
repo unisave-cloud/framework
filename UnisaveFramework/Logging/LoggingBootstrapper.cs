@@ -1,43 +1,70 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
+using Microsoft.Owin;
+using Owin;
+using Unisave.Bootstrapping;
 using Unisave.Contracts;
+using Unisave.Facades;
 using Unisave.Foundation;
-using Unisave.Logging;
-using Unisave.Runtime;
 using UnityEngine;
 
-namespace Unisave.Providers
+namespace Unisave.Logging
 {
-    public class LogServiceProvider : ServiceProvider
+    public class LoggingBootstrapper : Bootstrapper
     {
-        private readonly InMemoryLog log;
+        public override int StageNumber => BootstrappingStage.Framework;
         
-        public LogServiceProvider(BackendApplication app) : base(app)
+        private readonly IAppBuilder owinAppBuilder;
+
+        public LoggingBootstrapper(IAppBuilder owinAppBuilder)
         {
-            log = new InMemoryLog(
-                maxRecordCount: 50,
-                maxRecordSize: 5_000
-            );
+            this.owinAppBuilder = owinAppBuilder;
         }
 
-        public override void Register()
+        public override void Main()
         {
-            App.Services.RegisterSingleton<ILog>(container => log);
+            // register Debug.Log implementation
+            HookIntoUnityEngineDebug();
+            
+            // register the logging middleware
+            owinAppBuilder.Use(HandleRequest);
+        }
 
-            // if there's a property called "unisave adapter" on the Debug class
-            // then we're definitely running in a sandbox and we do the binding
+        private async Task HandleRequest(IOwinContext ctx, Func<Task> next)
+        {
+            var requestServices = ctx.Get<IContainer>("unisave.RequestServices");
+            
+            // register ILog interface for the request
+            requestServices.RegisterInstance<ILog>(
+                new InMemoryLog(
+                    maxRecordCount: 50,
+                    maxRecordSize: 5_000
+                )
+            );
+            
+            // run the request
+            await next.Invoke();
+        }
+        
+        /// <summary>
+        /// Connects the static "UnityEngine.Debug.Log" interface
+        /// to the Log facade, so that all future requests can use the API
+        /// </summary>
+        public static void HookIntoUnityEngineDebug()
+        {
+            // Only hook if there is a "UnisaveAdapter" property on the Debug class.
+            // If there is, we are running with fake UnityEngine dll and so we
+            // should hook.
             if (typeof(Debug)
                 .GetProperties(BindingFlags.NonPublic | BindingFlags.Static)
-                .Any(p => p.Name == nameof(Debug.UnisaveAdapter))
-            )
+                .All(p => p.Name != nameof(Debug.UnisaveAdapter))
+               )
             {
-                HookIntoUnityEngineDebug();
+                return;
             }
-        }
-
-        private void HookIntoUnityEngineDebug()
-        {
+            
             // === Get the static property to assign to ===
             
             PropertyInfo pi = typeof(Debug)
@@ -70,37 +97,24 @@ namespace Unisave.Providers
             FieldInfo fiInfo = adapterType.GetField(nameof(Debug.Adapter.info));
             fiInfo.SetValue(
                 adapterInstance,
-                new Action<string, object>(
-                    (message, context) => log.Info(message, context)
-                )
+                new Action<string, object>(Log.Info)
             );
             
             FieldInfo fiWarning = adapterType.GetField(nameof(Debug.Adapter.warning));
             fiWarning.SetValue(
                 adapterInstance,
-                new Action<string, object>(
-                    (message, context) => log.Warning(message, context)
-                )
+                new Action<string, object>(Log.Warning)
             );
             
             FieldInfo fiError = adapterType.GetField(nameof(Debug.Adapter.error));
             fiError.SetValue(
                 adapterInstance,
-                new Action<string, object>(
-                    (message, context) => log.Error(message, context)
-                )
+                new Action<string, object>(Log.Error)
             );
             
             // === Set the instance into the static property ===
 
             pi.SetValue(null, adapterInstance, null);
-        }
-
-        public override void TearDown()
-        {
-            // TODO: extract logs by registering log catchers or something...
-            // var specialValues = App.Services.Resolve<SpecialValues>();
-            // specialValues.Add("logs", log.ExportLog());
         }
     }
 }

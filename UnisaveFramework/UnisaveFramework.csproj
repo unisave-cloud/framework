@@ -149,6 +149,7 @@
     <Compile Include="Foundation\BackendApplication.cs" />
     <Compile Include="Foundation\EnvStore.cs" />
     <Compile Include="Logging\ClientSideLog.cs" />
+    <Compile Include="Logging\LoggingBootstrapper.cs" />
     <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="Logging\InMemoryLog.cs" />
     <Compile Include="Facades\DB.cs" />
@@ -159,7 +160,6 @@
     <Compile Include="Providers\BroadcastingServiceProvider.cs" />
     <Compile Include="Providers\EntityServiceProvider.cs" />
     <Compile Include="Providers\HttpClientServiceProvider.cs" />
-    <Compile Include="Providers\LogServiceProvider.cs" />
     <Compile Include="Providers\ServiceProvider.cs" />
     <Compile Include="Serialization\Collections\ArraySerializer.cs" />
     <Compile Include="Serialization\Collections\CollectionSerializer.cs" />
