@@ -189,17 +189,17 @@ namespace Unisave.Facets
         /// <summary>
         /// Serializes the value returned from a facet
         /// </summary>
-        /// <param name="methodInfo">Facet method</param>
+        /// <param name="returnType">Type of the return value as declared by the facet</param>
         /// <param name="value">Returned value</param>
         /// <returns></returns>
         public static JsonValue SerializeReturnedValue(
-            MethodInfo methodInfo,
+            Type returnType,
             object value
         )
         {
             return Serializer.ToJson(
                 value,
-                methodInfo.ReturnType,
+                returnType,
                 SerializationContext.ServerToClient
             );
         }

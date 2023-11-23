@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
+using System.Threading.Tasks;
 using Unisave.Foundation;
 using Unisave.Sessions.Middleware;
 
@@ -21,17 +22,17 @@ namespace Unisave.Facets
         /// <summary>
         /// Handle the facet call request
         /// </summary>
-        public FacetResponse Handle(FacetRequest request)
+        public async Task<FacetResponse> Handle(FacetRequest request)
         {
             MiddlewareAttribute[] globalMiddleware = {
                 new MiddlewareAttribute(1, typeof(StartSession))
             };
 
-            var response = FacetMiddleware.ExecuteMiddlewareStack(
+            FacetResponse response = await FacetMiddleware.ExecuteMiddlewareStack(
                 services,
                 globalMiddleware,
                 request,
-                rq => {
+                async (FacetRequest rq) => {
                     
                     object[] deserializedArguments = Facet.DeserializeArguments(
                         request.Method,
@@ -44,6 +45,7 @@ namespace Unisave.Facets
                     );
                     
                     object returnedValue = null;
+                    Type returnType = rq.Method.ReturnType;
                     UnwrapTargetInvocationException(() => {
                         returnedValue = rq.Method.Invoke(
                             facetInstance,
@@ -51,9 +53,13 @@ namespace Unisave.Facets
                         );
                     });
 
+                    await AwaitIfTask(returnedValue);
+
+                    UnwrapIfTask(ref returnType, ref returnedValue);
+
                     return FacetResponse.CreateFrom(
                         returnedValue,
-                        request.Method
+                        returnType
                     );
                 }
             );
@@ -79,6 +85,46 @@ namespace Unisave.Facets
                 ExceptionDispatchInfo.Capture(e.InnerException).Throw();
                 throw;
             }
+        }
+
+        private static async Task AwaitIfTask(object returnedValue)
+        {
+            if (returnedValue is Task task)
+                await task;
+        }
+
+        private static void UnwrapIfTask(
+            ref Type returnType,
+            ref object returnedValue
+        )
+        {   
+            // void tasks
+            if (returnType == typeof(Task))
+            {
+                returnType = typeof(object);
+                returnedValue = null;
+                return;
+            }
+            
+            // returning (generic) tasks
+            if (returnType.IsGenericType
+                && returnType.GetGenericTypeDefinition() == typeof(Task<>))
+            {
+                // unwrap the return type
+                returnType = returnType.GetGenericArguments()[0];
+                
+                // pass null along
+                // (should not happen, because it should fail earlier on await)
+                if (returnedValue == null)
+                    return;
+
+                // unwrap the value
+                PropertyInfo pi = returnedValue.GetType().GetProperty("Result");
+                returnedValue = pi.GetValue(returnedValue);
+                return;
+            }
+            
+            // else do nothing
         }
     }
 }

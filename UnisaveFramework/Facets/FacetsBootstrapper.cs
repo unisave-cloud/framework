@@ -64,7 +64,7 @@ namespace Unisave.Facets
                     backendTypes
                 );
 
-                FacetResponse response = kernel.Handle(request);
+                FacetResponse response = await kernel.Handle(request);
                     
                 data = new JsonObject()
                     .Add("status", "ok")

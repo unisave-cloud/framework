@@ -40,15 +40,15 @@ namespace FrameworkTests.Facets
         
         public class MyMiddleware : FacetMiddleware
         {
-            public override FacetResponse Handle(
+            public override async Task<FacetResponse> Handle(
                 FacetRequest request,
-                Func<FacetRequest, FacetResponse> next,
+                Func<FacetRequest, Task<FacetResponse>> next,
                 string[] parameters
             )
             {
                 AppendToLog(parameters[0]);
                 
-                var response = next.Invoke(request);
+                FacetResponse response = await next.Invoke(request);
     
                 AppendToLog(parameters[0] + "'");
     

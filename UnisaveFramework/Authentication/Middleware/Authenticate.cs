@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Unisave.Facets;
 using Unisave.Foundation;
 
@@ -16,16 +17,16 @@ namespace Unisave.Authentication.Middleware
             this.auth = auth;
         }
 
-        public override FacetResponse Handle(
+        public override async Task<FacetResponse> Handle(
             FacetRequest request,
-            Func<FacetRequest, FacetResponse> next,
+            Func<FacetRequest, Task<FacetResponse>> next,
             string[] parameters
         )
         {
             if (!auth.Check())
                 throw new AuthException("Unauthenticated");
             
-            return next.Invoke(request);
+            return await next.Invoke(request);
         }
     }
 }

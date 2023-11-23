@@ -1,3 +1,4 @@
+using System;
 using System.Reflection;
 using LightJson;
 using Unisave.Serialization;
@@ -22,13 +23,13 @@ namespace Unisave.Facets
         
         public static FacetResponse CreateFrom(
             object returned,
-            MethodInfo methodInfo
+            Type returnType
         )
         {
             return new FacetResponse {
                 Returned = returned,
                 ReturnedJson = Facet.SerializeReturnedValue(
-                    methodInfo,
+                    returnType,
                     returned
                 )
             };

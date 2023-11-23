@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Unisave.Foundation;
-using Unisave.Utils;
 
 namespace Unisave.Facets
 {
@@ -16,20 +16,20 @@ namespace Unisave.Facets
         /// Handles a request, passes it to the next layer
         /// and returns the response
         /// </summary>
-        public abstract FacetResponse Handle(
+        public abstract Task<FacetResponse> Handle(
             FacetRequest request,
-            Func<FacetRequest, FacetResponse> next,
+            Func<FacetRequest, Task<FacetResponse>> next,
             string[] parameters
         );
 
         /// <summary>
         /// Executes provided closure inside all middleware layers
         /// </summary>
-        public static FacetResponse ExecuteMiddlewareStack(
+        public static async Task<FacetResponse> ExecuteMiddlewareStack(
             IContainer services,
             IEnumerable<MiddlewareAttribute> globalMiddleware,
             FacetRequest request,
-            Func<FacetRequest, FacetResponse> action
+            Func<FacetRequest, Task<FacetResponse>> action
         )
         {
             List<Layer> layers = ObtainMiddlewareLayers(
@@ -43,7 +43,7 @@ namespace Unisave.Facets
                 action
             );
             
-            return iterator.Iterate(request);
+            return await iterator.Iterate(request);
         }
 
         /// <summary>
@@ -102,32 +102,32 @@ namespace Unisave.Facets
         {
             private int currentLayerIndex;
             private readonly List<Layer> layers;
-            private readonly Func<FacetRequest, FacetResponse> finalAction;
+            private readonly Func<FacetRequest, Task<FacetResponse>> finalAction;
 
             public LayerIterator(
                 List<Layer> layers,
-                Func<FacetRequest, FacetResponse> finalAction
+                Func<FacetRequest, Task<FacetResponse>> finalAction
             )
             {
                 this.layers = layers;
                 this.finalAction = finalAction;
             }
 
-            public FacetResponse Iterate(FacetRequest request)
+            public async Task<FacetResponse> Iterate(FacetRequest request)
             {
                 currentLayerIndex = 0;
-                return Next(request);
+                return await Next(request);
             }
 
-            private FacetResponse Next(FacetRequest request)
+            private async Task<FacetResponse> Next(FacetRequest request)
             {
                 if (currentLayerIndex >= layers.Count)
-                    return finalAction.Invoke(request);
+                    return await finalAction.Invoke(request);
                 
                 var currentLayer = layers[currentLayerIndex];
                 currentLayerIndex++;
                 
-                var response = currentLayer.middleware
+                FacetResponse response = await currentLayer.middleware
                     .Handle(request, Next, currentLayer.parameters);
                 
                 // make sure null wasn't returned

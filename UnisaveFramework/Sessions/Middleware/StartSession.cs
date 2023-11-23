@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Microsoft.Owin;
 using Unisave.Contracts;
 using Unisave.Facets;
@@ -42,9 +43,9 @@ namespace Unisave.Sessions.Middleware
             sessionLifetimeSeconds = bootstrapper.SessionLifetimeSeconds;
         }
 
-        public override FacetResponse Handle(
+        public override async Task<FacetResponse> Handle(
             FacetRequest request,
-            Func<FacetRequest, FacetResponse> next,
+            Func<FacetRequest, Task<FacetResponse>> next,
             string[] parameters
         )
         {
@@ -54,7 +55,7 @@ namespace Unisave.Sessions.Middleware
             
             try
             {
-                return next.Invoke(request);
+                return await next.Invoke(request);
             }
             finally
             {
