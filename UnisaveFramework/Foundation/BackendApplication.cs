@@ -5,13 +5,9 @@ using System.Threading.Tasks;
 using LightJson;
 using Microsoft.Owin;
 using Microsoft.Owin.Builder;
-using Microsoft.Owin.Security;
 using Owin;
-using TinyIoC;
 using Unisave.Bootstrapping;
-using Unisave.Providers;
 using Unisave.Serialization;
-using Unisave.Sessions;
 
 namespace Unisave.Foundation
 {
@@ -32,11 +28,6 @@ namespace Unisave.Foundation
         /// IoC service container for the entire application
         /// </summary>
         public IContainer Services { get; }
-
-        /// <summary>
-        /// Loaded service providers
-        /// </summary>
-        private ServiceProvider[] providers;
 
         /// <summary>
         /// The final OWIN AppFunc used to handle HTTP requests
@@ -121,8 +112,6 @@ namespace Unisave.Foundation
                     $"The {nameof(BackendApplication)} is already disposed."
                 );
             }
-
-            RegisterServiceProviders();
             
             // run bootstrappers
             var engine = Services.Resolve<BootstrappingEngine>();
@@ -134,26 +123,6 @@ namespace Unisave.Foundation
 
             // initialization is complete
             initialized = true;
-        }
-
-        private void RegisterServiceProviders()
-        {
-            LoadServiceProviders();
-            
-            foreach (var p in providers)
-                p.Register();
-        }
-
-        // TODO: replace this with something more configurable later
-        private void LoadServiceProviders()
-        {
-            providers = new ServiceProvider[] {
-                new EntityServiceProvider(this),
-                new ArangoServiceProvider(this),
-                new AuthServiceProvider(this),
-                new HttpClientServiceProvider(this),
-                new BroadcastingServiceProvider(this), 
-            };
         }
 
         /// <summary>
@@ -220,14 +189,6 @@ namespace Unisave.Foundation
             if (disposed)
                 return;
             disposed = true;
-            
-            if (providers != null)
-            {
-                for (int i = providers.Length - 1; i >= 0; i--)
-                    providers[i].TearDown();
-
-                providers = null;
-            }
             
             Services.Dispose();
         }

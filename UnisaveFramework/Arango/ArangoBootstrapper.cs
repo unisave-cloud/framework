@@ -1,18 +1,21 @@
-using Unisave.Arango;
 using Unisave.Arango.Emulation;
+using Unisave.Bootstrapping;
 using Unisave.Contracts;
 using Unisave.Exceptions;
 using Unisave.Foundation;
 
-namespace Unisave.Providers
+namespace Unisave.Arango
 {
-    public class ArangoServiceProvider : ServiceProvider
+    /// <summary>
+    /// Bootstraps the connection to the ArangoDB database
+    /// </summary>
+    public class ArangoBootstrapper : Bootstrapper
     {
-        public ArangoServiceProvider(BackendApplication app) : base(app) { }
-
-        public override void Register()
+        public override int StageNumber => BootstrappingStage.Framework;
+        
+        public override void Main()
         {
-            App.Services.RegisterSingleton<IArango>(container => {
+            Services.RegisterSingleton<IArango>(container => {
                 var env = container.Resolve<EnvStore>();
                 
                 string driver = env.GetString("ARANGO_DRIVER", "http");

@@ -36,6 +36,7 @@
       <Paket>True</Paket>
       <Link>Foundation/TinyIoC.cs</Link>
     </Compile>
+    <Compile Include="Arango\ArangoBootstrapper.cs" />
     <Compile Include="Arango\ArangoConnection.cs" />
     <Compile Include="Arango\ArangoException.cs" />
     <Compile Include="Arango\ArangoUtils.cs" />
@@ -82,6 +83,7 @@
     <Compile Include="Arango\Query\ExpressionParameterSubstitutor.cs" />
     <Compile Include="Arango\Query\InvalidQueryException.cs" />
     <Compile Include="Arango\RawAqlQuery.cs" />
+    <Compile Include="Authentication\AuthBootstrapper.cs" />
     <Compile Include="Authentication\AuthException.cs" />
     <Compile Include="Authentication\AuthenticationManager.cs" />
     <Compile Include="Authentication\Middleware\Authenticate.cs" />
@@ -91,12 +93,14 @@
     <Compile Include="Bootstrapping\BootstrappingException.cs" />
     <Compile Include="Bootstrapping\BootstrappingStage.cs" />
     <Compile Include="Bootstrapping\IBootstrapper.cs" />
+    <Compile Include="Broadcasting\BroadcastingBootstrapper.cs" />
     <Compile Include="Broadcasting\BroadcastingChannel.cs" />
     <Compile Include="Broadcasting\BroadcastingMessage.cs" />
     <Compile Include="Broadcasting\ChannelSubscription.cs" />
     <Compile Include="Broadcasting\IBroadcaster.cs" />
     <Compile Include="Broadcasting\SpecificChannel.cs" />
     <Compile Include="Broadcasting\UnisaveBroadcaster.cs" />
+    <Compile Include="Entities\EntitiesBootstrapper.cs" />
     <Compile Include="Entities\EntitySecurityException.cs" />
     <Compile Include="Facets\FacetExecutionKernel.cs" />
     <Compile Include="Facets\FacetsBootstrapper.cs" />
@@ -109,6 +113,7 @@
     <Compile Include="Foundation\TinyIoCAdapter.cs" />
     <Compile Include="Foundation\TinyIoCExtensions.cs" />
     <Compile Include="HttpClient\Factory.cs" />
+    <Compile Include="HttpClient\HttpClientBootstrapper.cs" />
     <Compile Include="HttpClient\HttpContentHolder.cs" />
     <Compile Include="HttpClient\PendingRequest.cs" />
     <Compile Include="HttpClient\Request.cs" />
@@ -155,12 +160,6 @@
     <Compile Include="Facades\DB.cs" />
     <Compile Include="FrameworkMeta.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Providers\ArangoServiceProvider.cs" />
-    <Compile Include="Providers\AuthServiceProvider.cs" />
-    <Compile Include="Providers\BroadcastingServiceProvider.cs" />
-    <Compile Include="Providers\EntityServiceProvider.cs" />
-    <Compile Include="Providers\HttpClientServiceProvider.cs" />
-    <Compile Include="Providers\ServiceProvider.cs" />
     <Compile Include="Serialization\Collections\ArraySerializer.cs" />
     <Compile Include="Serialization\Collections\CollectionSerializer.cs" />
     <Compile Include="Serialization\Collections\DictionarySerializer.cs" />
