@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
+using LightJson;
 using Microsoft.Owin;
 using Microsoft.Owin.Builder;
 using Microsoft.Owin.Security;
@@ -8,6 +10,7 @@ using Owin;
 using TinyIoC;
 using Unisave.Bootstrapping;
 using Unisave.Providers;
+using Unisave.Serialization;
 using Unisave.Sessions;
 
 namespace Unisave.Foundation
@@ -175,21 +178,41 @@ namespace Unisave.Foundation
 
             using (var requestContext = new RequestContext(Services, owinContext))
             {
-                // TODO: get completely rid of SpecialValues, since they should
-                // be scoped by the request, but are not anymore
-                
-                // TODO: make facades use RequestContext.Current
-                
-                // TODO catch exception and wrap in 500 HTTP response
-                // (with more info than what would the host provide)
-                // (figure out the output silencing for production on gateway,
-                // probably via some HTTP response header and document it)
-                // (or maybe do this in some exception handler?? or in addition?)
-                // (for formatting custom exceptions?)
-                
-                // forward the request into the compiled OWIN AppFunc
-                await compiledOwinAppFunc.Invoke(owinContext.Environment);
+                try
+                {
+                    // forward the request into the compiled OWIN AppFunc
+                    await compiledOwinAppFunc.Invoke(owinContext.Environment);
+                }
+                catch (Exception e)
+                {
+                    await HandleRootException(requestContext.OwinResponse, e);
+                }
             }
+        }
+
+        private async Task HandleRootException(IOwinResponse response, Exception e)
+        {
+            // log the exception to output
+            Console.WriteLine(e.ToString());
+
+            // if headers are already sent, we cannot send the error response
+            if (response.Body.Position != 0 || !response.Body.CanWrite)
+                return;
+
+            // send the "Unisave Error Response" body
+            JsonObject json = new JsonObject() {
+                ["exception"] = Serializer.ToJson(e)
+            };
+            
+            byte[] bytes = Encoding.UTF8.GetBytes(json.ToString());
+            
+            response.StatusCode = 500;
+            response.Headers["Content-Type"] = "application/json";
+            response.Headers["Content-Length"] = bytes.Length.ToString();
+            response.Headers["X-Unisave-Error-Response"] = "1.0";
+            
+            await response.Body.WriteAsync(bytes, 0, bytes.Length);
+            response.Body.Close();
         }
 
         public void Dispose()
