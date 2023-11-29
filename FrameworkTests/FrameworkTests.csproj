@@ -53,6 +53,7 @@
     <Compile Include="Facets\FacetCallingTest.cs" />
     <Compile Include="Facets\MiddlewareTest.cs" />
     <Compile Include="Foundation\ContainerTest.cs" />
+    <Compile Include="Foundation\EnvVarsTest.cs" />
     <Compile Include="Foundation\RequestContextTest.cs" />
     <Compile Include="Foundation\RootExceptionHandlingTest.cs" />
     <Compile Include="HttpClient\AuthorizationTest.cs" />
