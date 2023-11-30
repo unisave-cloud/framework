@@ -20,11 +20,14 @@ namespace FrameworkTests.Entities
         private Collection players;
         private Collection motorbikes;
 
+        // uses the default "e_PlayerEntity" name
         private class PlayerEntity : Entity
         {
             public string Name { get; set; }
         }
         
+        // uses a custom "motorbikes" name
+        [EntityCollectionName("motorbikes")]
         private class MotorbikeEntity : Entity
         {
             public string Name { get; set; }
@@ -39,12 +42,12 @@ namespace FrameworkTests.Entities
             manager = new EntityManager(arango, log);
             
             players = arango.CreateCollection(
-                EntityUtils.CollectionPrefix + "PlayerEntity",
+                "e_PlayerEntity",
                 CollectionType.Document
             );
             
             motorbikes = arango.CreateCollection(
-                EntityUtils.CollectionPrefix + "MotorbikeEntity",
+                "motorbikes",
                 CollectionType.Document
             );
 
@@ -83,7 +86,7 @@ namespace FrameworkTests.Entities
         [Test]
         public void ItFindsJohnTheMotorbike()
         {
-            var john = manager.Find<MotorbikeEntity>("e_MotorbikeEntity/john");
+            var john = manager.Find<MotorbikeEntity>("motorbikes/john");
             
             Assert.AreEqual("john", john.EntityKey);
             Assert.AreEqual("John-deer", john.Name);
@@ -93,7 +96,7 @@ namespace FrameworkTests.Entities
         public void ItFindsNull()
         {
             var peterTheMotorbike = manager
-                .Find<MotorbikeEntity>("e_MotorbikeEntity/peter");
+                .Find<MotorbikeEntity>("motorbikes/peter");
             
             Assert.IsNull(peterTheMotorbike);
         }

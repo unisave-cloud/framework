@@ -101,6 +101,7 @@
     <Compile Include="Broadcasting\SpecificChannel.cs" />
     <Compile Include="Broadcasting\UnisaveBroadcaster.cs" />
     <Compile Include="Entities\EntitiesBootstrapper.cs" />
+    <Compile Include="Entities\EntityCollectionNameAttribute.cs" />
     <Compile Include="Entities\EntitySecurityException.cs" />
     <Compile Include="Facets\FacetExecutionKernel.cs" />
     <Compile Include="Facets\FacetsBootstrapper.cs" />

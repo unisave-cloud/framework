@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Unisave.Exceptions;
@@ -20,6 +22,25 @@ namespace Unisave.Entities
         /// </summary>
         public static string CollectionFromType(Type entityType)
         {
+            // fetch from the cache
+            if (collectionCache.TryGetValue(entityType, out string collection))
+                return collection;
+
+            // compute and cache
+            collection = CollectionFromTypeUncached(entityType);
+            collectionCache[entityType] = collection;
+            return collection;
+        }
+
+        /// <summary>
+        /// Caches collection names for entity types
+        /// (is thread-safe)
+        /// </summary>
+        private static readonly IDictionary<Type, string> collectionCache
+            = new ConcurrentDictionary<Type, string>();
+        
+        private static string CollectionFromTypeUncached(Type entityType)
+        {
             if (!typeof(Entity).IsAssignableFrom(entityType))
                 throw new ArgumentException(
                     "Provided type is not an entity type.",
@@ -33,6 +54,14 @@ namespace Unisave.Entities
                     "unless inherited.",
                     nameof(entityType)
                 );
+            
+            // attribute to override the collection name
+            var attr = entityType.GetCustomAttribute<EntityCollectionNameAttribute>(
+                inherit: false
+            );
+
+            if (attr != null)
+                return attr.CollectionName;
             
             // default collection name
             return CollectionPrefix + entityType.Name;
