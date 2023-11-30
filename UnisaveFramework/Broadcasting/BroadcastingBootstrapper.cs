@@ -14,7 +14,7 @@ namespace Unisave.Broadcasting
         
         public override void Main()
         {
-            Services.RegisterSingleton<IBroadcaster>(container => {
+            Services.RegisterPerRequestSingleton<IBroadcaster>(container => {
                 var env = container.Resolve<EnvStore>();
                 
                 return new UnisaveBroadcaster(

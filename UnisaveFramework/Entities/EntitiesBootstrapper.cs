@@ -13,7 +13,7 @@ namespace Unisave.Entities
 
         public override void Main()
         {
-            Services.RegisterSingleton<EntityManager>(
+            Services.RegisterPerRequestSingleton<EntityManager>(
                 container => new EntityManager(
                     container.Resolve<IArango>(),
                     container.Resolve<ILog>()

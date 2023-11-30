@@ -13,7 +13,7 @@ namespace Unisave.Authentication
         
         public override void Main()
         {
-            Services.RegisterSingleton<AuthenticationManager>(
+            Services.RegisterPerRequestSingleton<AuthenticationManager>(
                 container => new AuthenticationManager(
                     container.Resolve<ISession>(),
                     container.Resolve<EntityManager>()
