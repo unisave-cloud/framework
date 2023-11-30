@@ -1,6 +1,5 @@
 using Unisave.Bootstrapping;
 using Unisave.Contracts;
-using Unisave.Entities;
 
 namespace Unisave.Authentication
 {
@@ -16,7 +15,7 @@ namespace Unisave.Authentication
             Services.RegisterPerRequestSingleton<AuthenticationManager>(
                 container => new AuthenticationManager(
                     container.Resolve<ISession>(),
-                    container.Resolve<EntityManager>()
+                    container.Resolve<IArango>()
                 )
             );
         }

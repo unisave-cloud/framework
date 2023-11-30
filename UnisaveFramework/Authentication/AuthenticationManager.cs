@@ -1,5 +1,5 @@
 using System;
-using System.ComponentModel;
+using System.Collections.Generic;
 using Unisave.Arango;
 using Unisave.Contracts;
 using Unisave.Entities;
@@ -7,118 +7,139 @@ using Unisave.Entities;
 namespace Unisave.Authentication
 {
     /// <summary>
-    /// Remembers the player, that is authenticated during
-    /// the application lifetime. Further persistence (session) has to
-    /// be performed in appropriate middleware.
+    /// Remembers the player, that is authenticated within
+    /// the request context (within a session context).
     /// </summary>
     public class AuthenticationManager
     {
         public const string SessionKey = "authenticatedPlayerId";
         
-        /// <summary>
-        /// The currently authenticated player, null is ok
-        /// When not initialized, this field has no meaning
-        /// </summary>
-        private Entity authenticatedPlayer;
-        
-        /// <summary>
-        /// Whether is this instance initialized or not
-        /// </summary>
-        private bool initialized = false;
-
-        /// <summary>
-        /// Reference to a session store
-        /// </summary>
+        // used services
         private readonly ISession session;
+        private readonly IArango arango;
 
-        /// <summary>
-        /// Reference to an entity manager
-        /// </summary>
-        private readonly EntityManager entityManager;
+        // caches returned player/user instance
+        // (the deserialized documents)
+        private readonly Dictionary<Type, object> instanceCache
+            = new Dictionary<Type, object>();
 
         public AuthenticationManager(
             ISession session,
-            EntityManager entityManager
+            IArango arango
         )
         {
             this.session = session;
-            this.entityManager = entityManager;
-        }
-        
-        /// <summary>
-        /// Set the player that is currently authenticated
-        /// </summary>
-        public void SetPlayer(Entity player)
-        {
-            // NOTE: null is ok, acts like logout
-            
-            session.Set(SessionKey, player?.EntityId);
-            authenticatedPlayer = player;
-            initialized = true;
+            this.arango = arango;
         }
 
         /// <summary>
-        /// Returns the authenticated player or null.
-        /// Make sure the type T matches, otherwise an exception gets thrown.
+        /// Returns the authenticated player/user or null.
+        /// The provided type is the used deserialization type
+        /// for the database document.
         /// </summary>
-        public T GetPlayer<T>() where T : Entity
+        /// <param name="fresh">
+        /// Sidestep the cache and get a fresh instance from the database
+        /// </param>
+        public T GetPlayer<T>(bool fresh = false) where T : class
         {
-            if (!initialized)
-                Initialize<T>();
-
-            // couldn't be initialized with this type T
-            if (!initialized)
+            // nobody is logged in
+            if (!Check())
                 return null;
             
-            if (authenticatedPlayer == null)
-                return null;
-
-            // the authenticated player is not of type T
-            if (authenticatedPlayer.GetType() != typeof(T))
-                return null;
-
-            return (T) authenticatedPlayer;
-        }
-
-        /// <summary>
-        /// Initializes the manager by pulling the authenticated player
-        /// from session and database
-        /// (may not perform initialization if the type does not match the id)
-        /// </summary>
-        /// <typeparam name="T">Type of the requested entity</typeparam>
-        private void Initialize<T>() where T : Entity
-        {
-            string id = Id();
-            
-            if (id == null)
+            // try the cache
+            if (!fresh)
             {
-                // there's no authenticated player
-                authenticatedPlayer = null;
-                initialized = true;
+                if (instanceCache.TryGetValue(typeof(T), out object instance))
+                    return (T) instance;
             }
-            else
-            {
-                // if the id belongs to a different type,
-                // do not initialize
-                var docId = DocumentId.Parse(id);
-                if (docId.Collection != EntityUtils.CollectionFromType(typeof(T)))
-                    return;
-                
-                // here we have the authenticated player
-                authenticatedPlayer = entityManager.Find<T>(id);
-                initialized = true;
-            }
+            
+            // fetch from the database
+            T freshInstance = new RawAqlQuery(
+                arango,
+                @"RETURN DOCUMENT(@id)"
+            )
+                .Bind("id", Id())
+                .FirstAs<T>();
+
+            if (freshInstance == null)
+                throw new InvalidOperationException(
+                    "Getting authenticated player instance failed, " +
+                    "there is no such document in the database."
+                );
+
+            // cache and return
+            instanceCache[typeof(T)] = freshInstance;
+            return freshInstance;
         }
 
         /// <summary>
-        /// Logout the player
+        /// Logout the player/user
         /// </summary>
-        public void Logout() => SetPlayer(null);
-        
+        public void Logout()
+        {
+            // clear from session
+            session.Forget(SessionKey);
+            
+            // clear the instance cache
+            instanceCache.Clear();
+        }
+
         /// <summary>
-        /// Login a player
+        /// Login a player/user represented by an entity
         /// </summary>
-        public void Login(Entity player) => SetPlayer(player);
+        public void Login(Entity entity)
+        {
+            if (entity == null)
+                throw new ArgumentNullException(
+                    nameof(entity),
+                    "Cannot call login with a null. To logout use " +
+                    "the logout method instead."
+                );
+            
+            if (entity.EntityId == null)
+                throw new ArgumentNullException(
+                    nameof(entity),
+                    "Cannot log in with an entity that has not been written " +
+                    "to the database yet."
+                );
+            
+            // login via ID
+            Login(entity.EntityId);
+            
+            // cache the entity instance
+            instanceCache[entity.GetType()] = entity;
+        }
+
+        /// <summary>
+        /// Login a player/user represented by a document ID
+        /// </summary>
+        public void Login(string documentId)
+        {
+            if (documentId == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(documentId),
+                    "Cannot call login with a null. To logout use " +
+                    "the logout method instead."
+                );
+            }
+            
+            // validate ID
+            try
+            {
+                DocumentId.Parse(documentId);
+            }
+            catch (ArangoException)
+            {
+                throw new ArgumentException(
+                    nameof(documentId),
+                    $"Given string '{documentId}' is not a valid document ID"
+                );
+            }
+            
+            // store the ID in the session
+            session.Set(SessionKey, documentId);
+        }
 
         /// <summary>
         /// Returns true if someone is authenticated
@@ -126,7 +147,7 @@ namespace Unisave.Authentication
         public bool Check() => Id() != null;
 
         /// <summary>
-        /// Get the ID of the authenticated player or null
+        /// Get the ID of the authenticated player/user or null
         /// </summary>
         public string Id() => session.Get<string>(SessionKey);
     }
