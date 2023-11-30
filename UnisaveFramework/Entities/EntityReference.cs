@@ -68,12 +68,12 @@ namespace Unisave.Entities
             }
 
             // validate entity type
-            string given = EntityUtils.TypeFromCollection(id.Collection);
-            string shouldBe = EntityUtils.GetEntityStringType(typeof(TTarget));
-            if (given != shouldBe)
+            string targetCollection = id.Collection;
+            string expectedCollection = EntityUtils.CollectionFromType(typeof(TTarget));
+            if (expectedCollection != targetCollection)
                 throw new ArgumentException(
-                    $"Given target ID '{targetId}' has invalid entity type.\n" +
-                    $"Given: '{given}', expected: '{shouldBe}'"
+                    $"Entity reference '{targetId}' targets to unexpected collection.\n" +
+                    $"Targets: '{targetCollection}', expected: '{expectedCollection}'"
                 );
             
             this.targetId = targetId;

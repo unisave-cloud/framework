@@ -40,22 +40,6 @@ namespace Unisave.Entities.Query
             return query;
         }
         
-        // TODO: remove this graph nonsense
-        public static EntityQuery<T> TakeNeighbours<T, TRelation>(
-            IArango arango, Entity entity
-        ) where T : Entity, new() where TRelation : Entity, new()
-        {
-            var query = new EntityQuery<T>(arango);
-            
-            // TODO: implement graph traversal
-//            query.Query.For("entity").InTraversal(
-//                1, 1, "any", entity,
-//                ... + Entity.GetEntityType<TRelation>()
-//            );
-            
-            return query;
-        }
-
         /// <summary>
         /// Filter entities by a predicate expression
         /// </summary>

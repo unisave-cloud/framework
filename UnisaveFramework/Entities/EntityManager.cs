@@ -94,7 +94,9 @@ namespace Unisave.Entities
         /// </summary>
         public virtual void Insert(Entity entity)
         {
-            string type = EntityUtils.GetEntityStringType(entity.GetType());
+            string collection = EntityUtils.CollectionFromType(
+                entity.GetType()
+            );
             
             if (!string.IsNullOrEmpty(entity.EntityKey))
                 throw new ArgumentException(
@@ -103,24 +105,24 @@ namespace Unisave.Entities
             
             try
             {
-                AttemptInsert(type, entity);
+                AttemptInsert(collection, entity);
             }
             catch (ArangoException e) when (e.ErrorNumber == 1203)
             {
                 // collection not found -> create it
                 arango.CreateCollection(
-                    EntityUtils.CollectionFromType(type),
+                    collection,
                     CollectionType.Document
                 );
                 
-                AttemptInsert(type, entity);
+                AttemptInsert(collection, entity);
             }
         }
 
         /// <summary>
         /// Attempt to insert an entity, leaving any exceptions go
         /// </summary>
-        private void AttemptInsert(string type, Entity entity)
+        private void AttemptInsert(string collection, Entity entity)
         {
             JsonObject document = SerializeEntity(entity);
             
@@ -139,7 +141,7 @@ namespace Unisave.Entities
             document["UpdatedAt"] = Serializer.ToJson(now);
             
             var newAttributes = arango.ExecuteAqlQuery(new AqlQuery()
-                .Insert(document).Into(EntityUtils.CollectionFromType(type))
+                .Insert(document).Into(collection)
                 .Return("NEW")
             ).First().AsJsonObject;
 
@@ -160,8 +162,10 @@ namespace Unisave.Entities
             bool carefully = false
         )
         {
-            string type = EntityUtils.GetEntityStringType(entity.GetType());
-
+            string collection = EntityUtils.CollectionFromType(
+                entity.GetType()
+            );
+            
             if (string.IsNullOrEmpty(entity.EntityKey))
                 throw new ArgumentException(
                     "Provided entity has not been inserted yet"
@@ -192,7 +196,7 @@ namespace Unisave.Entities
                 var newAttributes = arango.ExecuteAqlQuery(new AqlQuery()
                     .Replace(() => newDocument)
                     .CheckRevs(carefully)
-                    .In(EntityUtils.CollectionFromType(type))
+                    .In(collection)
                     .Return("NEW")
                 ).First().AsJsonObject;
 
@@ -260,7 +264,9 @@ namespace Unisave.Entities
         /// </summary>
         public virtual bool Delete(Entity entity, bool carefully = false)
         {
-            string type = EntityUtils.GetEntityStringType(entity.GetType());
+            string collection = EntityUtils.CollectionFromType(
+                entity.GetType()
+            );
             
             if (string.IsNullOrEmpty(entity.EntityKey))
                 throw new ArgumentException(
@@ -274,7 +280,7 @@ namespace Unisave.Entities
                 arango.ExecuteAqlQuery(new AqlQuery()
                     .Remove(() => document)
                     .CheckRevs(carefully)
-                    .In(EntityUtils.CollectionFromType(type))
+                    .In(collection)
                 );
 
                 return true; // an entity was deleted

@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Unisave.Exceptions;
@@ -13,35 +11,31 @@ namespace Unisave.Entities
     public static class EntityUtils
     {
         /// <summary>
-        /// Prefix for entity collection names
+        /// Prefix for default entity collection names
         /// </summary>
         public const string CollectionPrefix = "e_";
-
-        /// <summary>
-        /// Builds collection name from entity string type
-        /// </summary>
-        public static string CollectionFromType(string entityType)
-            => CollectionPrefix + entityType;
 
         /// <summary>
         /// Builds collection name from entity class type
         /// </summary>
         public static string CollectionFromType(Type entityType)
-            => CollectionFromType(GetEntityStringType(entityType));
-
-        /// <summary>
-        /// Extracts entity string type from a collection name.
-        /// Throws on invalid collection name.
-        /// </summary>
-        public static string TypeFromCollection(string collectionName)
         {
-            if (!collectionName.StartsWith(CollectionPrefix)
-                || collectionName.Contains("/"))
+            if (!typeof(Entity).IsAssignableFrom(entityType))
                 throw new ArgumentException(
-                    $"Collection name '{collectionName}' has invalid format"
+                    "Provided type is not an entity type.",
+                    nameof(entityType)
                 );
             
-            return collectionName.Substring(CollectionPrefix.Length);
+            if (entityType.IsAbstract)
+                throw new ArgumentException(
+                    "Provided type is abstract and abstract entities " +
+                    "cannot have collections because they cannot exist, " +
+                    "unless inherited.",
+                    nameof(entityType)
+                );
+            
+            // default collection name
+            return CollectionPrefix + entityType.Name;
         }
         
         /// <summary>
@@ -72,55 +66,6 @@ namespace Unisave.Entities
                 );
             
             return member.Name;
-        }
-        
-        /// <summary>
-        /// Converts entity class type to entity string type
-        /// </summary>
-        public static string GetEntityStringType(Type type)
-        {
-            if (!typeof(Entity).IsAssignableFrom(type))
-                throw new ArgumentException(
-                    "Provided type is not an entity type.",
-                    nameof(type)
-                );
-
-            return type.Name;
-        }
-
-        /// <summary>
-        /// Converts entity string type to entity class type
-        /// </summary>
-        public static Type GetEntityClassType(
-            string type, IEnumerable<Type> typesToSearch
-        )
-        {
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-            
-            if (typesToSearch == null)
-                throw new ArgumentNullException(nameof(typesToSearch));
-            
-            List<Type> candidates = typesToSearch
-                .Where(t => t.Name == type)
-                .Where(t => typeof(Entity).IsAssignableFrom(t))
-                .Where(t => t != typeof(Entity))
-                .ToList();
-
-            if (candidates.Count > 1)
-                throw new EntitySearchException(
-                    $"Entity type '{type}' is ambiguous. "
-                    + "Make sure you don't have two entities with the same name."
-                );
-
-            if (candidates.Count == 0)
-                throw new EntitySearchException(
-                    $"Entity type '{type}' was not found. "
-                    + "Make sure your class inherits from the " +
-                    $"{nameof(Entity)} class."
-                );
-
-            return candidates[0];
         }
         
         /// <summary>

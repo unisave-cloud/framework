@@ -128,7 +128,6 @@
     <Compile Include="Entities\EntityPersistenceException.cs" />
     <Compile Include="Entities\EntityReference.cs" />
     <Compile Include="Entities\EntityRevConflictException.cs" />
-    <Compile Include="Entities\EntitySearchException.cs" />
     <Compile Include="Entities\EntityUtils.cs" />
     <Compile Include="Entities\Query\EntityQuery.cs" />
     <Compile Include="Exceptions\UnisaveAssertionException.cs" />
