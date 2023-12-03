@@ -4,8 +4,7 @@ framework: net4.7
 source https://api.nuget.org/v3/index.json
 
 // Unisave Framework
-nuget JWT >= 10.1.0
-nuget RSG.Promise >= 3.0.1
+http https://github.com/unisave-cloud/jwt/releases/download/20231202.18/UnisaveJWT.dll
 github MarcosLopezC/LightJson:v0.5.2
 github grumpydev/TinyIoC:1.4.0-rc1 src/TinyIoC/TinyIoC.cs
 

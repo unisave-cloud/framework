@@ -32,6 +32,11 @@
     <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="UnisaveJWT">
+      <HintPath>..\paket-files\github.com\UnisaveJWT.dll</HintPath>
+      <Private>True</Private>
+      <Paket>True</Paket>
+    </Reference>
     <Compile Include="..\paket-files\grumpydev\TinyIoC\src\TinyIoC\TinyIoC.cs">
       <Paket>True</Paket>
       <Link>Foundation/TinyIoC.cs</Link>
@@ -153,6 +158,7 @@
     <Compile Include="Facets\MethodSearchException.cs" />
     <Compile Include="Foundation\BackendApplication.cs" />
     <Compile Include="Foundation\EnvStore.cs" />
+    <Compile Include="JWT\LightJsonSerializer.cs" />
     <Compile Include="Logging\ClientSideLog.cs" />
     <Compile Include="Logging\LoggingBootstrapper.cs" />
     <Compile Include="Logging\LogLevel.cs" />
@@ -230,17 +236,6 @@
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.7'">
       <ItemGroup>
-        <Reference Include="JWT">
-          <HintPath>..\packages\JWT\lib\net462\JWT.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.7'">
-      <ItemGroup>
         <Reference Include="Microsoft.Owin">
           <HintPath>..\packages\Microsoft.Owin\lib\net45\Microsoft.Owin.dll</HintPath>
           <Private>True</Private>
@@ -254,17 +249,6 @@
       <ItemGroup>
         <Reference Include="Owin">
           <HintPath>..\packages\Owin\lib\net40\Owin.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.7'">
-      <ItemGroup>
-        <Reference Include="RSG.Promise">
-          <HintPath>..\packages\RSG.Promise\lib\net35\RSG.Promise.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>

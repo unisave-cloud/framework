@@ -29,7 +29,7 @@ Framework serves multiple purposes:
 
 ## Dependency management via Paket
 
-I decided to use [Paket](https://github.com/fsprojects/Paket) instead of NuGet for dependency management, because it can exclude transitive dependencies (used for JWT) and reference GitHub projects (used for LightJson).
+I decided to use [Paket](https://github.com/fsprojects/Paket) instead of NuGet for dependency management, because it can exclude transitive dependencies and reference GitHub projects and DLLs from the web.
 
 The paket tool is used via the `dotnet` command, but the Unisave Framework is in fact built in Mono MSBuild. The `dotnet` command is therefore only used to run Paket and nothing else.
 
