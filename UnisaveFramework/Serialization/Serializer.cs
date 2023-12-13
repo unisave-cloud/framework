@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Reflection;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -9,7 +7,6 @@ using System.Runtime.Serialization;
 using LightJson;
 using LightJson.Serialization;
 using Unisave.Entities;
-using Unisave.Facades;
 using Unisave.Serialization.Collections;
 using Unisave.Serialization.Composites;
 using Unisave.Serialization.Context;
@@ -472,14 +469,9 @@ namespace Unisave.Serialization
 
         private static Type FindType(string fullName)
         {
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-            foreach (Type type in assembly.GetTypes())
-            {
-                if (type.FullName == fullName)
-                    return type;
-            }
-
-            return null;
+            return AppDomain.CurrentDomain.GetAssemblies()
+                .Select(assembly => assembly.GetType(fullName))
+                .FirstOrDefault(t => t != null);
         }
         
         #endregion
