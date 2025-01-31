@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading.Tasks;
 using LightJson;
 using LightJson.Serialization;
 using Unisave.Arango.Query;
@@ -30,11 +31,23 @@ namespace Unisave.Arango
             string password
         )
         {
-            Client = new System.Net.Http.HttpClient();
+            // store connection details (read-only immutable)
             BaseUrl = baseUrl;
             Database = database;
             Username = username;
             Password = password;
+            
+            // create the HttpClient instance that will be used to request the DB 
+            Client = new System.Net.Http.HttpClient();
+            
+            // specify the authentication header for each database request
+            Client.DefaultRequestHeaders.Authorization
+                = new AuthenticationHeaderValue(
+                    "Basic",
+                    Convert.ToBase64String(
+                        Encoding.ASCII.GetBytes(Username + ":" + Password)
+                    )
+                );
         }
         
         public void Dispose()
@@ -46,50 +59,73 @@ namespace Unisave.Arango
 
         public JsonObject Get(string url)
         {
-            return WrapRequest(() => Client
-                .GetAsync(BuildUrl(url))
-                .GetAwaiter()
-                .GetResult()
+            return Task.Run(() => GetAsync(url))
+                .GetAwaiter().GetResult();
+        }
+        
+        public async Task<JsonObject> GetAsync(string url)
+        {
+            return ParseResponse(
+                await Client.GetAsync(BuildUrl(url))
             );
         }
         
         public JsonObject Post(string url, JsonValue payload)
         {
-            return WrapRequest(() => Client
-                .PostAsync(BuildUrl(url), JsonContent(payload))
-                .GetAwaiter()
-                .GetResult()
+            return Task.Run(() => PostAsync(url, payload))
+                .GetAwaiter().GetResult();
+        }
+        
+        public async Task<JsonObject> PostAsync(string url, JsonValue payload)
+        {
+            return ParseResponse(
+                await Client.PostAsync(BuildUrl(url), JsonContent(payload))
             );
         }
         
         public JsonObject Put(string url, JsonValue payload)
         {
-            return WrapRequest(() => Client
-                .PutAsync(BuildUrl(url), JsonContent(payload))
-                .GetAwaiter()
-                .GetResult()
+            return Task.Run(() => PutAsync(url, payload))
+                .GetAwaiter().GetResult();
+        }
+        
+        public async Task<JsonObject> PutAsync(string url, JsonValue payload)
+        {
+            return ParseResponse(
+                await Client.PutAsync(BuildUrl(url), JsonContent(payload))
             );
         }
         
         public JsonObject Put(string url)
         {
-            return WrapRequest(() => Client
-                .PutAsync(BuildUrl(url), JsonContent(new JsonObject()))
-                .GetAwaiter()
-                .GetResult()
+            return Task.Run(() => PutAsync(url))
+                .GetAwaiter().GetResult();
+        }
+        
+        public async Task<JsonObject> PutAsync(string url)
+        {
+            return ParseResponse(
+                await Client.PutAsync(
+                    BuildUrl(url),
+                    JsonContent(new JsonObject())
+                )
             );
         }
         
         public JsonObject Delete(string url)
         {
-            return WrapRequest(() => Client
-                .DeleteAsync(BuildUrl(url))
-                .GetAwaiter()
-                .GetResult()
+            return Task.Run(() => DeleteAsync(url))
+                .GetAwaiter().GetResult();
+        }
+        
+        public async Task<JsonObject> DeleteAsync(string url)
+        {
+            return ParseResponse(
+                await Client.DeleteAsync(BuildUrl(url))
             );
         }
 
-        public HttpContent JsonContent(JsonValue json)
+        private HttpContent JsonContent(JsonValue json)
         {
             return new StringContent(
                 json.ToString(),
@@ -101,7 +137,7 @@ namespace Unisave.Arango
         /// <summary>
         /// Builds the URL, given the last arango portion
         /// </summary>
-        public Uri BuildUrl(string url)
+        private Uri BuildUrl(string url)
         {
             if (url == null)
                 throw new ArgumentNullException(nameof(url));
@@ -118,18 +154,8 @@ namespace Unisave.Arango
             );
         }
 
-        protected JsonObject WrapRequest(Func<HttpResponseMessage> action)
+        private JsonObject ParseResponse(HttpResponseMessage response)
         {
-            Client.DefaultRequestHeaders.Authorization
-                = new AuthenticationHeaderValue(
-                    "Basic",
-                    Convert.ToBase64String(
-                        Encoding.ASCII.GetBytes(Username + ":" + Password)
-                    )
-                );
-
-            HttpResponseMessage response = action.Invoke();
-
             if (response.Content == null)
                 return new JsonObject();
             
