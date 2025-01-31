@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading.Tasks;
 using LightJson;
 
 namespace Unisave.HttpClient
@@ -34,7 +35,7 @@ namespace Unisave.HttpClient
         private Dictionary<string, string> auth;
 
         /// <summary>
-        /// Content (payload) of the request, as it currently built up
+        /// Content (payload) of the request, as is currently built up
         /// </summary>
         private HttpContent content;
         
@@ -511,7 +512,7 @@ namespace Unisave.HttpClient
         {
             var task = client.SendAsync(request.Original);
             
-            var dotNetResponse = task.GetAwaiter().GetResult();
+            var dotNetResponse = Task.Run(() => task).GetAwaiter().GetResult();
 
             return new Response(dotNetResponse);
         }
