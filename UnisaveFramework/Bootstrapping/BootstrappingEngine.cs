@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Unisave.Foundation;
 
 namespace Unisave.Bootstrapping
@@ -84,7 +85,7 @@ namespace Unisave.Bootstrapping
                 // async bootstrapper is for now also run synchronously
                 // (could be made async in the future and make the app
                 // initialization also async)
-                instance.MainAsync().GetAwaiter().GetResult();
+                Task.Run(instance.MainAsync).GetAwaiter().GetResult();
             }
             Console.WriteLine("Bootstrapping done.");
         }
