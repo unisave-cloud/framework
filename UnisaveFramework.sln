@@ -9,10 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityEngine", "UnityEngine\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightJson", "paket-files\MarcosLopezC\LightJson\Sources\LightJson\LightJson.csproj", "{3BC85E8B-8A37-4015-B4A8-2D973F8622F1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleBackend", "ExampleBackend\ExampleBackend.csproj", "{E5C7E1D8-122C-4086-B41E-F207709F0BD8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleHost", "ExampleHost\ExampleHost.csproj", "{70AABF2E-1FDD-48A5-98F2-7AF2E80EB7A3}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,13 +31,5 @@ Global
 		{3BC85E8B-8A37-4015-B4A8-2D973F8622F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3BC85E8B-8A37-4015-B4A8-2D973F8622F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3BC85E8B-8A37-4015-B4A8-2D973F8622F1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E5C7E1D8-122C-4086-B41E-F207709F0BD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E5C7E1D8-122C-4086-B41E-F207709F0BD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E5C7E1D8-122C-4086-B41E-F207709F0BD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E5C7E1D8-122C-4086-B41E-F207709F0BD8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{70AABF2E-1FDD-48A5-98F2-7AF2E80EB7A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{70AABF2E-1FDD-48A5-98F2-7AF2E80EB7A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{70AABF2E-1FDD-48A5-98F2-7AF2E80EB7A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{70AABF2E-1FDD-48A5-98F2-7AF2E80EB7A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
