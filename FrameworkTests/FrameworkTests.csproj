@@ -77,6 +77,7 @@
     <Compile Include="Serialization\Attributes\SerializeAsAttributeTest.cs" />
     <Compile Include="Serialization\Collections\ArraySerializationTest.cs" />
     <Compile Include="Serialization\Collections\DictionarySerializationTest.cs" />
+    <Compile Include="Serialization\Collections\EnumArrayTest.cs" />
     <Compile Include="Serialization\Collections\ListSerializationTest.cs" />
     <Compile Include="Serialization\Collections\OtherCollectionsSerializationTest.cs" />
     <Compile Include="Serialization\Composites\SerializableTypeSerializationTest.cs" />
