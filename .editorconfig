@@ -1,0 +1,10 @@
+root = true
+[*]
+
+# NUnit1032: An IDisposable field/property should be Disposed in a TearDown method
+# https://docs.nunit.org/articles/nunit-analyzers/NUnit1032.html
+dotnet_diagnostic.NUnit1032.severity = warning
+
+# NUnit2005 : Consider using the constraint model, Assert.That(actual, Is.EqualTo(expected)), instead of the classic model, Assert.AreEqual(expected, actual)
+# https://docs.nunit.org/articles/nunit-analyzers/NUnit2005.html
+dotnet_diagnostic.NUnit2005.severity = suggestion

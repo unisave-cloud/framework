@@ -8,7 +8,8 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCompany("Jiří Mayer")]
 [assembly: AssemblyProduct("Unisave")]
 
-[assembly: InternalsVisibleTo("FrameworkTests")]
+[assembly: InternalsVisibleTo("FrameworkMonoTests")]
+[assembly: InternalsVisibleTo("FrameworkDotnetTests")]
 
 [assembly: AssemblyVersion("0.11.1.0")]
 [assembly: AssemblyInformationalVersion("0.11.1-dev")]

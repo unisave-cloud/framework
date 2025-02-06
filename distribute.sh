@@ -12,13 +12,13 @@ VERSION=$(grep -oP "AssemblyInformationalVersion\(\"\K[^\"]+" UnisaveFramework/P
 # releases
 echo "Copying to releases..."
 mkdir -p releases/$VERSION
-cp -R UnisaveFramework/bin/Debug/* releases/$VERSION
+cp -R UnisaveFramework/bin/Debug/net472/* releases/$VERSION
 echo $VERSION > releases/latest.txt
 
 # unity asset
 echo "Copying to the asset..."
-cp -R UnisaveFramework/bin/Debug/UnisaveFramework.dll ../asset/Assets/Plugins/Unisave/Libraries/UnisaveFramework
-cp -R UnisaveFramework/bin/Debug/UnisaveFramework.pdb ../asset/Assets/Plugins/Unisave/Libraries/UnisaveFramework
+cp -R UnisaveFramework/bin/Debug/net472/UnisaveFramework.dll ../asset/Assets/Plugins/Unisave/Libraries/UnisaveFramework
+cp -R UnisaveFramework/bin/Debug/net472/UnisaveFramework.pdb ../asset/Assets/Plugins/Unisave/Libraries/UnisaveFramework
 
 # done
 echo "Done."

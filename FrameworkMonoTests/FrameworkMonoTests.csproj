@@ -1,16 +1,23 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <LangVersion>7.3</LangVersion>
-    <TargetFramework>net472</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <TargetFramework>net472</TargetFramework>
+    <RootNamespace>FrameworkTests</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Net.Http" />
-    <PackageReference Include="Owin" Version="1.0.0" />
+    <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="Microsoft.Owin" Version="4.2.2" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit.Analyzers" Version="3.9.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+    <PackageReference Include="Owin" Version="1.0.0" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnisaveJWT">
@@ -18,12 +25,12 @@
       <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
-    <Compile Include="..\paket-files\grumpydev\TinyIoC\src\TinyIoC\TinyIoC.cs">
-      <Paket>True</Paket>
-      <Link>Foundation/TinyIoC.cs</Link>
-    </Compile>
     <ProjectReference Include="..\paket-files\MarcosLopezC\LightJson\Sources\LightJson\LightJson.csproj" />
+    <ProjectReference Include="..\UnisaveFramework\UnisaveFramework.csproj" />
     <ProjectReference Include="..\UnityEngine\UnityEngine.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\FrameworkTests\**\*.cs" Exclude="..\FrameworkTests\obj\**\*.*;..\FrameworkDotnetTests\bin\**\*.*" />
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

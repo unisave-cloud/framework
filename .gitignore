@@ -6,7 +6,6 @@
 # and it contains a ton of garbage. I think it has to do something with
 # automatic restoring when paket is not available - which I don't do)
 paket-files/
-.paket/
 
 #
 # MonoDevelop gitignore:

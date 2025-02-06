@@ -7,7 +7,8 @@ using System.Runtime.CompilerServices;
     "that might beneeded on the server"
 )]
 
-[assembly: InternalsVisibleTo("FrameworkTests")]
+[assembly: InternalsVisibleTo("FrameworkMonoTests")]
+[assembly: InternalsVisibleTo("FrameworkDotnetTests")]
 
 [assembly: InternalsVisibleTo("UnisaveFramework")]
 [assembly: AssemblyVersion("0.0.0.0")]

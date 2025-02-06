@@ -1,63 +1,28 @@
-Unisave Framework
-=================
+# Unisave Framework
 
-Framework serves multiple purposes:
-
-- library: contains code required on both the server and the client
-    - serializer, facet, entity, exceptions, facades
-- framework: contains code the user-defined server code talks to
-    - database, logging, session
-- runtime: contains code to bootstrap execution and communicate with the sandbox
-    - entrypoint, sandbox api, service container
-
-
-## Execution JSON API Reference
-
-- [Execution JSON API](docs/api-general.md)
-- [`facet-call` method](docs/api-facet-call.md)
-
-
-## Sandbox API Reference
-
-- [`session` channel](docs/channel-session.md)
+Unisave Framework is a library that encapsulates the Unisave user's custom backend code and provides a standardized interface for that code to interact with other Unisave services and the outside world.
 
 
 ## Documentation
 
-- [Application bootstrapping](docs/application-bootstrapping.md)
+- [NuGet and Paket Dependency Management](docs/nuget-and-paket-dependency-management.md)
 
 
-## Dependency management via Paket
+## After Cloning
 
-I decided to use [Paket](https://github.com/fsprojects/Paket) instead of NuGet for dependency management, because it can exclude transitive dependencies and reference GitHub projects and DLLs from the web.
+The project uses `dotnet` CLI for building, NuGet for the management of regular NuGet packages and [Paket](https://github.com/fsprojects/Paket) for the management of dependencies that are outside of the NuGet repository (LightJson, TinyIoC, UnisaveJWT).
 
-The paket tool is used via the `dotnet` command, but the Unisave Framework is in fact built in Mono MSBuild. The `dotnet` command is therefore only used to run Paket and nothing else.
+After cloning do:
 
-Paket was installed using commands:
+1. `dotnet tool restore` to install the paket tool (reads the `.config/dotnet-tools.json` file)
+2. `dotnet paket restore` to install all paket-managed dependencies
 
-```
-dotnet new tool-manifest
-dotnet tool install paket
-dotnet tool restore
-```
+Now Rider should be able to compile all projects. You can verify by running:
 
-I guess the last command `dotnet tool restore` installs tools based on the config at `.config/dotnet-tools.json`, should the repository be restored on a new machine. (I guess that right!)
-
-I initialized Paket files via `dotnet paket init`.
-
-I filled out the `paket.dependencies` file and the `paket.references` for the framework project.
-
-I installed the packages by:
-
-```
-dotnet paket install
+```bash
+dotnet build
 ```
 
-...
+If Rider complains about not finding .NET Framework 4.7.2, try to close and open the solution again. If it underlines a file as erroneous, open that file and there's a chance that the error disappears.
 
-To restore dependencies after cloning the repo, run:
-
-```
-dotnet tool restore
-dotnet paket restore
-```
+Run Unit tests by right-clicking the solution and clicking `Run Unit Tests`. If that option is not available, open a some unit test, right click that test's method definition and click `Run Unit Test` - this runs that one test and also wakes up Rider to register all other tests (at least in one csproj, do the same in the other one). Then you can run tests directly by right-clicking the solution or from the test runner window.
