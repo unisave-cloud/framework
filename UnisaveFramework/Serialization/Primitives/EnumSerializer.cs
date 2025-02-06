@@ -21,19 +21,22 @@ namespace Unisave.Serialization.Primitives
         public static object FromJson(JsonValue json, Type typeScope)
         {
             if (json.IsInteger)
-                return json.AsInteger;
+                return Enum.ToObject(typeScope, json.AsInteger);
 
             // can be a legacy enum, or a string integer (in dictionary keys) 
             if (json.IsString)
             {
                 if (!json.AsString.Contains("=")) // not a legacy enum
-                    return json.AsInteger;
+                    return Enum.ToObject(typeScope, json.AsInteger);
             }
 
-            return FromLegacyJson(json, typeScope);
+            return Enum.ToObject(
+                typeScope,
+                FromLegacyJson(json, typeScope)
+            );
         }
 
-        private static object FromLegacyJson(JsonValue json, Type typeScope)
+        private static int FromLegacyJson(JsonValue json, Type typeScope)
         {
             // NOTE: String part is for "What the f**k does value 5 mean?"
             //       Integer part is used for the actual deserialization

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using LightJson;
 using NUnit.Framework;
 using Unisave.Serialization;
 
@@ -69,6 +70,17 @@ namespace FrameworkTests.Serialization.Primitives
                     "{'42':'foo','8':'bar'}".Replace('\'', '\"')
                 )
             );
+        }
+
+        [Test]
+        public void ItDeserializesEnumsAsEnumTypeNotInt()
+        {
+            object o = Serializer.FromJson(new JsonValue(42), typeof(MyEnum));
+            
+            Assert.IsTrue(o is MyEnum);
+            Assert.IsFalse(o is int);
+            
+            Assert.AreEqual(MyEnum.Foo, o);
         }
     }
 }
