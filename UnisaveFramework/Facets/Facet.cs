@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using LightJson;
 using Unisave.Foundation;
 using Unisave.Serialization;
@@ -110,8 +111,36 @@ namespace Unisave.Facets
                     $"Method '{type}.{name}' has to be public in "
                     + "order to be called remotely."
                 );
+            
+            if (IsAsyncVoid(methodInfo))
+                throw new MethodSearchException(
+                    $"Method '{type}.{name}' cannot be declared as "
+                    + "'async void'. Use 'async Task' instead."
+                );
 
             return methodInfo;
+        }
+
+        /// <summary>
+        /// Identifies an 'async void' method.
+        /// </summary>
+        private static bool IsAsyncVoid(MethodInfo methodInfo)
+        {
+            // https://stackoverflow.com/questions/30782332/
+            // identify-an-async-void-method-through-reflection
+
+            // method must be void
+            if (methodInfo.ReturnType != typeof(void))
+                return false;
+            
+            // and it must be marked with the attribute
+            AsyncStateMachineAttribute attribute = methodInfo
+                .GetCustomAttribute<AsyncStateMachineAttribute>();
+            if (attribute == null)
+                return false;
+
+            // if both conditions hold, we have an 'async void' method here
+            return true;
         }
         
         /// <summary>

@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using FrameworkTests.Testing;
 using FrameworkTests.Testing.Facets;
@@ -52,54 +53,13 @@ namespace FrameworkTests.Facets
 
             public async void AsyncVoidProcedure()
             {
-                /*
-                 * DO NOT USE async void METHODS!
-                 * The request context may get disposed anytime during the
-                 * method execution and so it should not be used!
-                 * These tests are here just for completeness!
-                 */
+                await Task.Yield();
                 
-                await Task.Delay(50);
+                // "async void" facet methods are disallowed, because:
+                // - uncaught exceptions can crash the whole process
+                // - the request context can be disposed before the code finishes
                 
-                flag = true;
-            }
-
-            public async void AsyncVoidThrowingProcedure()
-            {
-                /*
-                 * DO NOT USE async void METHODS!
-                 * The request context may get disposed anytime during the
-                 * method execution and so it should not be used!
-                 * These tests are here just for completeness!
-                 */
-
-                // just to detect container disposal
-                var myStream = new MemoryStream(32);
-                RequestContext.Current.Services.RegisterInstance<MemoryStream>(
-                    myStream
-                );
-                
-                await Task.Delay(50);
-
-                try
-                {
-                    // the dummy stream should be closed by now
-                    // and all request-scoped services disposed
-                    myStream.WriteByte(42); // throws ObjectDisposedException
-                    
-                    // I wanted to use the response stream, but it gets
-                    // replaced by the BackendApplicationFixture so that it
-                    // can be read. So it throws a different exception than
-                    // it would in production.
-                }
-                catch (Exception e)
-                {
-                    asyncVoidException = e;
-                    
-                    // the exception can continue, but it will not be logged,
-                    // because nobody awaits this async method
-                    throw;
-                }
+                Assert.Fail("This code should not be executed.");
             }
         }
         
@@ -181,62 +141,25 @@ namespace FrameworkTests.Facets
         }
 
         [Test]
-        public async Task AsyncVoidProcedureExitsBeforeFinishes()
+        public async Task AsyncVoidProcedureCannotBeCalled()
         {
-            MyFacet.flag = false;
-            
             IOwinResponse response = await app.CallFacet(
                 facetName: typeof(MyFacet).FullName,
                 methodName: nameof(MyFacet.AsyncVoidProcedure),
                 arguments: new JsonArray()
             );
-            await response.AssertOkVoidResponse();
-            
-            // no yet true
-            Assert.IsFalse(MyFacet.flag);
-
-            for (int i = 0; i < 100; i++)
-            {
-                await Task.Delay(10);
-
-                // set to true, success!
-                if (MyFacet.flag)
-                    return;
-            }
-            
-            Assert.Fail("The flag was not set to true in the time limit.");
-        }
-
-        [Test]
-        public async Task AsyncVoidCanThrowAndNobodyCares()
-        {
-            MyFacet.asyncVoidException = null;
-            
-            IOwinResponse response = await app.CallFacet(
-                facetName: typeof(MyFacet).FullName,
-                methodName: nameof(MyFacet.AsyncVoidThrowingProcedure),
-                arguments: new JsonArray()
+            Exception e = await response.GetThrownException<Exception>();
+            Assert.IsInstanceOf<MethodSearchException>(e);
+            string fullMethodName = typeof(MyFacet).FullName
+                + "." + nameof(MyFacet.AsyncVoidProcedure);
+            Assert.AreEqual(
+                $"Method '{fullMethodName}' cannot be declared as " +
+                $"'async void'. Use 'async Task' instead.",
+                e.Message
             );
-            await response.AssertOkVoidResponse();
             
-            // not thrown yet
-            Assert.IsNull(MyFacet.asyncVoidException);
-
-            for (int i = 0; i < 100; i++)
-            {
-                await Task.Delay(10);
-
-                // it has thrown!
-                if (MyFacet.asyncVoidException != null)
-                {
-                    Assert.IsInstanceOf<ObjectDisposedException>(
-                        MyFacet.asyncVoidException
-                    );
-                    return;
-                }
-            }
-            
-            Assert.Fail("The method has not thrown in the time limit.");
+            JsonObject body = await response.ReadJsonBody<JsonObject>();
+            Assert.IsFalse(body["isKnownException"].AsBoolean);
         }
     }
 }

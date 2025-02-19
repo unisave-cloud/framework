@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Unisave.Utils
+namespace Unisave.Facets
 {
     [Serializable]
     public class MethodSearchException : System.Exception
