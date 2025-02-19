@@ -383,7 +383,19 @@ namespace FrameworkTests.Serialization.Exceptions
                 out AggregateException original,
                 out AggregateException deserialized
             );
-
+            
+#if UNISAVE_DOTNET_TESTS
+            // in the original instance, the InnerException and
+            // InnerExceptions[0] are the same instance. In the deserialized
+            // instance, they are two separate instances. This causes the
+            // deserialized ToString output to have the InnerExceptions[0]
+            // printed twice. Flattening fixes that. Does not happen on mono.
+            original = original.Flatten();
+            deserialized = deserialized.Flatten();
+            
+            // NOTE: breakpoints don't work here in this conditional block
+#endif
+            
             Assert.AreEqual(original.ToString(), deserialized.ToString());
         }
         
