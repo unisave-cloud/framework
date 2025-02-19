@@ -22,7 +22,10 @@ namespace Unisave.HttpClient
         /// <summary>
         /// Is there a body present at all?
         /// </summary>
-        public bool HasBody => Content != null;
+        public bool HasBody => Content != null
+            && Content.GetType().Name != "EmptyContent";
+            // dotnet creates this instance, when you sent the content of
+            // an http response to null
 
         /// <summary>
         /// Is the body a JSON body?
@@ -71,6 +74,9 @@ namespace Unisave.HttpClient
         /// <returns></returns>
         public string Body()
         {
+            if (!HasBody)
+                return null;
+            
             return Content?.ReadAsStringAsync()
                 .GetAwaiter()
                 .GetResult();
@@ -83,6 +89,9 @@ namespace Unisave.HttpClient
         /// <returns></returns>
         public byte[] Bytes()
         {
+            if (!HasBody)
+                return null;
+            
             return Content?.ReadAsByteArrayAsync()
                 .GetAwaiter()
                 .GetResult();
@@ -146,7 +155,7 @@ namespace Unisave.HttpClient
         /// <exception cref="JsonParseException"></exception>
         public JsonValue JsonValue()
         {
-            if (Content == null)
+            if (!HasBody)
                 return LightJson.JsonValue.Null;
             
             if (Content.Headers.ContentType.MediaType != "application/json")
@@ -173,7 +182,7 @@ namespace Unisave.HttpClient
             if (formCacheUsed)
                 return formCache;
             
-            if (Content == null)
+            if (!HasBody)
                 return null;
             
             if (Content.Headers.ContentType.MediaType !=
