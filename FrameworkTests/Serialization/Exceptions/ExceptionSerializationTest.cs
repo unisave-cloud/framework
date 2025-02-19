@@ -25,44 +25,25 @@ namespace FrameworkTests.Serialization.Exceptions
                 : base(info, c) { }
         }
         
-        /*[Serializable]
-        private class NonExistingStubException : Exception
-        {
-            public NonExistingStubException() : base() { }
-            protected NonExistingStubException(SerializationInfo info, StreamingContext c)
-                : base(info, c) { }
-        }*/
-        
-        private const string NonExistingStubExceptionLegacySerialized
-            = "\"AAEAAAD\\/\\/\\/\\/\\/AQAAAAAAAAAMAgAAAEtGcmFtZXdvcmtUZXN0" +
-              "cywgVmVyc2lvbj0xLjAuNzQzMS4xMzU0LCBDdWx0dXJlPW5ldXRyYWwsIF" +
-              "B1YmxpY0tleVRva2VuPW51bGwFAQAAAFBGcmFtZXdvcmtUZXN0cy5TZXJp" +
-              "YWxpemF0aW9uLkV4Y2VwdGlvblNlcmlhbGl6YXRpb25UZXN0K05vbkV4aX" +
-              "N0aW5nU3R1YkV4Y2VwdGlvbgsAAAAJQ2xhc3NOYW1lB01lc3NhZ2UERGF0" +
-              "YQ5Jbm5lckV4Y2VwdGlvbgdIZWxwVVJMEFN0YWNrVHJhY2VTdHJpbmcWUm" +
-              "Vtb3RlU3RhY2tUcmFjZVN0cmluZxBSZW1vdGVTdGFja0luZGV4D0V4Y2Vw" +
-              "dGlvbk1ldGhvZAdIUmVzdWx0BlNvdXJjZQEBAwMBAQEAAgABHlN5c3RlbS" +
-              "5Db2xsZWN0aW9ucy5JRGljdGlvbmFyeRBTeXN0ZW0uRXhjZXB0aW9uCAgC" +
-              "AAAABgMAAABQRnJhbWV3b3JrVGVzdHMuU2VyaWFsaXphdGlvbi5FeGNlcH" +
-              "Rpb25TZXJpYWxpemF0aW9uVGVzdCtOb25FeGlzdGluZ1N0dWJFeGNlcHRp" +
-              "b24KCgoKBgQAAADXASAgYXQgRnJhbWV3b3JrVGVzdHMuU2VyaWFsaXphdG" +
-              "lvbi5FeGNlcHRpb25TZXJpYWxpemF0aW9uVGVzdC5NYWtlSXRUaHJvd24g" +
-              "KFN5c3RlbS5FeGNlcHRpb24gZSkgWzB4MDAwMDJdIGluIC9ob21lL2ppcm" +
-              "thL0ltcG9ydGFudENvZGUvVW5pc2F2ZS9GcmFtZXdvcmsvRnJhbWV3b3Jr" +
-              "VGVzdHMvU2VyaWFsaXphdGlvbi9FeGNlcHRpb25TZXJpYWxpemF0aW9uVG" +
-              "VzdC5jczoxMjEgCgAAAAAKABUTgAYFAAAADkZyYW1ld29ya1Rlc3RzCw==\"";
-        
+        // [Serializable]
+        // private class NonExistingStubException : Exception
+        // {
+        //     public NonExistingStubException() : base() { }
+        //     protected NonExistingStubException(SerializationInfo info, StreamingContext c)
+        //         : base(info, c) { }
+        // }
+
         private const string NonExistingStubExceptionSerialized
-            = "{\"ClassName\":\"FrameworkTests.Serialization.ExceptionSer" +
-              "ializationTest+NonExistingStubException\",\"Message\":null" +
-              ",\"Data\":null,\"InnerException\":null,\"HelpURL\":null,\"" +
-              "StackTraceString\":\"  at FrameworkTests.Serialization.Exc" +
-              "eptionSerializationTest.MakeItThrown (System.Exception e) " +
-              "[0x00002] in \\/home\\/jirka\\/ImportantCode\\/Unisave\\/F" +
-              "ramework\\/FrameworkTests\\/Serialization\\/ExceptionSeria" +
-              "lizationTest.cs:72 \",\"RemoteStackTraceString\":null,\"Re" +
-              "moteStackIndex\":0,\"ExceptionMethod\":null,\"HResult\":-2" +
-              "146233088,\"Source\":\"FrameworkTests\"}";
+            = "{\"ClassName\":\"FrameworkTests.Serialization.Exceptions.E" +
+              "xceptionSerializationTest+NonExistingStubException\",\"Mes" +
+              "sage\":null,\"Data\":null,\"InnerException\":null,\"HelpUR" +
+              "L\":null,\"StackTraceString\":\"  at FrameworkTests.Serial" +
+              "ization.Exceptions.ExceptionSerializationTest.MakeItThrown" +
+              " (System.Exception e) [0x00002] in /home/jirka/unisave/fra" +
+              "mework/FrameworkTests/Serialization/Exceptions/ExceptionSe" +
+              "rializationTest.cs:74 \",\"RemoteStackTraceString\":null," +
+              "\"RemoteStackIndex\":0,\"ExceptionMethod\":null,\"HResult\"" +
+              ":-2146233088,\"Source\":\"FrameworkMonoTests\"}";
         
         /// <summary>
         /// Helper that makes an exception into a thrown exception
@@ -146,11 +127,11 @@ namespace FrameworkTests.Serialization.Exceptions
             }
             catch (Exception e)
             {
-                Assert.AreSame(e, deserialized);
+                Assert.That(deserialized, Is.SameAs(e));
             }
          
             // stack is not the same - more info is appended
-            Assert.AreNotEqual(original.StackTrace, deserialized.StackTrace);
+            Assert.That(deserialized.StackTrace, Is.Not.EqualTo(original.StackTrace));
             
             // but it still contains the original stack trace
             StringAssert.Contains(original.StackTrace, deserialized.StackTrace);
@@ -178,8 +159,8 @@ namespace FrameworkTests.Serialization.Exceptions
                 ((SerializedException)deserialized).SerializedValue.ToString()
             );
             StringAssert.Contains(
-                "Type FrameworkTests.Serialization.ExceptionSerialization" +
-                "Test+NonExistingStubException wasn't found.",
+                "Type FrameworkTests.Serialization.Exceptions.ExceptionSerial" +
+                "izationTest+NonExistingStubException wasn't found.",
                 deserialized.InnerException?.ToString()
             );
         }
@@ -229,24 +210,6 @@ namespace FrameworkTests.Serialization.Exceptions
             Assert.AreEqual(
                 ((ArgumentException)original).ParamName,
                 ((ArgumentException)deserialized).ParamName
-            );
-        }
-
-        [Test]
-        public void SerializedExceptionCanBeDotNetSerialized()
-        {
-            var payload = new JsonObject()
-                .Add("foo", "bar")
-                .Add("baz", 42);
-
-            var original = new SerializedException(payload);
-            var json = ExceptionSerializer.LegacyToJson(original);
-            var deserialized = ExceptionSerializer.LegacyFromJson(json);
-
-            Assert.AreEqual(typeof(SerializedException), deserialized.GetType());
-            Assert.AreEqual(
-                original.SerializedValue.ToString(),
-                ((SerializedException)deserialized).SerializedValue.ToString()
             );
         }
 
@@ -561,32 +524,19 @@ namespace FrameworkTests.Serialization.Exceptions
         #endregion
         
         #region "Reading legacy exceptions"
-        
-        [Test]
-        public void LegacyExceptionsCanBeDeserialized()
-        {
-            var original = MakeItThrown(new StubException());
-            var json = ExceptionSerializer.LegacyToJson(original);
-
-            var deserialized = Serializer.FromJson<Exception>(json);
-            
-            Assert.AreEqual(original.ToString(), deserialized.ToString());
-            Assert.AreEqual(original.GetType(), deserialized.GetType());
-        }
 
         [Test]
-        public void LegacyNonExistingExceptionGetsWrapped()
+        public void LegacyExceptionDeserializationHasBeenRemoved()
         {
-            /*
-                // How to produce the serialized value
-                var original = MakeItThrown(new NonExistingStubException());
-                var json = ExceptionSerializer.LegacyToJson(original);
-                NonExistingStubExceptionLegacySerialized = json.ToString();
-            */
+            // The legacy deserialization was removed, because it used the
+            // BinaryFormatter class which is insecure and was to be removed
+            // in .NET 9, plus throwing exceptions in previous .NET versions.
             
-            JsonValue json = JsonValue.Parse(
-                NonExistingStubExceptionLegacySerialized
-            );
+            // Legacy exceptions were serialized to a base64-encoded string,
+            // so the way to detect a legacy exception is to see that we are
+            // trying to deserialize from a JSON string instead of an object.
+
+            JsonValue json = "dummy-base64-string-here=";
             
             var deserialized = Serializer.FromJson<Exception>(json);
             
@@ -596,8 +546,7 @@ namespace FrameworkTests.Serialization.Exceptions
                 ((SerializedException)deserialized).SerializedValue.ToString()
             );
             StringAssert.Contains(
-                "Unable to load type FrameworkTests.Serialization.Exception" +
-                "SerializationTest+NonExistingStubException required for deserialization.",
+                "Legacy exception deserialization has been removed.",
                 deserialized.InnerException?.ToString()
             );
         }

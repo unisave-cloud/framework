@@ -1,9 +1,7 @@
 ﻿using System;
-using System.IO;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using LightJson;
 using Unisave.Serialization.Composites;
 using Unisave.Serialization.Context;
@@ -69,7 +67,9 @@ namespace Unisave.Serialization.Exceptions
             try
             {
                 if (json.IsString)
-                    return LegacyFromJson(json);
+                    throw new UnisaveSerializationException(
+                        "Legacy exception deserialization has been removed."
+                    );
             }
             catch (Exception e)
             {
@@ -215,41 +215,5 @@ namespace Unisave.Serialization.Exceptions
 
             // voila, e is unmodified save for _remoteStackTraceString
         }
-        
-        #region "Legacy serialization (binary)"
-        
-        internal static JsonValue LegacyToJson(object subject)
-        {
-            if (!(subject is Exception))
-                throw new ArgumentException(
-                    "Provided instance is not an exception."
-                );
-
-            IFormatter formatter = new BinaryFormatter();
-
-            using (var stream = new MemoryStream())
-            {
-                formatter.Serialize(stream, subject);
-                
-                return System.Convert.ToBase64String(stream.ToArray());
-            }
-        }
-
-        internal static object LegacyFromJson(JsonValue json)
-        {
-            byte[] bytes = System.Convert.FromBase64String(json.AsString);
-
-            IFormatter formatter = new BinaryFormatter();
-
-            using (var stream = new MemoryStream())
-            {
-                stream.Write(bytes, 0, bytes.Length);
-                stream.Seek(0, SeekOrigin.Begin);
-                var obj = formatter.Deserialize(stream);
-                return obj;
-            }
-        }
-        
-        #endregion
     }
 }
