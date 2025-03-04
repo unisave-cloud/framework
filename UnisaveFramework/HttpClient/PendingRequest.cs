@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Unisave.HttpClient
@@ -24,6 +25,17 @@ namespace Unisave.HttpClient
         /// Interceptor, that may fake responses
         /// </summary>
         private readonly InterceptorFunc interceptor;
+        
+        /// <summary>
+        /// Whether the .Send() method (i.e. also the .Get() or .Post() methods)
+        /// should finish after only reading the headers, or also the body.
+        /// The default behaviour is reading the whole body, which lets the
+        /// user access the response body synchronously with no synchronous
+        /// waiting actually performed. However for streamed responses,
+        /// this needs to be set to "only headers".
+        /// </summary>
+        private HttpCompletionOption httpCompletionOption
+            = HttpCompletionOption.ResponseContentRead;
 
         public PendingRequest(
             System.Net.Http.HttpClient client,
@@ -35,6 +47,19 @@ namespace Unisave.HttpClient
             // default interceptor does nothing and calls the "next" callback
             this.interceptor = interceptor
                 ?? ((request, next) => next.Invoke());
+        }
+
+        /// <summary>
+        /// Only the response headers should be read, not the body. The body
+        /// will be read later, once actually requested from the response
+        /// object. After using this setup, you should access the response
+        /// body via the asynchronous methods to avoid synchronous waiting.
+        /// </summary>
+        /// <returns>PendingRequest - the fluent API request builder</returns>
+        public PendingRequest WithoutResponseBuffering()
+        {
+            httpCompletionOption = HttpCompletionOption.ResponseHeadersRead;
+            return this;
         }
 
         /// <summary>
@@ -124,10 +149,16 @@ namespace Unisave.HttpClient
         /// <returns></returns>
         private async Task<Response> DoSendRequest(Request request)
         {
-            HttpResponseMessage dotNetResponse
-                = await client.SendAsync(request.Original);
-            
-            return new Response(dotNetResponse);
+            using (CancellationTokenSource cts = CreateLinkedCts())
+            {
+                return new Response(
+                    await client.SendAsync(
+                        request.Original,
+                        httpCompletionOption,
+                        cts.Token
+                    )
+                );
+            }
         }
     }
 }

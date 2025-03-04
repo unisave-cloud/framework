@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using LightJson;
 
@@ -390,6 +391,40 @@ namespace Unisave.HttpClient
         /// <returns>PendingRequest - the fluent API request builder</returns>
         public PendingRequest WithToken(string bearerToken)
             => factory.PendingRequest().WithToken(bearerToken);
+        
+        /// <summary>
+        /// Sets the cancellation token that cancels this request
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns>PendingRequest - the fluent API request builder</returns>
+        public PendingRequest WithCancellation(CancellationToken token)
+            => factory.PendingRequest().WithCancellation(token);
+
+        /// <summary>
+        /// Sets the maximum number of seconds to wait for a response.
+        /// </summary>
+        /// <param name="seconds"></param>
+        /// <returns>PendingRequest - the fluent API request builder</returns>
+        public PendingRequest WithTimeout(double seconds)
+            => factory.PendingRequest().WithTimeout(seconds);
+
+        /// <summary>
+        /// Sets the maximum number of time to wait for a response.
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns>PendingRequest - the fluent API request builder</returns>
+        public PendingRequest WithTimeout(TimeSpan time)
+            => factory.PendingRequest().WithTimeout(time);
+
+        /// <summary>
+        /// Only the response headers should be read, not the body. The body
+        /// will be read later, once actually requested from the response
+        /// object. After using this setup, you should access the response
+        /// body via the asynchronous methods to avoid synchronous waiting.
+        /// </summary>
+        /// <returns>PendingRequest - the fluent API request builder</returns>
+        public PendingRequest WithoutResponseBuffering()
+            => factory.PendingRequest().WithoutResponseBuffering();
 
         #endregion
         

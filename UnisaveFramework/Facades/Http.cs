@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using LightJson;
 using Unisave.HttpClient;
 
@@ -161,6 +163,150 @@ namespace Unisave.Facades
         
         #endregion
         
+        #region "Async request sending"
+
+        /// <summary>
+        /// Sends a GET request
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <param name="query">Query parameters</param>
+        /// <returns>The HTTP response object</returns>
+        public static Task<Response> GetAsync(
+            string url,
+            Dictionary<string, string> query = null
+        ) => GetHttp().GetAsync(url, query);
+
+        /// <summary>
+        /// Sends a POST request with form url encoded content
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <param name="form">Content</param>
+        /// <returns>The HTTP response object</returns>
+        public static Task<Response> PostAsync(
+            string url,
+            Dictionary<string, string> form
+        ) => GetHttp().PostAsync(url, form);
+
+        /// <summary>
+        /// Sends a POST request with JSON content
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <param name="json">Content</param>
+        /// <returns>The HTTP response object</returns>
+        public static Task<Response> PostAsync(string url, JsonObject json)
+            => GetHttp().PostAsync(url, json);
+
+        /// <summary>
+        /// Sends a POST request
+        /// (the content is empty unless specified by a previous command)
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <returns>The HTTP response object</returns>
+        public static Task<Response> PostAsync(string url)
+            => GetHttp().PostAsync(url);
+        
+        /// <summary>
+        /// Sends a PUT request with form url encoded content
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <param name="form">Content</param>
+        /// <returns>The HTTP response object</returns>
+        public static Task<Response> PutAsync(
+            string url,
+            Dictionary<string, string> form
+        ) => GetHttp().PutAsync(url, form);
+        
+        /// <summary>
+        /// Sends a PUT request with JSON content
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <param name="json">Content</param>
+        /// <returns>The HTTP response object</returns>
+        public static Task<Response> PutAsync(string url, JsonObject json)
+            => GetHttp().PutAsync(url, json);
+        
+        /// <summary>
+        /// Sends a PUT request
+        /// (the content is empty unless specified by a previous command)
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <returns>The HTTP response object</returns>
+        public static Task<Response> PutAsync(string url)
+            => GetHttp().PutAsync(url);
+        
+        /// <summary>
+        /// Sends a PATCH request with form url encoded content
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <param name="form">Content</param>
+        /// <returns>The HTTP response object</returns>
+        public static  Task<Response> PatchAsync(
+            string url,
+            Dictionary<string, string> form
+        ) => GetHttp().PatchAsync(url, form);
+        
+        /// <summary>
+        /// Sends a PATCH request with JSON content
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <param name="json">Content</param>
+        /// <returns>The HTTP response object</returns>
+        public static Task<Response> PatchAsync(string url, JsonObject json)
+            => GetHttp().PatchAsync(url, json);
+        
+        /// <summary>
+        /// Sends a PATCH request
+        /// (the content is empty unless specified by a previous command)
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <returns>The HTTP response object</returns>
+        public static Task<Response> PatchAsync(string url)
+            => GetHttp().PatchAsync(url);
+        
+        /// <summary>
+        /// Sends a DELETE request with form url encoded content
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <param name="form">Content</param>
+        /// <returns>The HTTP response object</returns>
+        public static Task<Response> DeleteAsync(
+            string url,
+            Dictionary<string, string> form
+        ) => GetHttp().DeleteAsync(url, form);
+        
+        /// <summary>
+        /// Sends a DELETE request with JSON content
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <param name="json">Content</param>
+        /// <returns>The HTTP response object</returns>
+        public static Task<Response> DeleteAsync(string url, JsonObject json)
+            => GetHttp().DeleteAsync(url, json);
+        
+        /// <summary>
+        /// Sends a DELETE request
+        /// (the content is empty unless specified by a previous command)
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <returns>The HTTP response object</returns>
+        public static Task<Response> DeleteAsync(string url)
+            => GetHttp().DeleteAsync(url);
+
+        /// <summary>
+        /// Sends an HTTP request with the method specified as a parameter
+        /// </summary>
+        /// <param name="method">HTTP method</param>
+        /// <param name="url">Target URL</param>
+        /// <param name="query">Query string to put into the URL</param>
+        /// <returns>The HTTP response object</returns>
+        public static Task<Response> SendAsync(
+            HttpMethod method,
+            string url,
+            Dictionary<string, string> query = null
+        ) => GetHttp().SendAsync(method, url, query);
+
+        #endregion
+        
         #region "Request construction"
         
         /// <summary>
@@ -254,6 +400,40 @@ namespace Unisave.Facades
         /// <returns>PendingRequest - the fluent API request builder</returns>
         public static PendingRequest WithToken(string bearerToken)
             => GetHttp().WithToken(bearerToken);
+        
+        /// <summary>
+        /// Sets the cancellation token that cancels this request
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns>PendingRequest - the fluent API request builder</returns>
+        public static PendingRequest WithCancellation(CancellationToken token)
+            => GetHttp().WithCancellation(token);
+
+        /// <summary>
+        /// Sets the maximum number of seconds to wait for a response.
+        /// </summary>
+        /// <param name="seconds"></param>
+        /// <returns>PendingRequest - the fluent API request builder</returns>
+        public static PendingRequest WithTimeout(double seconds)
+            => GetHttp().WithTimeout(seconds);
+
+        /// <summary>
+        /// Sets the maximum number of time to wait for a response.
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns>PendingRequest - the fluent API request builder</returns>
+        public static PendingRequest WithTimeout(TimeSpan time)
+            => GetHttp().WithTimeout(time);
+
+        /// <summary>
+        /// Only the response headers should be read, not the body. The body
+        /// will be read later, once actually requested from the response
+        /// object. After using this setup, you should access the response
+        /// body via the asynchronous methods to avoid synchronous waiting.
+        /// </summary>
+        /// <returns>PendingRequest - the fluent API request builder</returns>
+        public static PendingRequest WithoutResponseBuffering()
+            => GetHttp().WithoutResponseBuffering();
         
         #endregion
         

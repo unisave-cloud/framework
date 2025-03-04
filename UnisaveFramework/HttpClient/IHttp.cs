@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using LightJson;
 
@@ -342,6 +343,36 @@ namespace Unisave.HttpClient
         /// <param name="bearerToken"></param>
         /// <returns>PendingRequest - the fluent API request builder</returns>
         PendingRequest WithToken(string bearerToken);
+
+        /// <summary>
+        /// Sets the cancellation token that cancels this request
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns>PendingRequest - the fluent API request builder</returns>
+        PendingRequest WithCancellation(CancellationToken token);
+
+        /// <summary>
+        /// Sets the maximum number of seconds to wait for a response.
+        /// </summary>
+        /// <param name="seconds"></param>
+        /// <returns>PendingRequest - the fluent API request builder</returns>
+        PendingRequest WithTimeout(double seconds);
+
+        /// <summary>
+        /// Sets the maximum number of time to wait for a response.
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns>PendingRequest - the fluent API request builder</returns>
+        PendingRequest WithTimeout(TimeSpan time);
+
+        /// <summary>
+        /// Only the response headers should be read, not the body. The body
+        /// will be read later, once actually requested from the response
+        /// object. After using this setup, you should access the response
+        /// body via the asynchronous methods to avoid synchronous waiting.
+        /// </summary>
+        /// <returns>PendingRequest - the fluent API request builder</returns>
+        PendingRequest WithoutResponseBuffering();
 
         #endregion
         

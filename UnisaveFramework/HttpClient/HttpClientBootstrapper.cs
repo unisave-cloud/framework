@@ -1,3 +1,4 @@
+using System.Threading;
 using Unisave.Bootstrapping;
 
 namespace Unisave.HttpClient
@@ -14,7 +15,15 @@ namespace Unisave.HttpClient
         {
             // register .NET HTTP client instance
             Services.RegisterSingleton<System.Net.Http.HttpClient>(
-                container => new System.Net.Http.HttpClient()
+                container => {
+                    var dotNetClient = new System.Net.Http.HttpClient();
+                    
+                    // Timeout is handled by the PendingRequest class,
+                    // disable the default .NET 100 second timeout:
+                    dotNetClient.Timeout = Timeout.InfiniteTimeSpan;
+                    
+                    return dotNetClient;
+                }
             );
             
             // register Unisave PendingRequest factory

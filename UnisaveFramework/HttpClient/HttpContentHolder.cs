@@ -133,6 +133,8 @@ namespace Unisave.HttpClient
         /// <summary>
         /// Returns the request body as a Stream object.
         /// If there is no request body, null is returned.
+        /// Use this in conjunction with the WithoutResponseBuffering() method
+        /// on the PendingRequest.
         /// </summary>
         public async Task<Stream> StreamAsync()
         {
@@ -145,6 +147,8 @@ namespace Unisave.HttpClient
         /// <summary>
         /// Returns the request body as a Stream object.
         /// If there is no request body, null is returned.
+        /// Use this in conjunction with the WithoutResponseBuffering() method
+        /// on the PendingRequest.
         /// </summary>
         public Stream Stream()
         {
