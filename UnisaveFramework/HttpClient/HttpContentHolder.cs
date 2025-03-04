@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using LightJson;
 using LightJson.Serialization;
 
@@ -14,6 +16,15 @@ namespace Unisave.HttpClient
     /// </summary>
     public abstract class HttpContentHolder
     {
+        // NOTE: It is not as important to use async API here as most HTTP
+        // response bodies are small and arrive right after the header.
+        // Therefore this class can be used via the synchronous API,
+        // unless the response is expected to either be long or slowly sent out,
+        // in which case you can use the BodyAsync, BytesAsync,
+        // or even StreamAsync methods. Alternatively you can access the
+        // underlying HttpContent if you need more control than that
+        // (e.g. to consume Server Sent Events and other complex responses)
+        
         /// <summary>
         /// Gives the content holder access to the actual HttpContent
         /// </summary>
@@ -71,30 +82,78 @@ namespace Unisave.HttpClient
         /// Returns the request body as string.
         /// If there is no request body, null is returned.
         /// </summary>
-        /// <returns></returns>
-        public string Body()
+        public async Task<string> BodyAsync()
         {
             if (!HasBody)
                 return null;
+
+            return await Content.ReadAsStringAsync();
+        }
+
+        /// <summary>
+        /// Returns the request body as string.
+        /// If there is no request body, null is returned.
+        /// </summary>
+        public string Body()
+        {
+            var task = BodyAsync();
             
-            return Content?.ReadAsStringAsync()
-                .GetAwaiter()
-                .GetResult();
+            // Schedule the task onto another thread and then synchronously
+            // wait from this thread to prevent single-threaded deadlock:
+            // https://github.com/unisave-cloud/worker/blob/master/docs/deadlocks.md
+            return Task.Run(() => task).GetAwaiter().GetResult();
         }
 
         /// <summary>
         /// Returns the request body as a byte array.
         /// If there is no request body, null is returned.
         /// </summary>
-        /// <returns></returns>
-        public byte[] Bytes()
+        public async Task<byte[]> BytesAsync()
         {
             if (!HasBody)
                 return null;
+
+            return await Content.ReadAsByteArrayAsync();
+        }
+        
+        /// <summary>
+        /// Returns the request body as a byte array.
+        /// If there is no request body, null is returned.
+        /// </summary>
+        public byte[] Bytes()
+        {
+            var task = BytesAsync();
             
-            return Content?.ReadAsByteArrayAsync()
-                .GetAwaiter()
-                .GetResult();
+            // Schedule the task onto another thread and then synchronously
+            // wait from this thread to prevent single-threaded deadlock:
+            // https://github.com/unisave-cloud/worker/blob/master/docs/deadlocks.md
+            return Task.Run(() => task).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Returns the request body as a Stream object.
+        /// If there is no request body, null is returned.
+        /// </summary>
+        public async Task<Stream> StreamAsync()
+        {
+            if (!HasBody)
+                return null;
+
+            return await Content.ReadAsStreamAsync();
+        }
+        
+        /// <summary>
+        /// Returns the request body as a Stream object.
+        /// If there is no request body, null is returned.
+        /// </summary>
+        public Stream Stream()
+        {
+            var task = StreamAsync();
+            
+            // Schedule the task onto another thread and then synchronously
+            // wait from this thread to prevent single-threaded deadlock:
+            // https://github.com/unisave-cloud/worker/blob/master/docs/deadlocks.md
+            return Task.Run(() => task).GetAwaiter().GetResult();
         }
 
         /// <summary>
