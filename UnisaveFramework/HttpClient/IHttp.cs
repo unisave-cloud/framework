@@ -267,7 +267,8 @@ namespace Unisave.HttpClient
         PendingRequest Request();
 
         /// <summary>
-        /// Sets additional request headers
+        /// Sets additional request headers. When invoked multiple times,
+        /// the previous values are forgotten.
         /// </summary>
         /// <param name="requestHeaders"></param>
         /// <returns>PendingRequest - the fluent API request builder</returns>
