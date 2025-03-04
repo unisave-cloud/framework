@@ -5,6 +5,7 @@ Unisave Framework is a library that encapsulates the Unisave user's custom backe
 
 ## Documentation
 
+- [HTTP Client](docs/http-client.md)
 - [NuGet and Paket Dependency Management](docs/nuget-and-paket-dependency-management.md)
 
 

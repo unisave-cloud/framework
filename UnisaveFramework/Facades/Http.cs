@@ -26,7 +26,7 @@ namespace Unisave.Facades
         {
             if (!Facade.CanUse)
                 throw new InvalidOperationException(
-                    "You cannot use the Http facade the client side."
+                    "You cannot use the Http facade on the client side."
                 );
             
             return Facade.Services.Resolve<Factory>();
