@@ -15,7 +15,7 @@ namespace Unisave.HttpClient
         /// </summary>
         public HttpResponseMessage Original { get; }
         
-        // implements the SPI
+        // implements the API
         protected override HttpContent Content => Original.Content;
 
         /// <summary>

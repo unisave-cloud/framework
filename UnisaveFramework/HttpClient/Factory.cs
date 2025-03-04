@@ -7,6 +7,11 @@ using Unisave.Utils;
 
 namespace Unisave.HttpClient
 {
+    /// <summary>
+    /// Creates instances of PendingRequest and provides them with
+    /// an interceptor that implements faking and stubbing. Most of the
+    /// testing logic is implemented in this class.
+    /// </summary>
     public class Factory
     {
         /// <summary>
@@ -91,24 +96,21 @@ namespace Unisave.HttpClient
         /// <summary>
         /// Intercept all requests to make them testable
         /// </summary>
-        /// <returns></returns>
-        public Factory Fake()
+        public void Fake()
             => Fake("*");
 
         /// <summary>
         /// Intercept all requests going to a matching URL
         /// </summary>
         /// <param name="urlPattern">Wildcard pattern with asterisks</param>
-        /// <returns></returns>
-        public Factory Fake(string urlPattern)
+        public void Fake(string urlPattern)
             => Fake(urlPattern, Response.Create());
 
         /// <summary>
         /// Intercept all requests and respond with the given response
         /// </summary>
         /// <param name="response"></param>
-        /// <returns></returns>
-        public Factory Fake(Response response)
+        public void Fake(Response response)
             => Fake("*", response);
 
         /// <summary>
@@ -117,16 +119,14 @@ namespace Unisave.HttpClient
         /// </summary>
         /// <param name="urlPattern">Wildcard pattern with asterisks</param>
         /// <param name="response"></param>
-        /// <returns></returns>
-        public Factory Fake(string urlPattern, Response response)
+        public void Fake(string urlPattern, Response response)
             => Fake(urlPattern, request => response);
 
         /// <summary>
         /// Intercept all requests and respond with a sequence of responses
         /// </summary>
         /// <param name="sequence"></param>
-        /// <returns></returns>
-        public Factory Fake(ResponseSequence sequence)
+        public void Fake(ResponseSequence sequence)
             => Fake("*", sequence);
         
         /// <summary>
@@ -135,8 +135,7 @@ namespace Unisave.HttpClient
         /// </summary>
         /// <param name="urlPattern">Wildcard pattern with asterisks</param>
         /// <param name="sequence"></param>
-        /// <returns></returns>
-        public Factory Fake(string urlPattern, ResponseSequence sequence)
+        public void Fake(string urlPattern, ResponseSequence sequence)
             => Fake(urlPattern, request => sequence.Next());
 
         /// <summary>
@@ -146,8 +145,7 @@ namespace Unisave.HttpClient
         /// </summary>
         /// <param name="urlPattern">Wildcard pattern with asterisks</param>
         /// <param name="callback"></param>
-        /// <returns></returns>
-        public Factory Fake(string urlPattern, Func<Request, Response> callback)
+        public void Fake(string urlPattern, Func<Request, Response> callback)
             => RegisterStubCallbackForUrl(urlPattern, callback);
 
         /// <summary>
@@ -155,11 +153,10 @@ namespace Unisave.HttpClient
         /// their response or do nothing if it returns null.
         /// </summary>
         /// <param name="callback"></param>
-        /// <returns></returns>
-        public Factory Fake(Func<Request, Response> callback)
+        public void Fake(Func<Request, Response> callback)
             => RegisterStubCallback(callback);
 
-        private Factory RegisterStubCallbackForUrl(
+        private void RegisterStubCallbackForUrl(
             string urlPattern,
             Func<Request, Response> callback
         )
@@ -173,16 +170,12 @@ namespace Unisave.HttpClient
                     ? callback?.Invoke(request)
                     : null
             );
-
-            return this;
         }
         
-        private Factory RegisterStubCallback(Func<Request, Response> callback)
+        private void RegisterStubCallback(Func<Request, Response> callback)
         {
             stubCallbacks.Add(callback);
             IsRecording = true;
-            
-            return this;
         }
         
         #endregion

@@ -17,10 +17,18 @@ namespace Unisave.HttpClient
                 container => new System.Net.Http.HttpClient()
             );
             
-            // register Unisave HTTP client instance
+            // register Unisave PendingRequest factory
             Services.RegisterSingleton<Factory>(
                 container => new Factory(
                     container.Resolve<System.Net.Http.HttpClient>()
+                )
+            );
+            
+            // register Unisave HTTP client service (IHttp)
+            // (this service is behind the "HTTP" facade)
+            Services.RegisterSingleton<IHttp>(
+                container => new Client(
+                    container.Resolve<Factory>()
                 )
             );
         }
