@@ -163,12 +163,12 @@ namespace Unisave.HttpClient
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="JsonParseException"></exception>
-        public JsonObject Json()
+        public async Task<JsonObject> JsonAsync()
         {
             if (jsonCacheUsed)
                 return jsonCache;
 
-            JsonValue json = JsonValue();
+            JsonValue json = await JsonValueAsync();
 
             if (json.IsNull)
                 return null;
@@ -184,15 +184,32 @@ namespace Unisave.HttpClient
         }
 
         /// <summary>
+        /// Returns the body as a parsed JSON object,
+        /// or null if the body does not exist.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="JsonParseException"></exception>
+        public JsonObject Json()
+        {
+            var task = JsonAsync();
+            
+            // Schedule the task onto another thread and then synchronously
+            // wait from this thread to prevent single-threaded deadlock:
+            // https://github.com/unisave-cloud/worker/blob/master/docs/deadlocks.md
+            return Task.Run(() => task).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
         /// Returns the body as a parsed JSON array,
         /// or null if the body does not exist.
         /// </summary>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="JsonParseException"></exception>
-        public JsonArray JsonArray()
+        public async Task<JsonArray> JsonArrayAsync()
         {
-            JsonValue json = JsonValue();
+            JsonValue json = await JsonValueAsync();
             
             if (json.IsNull)
                 return null;
@@ -206,13 +223,30 @@ namespace Unisave.HttpClient
         }
 
         /// <summary>
+        /// Returns the body as a parsed JSON array,
+        /// or null if the body does not exist.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="JsonParseException"></exception>
+        public JsonArray JsonArray()
+        {
+            var task = JsonArrayAsync();
+            
+            // Schedule the task onto another thread and then synchronously
+            // wait from this thread to prevent single-threaded deadlock:
+            // https://github.com/unisave-cloud/worker/blob/master/docs/deadlocks.md
+            return Task.Run(() => task).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
         /// Returns the body as a parsed JSON value,
         /// or JsonValue.Null if the body is null or doesn't exist
         /// </summary>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="JsonParseException"></exception>
-        public JsonValue JsonValue()
+        public async Task<JsonValue> JsonValueAsync()
         {
             if (!HasBody)
                 return LightJson.JsonValue.Null;
@@ -225,9 +259,26 @@ namespace Unisave.HttpClient
                 );
             }
 
-            string jsonString = Body();
+            string jsonString = await BodyAsync();
 
             return JsonReader.Parse(jsonString);
+        }
+
+        /// <summary>
+        /// Returns the body as a parsed JSON value,
+        /// or JsonValue.Null if the body is null or doesn't exist
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="JsonParseException"></exception>
+        public JsonValue JsonValue()
+        {
+            var task = JsonValueAsync();
+            
+            // Schedule the task onto another thread and then synchronously
+            // wait from this thread to prevent single-threaded deadlock:
+            // https://github.com/unisave-cloud/worker/blob/master/docs/deadlocks.md
+            return Task.Run(() => task).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -236,7 +287,7 @@ namespace Unisave.HttpClient
         /// </summary>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
-        public Dictionary<string, string> Form()
+        public async Task<Dictionary<string, string>> FormAsync()
         {
             if (formCacheUsed)
                 return formCache;
@@ -254,7 +305,7 @@ namespace Unisave.HttpClient
                 );
             }
 
-            string formString = Body();
+            string formString = await BodyAsync();
 
             var form = formString.Split('&')
                 .Select(p => p.Split('='))
@@ -266,6 +317,22 @@ namespace Unisave.HttpClient
             formCache = form;
             formCacheUsed = true;
             return formCache;
+        }
+
+        /// <summary>
+        /// Returns the body as a parsed url form encoded dictionary,
+        /// or null if the body does not exist.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public Dictionary<string, string> Form()
+        {
+            var task = FormAsync();
+            
+            // Schedule the task onto another thread and then synchronously
+            // wait from this thread to prevent single-threaded deadlock:
+            // https://github.com/unisave-cloud/worker/blob/master/docs/deadlocks.md
+            return Task.Run(() => task).GetAwaiter().GetResult();
         }
     }
 }
