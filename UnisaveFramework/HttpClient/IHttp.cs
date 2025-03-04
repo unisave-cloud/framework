@@ -1,26 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading.Tasks;
 using LightJson;
-using Unisave.HttpClient;
 
-namespace Unisave.Facades
+namespace Unisave.HttpClient
 {
     /// <summary>
-    /// Facade for making HTTP requests
+    /// Defines the public API of the HTTP Client component. It corresponds to
+    /// the HTTP facade and should be used for dependency injection
+    /// from the service container.
     /// </summary>
-    public static class Http
+    public interface IHttp
     {
-        private static Factory GetFactory()
-        {
-            if (!Facade.CanUse)
-                throw new InvalidOperationException(
-                    "You cannot use the Http facade on the client side."
-                );
-            
-            return Facade.Services.Resolve<Factory>();
-        }
-        
         #region "Request sending"
 
         /// <summary>
@@ -29,10 +21,7 @@ namespace Unisave.Facades
         /// <param name="url">Target URL</param>
         /// <param name="query">Query parameters</param>
         /// <returns>The HTTP response object</returns>
-        public static Response Get(
-            string url,
-            Dictionary<string, string> query = null
-        ) => Request().Get(url, query);
+        Response Get(string url, Dictionary<string, string> query = null);
 
         /// <summary>
         /// Sends a POST request with form url encoded content
@@ -40,26 +29,23 @@ namespace Unisave.Facades
         /// <param name="url">Target URL</param>
         /// <param name="form">Content</param>
         /// <returns>The HTTP response object</returns>
-        public static Response Post(string url, Dictionary<string, string> form)
-            => Request().Post(url, form);
-        
+        Response Post(string url, Dictionary<string, string> form);
+
         /// <summary>
         /// Sends a POST request with JSON content
         /// </summary>
         /// <param name="url">Target URL</param>
         /// <param name="json">Content</param>
         /// <returns>The HTTP response object</returns>
-        public static Response Post(string url, JsonObject json)
-            => Request().Post(url, json);
-        
+        Response Post(string url, JsonObject json);
+
         /// <summary>
         /// Sends a POST request
         /// (the content is empty unless specified by a previous command)
         /// </summary>
         /// <param name="url">Target URL</param>
         /// <returns>The HTTP response object</returns>
-        public static Response Post(string url)
-            => Request().Post(url);
+        Response Post(string url);
         
         /// <summary>
         /// Sends a PUT request with form url encoded content
@@ -67,8 +53,7 @@ namespace Unisave.Facades
         /// <param name="url">Target URL</param>
         /// <param name="form">Content</param>
         /// <returns>The HTTP response object</returns>
-        public static Response Put(string url, Dictionary<string, string> form)
-            => Request().Put(url, form);
+        Response Put(string url, Dictionary<string, string> form);
         
         /// <summary>
         /// Sends a PUT request with JSON content
@@ -76,8 +61,7 @@ namespace Unisave.Facades
         /// <param name="url">Target URL</param>
         /// <param name="json">Content</param>
         /// <returns>The HTTP response object</returns>
-        public static Response Put(string url, JsonObject json)
-            => Request().Put(url, json);
+        Response Put(string url, JsonObject json);
         
         /// <summary>
         /// Sends a PUT request
@@ -85,8 +69,7 @@ namespace Unisave.Facades
         /// </summary>
         /// <param name="url">Target URL</param>
         /// <returns>The HTTP response object</returns>
-        public static Response Put(string url)
-            => Request().Put(url);
+        Response Put(string url);
         
         /// <summary>
         /// Sends a PATCH request with form url encoded content
@@ -94,8 +77,7 @@ namespace Unisave.Facades
         /// <param name="url">Target URL</param>
         /// <param name="form">Content</param>
         /// <returns>The HTTP response object</returns>
-        public static Response Patch(string url, Dictionary<string, string> form)
-            => Request().Patch(url, form);
+        Response Patch(string url, Dictionary<string, string> form);
         
         /// <summary>
         /// Sends a PATCH request with JSON content
@@ -103,8 +85,7 @@ namespace Unisave.Facades
         /// <param name="url">Target URL</param>
         /// <param name="json">Content</param>
         /// <returns>The HTTP response object</returns>
-        public static Response Patch(string url, JsonObject json)
-            => Request().Patch(url, json);
+        Response Patch(string url, JsonObject json);
         
         /// <summary>
         /// Sends a PATCH request
@@ -112,8 +93,7 @@ namespace Unisave.Facades
         /// </summary>
         /// <param name="url">Target URL</param>
         /// <returns>The HTTP response object</returns>
-        public static Response Patch(string url)
-            => Request().Patch(url);
+        Response Patch(string url);
         
         /// <summary>
         /// Sends a DELETE request with form url encoded content
@@ -121,8 +101,7 @@ namespace Unisave.Facades
         /// <param name="url">Target URL</param>
         /// <param name="form">Content</param>
         /// <returns>The HTTP response object</returns>
-        public static Response Delete(string url, Dictionary<string, string> form)
-            => Request().Delete(url, form);
+        Response Delete(string url, Dictionary<string, string> form);
         
         /// <summary>
         /// Sends a DELETE request with JSON content
@@ -130,8 +109,7 @@ namespace Unisave.Facades
         /// <param name="url">Target URL</param>
         /// <param name="json">Content</param>
         /// <returns>The HTTP response object</returns>
-        public static Response Delete(string url, JsonObject json)
-            => Request().Delete(url, json);
+        Response Delete(string url, JsonObject json);
         
         /// <summary>
         /// Sends a DELETE request
@@ -139,9 +117,8 @@ namespace Unisave.Facades
         /// </summary>
         /// <param name="url">Target URL</param>
         /// <returns>The HTTP response object</returns>
-        public static Response Delete(string url)
-            => Request().Delete(url);
-        
+        Response Delete(string url);
+
         /// <summary>
         /// Sends an HTTP request with the method specified as a parameter
         /// </summary>
@@ -149,31 +126,152 @@ namespace Unisave.Facades
         /// <param name="url">Target URL</param>
         /// <param name="query">Query string to put into the URL</param>
         /// <returns>The HTTP response object</returns>
-        public static Response Send(
+        Response Send(
             HttpMethod method,
             string url,
             Dictionary<string, string> query = null
-        ) => Request().Send(method, url, query);
+        );
+
+        #endregion
+
+        #region "Async request sending"
+
+        /// <summary>
+        /// Sends a GET request
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <param name="query">Query parameters</param>
+        /// <returns>The HTTP response object</returns>
+        Task<Response> GetAsync(
+            string url,
+            Dictionary<string, string> query = null
+        );
+
+        /// <summary>
+        /// Sends a POST request with form url encoded content
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <param name="form">Content</param>
+        /// <returns>The HTTP response object</returns>
+        Task<Response> PostAsync(string url, Dictionary<string, string> form);
+
+        /// <summary>
+        /// Sends a POST request with JSON content
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <param name="json">Content</param>
+        /// <returns>The HTTP response object</returns>
+        Task<Response> PostAsync(string url, JsonObject json);
+
+        /// <summary>
+        /// Sends a POST request
+        /// (the content is empty unless specified by a previous command)
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <returns>The HTTP response object</returns>
+        Task<Response> PostAsync(string url);
         
+        /// <summary>
+        /// Sends a PUT request with form url encoded content
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <param name="form">Content</param>
+        /// <returns>The HTTP response object</returns>
+        Task<Response> PutAsync(string url, Dictionary<string, string> form);
+        
+        /// <summary>
+        /// Sends a PUT request with JSON content
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <param name="json">Content</param>
+        /// <returns>The HTTP response object</returns>
+        Task<Response> PutAsync(string url, JsonObject json);
+        
+        /// <summary>
+        /// Sends a PUT request
+        /// (the content is empty unless specified by a previous command)
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <returns>The HTTP response object</returns>
+        Task<Response> PutAsync(string url);
+        
+        /// <summary>
+        /// Sends a PATCH request with form url encoded content
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <param name="form">Content</param>
+        /// <returns>The HTTP response object</returns>
+        Task<Response> PatchAsync(string url, Dictionary<string, string> form);
+        
+        /// <summary>
+        /// Sends a PATCH request with JSON content
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <param name="json">Content</param>
+        /// <returns>The HTTP response object</returns>
+        Task<Response> PatchAsync(string url, JsonObject json);
+        
+        /// <summary>
+        /// Sends a PATCH request
+        /// (the content is empty unless specified by a previous command)
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <returns>The HTTP response object</returns>
+        Task<Response> PatchAsync(string url);
+        
+        /// <summary>
+        /// Sends a DELETE request with form url encoded content
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <param name="form">Content</param>
+        /// <returns>The HTTP response object</returns>
+        Task<Response> DeleteAsync(string url, Dictionary<string, string> form);
+        
+        /// <summary>
+        /// Sends a DELETE request with JSON content
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <param name="json">Content</param>
+        /// <returns>The HTTP response object</returns>
+        Task<Response> DeleteAsync(string url, JsonObject json);
+        
+        /// <summary>
+        /// Sends a DELETE request
+        /// (the content is empty unless specified by a previous command)
+        /// </summary>
+        /// <param name="url">Target URL</param>
+        /// <returns>The HTTP response object</returns>
+        Task<Response> DeleteAsync(string url);
+
+        /// <summary>
+        /// Sends an HTTP request with the method specified as a parameter
+        /// </summary>
+        /// <param name="method">HTTP method</param>
+        /// <param name="url">Target URL</param>
+        /// <param name="query">Query string to put into the URL</param>
+        /// <returns>The HTTP response object</returns>
+        Task<Response> SendAsync(
+            HttpMethod method,
+            string url,
+            Dictionary<string, string> query = null
+        );
+
         #endregion
         
         #region "Request construction"
-        
+
         /// <summary>
         /// Creates a new instance of pending request
         /// </summary>
         /// <returns>PendingRequest - the fluent API request builder</returns>
-        public static PendingRequest Request()
-            => GetFactory().PendingRequest();
+        PendingRequest Request();
 
         /// <summary>
         /// Sets additional request headers
         /// </summary>
         /// <param name="requestHeaders"></param>
         /// <returns>PendingRequest - the fluent API request builder</returns>
-        public static PendingRequest WithHeaders(
-            Dictionary<string, string> requestHeaders
-        ) => Request().WithHeaders(requestHeaders);
+        PendingRequest WithHeaders(Dictionary<string, string> requestHeaders);
 
         /// <summary>
         /// Specifies the request body via the .NET HttpContent class.
@@ -181,24 +279,21 @@ namespace Unisave.Facades
         /// </summary>
         /// <param name="body"></param>
         /// <returns>PendingRequest - the fluent API request builder</returns>
-        public static PendingRequest WithBody(HttpContent body)
-            => Request().WithBody(body);
+        PendingRequest WithBody(HttpContent body);
 
         /// <summary>
         /// Specifies the request body as a form url encoded content
         /// </summary>
         /// <param name="form">Content</param>
         /// <returns>PendingRequest - the fluent API request builder</returns>
-        public static PendingRequest WithFormBody(Dictionary<string, string> form)
-            => Request().WithFormBody(form);
+        PendingRequest WithFormBody(Dictionary<string, string> form);
 
         /// <summary>
         /// Specifies the request body as a JSON object
         /// </summary>
         /// <param name="json">The JSON object</param>
         /// <returns>PendingRequest - the fluent API request builder</returns>
-        public static PendingRequest WithJsonBody(JsonObject json)
-            => Request().WithJsonBody(json);
+        PendingRequest WithJsonBody(JsonObject json);
 
         /// <summary>
         /// Attaches a JSON part to the multipart content
@@ -208,12 +303,12 @@ namespace Unisave.Facades
         /// <param name="fileName">Filename if the part is a file</param>
         /// <param name="contentHeaders">Additional part headers</param>
         /// <returns>PendingRequest - the fluent API request builder</returns>
-        public static PendingRequest Attach(
+        PendingRequest Attach(
             string name,
             JsonObject jsonPart,
             string fileName = null,
             Dictionary<string, string> contentHeaders = null
-        ) => Request().Attach(name, jsonPart, fileName, contentHeaders);
+        );
 
         /// <summary>
         /// Attaches a part to the multipart content
@@ -223,12 +318,12 @@ namespace Unisave.Facades
         /// <param name="fileName">Filename if the part is a file</param>
         /// <param name="contentHeaders">Additional part headers</param>
         /// <returns>PendingRequest - the fluent API request builder</returns>
-        public static PendingRequest Attach(
+        PendingRequest Attach(
             string name,
             HttpContent part,
             string fileName = null,
             Dictionary<string, string> contentHeaders = null
-        ) => Request().Attach(name, part, fileName, contentHeaders);
+        );
 
         /// <summary>
         /// Adds authentication data to the request
@@ -237,10 +332,7 @@ namespace Unisave.Facades
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <returns>PendingRequest - the fluent API request builder</returns>
-        public static PendingRequest WithBasicAuth(
-            string username,
-            string password
-        ) => Request().WithBasicAuth(username, password);
+        PendingRequest WithBasicAuth(string username, string password);
 
         /// <summary>
         /// Adds authentication data to the request
@@ -248,9 +340,8 @@ namespace Unisave.Facades
         /// </summary>
         /// <param name="bearerToken"></param>
         /// <returns>PendingRequest - the fluent API request builder</returns>
-        public static PendingRequest WithToken(string bearerToken)
-            => Request().WithToken(bearerToken);
-        
+        PendingRequest WithToken(string bearerToken);
+
         #endregion
         
         #region "Faking"
@@ -259,24 +350,21 @@ namespace Unisave.Facades
         /// Intercept all requests to make them testable
         /// </summary>
         /// <returns>Itself for chaining</returns>
-        public static Factory Fake()
-            => GetFactory().Fake();
+        IHttp Fake();
 
         /// <summary>
         /// Intercept all requests going to a matching URL
         /// </summary>
         /// <param name="urlPattern">Wildcard pattern with asterisks</param>
         /// <returns>Itself for chaining</returns>
-        public static Factory Fake(string urlPattern)
-            => GetFactory().Fake(urlPattern);
+        IHttp Fake(string urlPattern);
 
         /// <summary>
         /// Intercept all requests and respond with the given response
         /// </summary>
         /// <param name="response"></param>
         /// <returns>Itself for chaining</returns>
-        public static Factory Fake(Response response)
-            => GetFactory().Fake(response);
+        IHttp Fake(Response response);
 
         /// <summary>
         /// Intercept all requests going to a matching URL and respond
@@ -285,16 +373,14 @@ namespace Unisave.Facades
         /// <param name="urlPattern">Wildcard pattern with asterisks</param>
         /// <param name="response"></param>
         /// <returns>Itself for chaining</returns>
-        public static Factory Fake(string urlPattern, Response response)
-            => GetFactory().Fake(urlPattern, response);
+        IHttp Fake(string urlPattern, Response response);
 
         /// <summary>
         /// Intercept all requests and respond with a sequence of responses
         /// </summary>
         /// <param name="sequence"></param>
         /// <returns>Itself for chaining</returns>
-        public static Factory Fake(ResponseSequence sequence)
-            => GetFactory().Fake(sequence);
+        IHttp Fake(ResponseSequence sequence);
         
         /// <summary>
         /// Intercept all requests going to a certain URL and respond
@@ -303,8 +389,7 @@ namespace Unisave.Facades
         /// <param name="urlPattern">Wildcard pattern with asterisks</param>
         /// <param name="sequence"></param>
         /// <returns>Itself for chaining</returns>
-        public static Factory Fake(string urlPattern, ResponseSequence sequence)
-            => GetFactory().Fake(urlPattern, sequence);
+        IHttp Fake(string urlPattern, ResponseSequence sequence);
 
         /// <summary>
         /// Intercept all requests going to a certain URL and give them
@@ -314,10 +399,7 @@ namespace Unisave.Facades
         /// <param name="urlPattern">Wildcard pattern with asterisks</param>
         /// <param name="callback"></param>
         /// <returns>Itself for chaining</returns>
-        public static Factory Fake(
-            string urlPattern,
-            Func<Request, Response> callback
-        ) => GetFactory().Fake(urlPattern, callback);
+        IHttp Fake(string urlPattern, Func<Request, Response> callback);
 
         /// <summary>
         /// Intercept all requests and give them to a callback that may fake
@@ -325,9 +407,8 @@ namespace Unisave.Facades
         /// </summary>
         /// <param name="callback"></param>
         /// <returns>Itself for chaining</returns>
-        public static Factory Fake(Func<Request, Response> callback)
-            => GetFactory().Fake(callback);
-        
+        IHttp Fake(Func<Request, Response> callback);
+
         #endregion
         
         #region "Recording"
@@ -335,24 +416,21 @@ namespace Unisave.Facades
         /// <summary>
         /// Returns all recorded request-response pairs
         /// </summary>
-        public static List<RequestResponsePair> Recorded()
-            => GetFactory().Recorded();
+        List<RequestResponsePair> Recorded();
+
+        /// <summary>
+        /// Returns all recorded request-response pairs
+        /// that fulfill the condition
+        /// </summary>
+        List<RequestResponsePair> Recorded(Func<Request, bool> condition);
         
         /// <summary>
         /// Returns all recorded request-response pairs
         /// that fulfill the condition
         /// </summary>
-        public static List<RequestResponsePair> Recorded(
-            Func<Request, bool> condition
-        ) => GetFactory().Recorded(condition);
-        
-        /// <summary>
-        /// Returns all recorded request-response pairs
-        /// that fulfill the condition
-        /// </summary>
-        public static List<RequestResponsePair> Recorded(
+        List<RequestResponsePair> Recorded(
             Func<Request, Response, bool> condition
-        ) => GetFactory().Recorded(condition);
+        );
         
         #endregion
         
@@ -362,36 +440,31 @@ namespace Unisave.Facades
         /// Throws a UnisaveAssertionException if there is no recorded request
         /// that matches the provided condition
         /// </summary>
-        public static void AssertSent(Func<Request, bool> condition)
-            => GetFactory().AssertSent(condition);
-        
+        void AssertSent(Func<Request, bool> condition);
+
         /// <summary>
         /// Throws a UnisaveAssertionException if there is no recorded request
         /// that matches the provided condition
         /// </summary>
-        public static void AssertSent(Func<Request, Response, bool> condition)
-            => GetFactory().AssertSent(condition);
-        
+        void AssertSent(Func<Request, Response, bool> condition);
+
         /// <summary>
         /// Throws a UnisaveAssertionException if there is a recorded request
         /// that matches the provided condition
         /// </summary>
-        public static void AssertNotSent(Func<Request, bool> condition)
-            => GetFactory().AssertNotSent(condition);
-        
+        void AssertNotSent(Func<Request, bool> condition);
+
         /// <summary>
         /// Throws a UnisaveAssertionException if there is a recorded request
         /// that matches the provided condition
         /// </summary>
-        public static void AssertNotSent(Func<Request, Response, bool> condition)
-            => GetFactory().AssertNotSent(condition);
-        
+        void AssertNotSent(Func<Request, Response, bool> condition);
+
         /// <summary>
         /// Throws a UnisaveAssertionException if there is a recorded request
         /// </summary>
-        public static void AssertNothingSent()
-            => GetFactory().AssertNothingSent();
-        
+        void AssertNothingSent();
+
         #endregion
         
         #region "Stubbing"
@@ -403,14 +476,11 @@ namespace Unisave.Facades
         /// <param name="status">HTTP status code</param>
         /// <param name="headers">Additional response headers</param>
         /// <returns>Stub HTTP response object</returns>
-        public static Response Response(
+        Response Response(
             JsonObject json,
             int status = 200,
             Dictionary<string, string> headers = null
-        )
-            => HttpClient.Response.Create(
-                json, status, headers
-            );
+        );
 
         /// <summary>
         /// Creates a stub string response, used for testing
@@ -420,15 +490,12 @@ namespace Unisave.Facades
         /// <param name="status">HTTP response status code</param>
         /// <param name="headers">Additional response headers</param>
         /// <returns>Stub HTTP response object</returns>
-        public static Response Response(
+        Response Response(
             string body,
             string contentType = "text/plain",
             int status = 200,
             Dictionary<string, string> headers = null
-        )
-            => HttpClient.Response.Create(
-                body, contentType, status, headers
-            );
+        );
 
         /// <summary>
         /// Creates a stub response, used for testing
@@ -438,14 +505,11 @@ namespace Unisave.Facades
         /// <param name="headers">Response headers</param>
         /// <returns>Stub HTTP response object</returns>
         /// <exception cref="ArgumentException">Invalid headers</exception>
-        public static Response Response(
+        Response Response(
             HttpContent body = null,
             int status = 200,
             Dictionary<string, string> headers = null
-        )
-            => HttpClient.Response.Create(
-                body, status, headers
-            );
+        );
 
         /// <summary>
         /// Creates a stub response sequence, used for testing
@@ -453,8 +517,7 @@ namespace Unisave.Facades
         /// <returns>
         /// Fluent builder for a sequence of stub HTTP responses
         /// </returns>
-        public static ResponseSequence Sequence()
-            => new ResponseSequence();
+        ResponseSequence Sequence();
 
         #endregion
     }

@@ -16,9 +16,6 @@ namespace Unisave.HttpClient
     /// </summary>
     public class PendingRequest
     {
-        // TODO: timeout, retries ... see the laravel docs
-        // TODO: XML requests and responses
-        
         /// <summary>
         /// Header to add to the request
         /// </summary>

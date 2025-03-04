@@ -226,7 +226,7 @@ namespace FrameworkTests.HttpClient
             
             // recording
 
-            List<Factory.Record> records = factory.Recorded();
+            List<RequestResponsePair> records = factory.Recorded();
             
             Assert.AreEqual("https://github.com/", records[0].Request.Url);
             Assert.AreEqual("foobar!", records[0].Request.Header("X-My-Header"));

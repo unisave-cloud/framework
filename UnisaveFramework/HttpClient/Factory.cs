@@ -9,21 +9,6 @@ namespace Unisave.HttpClient
     public class Factory
     {
         /// <summary>
-        /// Record about a request-response pair
-        /// </summary>
-        public struct Record
-        {
-            public Request Request { get; }
-            public Response Response { get; }
-            
-            public Record(Request request, Response response)
-            {
-                Request = request;
-                Response = response;
-            }
-        }
-        
-        /// <summary>
         /// Contains a list of stub callbacks that will be called
         /// in order for each new request. Each callback can return
         /// a fake response to mock the request processing. When a callback
@@ -41,7 +26,8 @@ namespace Unisave.HttpClient
         /// <summary>
         /// List of recorded request-response pairs
         /// </summary>
-        private readonly List<Record> recorded = new List<Record>();
+        private readonly List<RequestResponsePair> recorded
+            = new List<RequestResponsePair>();
         
         /// <summary>
         /// The HttpClient instance that should be used for requests
@@ -86,7 +72,7 @@ namespace Unisave.HttpClient
             {
                 // recording
                 if (IsRecording)
-                    recorded.Add(new Record(request, response));
+                    recorded.Add(new RequestResponsePair(request, response));
             }
             
             return response;
@@ -198,14 +184,14 @@ namespace Unisave.HttpClient
         /// <summary>
         /// Returns all recorded request-response pairs
         /// </summary>
-        public List<Record> Recorded()
+        public List<RequestResponsePair> Recorded()
             => Recorded((request, response) => true);
         
         /// <summary>
         /// Returns all recorded request-response pairs
         /// that fulfill the condition
         /// </summary>
-        public List<Record> Recorded(Func<Request, bool> condition)
+        public List<RequestResponsePair> Recorded(Func<Request, bool> condition)
             => Recorded(
                 (request, response) => condition?.Invoke(request)
                     ?? throw new ArgumentNullException(nameof(condition))
@@ -215,7 +201,9 @@ namespace Unisave.HttpClient
         /// Returns all recorded request-response pairs
         /// that fulfill the condition
         /// </summary>
-        public List<Record> Recorded(Func<Request, Response, bool> condition)
+        public List<RequestResponsePair> Recorded(
+            Func<Request, Response, bool> condition
+        )
         {
             if (condition == null)
                 throw new ArgumentNullException(nameof(condition));
