@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 
 namespace Unisave.HttpClient
 {
+    using InterceptorFunc = Func<Request, Func<Task<Response>>, Task<Response>>;
+    
     /// <summary>
     /// Fluently builds an HTTP request description and then provides
     /// a set of methods to execute the request.
@@ -21,21 +23,20 @@ namespace Unisave.HttpClient
         /// <summary>
         /// Interceptor, that may fake responses
         /// </summary>
-        private Func<Request, Func<Response>, Response> interceptor;
+        private readonly InterceptorFunc interceptor;
 
         public PendingRequest(
             System.Net.Http.HttpClient client,
-            Func<Request, Func<Response>, Response> interceptor
-        ) : this(client)
-        {
-            this.interceptor = interceptor;
-        }
-        
-        public PendingRequest(System.Net.Http.HttpClient client)
+            InterceptorFunc interceptor = null
+        )
         {
             this.client = client;
+            
+            // default interceptor does nothing and calls the "next" callback
+            this.interceptor = interceptor
+                ?? ((request, next) => next.Invoke());
         }
-        
+
         /// <summary>
         /// Sends an HTTP request with the method specified as a parameter
         /// </summary>
@@ -49,7 +50,30 @@ namespace Unisave.HttpClient
             Dictionary<string, string> query = null
         )
         {
-            // prepare .NET request
+            var task = SendAsync(method, url, query);
+            
+            // Schedule the task onto another thread and then synchronously
+            // wait from this thread to prevent single-threaded deadlock:
+            // https://github.com/unisave-cloud/worker/blob/master/docs/deadlocks.md
+            var response = Task.Run(() => task).GetAwaiter().GetResult();
+
+            return response;
+        }
+        
+        /// <summary>
+        /// Sends an HTTP request with the method specified as a parameter
+        /// </summary>
+        /// <param name="method">HTTP method</param>
+        /// <param name="url">Target URL</param>
+        /// <param name="query">Query string to put into the URL</param>
+        /// <returns>The HTTP response object</returns>
+        public async Task<Response> SendAsync(
+            HttpMethod method,
+            string url,
+            Dictionary<string, string> query = null
+        )
+        {
+            // prepare the .NET request
             var dotNetRequest = new HttpRequestMessage {
                 Method = method,
                 RequestUri = BuildUrl(url, query),
@@ -58,21 +82,25 @@ namespace Unisave.HttpClient
             AddRequestHeaders(dotNetRequest);
             AddAuthorizationHeader(dotNetRequest);
             
-            // prepare request
+            // prepare the request object
             var request = new Request(dotNetRequest);
 
-            // perform interception
-            if (interceptor == null)
-                interceptor = (r, n) => n.Invoke();
-            
-            return interceptor.Invoke(request, () => {
-                
-                // perform sending
-                return PerformSending(request);
-            });
+            // define the "next" callback for the interceptor
+            async Task<Response> Next() => await DoSendRequest(request);
+
+            // pass the request through the interceptor and ultimately
+            // into the "next" callback, thus sending the HTTP request
+            return await interceptor.Invoke(request, Next);
         }
 
-        private Uri BuildUrl(string url, Dictionary<string, string> query)
+        /// <summary>
+        /// Joins the URL string with the query parameters and validates
+        /// the resulting URL string
+        /// </summary>
+        private static Uri BuildUrl(
+            string url,
+            Dictionary<string, string> query
+        )
         {
             var uriBuilder = new UriBuilder(url);
             
@@ -94,12 +122,11 @@ namespace Unisave.HttpClient
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        private Response PerformSending(Request request)
+        private async Task<Response> DoSendRequest(Request request)
         {
-            var task = client.SendAsync(request.Original);
+            HttpResponseMessage dotNetResponse
+                = await client.SendAsync(request.Original);
             
-            var dotNetResponse = Task.Run(() => task).GetAwaiter().GetResult();
-
             return new Response(dotNetResponse);
         }
     }

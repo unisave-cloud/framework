@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Unisave.Exceptions;
 using Unisave.Utils;
 
@@ -46,9 +47,9 @@ namespace Unisave.HttpClient
         /// <param name="request"></param>
         /// <param name="next">Rest of the request processing</param>
         /// <returns></returns>
-        private Response RequestInterceptor(
+        private async Task<Response> RequestInterceptor(
             Request request,
-            Func<Response> next
+            Func<Task<Response>> next
         )
         {
             Response response = null;
@@ -66,13 +67,20 @@ namespace Unisave.HttpClient
             {
                 // invocation
                 if (response == null)
-                    response = next?.Invoke();
+                    response = await next.Invoke();
             }
             finally
             {
                 // recording
                 if (IsRecording)
-                    recorded.Add(new RequestResponsePair(request, response));
+                {
+                    lock (recorded)
+                    {
+                        recorded.Add(
+                            new RequestResponsePair(request, response)
+                        );
+                    }
+                }
             }
             
             return response;
