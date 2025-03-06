@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -28,7 +29,7 @@ namespace Unisave.HttpClient
         /// <param name="url">Target URL</param>
         /// <param name="query">Query parameters</param>
         /// <returns>The HTTP response object</returns>
-        public Response Get(string url, Dictionary<string, string> query = null)
+        public Response Get(string url, Dictionary<string, string>? query = null)
             => factory.PendingRequest().Get(url, query);
 
         /// <summary>
@@ -149,7 +150,7 @@ namespace Unisave.HttpClient
         public Response Send(
             HttpMethod method,
             string url,
-            Dictionary<string, string> query = null
+            Dictionary<string, string>? query = null
         ) => factory.PendingRequest().Send(method, url, query);
 
         #endregion
@@ -164,7 +165,7 @@ namespace Unisave.HttpClient
         /// <returns>The HTTP response object</returns>
         public Task<Response> GetAsync(
             string url,
-            Dictionary<string, string> query = null
+            Dictionary<string, string>? query = null
         ) => factory.PendingRequest().GetAsync(url, query);
 
         /// <summary>
@@ -293,7 +294,7 @@ namespace Unisave.HttpClient
         public Task<Response> SendAsync(
             HttpMethod method,
             string url,
-            Dictionary<string, string> query = null
+            Dictionary<string, string>? query = null
         ) => factory.PendingRequest().SendAsync(method, url, query);
 
         #endregion
@@ -322,7 +323,7 @@ namespace Unisave.HttpClient
         /// </summary>
         /// <param name="body"></param>
         /// <returns>PendingRequest - the fluent API request builder</returns>
-        public PendingRequest WithBody(HttpContent body)
+        public PendingRequest WithBody(HttpContent? body)
             => factory.PendingRequest().WithBody(body);
 
         /// <summary>
@@ -352,8 +353,8 @@ namespace Unisave.HttpClient
         public PendingRequest Attach(
             string name,
             JsonObject jsonPart,
-            string fileName = null,
-            Dictionary<string, string> contentHeaders = null
+            string? fileName = null,
+            Dictionary<string, string>? contentHeaders = null
         ) => factory.PendingRequest()
             .Attach(name, jsonPart, fileName, contentHeaders);
 
@@ -368,8 +369,8 @@ namespace Unisave.HttpClient
         public PendingRequest Attach(
             string name,
             HttpContent part,
-            string fileName = null,
-            Dictionary<string, string> contentHeaders = null
+            string? fileName = null,
+            Dictionary<string, string>? contentHeaders = null
         ) => factory.PendingRequest()
             .Attach(name, part, fileName, contentHeaders);
 
@@ -507,7 +508,7 @@ namespace Unisave.HttpClient
         /// <param name="urlPattern">Wildcard pattern with asterisks</param>
         /// <param name="callback"></param>
         /// <returns>Itself for chaining</returns>
-        public IHttp Fake(string urlPattern, Func<Request, Response> callback)
+        public IHttp Fake(string urlPattern, Func<Request, Response?> callback)
         {
             factory.Fake(urlPattern, callback);
             return this;
@@ -519,7 +520,7 @@ namespace Unisave.HttpClient
         /// </summary>
         /// <param name="callback"></param>
         /// <returns>Itself for chaining</returns>
-        public IHttp Fake(Func<Request, Response> callback)
+        public IHttp Fake(Func<Request, Response?> callback)
         {
             factory.Fake(callback);
             return this;
@@ -600,7 +601,7 @@ namespace Unisave.HttpClient
         public Response Response(
             JsonObject json,
             int status = 200,
-            Dictionary<string, string> headers = null
+            Dictionary<string, string>? headers = null
         ) => HttpClient.Response.Create(json, status, headers);
 
         /// <summary>
@@ -615,7 +616,7 @@ namespace Unisave.HttpClient
             string body,
             string contentType = "text/plain",
             int status = 200,
-            Dictionary<string, string> headers = null
+            Dictionary<string, string>? headers = null
         ) => HttpClient.Response.Create(body, contentType, status, headers);
 
         /// <summary>
@@ -627,9 +628,9 @@ namespace Unisave.HttpClient
         /// <returns>Stub HTTP response object</returns>
         /// <exception cref="ArgumentException">Invalid headers</exception>
         public Response Response(
-            HttpContent body = null,
+            HttpContent? body = null,
             int status = 200,
-            Dictionary<string, string> headers = null
+            Dictionary<string, string>? headers = null
         ) => HttpClient.Response.Create(body, status, headers);
 
         /// <summary>

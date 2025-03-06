@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,14 +40,14 @@ namespace Unisave.HttpClient
 
         public PendingRequest(
             System.Net.Http.HttpClient client,
-            InterceptorFunc interceptor = null
+            InterceptorFunc? interceptor = null
         )
         {
             this.client = client;
             
             // default interceptor does nothing and calls the "next" callback
             this.interceptor = interceptor
-                ?? ((request, next) => next.Invoke());
+                ?? ((_, next) => next.Invoke());
         }
 
         /// <summary>
@@ -72,7 +73,7 @@ namespace Unisave.HttpClient
         public Response Send(
             HttpMethod method,
             string url,
-            Dictionary<string, string> query = null
+            Dictionary<string, string>? query = null
         )
         {
             var task = SendAsync(method, url, query);
@@ -95,7 +96,7 @@ namespace Unisave.HttpClient
         public async Task<Response> SendAsync(
             HttpMethod method,
             string url,
-            Dictionary<string, string> query = null
+            Dictionary<string, string>? query = null
         )
         {
             // prepare the .NET request
@@ -124,7 +125,7 @@ namespace Unisave.HttpClient
         /// </summary>
         private static Uri BuildUrl(
             string url,
-            Dictionary<string, string> query
+            Dictionary<string, string>? query
         )
         {
             var uriBuilder = new UriBuilder(url);
@@ -149,16 +150,15 @@ namespace Unisave.HttpClient
         /// <returns></returns>
         private async Task<Response> DoSendRequest(Request request)
         {
-            using (CancellationTokenSource cts = CreateLinkedCts())
-            {
-                return new Response(
-                    await client.SendAsync(
-                        request.Original,
-                        httpCompletionOption,
-                        cts.Token
-                    )
-                );
-            }
+            using CancellationTokenSource cts = CreateLinkedCts();
+            
+            return new Response(
+                await client.SendAsync(
+                    request.Original,
+                    httpCompletionOption,
+                    cts.Token
+                )
+            );
         }
     }
 }

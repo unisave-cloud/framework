@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -15,7 +16,7 @@ namespace Unisave.HttpClient
         /// ["_scheme"] = "Bearer" / "Digest" / "Basic" / ...
         /// ["username"], ["password"], ["token"], ...
         /// </summary>
-        private Dictionary<string, string> auth;
+        private Dictionary<string, string>? auth;
         
         /// <summary>
         /// Adds authentication data to the request

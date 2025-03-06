@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace Unisave.HttpClient
         public HttpResponseMessage Original { get; }
         
         // implements the API
-        protected override HttpContent Content => Original.Content;
+        protected override HttpContent? Content => Original.Content;
 
         /// <summary>
         /// Status code as integer
@@ -70,7 +71,7 @@ namespace Unisave.HttpClient
         public static Response Create(
             JsonObject json,
             int status = 200,
-            Dictionary<string, string> headers = null
+            Dictionary<string, string>? headers = null
         )
         {
             return Create(
@@ -93,7 +94,7 @@ namespace Unisave.HttpClient
             string body,
             string contentType = "text/plain",
             int status = 200,
-            Dictionary<string, string> headers = null
+            Dictionary<string, string>? headers = null
         )
         {
             return Create(
@@ -112,9 +113,9 @@ namespace Unisave.HttpClient
         /// <returns></returns>
         /// <exception cref="ArgumentException">Invalid headers</exception>
         public static Response Create(
-            HttpContent body = null,
+            HttpContent? body = null,
             int status = 200,
-            Dictionary<string, string> headers = null
+            Dictionary<string, string>? headers = null
         )
         {
             var response = new HttpResponseMessage {
@@ -165,7 +166,7 @@ namespace Unisave.HttpClient
         /// </summary>
         /// <param name="name">Header name</param>
         /// <returns></returns>
-        public string Header(string name)
+        public string? Header(string name)
         {
             IEnumerable<string> values;
         

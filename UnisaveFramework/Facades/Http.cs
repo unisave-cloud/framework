@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -33,7 +34,7 @@ namespace Unisave.Facades
         /// <returns>The HTTP response object</returns>
         public static Response Get(
             string url,
-            Dictionary<string, string> query = null
+            Dictionary<string, string>? query = null
         ) => GetHttp().Get(url, query);
 
         /// <summary>
@@ -158,7 +159,7 @@ namespace Unisave.Facades
         public static Response Send(
             HttpMethod method,
             string url,
-            Dictionary<string, string> query = null
+            Dictionary<string, string>? query = null
         ) => GetHttp().Send(method, url, query);
         
         #endregion
@@ -173,7 +174,7 @@ namespace Unisave.Facades
         /// <returns>The HTTP response object</returns>
         public static Task<Response> GetAsync(
             string url,
-            Dictionary<string, string> query = null
+            Dictionary<string, string>? query = null
         ) => GetHttp().GetAsync(url, query);
 
         /// <summary>
@@ -302,7 +303,7 @@ namespace Unisave.Facades
         public static Task<Response> SendAsync(
             HttpMethod method,
             string url,
-            Dictionary<string, string> query = null
+            Dictionary<string, string>? query = null
         ) => GetHttp().SendAsync(method, url, query);
 
         #endregion
@@ -330,7 +331,7 @@ namespace Unisave.Facades
         /// </summary>
         /// <param name="body"></param>
         /// <returns>PendingRequest - the fluent API request builder</returns>
-        public static PendingRequest WithBody(HttpContent body)
+        public static PendingRequest WithBody(HttpContent? body)
             => GetHttp().WithBody(body);
 
         /// <summary>
@@ -361,8 +362,8 @@ namespace Unisave.Facades
         public static PendingRequest Attach(
             string name,
             JsonObject jsonPart,
-            string fileName = null,
-            Dictionary<string, string> contentHeaders = null
+            string? fileName = null,
+            Dictionary<string, string>? contentHeaders = null
         ) => GetHttp().Attach(name, jsonPart, fileName, contentHeaders);
 
         /// <summary>
@@ -376,8 +377,8 @@ namespace Unisave.Facades
         public static PendingRequest Attach(
             string name,
             HttpContent part,
-            string fileName = null,
-            Dictionary<string, string> contentHeaders = null
+            string? fileName = null,
+            Dictionary<string, string>? contentHeaders = null
         ) => GetHttp().Attach(name, part, fileName, contentHeaders);
 
         /// <summary>
@@ -500,7 +501,7 @@ namespace Unisave.Facades
         /// <returns>Itself for chaining</returns>
         public static IHttp Fake(
             string urlPattern,
-            Func<Request, Response> callback
+            Func<Request, Response?> callback
         ) => GetHttp().Fake(urlPattern, callback);
 
         /// <summary>
@@ -509,7 +510,7 @@ namespace Unisave.Facades
         /// </summary>
         /// <param name="callback"></param>
         /// <returns>Itself for chaining</returns>
-        public static IHttp Fake(Func<Request, Response> callback)
+        public static IHttp Fake(Func<Request, Response?> callback)
             => GetHttp().Fake(callback);
         
         #endregion
@@ -591,7 +592,7 @@ namespace Unisave.Facades
         public static Response Response(
             JsonObject json,
             int status = 200,
-            Dictionary<string, string> headers = null
+            Dictionary<string, string>? headers = null
         ) => GetHttp().Response(json, status, headers);
 
         /// <summary>
@@ -606,7 +607,7 @@ namespace Unisave.Facades
             string body,
             string contentType = "text/plain",
             int status = 200,
-            Dictionary<string, string> headers = null
+            Dictionary<string, string>? headers = null
         ) => GetHttp().Response(body, contentType, status, headers);
 
         /// <summary>
@@ -618,9 +619,9 @@ namespace Unisave.Facades
         /// <returns>Stub HTTP response object</returns>
         /// <exception cref="ArgumentException">Invalid headers</exception>
         public static Response Response(
-            HttpContent body = null,
+            HttpContent? body = null,
             int status = 200,
-            Dictionary<string, string> headers = null
+            Dictionary<string, string>? headers = null
         ) => GetHttp().Response(body, status, headers);
 
         /// <summary>

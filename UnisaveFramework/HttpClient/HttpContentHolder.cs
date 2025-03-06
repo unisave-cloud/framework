@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,14 +12,14 @@ using LightJson.Serialization;
 namespace Unisave.HttpClient
 {
     /// <summary>
-    /// Base class for Request and Response and it provides
+    /// Base class for Request and Response, and it provides
     /// methods for accessing the content of the request / response
     /// </summary>
     public abstract class HttpContentHolder
     {
         // NOTE: It is not as important to use async API here as most HTTP
         // response bodies are small and arrive right after the header.
-        // Therefore this class can be used via the synchronous API,
+        // Therefore, this class can be used via the synchronous API,
         // unless the response is expected to either be long or slowly sent out,
         // in which case you can use the BodyAsync, BytesAsync,
         // or even StreamAsync methods. Alternatively you can access the
@@ -28,7 +29,7 @@ namespace Unisave.HttpClient
         /// <summary>
         /// Gives the content holder access to the actual HttpContent
         /// </summary>
-        protected abstract HttpContent Content { get; }
+        protected abstract HttpContent? Content { get; }
 
         /// <summary>
         /// Is there a body present at all?
@@ -42,20 +43,18 @@ namespace Unisave.HttpClient
         /// Is the body a JSON body?
         /// </summary>
         public bool HasJsonBody => HasBody
-            && Content.Headers.ContentType.MediaType == "application/json";
+            && Content!.Headers.ContentType.MediaType == "application/json";
         
         /// <summary>
         /// Is the body a form body?
         /// </summary>
         public bool HasFormBody => HasBody
-            && Content.Headers.ContentType.MediaType
+            && Content!.Headers.ContentType.MediaType
                 == "application/x-www-form-urlencoded";
         
         // caching body for fast indexer access
-        private JsonObject jsonCache;
-        private bool jsonCacheUsed = false;
-        private Dictionary<string, string> formCache;
-        private bool formCacheUsed = false;
+        private JsonObject? jsonCache;
+        private Dictionary<string, string>? formCache;
         
         /// <summary>
         /// Access the body as a JSON object
@@ -66,10 +65,10 @@ namespace Unisave.HttpClient
             get
             {
                 if (HasJsonBody)
-                    return Json()[key];
+                    return (Json() ?? new JsonObject())[key];
 
                 if (HasFormBody)
-                    return Form()[key];
+                    return (Form() ?? new Dictionary<string, string>())[key];
                 
                 throw new InvalidOperationException(
                     "Body is not JSON, nor url form encoded and so cannot " +
@@ -82,19 +81,19 @@ namespace Unisave.HttpClient
         /// Returns the request body as string.
         /// If there is no request body, null is returned.
         /// </summary>
-        public async Task<string> BodyAsync()
+        public async Task<string?> BodyAsync()
         {
             if (!HasBody)
                 return null;
 
-            return await Content.ReadAsStringAsync();
+            return await Content!.ReadAsStringAsync();
         }
 
         /// <summary>
         /// Returns the request body as string.
         /// If there is no request body, null is returned.
         /// </summary>
-        public string Body()
+        public string? Body()
         {
             var task = BodyAsync();
             
@@ -108,19 +107,19 @@ namespace Unisave.HttpClient
         /// Returns the request body as a byte array.
         /// If there is no request body, null is returned.
         /// </summary>
-        public async Task<byte[]> BytesAsync()
+        public async Task<byte[]?> BytesAsync()
         {
             if (!HasBody)
                 return null;
 
-            return await Content.ReadAsByteArrayAsync();
+            return await Content!.ReadAsByteArrayAsync();
         }
         
         /// <summary>
         /// Returns the request body as a byte array.
         /// If there is no request body, null is returned.
         /// </summary>
-        public byte[] Bytes()
+        public byte[]? Bytes()
         {
             var task = BytesAsync();
             
@@ -136,12 +135,12 @@ namespace Unisave.HttpClient
         /// Use this in conjunction with the WithoutResponseBuffering() method
         /// on the PendingRequest.
         /// </summary>
-        public async Task<Stream> StreamAsync()
+        public async Task<Stream?> StreamAsync()
         {
             if (!HasBody)
                 return null;
 
-            return await Content.ReadAsStreamAsync();
+            return await Content!.ReadAsStreamAsync();
         }
         
         /// <summary>
@@ -150,7 +149,7 @@ namespace Unisave.HttpClient
         /// Use this in conjunction with the WithoutResponseBuffering() method
         /// on the PendingRequest.
         /// </summary>
-        public Stream Stream()
+        public Stream? Stream()
         {
             var task = StreamAsync();
             
@@ -167,9 +166,9 @@ namespace Unisave.HttpClient
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="JsonParseException"></exception>
-        public async Task<JsonObject> JsonAsync()
+        public async Task<JsonObject?> JsonAsync()
         {
-            if (jsonCacheUsed)
+            if (jsonCache != null)
                 return jsonCache;
 
             JsonValue json = await JsonValueAsync();
@@ -183,7 +182,6 @@ namespace Unisave.HttpClient
                 );
 
             jsonCache = json.AsJsonObject;
-            jsonCacheUsed = true;
             return jsonCache;
         }
 
@@ -194,7 +192,7 @@ namespace Unisave.HttpClient
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="JsonParseException"></exception>
-        public JsonObject Json()
+        public JsonObject? Json()
         {
             var task = JsonAsync();
             
@@ -211,7 +209,7 @@ namespace Unisave.HttpClient
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="JsonParseException"></exception>
-        public async Task<JsonArray> JsonArrayAsync()
+        public async Task<JsonArray?> JsonArrayAsync()
         {
             JsonValue json = await JsonValueAsync();
             
@@ -233,7 +231,7 @@ namespace Unisave.HttpClient
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="JsonParseException"></exception>
-        public JsonArray JsonArray()
+        public JsonArray? JsonArray()
         {
             var task = JsonArrayAsync();
             
@@ -255,7 +253,7 @@ namespace Unisave.HttpClient
             if (!HasBody)
                 return LightJson.JsonValue.Null;
             
-            if (Content.Headers.ContentType.MediaType != "application/json")
+            if (Content!.Headers.ContentType.MediaType != "application/json")
             {
                 throw new InvalidOperationException(
                     "The content type is not application/json but: " +
@@ -263,7 +261,10 @@ namespace Unisave.HttpClient
                 );
             }
 
-            string jsonString = await BodyAsync();
+            string? jsonString = await BodyAsync();
+            
+            if (jsonString == null)
+                return LightJson.JsonValue.Null;
 
             return JsonReader.Parse(jsonString);
         }
@@ -291,15 +292,15 @@ namespace Unisave.HttpClient
         /// </summary>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
-        public async Task<Dictionary<string, string>> FormAsync()
+        public async Task<Dictionary<string, string>?> FormAsync()
         {
-            if (formCacheUsed)
+            if (formCache != null)
                 return formCache;
             
             if (!HasBody)
                 return null;
             
-            if (Content.Headers.ContentType.MediaType !=
+            if (Content!.Headers.ContentType.MediaType !=
                 "application/x-www-form-urlencoded")
             {
                 throw new InvalidOperationException(
@@ -309,7 +310,10 @@ namespace Unisave.HttpClient
                 );
             }
 
-            string formString = await BodyAsync();
+            string? formString = await BodyAsync();
+            
+            if (formString == null)
+                return null;
 
             var form = formString.Split('&')
                 .Select(p => p.Split('='))
@@ -319,7 +323,6 @@ namespace Unisave.HttpClient
                 );
 
             formCache = form;
-            formCacheUsed = true;
             return formCache;
         }
 
@@ -329,7 +332,7 @@ namespace Unisave.HttpClient
         /// </summary>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
-        public Dictionary<string, string> Form()
+        public Dictionary<string, string>? Form()
         {
             var task = FormAsync();
             

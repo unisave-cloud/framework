@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -12,7 +13,7 @@ namespace Unisave.HttpClient
         public HttpRequestMessage Original { get; }
 
         // implements the API
-        protected override HttpContent Content => Original.Content;
+        protected override HttpContent? Content => Original.Content;
 
         /// <summary>
         /// URL of the request
@@ -29,7 +30,7 @@ namespace Unisave.HttpClient
         /// </summary>
         /// <param name="name">Header name</param>
         /// <returns></returns>
-        public string Header(string name)
+        public string? Header(string name)
         {
             IEnumerable<string> values;
         

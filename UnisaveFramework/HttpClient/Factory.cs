@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,13 +22,13 @@ namespace Unisave.HttpClient
         /// returns null, the next callback will be processed. If all
         /// callbacks return null, the request will be handled as usual.
         /// </summary>
-        private readonly List<Func<Request, Response>> stubCallbacks
-            = new List<Func<Request, Response>>();
+        private readonly List<Func<Request, Response?>> stubCallbacks
+            = new List<Func<Request, Response?>>();
 
         /// <summary>
         /// Are requests being recorded
         /// </summary>
-        public bool IsRecording { get; private set; } = false;
+        public bool IsRecording { get; private set; }
         
         /// <summary>
         /// List of recorded request-response pairs
@@ -57,7 +58,7 @@ namespace Unisave.HttpClient
             Func<Task<Response>> next
         )
         {
-            Response response = null;
+            Response? response = null;
             
             // stubbing
             foreach (var callback in stubCallbacks)
@@ -77,7 +78,7 @@ namespace Unisave.HttpClient
             finally
             {
                 // recording
-                if (IsRecording)
+                if (IsRecording && response != null)
                 {
                     lock (recorded)
                     {
@@ -120,7 +121,7 @@ namespace Unisave.HttpClient
         /// <param name="urlPattern">Wildcard pattern with asterisks</param>
         /// <param name="response"></param>
         public void Fake(string urlPattern, Response response)
-            => Fake(urlPattern, request => response);
+            => Fake(urlPattern, _ => response);
 
         /// <summary>
         /// Intercept all requests and respond with a sequence of responses
@@ -136,7 +137,7 @@ namespace Unisave.HttpClient
         /// <param name="urlPattern">Wildcard pattern with asterisks</param>
         /// <param name="sequence"></param>
         public void Fake(string urlPattern, ResponseSequence sequence)
-            => Fake(urlPattern, request => sequence.Next());
+            => Fake(urlPattern, _ => sequence.Next());
 
         /// <summary>
         /// Intercept all requests going to a certain URL and give them
@@ -145,7 +146,7 @@ namespace Unisave.HttpClient
         /// </summary>
         /// <param name="urlPattern">Wildcard pattern with asterisks</param>
         /// <param name="callback"></param>
-        public void Fake(string urlPattern, Func<Request, Response> callback)
+        public void Fake(string urlPattern, Func<Request, Response?> callback)
             => RegisterStubCallbackForUrl(urlPattern, callback);
 
         /// <summary>
@@ -153,12 +154,12 @@ namespace Unisave.HttpClient
         /// their response or do nothing if it returns null.
         /// </summary>
         /// <param name="callback"></param>
-        public void Fake(Func<Request, Response> callback)
+        public void Fake(Func<Request, Response?> callback)
             => RegisterStubCallback(callback);
 
         private void RegisterStubCallbackForUrl(
             string urlPattern,
-            Func<Request, Response> callback
+            Func<Request, Response?> callback
         )
         {
             // automatically add wildcard at the beginning
@@ -167,12 +168,12 @@ namespace Unisave.HttpClient
             
             RegisterStubCallback(
                 request => Str.Is(request.Url, fullPattern)
-                    ? callback?.Invoke(request)
+                    ? callback.Invoke(request)
                     : null
             );
         }
         
-        private void RegisterStubCallback(Func<Request, Response> callback)
+        private void RegisterStubCallback(Func<Request, Response?> callback)
         {
             stubCallbacks.Add(callback);
             IsRecording = true;
@@ -186,17 +187,14 @@ namespace Unisave.HttpClient
         /// Returns all recorded request-response pairs
         /// </summary>
         public List<RequestResponsePair> Recorded()
-            => Recorded((request, response) => true);
+            => Recorded((_, _) => true);
         
         /// <summary>
         /// Returns all recorded request-response pairs
         /// that fulfill the condition
         /// </summary>
         public List<RequestResponsePair> Recorded(Func<Request, bool> condition)
-            => Recorded(
-                (request, response) => condition?.Invoke(request)
-                    ?? throw new ArgumentNullException(nameof(condition))
-                );
+            => Recorded((request, _) => condition.Invoke(request));
         
         /// <summary>
         /// Returns all recorded request-response pairs
@@ -206,9 +204,6 @@ namespace Unisave.HttpClient
             Func<Request, Response, bool> condition
         )
         {
-            if (condition == null)
-                throw new ArgumentNullException(nameof(condition));
-            
             return recorded
                 .Where(record => condition.Invoke(
                     record.Request,
@@ -222,16 +217,10 @@ namespace Unisave.HttpClient
         #region "Assertions"
 
         public void AssertSent(Func<Request, bool> condition)
-            => AssertSent(
-                (request, response) => condition?.Invoke(request)
-                ?? throw new ArgumentNullException(nameof(condition))
-            );
+            => AssertSent((request, _) => condition.Invoke(request));
         
         public void AssertSent(Func<Request, Response, bool> condition)
         {
-            if (condition == null)
-                throw new ArgumentNullException(nameof(condition));
-            
             var matching = Recorded(condition);
             
             if (matching.Count == 0)
@@ -241,16 +230,10 @@ namespace Unisave.HttpClient
         }
         
         public void AssertNotSent(Func<Request, bool> condition)
-            => AssertNotSent(
-                (request, response) => condition?.Invoke(request)
-                ?? throw new ArgumentNullException(nameof(condition))
-            );
+            => AssertNotSent((request, _) => condition.Invoke(request));
         
         public void AssertNotSent(Func<Request, Response, bool> condition)
         {
-            if (condition == null)
-                throw new ArgumentNullException(nameof(condition));
-            
             var matching = Recorded(condition);
             
             if (matching.Count > 0)

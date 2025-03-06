@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -22,7 +23,7 @@ namespace Unisave.HttpClient
         /// <param name="url">Target URL</param>
         /// <param name="query">Query parameters</param>
         /// <returns>The HTTP response object</returns>
-        Response Get(string url, Dictionary<string, string> query = null);
+        Response Get(string url, Dictionary<string, string>? query = null);
 
         /// <summary>
         /// Sends a POST request with form url encoded content
@@ -130,7 +131,7 @@ namespace Unisave.HttpClient
         Response Send(
             HttpMethod method,
             string url,
-            Dictionary<string, string> query = null
+            Dictionary<string, string>? query = null
         );
 
         #endregion
@@ -145,7 +146,7 @@ namespace Unisave.HttpClient
         /// <returns>The HTTP response object</returns>
         Task<Response> GetAsync(
             string url,
-            Dictionary<string, string> query = null
+            Dictionary<string, string>? query = null
         );
 
         /// <summary>
@@ -254,7 +255,7 @@ namespace Unisave.HttpClient
         Task<Response> SendAsync(
             HttpMethod method,
             string url,
-            Dictionary<string, string> query = null
+            Dictionary<string, string>? query = null
         );
 
         #endregion
@@ -281,7 +282,7 @@ namespace Unisave.HttpClient
         /// </summary>
         /// <param name="body"></param>
         /// <returns>PendingRequest - the fluent API request builder</returns>
-        PendingRequest WithBody(HttpContent body);
+        PendingRequest WithBody(HttpContent? body);
 
         /// <summary>
         /// Specifies the request body as a form url encoded content
@@ -308,8 +309,8 @@ namespace Unisave.HttpClient
         PendingRequest Attach(
             string name,
             JsonObject jsonPart,
-            string fileName = null,
-            Dictionary<string, string> contentHeaders = null
+            string? fileName = null,
+            Dictionary<string, string>? contentHeaders = null
         );
 
         /// <summary>
@@ -323,8 +324,8 @@ namespace Unisave.HttpClient
         PendingRequest Attach(
             string name,
             HttpContent part,
-            string fileName = null,
-            Dictionary<string, string> contentHeaders = null
+            string? fileName = null,
+            Dictionary<string, string>? contentHeaders = null
         );
 
         /// <summary>
@@ -431,7 +432,7 @@ namespace Unisave.HttpClient
         /// <param name="urlPattern">Wildcard pattern with asterisks</param>
         /// <param name="callback"></param>
         /// <returns>Itself for chaining</returns>
-        IHttp Fake(string urlPattern, Func<Request, Response> callback);
+        IHttp Fake(string urlPattern, Func<Request, Response?> callback);
 
         /// <summary>
         /// Intercept all requests and give them to a callback that may fake
@@ -439,7 +440,7 @@ namespace Unisave.HttpClient
         /// </summary>
         /// <param name="callback"></param>
         /// <returns>Itself for chaining</returns>
-        IHttp Fake(Func<Request, Response> callback);
+        IHttp Fake(Func<Request, Response?> callback);
 
         #endregion
         
@@ -511,7 +512,7 @@ namespace Unisave.HttpClient
         Response Response(
             JsonObject json,
             int status = 200,
-            Dictionary<string, string> headers = null
+            Dictionary<string, string>? headers = null
         );
 
         /// <summary>
@@ -526,7 +527,7 @@ namespace Unisave.HttpClient
             string body,
             string contentType = "text/plain",
             int status = 200,
-            Dictionary<string, string> headers = null
+            Dictionary<string, string>? headers = null
         );
 
         /// <summary>
@@ -538,9 +539,9 @@ namespace Unisave.HttpClient
         /// <returns>Stub HTTP response object</returns>
         /// <exception cref="ArgumentException">Invalid headers</exception>
         Response Response(
-            HttpContent body = null,
+            HttpContent? body = null,
             int status = 200,
-            Dictionary<string, string> headers = null
+            Dictionary<string, string>? headers = null
         );
 
         /// <summary>

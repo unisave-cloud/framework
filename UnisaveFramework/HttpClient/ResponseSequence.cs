@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -8,19 +9,14 @@ namespace Unisave.HttpClient
     public class ResponseSequence
     {
         /// <summary>
-        /// Should the sequence throw an exception when empty
-        /// </summary>
-        protected bool failWhenEmpty = true;
-        
-        /// <summary>
         /// Responses to return
         /// </summary>
-        protected Queue<Response> responses = new Queue<Response>();
+        private readonly Queue<Response> responses = new();
 
         /// <summary>
         /// Response to return when empty
         /// </summary>
-        protected Response emptySequenceResponse;
+        private Response? emptySequenceResponse;
 
         /// <summary>
         /// Returns the next response in the sequence
@@ -30,7 +26,7 @@ namespace Unisave.HttpClient
         {
             if (responses.Count == 0)
             {
-                if (failWhenEmpty)
+                if (emptySequenceResponse == null)
                     throw new InvalidOperationException(
                         "Response sequence is empty, " +
                         "yet one more request was made."
@@ -52,7 +48,7 @@ namespace Unisave.HttpClient
         public ResponseSequence Push(
             JsonObject json,
             int status = 200,
-            Dictionary<string, string> headers = null
+            Dictionary<string, string>? headers = null
         )
             => Push(Response.Create(json, status, headers));
         
@@ -68,7 +64,7 @@ namespace Unisave.HttpClient
             string body,
             string contentType = "text/plain",
             int status = 200,
-            Dictionary<string, string> headers = null
+            Dictionary<string, string>? headers = null
         )
             => Push(Response.Create(body, contentType, status, headers));
         
@@ -80,9 +76,9 @@ namespace Unisave.HttpClient
         /// <param name="headers">Additional response headers</param>
         /// <returns></returns>
         public ResponseSequence Push(
-            HttpContent body = null,
+            HttpContent? body = null,
             int status = 200,
-            Dictionary<string, string> headers = null
+            Dictionary<string, string>? headers = null
         )
             => Push(Response.Create(body, status, headers));
         
@@ -94,9 +90,9 @@ namespace Unisave.HttpClient
         /// <returns></returns>
         public ResponseSequence PushStatus(
             int status,
-            Dictionary<string, string> headers = null
+            Dictionary<string, string>? headers = null
         )
-            => Push(Response.Create((HttpContent)null, status, headers));
+            => Push(Response.Create((HttpContent?)null, status, headers));
         
         /// <summary>
         /// Adds a response to the sequence
@@ -118,15 +114,9 @@ namespace Unisave.HttpClient
         /// What response to return when the sequence gets empty
         /// </summary>
         /// <param name="response"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
         public ResponseSequence WhenEmpty(Response response)
         {
-            if (response == null)
-                throw new ArgumentNullException(nameof(response));
-
             emptySequenceResponse = response;
-            failWhenEmpty = false;
             
             return this;
         }

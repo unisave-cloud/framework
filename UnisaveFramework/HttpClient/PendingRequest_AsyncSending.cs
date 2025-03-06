@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace Unisave.HttpClient
         /// <returns>The HTTP response object</returns>
         public Task<Response> GetAsync(
             string url,
-            Dictionary<string, string> query = null
+            Dictionary<string, string>? query = null
         )
         {
             return SendAsync(HttpMethod.Get, url, query);

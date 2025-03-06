@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections.Generic;
 using System.Net.Http;
 using LightJson;
@@ -12,7 +13,10 @@ namespace Unisave.HttpClient
         /// <param name="url">Target URL</param>
         /// <param name="query">Query parameters</param>
         /// <returns>The HTTP response object</returns>
-        public Response Get(string url, Dictionary<string, string> query = null)
+        public Response Get(
+            string url,
+            Dictionary<string, string>? query = null
+        )
         {
             return Send(HttpMethod.Get, url, query);
         }

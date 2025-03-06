@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -12,7 +13,7 @@ namespace Unisave.HttpClient
         /// <summary>
         /// Content (body / payload) of the request, as is currently built up
         /// </summary>
-        private HttpContent content;
+        private HttpContent? content;
         
         /// <summary>
         /// Specifies the request body via the .NET HttpContent class.
@@ -20,7 +21,7 @@ namespace Unisave.HttpClient
         /// </summary>
         /// <param name="body"></param>
         /// <returns>PendingRequest - the fluent API request builder</returns>
-        public PendingRequest WithBody(HttpContent body)
+        public PendingRequest WithBody(HttpContent? body)
         {
             content = body;
             return this;
@@ -31,7 +32,7 @@ namespace Unisave.HttpClient
         /// </summary>
         /// <param name="form">Content</param>
         /// <returns>PendingRequest - the fluent API request builder</returns>
-        public PendingRequest WithFormBody(Dictionary<string, string> form)
+        public PendingRequest WithFormBody(Dictionary<string, string>? form)
         {
             if (form == null)
                 form = new Dictionary<string, string>();
@@ -46,7 +47,7 @@ namespace Unisave.HttpClient
         /// </summary>
         /// <param name="json">The JSON object</param>
         /// <returns>PendingRequest - the fluent API request builder</returns>
-        public PendingRequest WithJsonBody(JsonObject json)
+        public PendingRequest WithJsonBody(JsonObject? json)
         {
             if (json == null)
                 json = new JsonObject();
@@ -71,8 +72,8 @@ namespace Unisave.HttpClient
         public PendingRequest Attach(
             string name,
             JsonObject jsonPart,
-            string fileName = null,
-            Dictionary<string, string> contentHeaders = null
+            string? fileName = null,
+            Dictionary<string, string>? contentHeaders = null
         )
         {
             return Attach(
@@ -98,8 +99,8 @@ namespace Unisave.HttpClient
         public PendingRequest Attach(
             string name,
             HttpContent part,
-            string fileName = null,
-            Dictionary<string, string> contentHeaders = null
+            string? fileName = null,
+            Dictionary<string, string>? contentHeaders = null
         )
         {
             var mpContent = content as MultipartFormDataContent;
@@ -119,7 +120,7 @@ namespace Unisave.HttpClient
         
         private void AddContentHeaders(
             HttpContentHeaders dotNetHeaders,
-            Dictionary<string, string> contentHeaders
+            Dictionary<string, string>? contentHeaders
         )
         {
             if (contentHeaders == null)

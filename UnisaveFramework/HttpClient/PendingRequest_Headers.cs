@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -9,7 +10,7 @@ namespace Unisave.HttpClient
         /// <summary>
         /// Header to add to the request
         /// </summary>
-        private Dictionary<string, string> headers;
+        private Dictionary<string, string>? headers;
         
         /// <summary>
         /// Sets additional request headers. When invoked multiple times,
