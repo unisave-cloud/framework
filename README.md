@@ -5,7 +5,10 @@ Unisave Framework is a library that encapsulates the Unisave user's custom backe
 
 ## Documentation
 
-- [HTTP Client](docs/http-client.md)
+- [Development setup](docs/development-setup.md)
+- [DLL file distribution](docs/dll-file-distribution.md)
+- Framework components
+    - [HTTP Client](docs/http-client.md)
 - [NuGet and Paket Dependency Management](docs/nuget-and-paket-dependency-management.md)
 
 
@@ -27,3 +30,8 @@ dotnet build
 If Rider complains about not finding .NET Framework 4.7.2, try to close and open the solution again. If it underlines a file as erroneous, open that file and there's a chance that the error disappears.
 
 Run Unit tests by right-clicking the solution and clicking `Run Unit Tests`. If that option is not available, open a some unit test, right click that test's method definition and click `Run Unit Test` - this runs that one test and also wakes up Rider to register all other tests (at least in one csproj, do the same in the other one). Then you can run tests directly by right-clicking the solution or from the test runner window.
+
+
+## Development
+
+See the [Development setup](docs/development-setup.md) documentation page.
