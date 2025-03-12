@@ -217,7 +217,7 @@ namespace Unisave.Entities
             
             var manager = GetEntityManager();
             
-            manager.Update(this);
+            manager.Update(this, carefully);
         }
         
         /// <summary>
