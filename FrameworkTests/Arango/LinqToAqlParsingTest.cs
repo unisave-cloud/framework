@@ -203,6 +203,9 @@ namespace FrameworkTests.Arango
         public class PlayerEntity : Entity
         {
             public string Name { get; set; }
+
+            [SerializeAs("Age")]
+            public string renamedAge;
         }
 
         [Test]
@@ -212,6 +215,42 @@ namespace FrameworkTests.Arango
                 "player.Name",
                 parser.ParseEntity<PlayerEntity>(
                     player => player.Name
+                ).ToAql()
+            );
+        }
+        
+        [Test]
+        public void MemberAccessCanBeDoneOnEntitiesViaRenaming()
+        {
+            Assert.AreEqual(
+                "player.Age",
+                parser.ParseEntity<PlayerEntity>(
+                    player => player.renamedAge
+                ).ToAql()
+            );
+        }
+
+        [Test]
+        public void BuiltInFieldsCanBeAccessedOnEntities()
+        {
+            Assert.AreEqual(
+                "player._id",
+                parser.ParseEntity<PlayerEntity>(
+                    player => player.EntityId
+                ).ToAql()
+            );
+            
+            Assert.AreEqual(
+                "player._key",
+                parser.ParseEntity<PlayerEntity>(
+                    player => player.EntityKey
+                ).ToAql()
+            );
+            
+            Assert.AreEqual(
+                "player._rev",
+                parser.ParseEntity<PlayerEntity>(
+                    player => player.EntityRevision
                 ).ToAql()
             );
         }

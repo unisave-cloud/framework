@@ -94,6 +94,17 @@ namespace Unisave.Entities
                     + "it's a reserved prefix by the ArangoDB, see: " + member
                 );
             
+            // check the [SerializeAs(...)] attribute
+            var renaming = member.GetCustomAttribute<SerializeAsAttribute>();
+            if (renaming != null)
+                return renaming.SerializedName;
+            
+            // special handling for entity ID and KEY
+            if (member.Name == nameof(Entity.EntityId))
+                return "_id";
+            if (member.Name == nameof(Entity.EntityKey))
+                return "_key";
+            
             return member.Name;
         }
         
