@@ -19,7 +19,7 @@ namespace Unisave.Broadcasting
                 
                 return new UnisaveBroadcaster(
                     container.Resolve<ServerSessionIdRepository>(),
-                    container.Resolve<Factory>(),
+                    container.Resolve<IHttp>(),
                     env.GetString("BROADCASTING_SERVER_URL"),
                     env.GetString("BROADCASTING_KEY"),
                     env.GetString("UNISAVE_ENVIRONMENT_ID")

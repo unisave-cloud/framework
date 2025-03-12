@@ -14,7 +14,7 @@ namespace Unisave.Broadcasting
     public class UnisaveBroadcaster : IBroadcaster
     {
         private readonly ServerSessionIdRepository sessionIdRepository;
-        private readonly Factory http;
+        private readonly IHttp http;
         
         private readonly Uri serverUri;
         private readonly string broadcastingKey;
@@ -22,7 +22,7 @@ namespace Unisave.Broadcasting
         
         public UnisaveBroadcaster(
             ServerSessionIdRepository sessionIdRepository,
-            Factory http,
+            IHttp http,
             string serverUrl,
             string broadcastingKey,
             string environmentId
@@ -56,7 +56,7 @@ namespace Unisave.Broadcasting
                 SerializationContext.ServerToClient
             );
             
-            Response response = http.PendingRequest().Post(url, new JsonObject {
+            Response response = http.Post(url, new JsonObject {
                 ["environmentId"] = environmentId,
                 ["broadcastingKey"] = broadcastingKey,
                 ["channel"] = channel.ChannelName,
@@ -83,7 +83,7 @@ namespace Unisave.Broadcasting
                 SerializationContext.ServerToClient
             );
 
-            Response response = http.PendingRequest().Post(url, new JsonObject {
+            Response response = http.Post(url, new JsonObject {
                 ["environmentId"] = environmentId,
                 ["broadcastingKey"] = broadcastingKey,
                 ["channel"] = channel.ChannelName,
