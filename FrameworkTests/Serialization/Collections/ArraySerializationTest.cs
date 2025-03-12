@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 using Unisave.Serialization;
 
@@ -77,6 +78,121 @@ namespace FrameworkTests.Serialization.Collections
             
             Assert.AreEqual(42, data[2].foo);
             Assert.AreEqual("lorem", data[2].bar);
+        }
+        
+        [Test]
+        public void ItSerializes2DArray()
+        {
+            var myArray = new int[2, 3] {
+                {1, 2, 3},
+                {4, 5, 6}
+            };
+            
+            Assert.AreEqual(
+                "[[1,2,3],[4,5,6]]",
+                Serializer.ToJsonString(myArray)
+            );
+        }
+        
+        [Test]
+        public void ItDeserializes2DArray()
+        {
+            var myArray = new int[2, 3] {
+                {1, 2, 3},
+                {4, 5, 6}
+            };
+            
+            int[,] deserialized = Serializer.FromJsonString<int[,]>(
+                "[[1,2,3],[4,5,6]]"
+            );
+            
+            Assert.AreEqual(2, deserialized.GetLength(0));
+            Assert.AreEqual(3, deserialized.GetLength(1));
+            Assert.AreEqual(6, deserialized.Length);
+            
+            Assert.AreEqual(1, deserialized[0, 0]);
+            Assert.AreEqual(3, deserialized[0, 2]);
+            Assert.AreEqual(4, deserialized[1, 0]);
+            Assert.AreEqual(6, deserialized[1, 2]);
+            
+            Assert.AreEqual(myArray, deserialized);
+        }
+        
+        [Test]
+        public void ItSerializesEmpty2DArray()
+        {
+            var myFirstArray = new int[0, 3] {};
+            var mySecondArray = new int[2, 0] {{}, {}};
+            var myThirdArray = new int[0, 0] {};
+            
+            Assert.AreEqual(
+                "[]", Serializer.ToJsonString(myFirstArray)
+            );
+            
+            Assert.AreEqual(
+                "[[],[]]", Serializer.ToJsonString(mySecondArray)
+            );
+            
+            Assert.AreEqual(
+                "[]", Serializer.ToJsonString(myThirdArray)
+            );
+        }
+
+        [Test]
+        public void ItDeserializesEmpty2DArray()
+        {
+            int[,] first = Serializer.FromJsonString<int[,]>("[]");
+            Assert.AreEqual(0, first.GetLength(0));
+            Assert.AreEqual(0, first.GetLength(1));
+            Assert.AreEqual(0, first.Length);
+            
+            int[,] second = Serializer.FromJsonString<int[,]>("[[],[]]");
+            Assert.AreEqual(2, second.GetLength(0));
+            Assert.AreEqual(0, second.GetLength(1));
+            Assert.AreEqual(0, second.Length);
+        }
+        
+        [Test]
+        public void ItSerializesStaggeredArray()
+        {
+            int[][] myArray = new int[][] {
+                new int[] {1, 2, 3, 4},
+                new int[] {5, 6}
+            };
+            
+            Assert.AreEqual(
+                "[[1,2,3,4],[5,6]]",
+                Serializer.ToJsonString(myArray)
+            );
+        }
+        
+        [Test]
+        public void ItDeserializesStaggeredArray()
+        {
+            int[][] myArray = new int[][] {
+                new int[] {1, 2, 3, 4},
+                new int[] {5, 6}
+            };
+            
+            Assert.AreEqual(
+                "[[1,2,3,4],[5,6]]",
+                Serializer.ToJsonString(myArray)
+            );
+            
+            int[][] deserialized = Serializer.FromJsonString<int[][]>(
+                "[[1,2,3,4],[5,6]]"
+            );
+            
+            Assert.AreEqual(2, deserialized.Length);
+            Assert.AreEqual(4, deserialized[0].Length);
+            Assert.AreEqual(2, deserialized[1].Length);
+            
+            Assert.AreEqual(1, deserialized[0][0]);
+            Assert.AreEqual(4, deserialized[0][3]);
+            Assert.AreEqual(5, deserialized[1][0]);
+            Assert.AreEqual(6, deserialized[1][1]);
+            
+            Assert.AreEqual(myArray, deserialized);
         }
     }
 }
