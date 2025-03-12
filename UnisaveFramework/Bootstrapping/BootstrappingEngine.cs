@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Unisave.Foundation;
+using Unisave.Utils;
 
 namespace Unisave.Bootstrapping
 {
@@ -85,7 +86,7 @@ namespace Unisave.Bootstrapping
                 // async bootstrapper is for now also run synchronously
                 // (could be made async in the future and make the app
                 // initialization also async)
-                Task.Run(instance.MainAsync).GetAwaiter().GetResult();
+                UnisaveConcurrency.WaitForTask(instance.MainAsync);
             }
             Console.WriteLine("Bootstrapping done.");
         }

@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Unisave.Utils;
 
 namespace Unisave.HttpClient
 {
@@ -76,14 +77,9 @@ namespace Unisave.HttpClient
             Dictionary<string, string>? query = null
         )
         {
-            var task = SendAsync(method, url, query);
-            
-            // Schedule the task onto another thread and then synchronously
-            // wait from this thread to prevent single-threaded deadlock:
-            // https://github.com/unisave-cloud/worker/blob/master/docs/deadlocks.md
-            var response = Task.Run(() => task).GetAwaiter().GetResult();
-
-            return response;
+            return UnisaveConcurrency.WaitForTask(
+                () => SendAsync(method, url, query)
+            );
         }
         
         /// <summary>

@@ -10,6 +10,7 @@ using LightJson;
 using LightJson.Serialization;
 using Unisave.Arango.Query;
 using Unisave.Contracts;
+using Unisave.Utils;
 
 namespace Unisave.Arango
 {
@@ -59,8 +60,9 @@ namespace Unisave.Arango
 
         public JsonObject Get(string url)
         {
-            return Task.Run(() => GetAsync(url))
-                .GetAwaiter().GetResult();
+            return UnisaveConcurrency.WaitForTask(
+                () => GetAsync(url)
+            );
         }
         
         public async Task<JsonObject> GetAsync(string url)
@@ -72,8 +74,9 @@ namespace Unisave.Arango
         
         public JsonObject Post(string url, JsonValue payload)
         {
-            return Task.Run(() => PostAsync(url, payload))
-                .GetAwaiter().GetResult();
+            return UnisaveConcurrency.WaitForTask(
+                () => PostAsync(url, payload)
+            );
         }
         
         public async Task<JsonObject> PostAsync(string url, JsonValue payload)
@@ -85,8 +88,9 @@ namespace Unisave.Arango
         
         public JsonObject Put(string url, JsonValue payload)
         {
-            return Task.Run(() => PutAsync(url, payload))
-                .GetAwaiter().GetResult();
+            return UnisaveConcurrency.WaitForTask(
+                () => PutAsync(url, payload)
+            );
         }
         
         public async Task<JsonObject> PutAsync(string url, JsonValue payload)
@@ -98,8 +102,9 @@ namespace Unisave.Arango
         
         public JsonObject Put(string url)
         {
-            return Task.Run(() => PutAsync(url))
-                .GetAwaiter().GetResult();
+            return UnisaveConcurrency.WaitForTask(
+                () => PutAsync(url)
+            );
         }
         
         public async Task<JsonObject> PutAsync(string url)
@@ -114,8 +119,9 @@ namespace Unisave.Arango
         
         public JsonObject Delete(string url)
         {
-            return Task.Run(() => DeleteAsync(url))
-                .GetAwaiter().GetResult();
+            return UnisaveConcurrency.WaitForTask(
+                () => DeleteAsync(url)
+            );
         }
         
         public async Task<JsonObject> DeleteAsync(string url)

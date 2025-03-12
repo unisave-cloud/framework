@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using LightJson;
 using LightJson.Serialization;
+using Unisave.Utils;
 
 namespace Unisave.HttpClient
 {
@@ -95,12 +96,7 @@ namespace Unisave.HttpClient
         /// </summary>
         public string? Body()
         {
-            var task = BodyAsync();
-            
-            // Schedule the task onto another thread and then synchronously
-            // wait from this thread to prevent single-threaded deadlock:
-            // https://github.com/unisave-cloud/worker/blob/master/docs/deadlocks.md
-            return Task.Run(() => task).GetAwaiter().GetResult();
+            return UnisaveConcurrency.WaitForTask(BodyAsync);
         }
 
         /// <summary>
@@ -121,12 +117,7 @@ namespace Unisave.HttpClient
         /// </summary>
         public byte[]? Bytes()
         {
-            var task = BytesAsync();
-            
-            // Schedule the task onto another thread and then synchronously
-            // wait from this thread to prevent single-threaded deadlock:
-            // https://github.com/unisave-cloud/worker/blob/master/docs/deadlocks.md
-            return Task.Run(() => task).GetAwaiter().GetResult();
+            return UnisaveConcurrency.WaitForTask(BytesAsync);
         }
 
         /// <summary>
@@ -151,12 +142,7 @@ namespace Unisave.HttpClient
         /// </summary>
         public Stream? Stream()
         {
-            var task = StreamAsync();
-            
-            // Schedule the task onto another thread and then synchronously
-            // wait from this thread to prevent single-threaded deadlock:
-            // https://github.com/unisave-cloud/worker/blob/master/docs/deadlocks.md
-            return Task.Run(() => task).GetAwaiter().GetResult();
+            return UnisaveConcurrency.WaitForTask(StreamAsync);
         }
 
         /// <summary>
@@ -194,12 +180,7 @@ namespace Unisave.HttpClient
         /// <exception cref="JsonParseException"></exception>
         public JsonObject? Json()
         {
-            var task = JsonAsync();
-            
-            // Schedule the task onto another thread and then synchronously
-            // wait from this thread to prevent single-threaded deadlock:
-            // https://github.com/unisave-cloud/worker/blob/master/docs/deadlocks.md
-            return Task.Run(() => task).GetAwaiter().GetResult();
+            return UnisaveConcurrency.WaitForTask(JsonAsync);
         }
 
         /// <summary>
@@ -233,12 +214,7 @@ namespace Unisave.HttpClient
         /// <exception cref="JsonParseException"></exception>
         public JsonArray? JsonArray()
         {
-            var task = JsonArrayAsync();
-            
-            // Schedule the task onto another thread and then synchronously
-            // wait from this thread to prevent single-threaded deadlock:
-            // https://github.com/unisave-cloud/worker/blob/master/docs/deadlocks.md
-            return Task.Run(() => task).GetAwaiter().GetResult();
+            return UnisaveConcurrency.WaitForTask(JsonArrayAsync);
         }
 
         /// <summary>
@@ -278,12 +254,7 @@ namespace Unisave.HttpClient
         /// <exception cref="JsonParseException"></exception>
         public JsonValue JsonValue()
         {
-            var task = JsonValueAsync();
-            
-            // Schedule the task onto another thread and then synchronously
-            // wait from this thread to prevent single-threaded deadlock:
-            // https://github.com/unisave-cloud/worker/blob/master/docs/deadlocks.md
-            return Task.Run(() => task).GetAwaiter().GetResult();
+            return UnisaveConcurrency.WaitForTask(JsonValueAsync);
         }
 
         /// <summary>
@@ -334,12 +305,7 @@ namespace Unisave.HttpClient
         /// <exception cref="InvalidOperationException"></exception>
         public Dictionary<string, string>? Form()
         {
-            var task = FormAsync();
-            
-            // Schedule the task onto another thread and then synchronously
-            // wait from this thread to prevent single-threaded deadlock:
-            // https://github.com/unisave-cloud/worker/blob/master/docs/deadlocks.md
-            return Task.Run(() => task).GetAwaiter().GetResult();
+            return UnisaveConcurrency.WaitForTask(FormAsync);
         }
     }
 }
