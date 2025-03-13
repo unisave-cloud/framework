@@ -12,4 +12,4 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("FrameworkDotnetTests")]
 
 [assembly: AssemblyVersion("0.11.1.0")]
-[assembly: AssemblyInformationalVersion("0.11.1-dev")]
+[assembly: AssemblyInformationalVersion("0.12.0")]
