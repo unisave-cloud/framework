@@ -107,5 +107,27 @@ namespace FrameworkTests.Serialization.Primitives
             object something = Serializer.FromJsonString<object>("null");
             Assert.IsNull(something);
         }
+        
+        [Test]
+        public void ItSerializesJsonObjectsWithTypeField()
+        {
+            // Unisave serializer adds the "$type" field for polymorphic
+            // serialization. This field should not have an effect during
+            // plain JSON object serialization.
+            
+            var subject = new JsonObject {
+                ["$type"] = "System.Exception",
+                ["foo"] = 42,
+                ["bar"] = "Hello!"
+            };
+
+            var json = Serializer.ToJsonString(subject);
+            
+            Assert.AreEqual(subject.ToString(), json);
+
+            var deserialized = Serializer.FromJsonString<JsonObject>(json);
+            
+            Assert.AreEqual(subject.ToString(), deserialized.ToString());
+        }
     }
 }

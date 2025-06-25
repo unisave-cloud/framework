@@ -229,14 +229,18 @@ namespace Unisave.Serialization
             
             if (json.IsJsonObject)
             {
-                if (json.AsJsonObject.ContainsKey("$type"))
+                bool shouldStoreType = ShouldStoreType(
+                    subject, typeScope, context
+                );
+                
+                if (shouldStoreType && json.AsJsonObject.ContainsKey("$type"))
                     throw new UnisaveSerializationException(
                         "You shouldn't produce the '$type' attribute when " +
                         "serializing your data. The attribute is reserved by " +
                         "Unisave."
                     );
                 
-                if (ShouldStoreType(subject, typeScope, context))
+                if (shouldStoreType)
                     json["$type"] = subject.GetType().FullName;
             }
 
@@ -417,6 +421,11 @@ namespace Unisave.Serialization
             SerializationContext context
         )
         {
+            // If the type scope is plain JSON, then we don't add any extra
+            // field to the payload!
+            if (typeScope == typeof(JsonObject) || typeScope == typeof(JsonValue))
+                return false;
+            
             switch (context.typeSerialization)
             {
                 case TypeSerialization.Always:
@@ -438,9 +447,15 @@ namespace Unisave.Serialization
             Type typeScope
         )
         {
+            // for primitives, just use the type passed into the deserializer
             if (!json.IsJsonObject)
                 return typeScope;
+            
+            // for JSON values, also just use the type passed into the deserializer
+            if (typeScope == typeof(JsonObject))
+                return typeScope;
 
+            // now we're definitely dealing with objects
             JsonObject jsonObject = json.AsJsonObject;
             
             if (!jsonObject.ContainsKey("$type"))

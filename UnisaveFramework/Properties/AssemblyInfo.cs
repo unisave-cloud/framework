@@ -11,5 +11,5 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("FrameworkMonoTests")]
 [assembly: InternalsVisibleTo("FrameworkDotnetTests")]
 
-[assembly: AssemblyVersion("0.11.1.0")]
-[assembly: AssemblyInformationalVersion("0.12.0")]
+[assembly: AssemblyVersion("0.12.1.0")]
+[assembly: AssemblyInformationalVersion("0.12.1-dev")]
