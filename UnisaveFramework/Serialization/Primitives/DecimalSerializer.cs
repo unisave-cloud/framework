@@ -22,7 +22,7 @@ namespace Unisave.Serialization.Primitives
             DeserializationContext context
         )
         {
-            return decimal.Parse(json.AsString);
+            return decimal.Parse(json.AsString, CultureInfo.InvariantCulture);
         }
     }
 }
